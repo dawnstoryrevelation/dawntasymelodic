@@ -63,42 +63,6 @@
             font-size: 1.2em;
             line-height: 1.6;
         }
-        .story {
-            text-align: left;
-            margin: 20px 0;
-            padding: 20px;
-            background-color: rgba(255, 255, 255, 0.8);
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-        .story h3 {
-            font-size: 2em;
-            margin-bottom: 10px;
-        }
-        .story p {
-            font-size: 1.1em;
-        }
-        .story img {
-            max-width: 300px;
-            width: 100%;
-            height: auto;
-            border-radius: 10px;
-            margin-top: 10px;
-            display: block;
-            margin-left: auto;
-            margin-right: auto;
-        }
-        footer {
-            margin-top: 40px;
-            padding: 10px;
-            background-color: rgba(255, 235, 205, 0.9);
-            width: 100%;
-            text-align: center;
-            box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.1);
-        }
-        footer p {
-            margin: 0;
-        }
         .carousel {
             position: relative;
             width: 80%;
@@ -117,6 +81,11 @@
             flex-shrink: 0;
             object-fit: cover;
             border-radius: 10px;
+            filter: brightness(0.5); /* Makes the image darker initially */
+            transition: filter 0.3s ease-in-out; /* Smooth transition */
+        }
+        .carousel-images img:hover {
+            filter: brightness(1); /* Lightens the image on hover */
         }
         .carousel-button {
             position: absolute;
@@ -139,6 +108,17 @@
         }
         .carousel-button:hover {
             background-color: rgba(0, 0, 0, 0.7);
+        }
+        footer {
+            margin-top: 40px;
+            padding: 10px;
+            background-color: rgba(255, 235, 205, 0.9);
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.1);
+        }
+        footer p {
+            margin: 0;
         }
     </style>
 </head>
@@ -167,14 +147,16 @@
             <button class="carousel-button right" onclick="nextImage()">&#10095;</button>
         </div>
 
-
         <h2>The Harmony</h2>
         <p>The principle that comes with the Circular Dawn is the Harmony. It is believed that opposites attract, and that all polarities coalesce to form harmony; for insntance, without sun and moon there would be none of the day-night cycle. Without winter, summer, spring and autumn, there would be no diversity for life to thrive. The Harmony is a vital law that everyone in DSR must abide by.</p>
     </main>
     <footer>
         <p>&copy; 2024 Dawntasy: Dawnstory Revelation. All rights reserved.</p>
     </footer>
-</body>
-</html>
 
+    <script>
+        let currentIndex = 0;
 
+        function showImage(index) {
+            const carouselImages = document.querySelector('.carousel-images');
+            const images = document.querySelectorAll('.carousel-images img');
