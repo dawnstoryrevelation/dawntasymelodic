@@ -7,6 +7,42 @@
     <title>Dawntasy - Lore</title>
     <link href="https://fonts.googleapis.com/css2?family=Indie+Flower&display=swap" rel="stylesheet">
     <style>
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+        @keyframes slideUp {
+            from {
+                transform: translateY(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        @keyframes bounceIn {
+            0%, 20%, 40%, 60%, 80%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+        .fade-in {
+            animation: fadeIn 2s;
+        }
+        .slide-up {
+            animation: slideUp 1.5s ease-out;
+        }
+        .bounce-in {
+            animation: bounceIn 2s;
+        }
+
         body {
             font-family: 'Indie Flower', cursive;
             background-color: #f9f5d7;
@@ -101,19 +137,19 @@
     </style>
 </head>
 <body>
-    <header>
+    <header class="fade-in">
         <h1>Dawntasy Saga</h1>
     </header>
-    <nav>
+    <nav class="fade-in">
         <a href="https://dawnstoryrevelation.github.io/dawnstoryrevelation/">Home</a>
         <a href="https://dawnstoryrevelation.github.io/dawnstoryrevelation/about.html">About</a>
         <a href="https://dawnstoryrevelation.github.io/dawnstoryrevelation/stories.html">Stories</a>
         <a href="https://dawnstoryrevelation.github.io/dawnstoryrevelation/lore.html">Lore</a>
         <a href="https://dawnstoryrevelation.github.io/dawnstoryrevelation/contact.html">Contact</a>
     </nav>
-    <main>
-        <h2>The Circular Dawn Concept</h2>
-        <p>The World of the Dreamscape is constantly in motion. It is ruled by a single law, the Circular Dawn. This concept suggests that "time is circular", which is yet to be explained by the adventurerers of DSR. The Circular Dawn is comprised of two main polar energies, which influence the world we live in. These two energies are known as Eternality and Ephemerality, and define the concept of time. In the Dreamscape, Ephmerality, with its physical definition/representation known as the Realm of Dawnstoria (Dawnstory), can be explained by "negative time" or being too short for time to exist. Eternality, or physically represented as The Rift, can be explained by "positive time", in a way in which the mere lengthiness of the Circular Dawn in this concept would be too long for time to exist. The middle of them both is known as the Fall (or Fall Point), though with no explicit name, is deemed the most optimal for life to be maintained. However, the Fall can only be maintained if Dawnstory and Rift are at equal power. If this stability is suddenly broken, all hell will break loose and the world will be in shambles as time will bend. Luckily, there exists a primordial being known as ADE (Astral Dream Essence), who ensures that the Dreamscape is at its balance at all times. But they say even the goodest people have their darkest sides. So does ADE. And thus, CSE (Chaos Shadow Essence) was born, the darker alter ego of Astral Dream. Twelve powerful beings of celestial might known as the Tempests, now seen as the constellations in the night sky, fought CSE, but were defeated, and thus, ADE knew that he had take this Gordian knot into his own hands. As a result, ADE banished CSE to the Rift Realm, a neverending torture for the supereons to come. But they say that on the Twelth Night of the Purple Moon, the Rift shall open. The inhabitants of Dawnstory are unbeknownst of this impending threat, and with a "malicious" dictator clutching their cities with a draconian grasp, they are not yet prepared for the threat bigger than anything they've ever experienced. </p>
+    <main class="fade-in">
+        <h2 class="bounce-in">The Circular Dawn Concept</h2>
+        <p class="slide-up">The World of the Dreamscape is constantly in motion. It is ruled by a single law, the Circular Dawn. This concept suggests that "time is circular", which is yet to be explained by the adventurerers of DSR. The Circular Dawn is comprised of two main polar energies, which influence the world we live in. These two energies are known as Eternality and Ephemerality, and define the concept of time. In the Dreamscape, Ephmerality, with its physical definition/representation known as the Realm of Dawnstoria (Dawnstory), can be explained by "negative time" or being too short for time to exist. Eternality, or physically represented as The Rift, can be explained by "positive time", in a way in which the mere lengthiness of the Circular Dawn in this concept would be too long for time to exist. The middle of them both is known as the Fall (or Fall Point), though with no explicit name, is deemed the most optimal for life to be maintained. However, the Fall can only be maintained if Dawnstory and Rift are at equal power. If this stability is suddenly broken, all hell will break loose and the world will be in shambles as time will bend. Luckily, there exists a primordial being known as ADE (Astral Dream Essence), who ensures that the Dreamscape is at its balance at all times. But they say even the goodest people have their darkest sides. So does ADE. And thus, CSE (Chaos Shadow Essence) was born, the darker alter ego of Astral Dream. Twelve powerful beings of celestial might known as the Tempests, now seen as the constellations in the night sky, fought CSE, but were defeated, and thus, ADE knew that he had take this Gordian knot into his own hands. As a result, ADE banished CSE to the Rift Realm, a neverending torture for the supereons to come. But they say that on the Twelth Night of the Purple Moon, the Rift shall open. The inhabitants of Dawnstory are unbeknownst of this impending threat, and with a "malicious" dictator clutching their cities with a draconian grasp, they are not yet prepared for the threat bigger than anything they've ever experienced.</p>
 
         <div class="carousel">
             <div class="carousel-images">
@@ -123,10 +159,10 @@
             </div>
         </div>
 
-        <h2>The Harmony</h2>
-        <p>The principle that comes with the Circular Dawn is the Harmony. It is believed that opposites attract, and that all polarities coalesce to form harmony; for insntance, without sun and moon there would be none of the day-night cycle. Without winter, summer, spring and autumn, there would be no diversity for life to thrive. The Harmony is a vital law that everyone in DSR must abide by.</p>
+        <h2 class="bounce-in">The Harmony</h2>
+        <p class="slide-up">The principle that comes with the Circular Dawn is the Harmony. It is believed that opposites attract, and that all polarities coalesce to form harmony; for instance, without sun and moon there would be none of the day-night cycle. Without winter, summer, spring and autumn, there would be no diversity for life to thrive. The Harmony is a vital law that everyone in DSR must abide by.</p>
     </main>
-    <footer>
+    <footer class="fade-in">
         <p>&copy; 2024 Dawntasy: Dawnstory Revelation. All rights reserved.</p>
     </footer>
 
@@ -159,3 +195,4 @@
     </script>
 </body>
 </html>
+
