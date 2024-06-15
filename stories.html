@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <link rel="icon" href="https://dawnstoryrevelation.github.io/dawnstoryrevelation/images/fantastical%20dsr.jpeg" type="image/x-icon">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stories - Dawntasy</title>
+    <title>Stories - Dawntasy </title>
     <link href="https://fonts.googleapis.com/css2?family=Indie+Flower&display=swap" rel="stylesheet">
     <style>
         @keyframes fadeIn {
@@ -32,31 +32,20 @@
             animation: zoomIn 1.5s ease-out;
         }
 
-        body, html {
+        body {
+            font-family: 'Indie Flower', cursive;
+            background-color: #f9f5d7;
+            color: #333;
             margin: 0;
             padding: 0;
-            height: 100%;
-            overflow-x: hidden;
-            font-family: 'Indie Flower', cursive;
-        }
-        .parallax {
-            background-image: url('https://dawnstoryrevelation.github.io/dawnstoryrevelation/images/fantastical%20dsr.jpeg');
+            display: flex;
+            flex-direction: column;
+            align-items: center;
             min-height: 100vh;
-            background-attachment: fixed;
-            background-position: center;
+            background-image: url('https://dawnstoryrevelation.github.io/dawnstoryrevelation/images/fantastical%20dsr.jpeg');
             background-repeat: no-repeat;
+            background-attachment: fixed;
             background-size: cover;
-        }
-        .content {
-            padding: 20px;
-            max-width: 800px;
-            margin: 0 auto;
-            background-color: #ffffff;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            position: relative;
-            z-index: 1;
-            text-align: center;
         }
         header {
             text-align: center;
@@ -64,8 +53,6 @@
             padding: 20px;
             width: 100%;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            position: relative;
-            z-index: 1;
         }
         header h1 {
             margin: 0;
@@ -74,8 +61,6 @@
         nav {
             text-align: center;
             margin: 20px 0;
-            position: relative;
-            z-index: 1;
         }
         nav a {
             margin: 0 15px;
@@ -94,8 +79,6 @@
             background-color: #ffffff;
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            position: relative;
-            z-index: 1;
         }
         main h2 {
             font-size: 2.5em;
@@ -137,8 +120,6 @@
             width: 100%;
             text-align: center;
             box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.1);
-            position: relative;
-            z-index: 1;
         }
         footer p {
             margin: 0;
@@ -156,10 +137,7 @@
         <a href="https://dawnstoryrevelation.github.io/dawnstoryrevelation/lore.html">Lore</a>
         <a href="https://dawnstoryrevelation.github.io/dawnstoryrevelation/contact.html">Contact</a>
     </nav>
-
-    <div class="parallax"></div>
-
-    <main class="fade-in content">
+    <main class="fade-in">
         <h2 class="zoom-in">Our Stories</h2>
         <p class="zoom-in">Welcome to the collection of all stories in the Dawntasy saga. Here, you can explore the thrilling adventures and emotional journeys of our characters.</p>
 
@@ -189,12 +167,8 @@
           gtag('config', 'G-80YG5XWYJL');
         </script>
     </main>
-
-    <div class="parallax"></div>
-
     <footer class="fade-in">
         <p>&copy; 2024 Dawntasy: Dawnstory Revelation. All rights reserved.</p>
     </footer>
-
 </body>
 </html>
