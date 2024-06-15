@@ -7,6 +7,31 @@
     <title>Stories - Dawntasy</title>
     <link href="https://fonts.googleapis.com/css2?family=Indie+Flower&display=swap" rel="stylesheet">
     <style>
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+        @keyframes zoomIn {
+            from {
+                transform: scale(0.5);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+        .fade-in {
+            animation: fadeIn 2s;
+        }
+        .zoom-in {
+            animation: zoomIn 1.5s ease-out;
+        }
+
         body {
             font-family: 'Indie Flower', cursive;
             background-color: #f9f5d7;
