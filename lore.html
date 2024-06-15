@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -88,28 +87,6 @@
         .carousel-images img:hover {
             filter: brightness(1); /* Lightens the image on hover */
         }
-        .carousel-button {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            background-color: rgba(0, 0, 0, 0.5);
-            color: white;
-            border: none;
-            padding: 10px;
-            cursor: pointer;
-            border-radius: 50%;
-            user-select: none;
-            font-family: 'Indie Flower', cursive;
-        }
-        .carousel-button.left {
-            left: 10px;
-        }
-        .carousel-button.right {
-            right: 10px;
-        }
-        .carousel-button:hover {
-            background-color: rgba(0, 0, 0, 0.7);
-        }
         footer {
             margin-top: 40px;
             padding: 10px;
@@ -144,8 +121,6 @@
                 <img src="https://www.dawnstoryrevelation.com/images//bareska%20bay.jpg" alt="The Dawnstory">
                 <img src="https://www.dawnstoryrevelation.com/images//fadiA.jpeg" alt="The Rift">
             </div>
-            <button class="carousel-button left" onclick="prevImage()">&#10094;</button>
-            <button class="carousel-button right" onclick="nextImage()">&#10095;</button>
         </div>
 
         <h2>The Harmony</h2>
@@ -161,4 +136,26 @@
         function showImage(index) {
             const carouselImages = document.querySelector('.carousel-images');
             const images = document.querySelectorAll('.carousel-images img');
-           
+            const totalImages = images.length;
+
+            if (index >= totalImages) {
+                currentIndex = 0;
+            } else if (index < 0) {
+                currentIndex = totalImages - 1;
+            } else {
+                currentIndex = index;
+            }
+
+            const offset = -currentIndex * 100;
+            carouselImages.style.transform = `translateX(${offset}%)`;
+        }
+
+        function nextImage() {
+            showImage(currentIndex + 1);
+        }
+
+        // Automatically switch images every 5 seconds
+        setInterval(nextImage, 5000);
+    </script>
+</body>
+</html>
