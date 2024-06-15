@@ -131,6 +131,10 @@
             margin-left: auto;
             margin-right: auto;
         }
+        .scroll-image {
+            opacity: 0;
+            transition: opacity 1.5s ease-out;
+        }
         footer {
             margin-top: 40px;
             padding: 10px;
@@ -236,6 +240,8 @@
         <p class="slide-up">"Dawnstoria bling tes a bromage pemm balea lite fadia, benevegean adver brust sinc mae gloam, preste res tabla questa bpte. Besti mayes!" - Original Dawntasy "Yoodal" Vernacular</p>
         <p class="slide-up">The reality we live in is unreal, unfair and ambivalent, but at the end of the day, bravery and commitment is what makes reality real, fair and just. - Translated to English</p>
         <p class="slide-up">Support Dawntasy!</p>
+
+        <img src="https://www.dawnstoryrevelation.com/images//Sun%20and%20Moon%20Destino.jpeg" alt="Sun and Moon Destino" class="scroll-image">
     </main>
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-80YG5XWYJL"></script>
@@ -252,7 +258,7 @@
     <script>
         // Scroll-triggered animations
         document.addEventListener('scroll', function() {
-            const elements = document.querySelectorAll('.fade-in, .slide-up, .bounce-in');
+            const elements = document.querySelectorAll('.fade-in, .slide-up, .bounce-in, .scroll-image');
             const scrollTop = document.documentElement.scrollTop;
 
             elements.forEach(element => {
