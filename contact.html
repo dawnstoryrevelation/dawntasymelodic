@@ -1,6 +1,4 @@
-
-
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -9,6 +7,31 @@
     <title>Contact Me</title>
     <link href="https://fonts.googleapis.com/css2?family=Indie+Flower&display=swap" rel="stylesheet">
     <style>
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+        @keyframes slideUp {
+            from {
+                transform: translateY(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        .fade-in {
+            animation: fadeIn 2s;
+        }
+        .slide-up {
+            animation: slideUp 1.5s ease-out;
+        }
+
         body {
             font-family: 'Indie Flower', cursive;
             background-color: #f9f5d7;
@@ -19,7 +42,6 @@
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
-         
         }
         header {
             text-align: center;
@@ -39,7 +61,7 @@
         nav a {
             margin: 0 15px;
             text-decoration: none;
-            color:  #f1c27d;
+            color: #f1c27d;
             font-size: 1.5em;
         }
         nav a:hover {
@@ -53,6 +75,7 @@
             background-color: #ffffff;
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            position: relative; /* For decorative elements positioning */
         }
         main h2 {
             font-size: 2.5em;
@@ -61,31 +84,6 @@
         main p {
             font-size: 1.2em;
             line-height: 1.6;
-        }
-        .story {
-            text-align: left;
-            margin: 20px 0;
-            padding: 20px;
-            background-color: #fff;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-        .story h3 {
-            font-size: 2em;
-            margin-bottom: 10px;
-        }
-        .story p {
-            font-size: 1.1em;
-        }
-        .story img {
-            max-width: 300px;
-            width: 100%;
-            height: auto;
-            border-radius: 10px;
-            margin-top: 10px;
-            display: block;
-            margin-left: auto;
-            margin-right: auto;
         }
         footer {
             margin-top: 40px;
@@ -98,35 +96,81 @@
         footer p {
             margin: 0;
         }
-    
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            font-size: 16px;
+            color: #fff;
+            background-color: #FF0000; /* YouTube Red */
+            border: none;
+            border-radius: 5px;
+            text-align: center;
+            text-decoration: none;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .button:hover {
+            background-color: #CC0000; /* Darker Red for hover effect */
+        }
+        .decorative-star {
+            position: absolute;
+            font-size: 3em;
+            color: #ffebcd;
+            opacity: 0.8;
+            animation: fadeIn 2s infinite alternate;
+        }
+        .star-1 {
+            top: 10px;
+            left: 10px;
+        }
+        .star-2 {
+            top: 20px;
+            right: 20px;
+        }
+        .star-3 {
+            bottom: 20px;
+            left: 30px;
+        }
+        .star-4 {
+            bottom: 30px;
+            right: 40px;
+        }
     </style>
 </head>
 <body>
-  <nav>
-      <a href="https://dawnstoryrevelation.github.io/dawnstoryrevelation/">Home</a>
-      <a href="https://dawnstoryrevelation.github.io/dawnstoryrevelation/about.html">About</a>
-      <a href="https://dawnstoryrevelation.github.io/dawnstoryrevelation/stories.html">Stories</a>
-      <a href="https://dawnstoryrevelation.github.io/dawnstoryrevelation/lore.html">Lore</a>
-      <a href="https://dawnstoryrevelation.github.io/dawnstoryrevelation/contact.html">Contact</a>
-  </nav>
-    <div class="container">
+    <header class="fade-in">
         <h1>Contact Me</h1>
-        <p>I'd love to hear from you! Whether you have a question about our stories, want to share your own, or just want to say hello, feel free to reach out.</p>
-       <p>Discord: https://discord.gg/xFHCdqVh</p>
-      <p>Email: inquiry@dawnstoryrevelation.com
-</p>
-        <p>Youtube Channel: https://www.youtube.com/@DawntasyRevelate/videos</p>
-    </div>
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-80YG5XWYJL"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-
-  gtag('config', 'G-80YG5XWYJL');
-</script>
-      <script src="https://www.cognitoforms.com/f/seamless.js" data-key="sG8042bqckmJM1cjASF9rQ" data-form="1"></script>
+    </header>
+    <nav class="fade-in">
+        <a href="https://dawnstoryrevelation.github.io/dawnstoryrevelation/">Home</a>
+        <a href="https://dawnstoryrevelation.github.io/dawnstoryrevelation/about.html">About</a>
+        <a href="https://dawnstoryrevelation.github.io/dawnstoryrevelation/stories.html">Stories</a>
+        <a href="https://dawnstoryrevelation.github.io/dawnstoryrevelation/lore.html">Lore</a>
+        <a href="https://dawnstoryrevelation.github.io/dawnstoryrevelation/contact.html">Contact</a>
+    </nav>
+    <main class="fade-in">
+        <div class="decorative-star star-1">★</div>
+        <div class="decorative-star star-2">★</div>
+        <div class="decorative-star star-3">★</div>
+        <div class="decorative-star star-4">★</div>
+        <h2 class="slide-up">I'd love to hear from you!</h2>
+        <p class="slide-up">Whether you have a question about our stories, want to share your own, or just want to say hello, feel free to reach out.</p>
+        <p class="slide-up">Discord: <a href="https://discord.gg/xFHCdqVh">https://discord.gg/xFHCdqVh</a></p>
+        <p class="slide-up">Email: <a href="mailto:inquiry@dawnstoryrevelation.com">inquiry@dawnstoryrevelation.com</a></p>
+        <p class="slide-up">YouTube Channel: <a href="https://www.youtube.com/@DawntasyRevelate/videos">https://www.youtube.com/@DawntasyRevelate/videos</a></p>
+        <a href="https://docs.google.com/document/d/1GyT8Q_L2b3_fzAwsNVQkIRZe-NQIyRnNbEtlEkimsUU/edit" class="button">Read His Promise</a>
+    </main>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-80YG5XWYJL"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-80YG5XWYJL');
+    </script>
+    <footer class="fade-in">
+        <p>&copy; 2024 Dawntasy: Dawnstory Revelation. All rights reserved.</p>
+    </footer>
+    <script src="https://www.cognitoforms.com/f/seamless.js" data-key="sG8042bqckmJM1cjASF9rQ" data-form="1"></script>
 </body>
 </html>
