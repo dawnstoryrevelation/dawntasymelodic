@@ -42,6 +42,12 @@
         .bounce-in {
             animation: bounceIn 2s;
         }
+        .hover-grow {
+            transition: transform 0.3s;
+        }
+        .hover-grow:hover {
+            transform: scale(1.1);
+        }
 
         body {
             font-family: 'Indie Flower', cursive;
@@ -57,6 +63,7 @@
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
+            scroll-behavior: smooth;
         }
         header {
             text-align: center;
@@ -151,6 +158,34 @@
         .button:hover {
             background-color: #CC0000; /* Darker Red for hover effect */
         }
+        .decorative {
+            position: absolute;
+            z-index: 0;
+        }
+        .star {
+            width: 50px;
+            height: 50px;
+            background-image: url('https://dawnstoryrevelation.github.io/dawnstoryrevelation/images/star.png');
+            background-size: cover;
+        }
+        .fireball {
+            width: 50px;
+            height: 50px;
+            background-image: url('https://dawnstoryrevelation.github.io/dawnstoryrevelation/images/fireball.png');
+            background-size: cover;
+        }
+        .leaf {
+            width: 50px;
+            height: 50px;
+            background-image: url('https://dawnstoryrevelation.github.io/dawnstoryrevelation/images/leaf.png');
+            background-size: cover;
+        }
+        .weapon {
+            width: 50px;
+            height: 50px;
+            background-image: url('https://dawnstoryrevelation.github.io/dawnstoryrevelation/images/weapon.png');
+            background-size: cover;
+        }
     </style>
 </head>
 <body>
@@ -179,14 +214,14 @@
 
         <h2 class="bounce-in">Explore Dawntasy</h2>
         <p class="slide-up">Ready to dive into the world of Gaze? Check out this for a little preview of the first book!</p>
-        <a href="https://docs.google.com/document/d/1GyT8Q_L2b3_fzAwsNVQkIRZe-NQIyRnNbEtlEkimsUU/edit" class="button">His Promise</a>
+        <a href="https://docs.google.com/document/d/1GyT8Q_L2b3_fzAwsNVQkIRZe-NQIyRnNbEtlEkimsUU/edit" class="button hover-grow">His Promise</a>
 
         <h2 class="bounce-in">Filapawa - The Official Dawntasy YouTube Channel</h2>
         <p class="slide-up">Welcome to Filapawa, the official YouTube channel dedicated to all things in Dawntasy: Dawnstory Revelation! Here, we dive deep into the captivating world of Gaze, offering fans an immersive experience like no other. Our mission at Filapawa is to provide you with exclusive insights, behind-the-scenes content, and engaging discussions that bring the world of Gaze to life.</p>
         <p class="slide-up">Join us as we explore the rich tapestry of characters, lore, and settings that make up the Dawntasy: Dawnstory Revelation saga. From in-depth character profiles that delve into the motivations and backstories of your favorite heroes and villains to detailed explorations of the world-building that brings the land of Gaze to vivid life, there's always something new to discover on Filapawa.</p>
         <p class="slide-up">But Filapawa is more than just a channel – it's a community. Connect with fellow fans as we share theories, discuss our favorite moments, and celebrate the world together. Our interactive experiences, including live streams, Q&A sessions, and community events, offer you the chance to engage directly with the author and fellow fans, making Filapawa a place where your voice truly matters.</p>
         <p class="slide-up">Don't miss out on the latest updates and exclusive content from Filapawa! Subscribe to our channel and hit the notification bell to stay informed about new uploads, live streams, and community events. Join us as we embark on an epic journey through the world of Dawnstory – we can't wait to share it with you!</p>
-        <a href="https://www.youtube.com/@DawntasyRevelate/videos" class="button">Go To YouTube Channel</a>
+        <a href="https://www.youtube.com/@DawntasyRevelate/videos" class="button hover-grow">Go To YouTube Channel</a>
 
         <h2 class="bounce-in">Arya Amit</h2>
         <p class="slide-up">Arya has been in the field of writing for a very long time and has constantly supported me in my literature during the years of our friendship. He has contributed a great deal to Dawntasy, acting as an editor for any grammatical errors or plot holes and writing massive chapters with precise fluency. A big word of gratitude to Arya Amit who has done so much for me!</p> 
@@ -213,5 +248,40 @@
     <footer class="fade-in">
         <p>&copy; 2024 Dawntasy: Dawnstory Revelation. All rights reserved.</p>
     </footer>
+
+    <script>
+        // Scroll-triggered animations
+        document.addEventListener('scroll', function() {
+            const elements = document.querySelectorAll('.fade-in, .slide-up, .bounce-in');
+            const scrollTop = document.documentElement.scrollTop;
+
+            elements.forEach(element => {
+                if (element.offsetTop < scrollTop + window.innerHeight - 100) {
+                    element.style.opacity = 1;
+                    element.style.transform = 'none';
+                }
+            });
+        });
+
+        // Decorate with stars, fireballs, leaves, and weapons
+        const decorations = [
+            { class: 'star', left: '10%', top: '20%' },
+            { class: 'fireball', left: '80%', top: '30%' },
+            { class: 'leaf', left: '50%', top: '50%' },
+            { class: 'weapon', left: '20%', top: '70%' },
+            { class: 'star', left: '70%', top: '80%' },
+            { class: 'fireball', left: '30%', top: '90%' },
+            { class: 'leaf', left: '90%', top: '60%' },
+            { class: 'weapon', left: '40%', top: '10%' },
+        ];
+
+        decorations.forEach(decoration => {
+            const elem = document.createElement('div');
+            elem.classList.add('decorative', decoration.class);
+            elem.style.left = decoration.left;
+            elem.style.top = decoration.top;
+            document.body.appendChild(elem);
+        });
+    </script>
 </body>
 </html>
