@@ -21,6 +21,7 @@
             background-repeat: no-repeat;
             background-attachment: fixed;
             background-size: cover;
+            scroll-behavior: smooth;
         }
         header {
             text-align: center;
@@ -76,9 +77,10 @@
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             transition: transform 0.3s;
+            cursor: pointer;
         }
         .story:hover {
-            transform: translateY(-10px);
+            transform: scale(1.05);
         }
         .story h3 {
             font-size: 2em;
@@ -114,19 +116,39 @@
             margin: 0;
             font-size: 1em;
         }
-        .btn {
-            display: inline-block;
-            padding: 10px 20px;
-            margin: 10px;
-            font-size: 1.2em;
-            color: #fff;
-            background-color: #d2691e;
-            text-decoration: none;
-            border-radius: 5px;
-            transition: background-color 0.3s;
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgb(0,0,0);
+            background-color: rgba(0,0,0,0.4);
+            padding-top: 60px;
         }
-        .btn:hover {
-            background-color: #8b4513;
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 600px;
+            border-radius: 10px;
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
         }
     </style>
 </head>
@@ -145,22 +167,44 @@
         <h2 class="zoom-in">Our Stories</h2>
         <p class="zoom-in">Welcome to the collection of all stories in the Dawntasy saga. Here, you can explore the thrilling adventures and emotional journeys of our characters.</p>
 
-        <div class="story zoom-in">
+        <div class="story zoom-in" onclick="openModal('modal1')">
             <h3>His Promise (S1B1)</h3>
             <p>The world of Dawntasy is governed by a tyrannous, nefarious organization known only as LTR. When all hell breaks loose, the Time Rebellion League is formed with only one obligation, taking down the organization and its devious leader, while Yaya the bearman struggles to find peace within himself after his beloved master is slain by enemy forces. However, he begins to realize that all is not lost, and that backing down was the worst thing he could have done.</p>
         </div>
 
-        <div class="story zoom-in">
+        <div class="story zoom-in" onclick="openModal('modal2')">
             <h3>Coaeboa Liberation (S1B2)</h3>
             <p>His brother is gone, the necklace is gone and his home is going to be gone if he doesn't act fast. Questa knows that time is short, luck is not on his side and that fate is playing its cards cruelly on him. He had promised that he would see his brother again, even if it meant going through unbearable hardship and turmoil, but he hadn't seen reconciliation in a whole decade. With his life in pieces, Questa embarks on the quest of his lifetime to find his long-lost brother, while escaping the clutches of the nefarious Time Smith. </p>
         </div>
 
-        <div class="story zoom-in">
+        <div class="story zoom-in" onclick="openModal('modal3')">
             <h3>Fadia Light (S1B3)</h3>
             <p>Legend states that on the Circular Dawn, the Seven Ancient Warlords shall unite and all of Dawnstory will be liberated from Time Smith's draconian rule. Filapawa finds it hard to believe this, and when Time Smith launches a master weapon that even the Seven Ancient Warlords are unable to prevent, he realizes that the fate and destiny of all of Dawnstory depends solely...on him.</p>
         </div>
         <h2 class="zoom-in">More Dawntasy books are coming soon!</h2>
-        <a href="#" class="btn">Read More Stories</a>
+
+        <!-- Modals for each story -->
+        <div id="modal1" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeModal('modal1')">&times;</span>
+                <h3>His Promise (S1B1)</h3>
+                <p>The world of Dawntasy is governed by a tyrannous, nefarious organization known only as LTR. When all hell breaks loose, the Time Rebellion League is formed with only one obligation, taking down the organization and its devious leader, while Yaya the bearman struggles to find peace within himself after his beloved master is slain by enemy forces. However, he begins to realize that all is not lost, and that backing down was the worst thing he could have done.</p>
+            </div>
+        </div>
+        <div id="modal2" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeModal('modal2')">&times;</span>
+                <h3>Coaeboa Liberation (S1B2)</h3>
+                <p>His brother is gone, the necklace is gone and his home is going to be gone if he doesn't act fast. Questa knows that time is short, luck is not on his side and that fate is playing its cards cruelly on him. He had promised that he would see his brother again, even if it meant going through unbearable hardship and turmoil, but he hadn't seen reconciliation in a whole decade. With his life in pieces, Questa embarks on the quest of his lifetime to find his long-lost brother, while escaping the clutches of the nefarious Time Smith. </p>
+            </div>
+        </div>
+        <div id="modal3" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeModal('modal3')">&times;</span>
+                <h3>Fadia Light (S1B3)</h3>
+                <p>Legend states that on the Circular Dawn, the Seven Ancient Warlords shall unite and all of Dawnstory will be liberated from Time Smith's draconian rule. Filapawa finds it hard to believe this, and when Time Smith launches a master weapon that even the Seven Ancient Warlords are unable to prevent, he realizes that the fate and destiny of all of Dawnstory depends solely...on him.</p>
+            </div>
+        </div>
 
         <!-- Google tag (gtag.js) -->
         <script async src="https://www.googletagmanager.com/gtag/js?id=G-80YG5XWYJL"></script>
@@ -175,5 +219,25 @@
     <footer class="fade-in">
         <p>&copy; 2024 Dawntasy: Dawnstory Revelation. All rights reserved.</p>
     </footer>
+
+    <script>
+        function openModal(modalId) {
+            document.getElementById(modalId).style.display = "block";
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = "none";
+        }
+
+        // Close the modal when clicking outside of it
+        window.onclick = function(event) {
+            const modals = document.querySelectorAll('.modal');
+            modals.forEach(modal => {
+                if (event.target == modal) {
+                    modal.style.display = "none";
+                }
+            });
+        }
+    </script>
 </body>
 </html>
