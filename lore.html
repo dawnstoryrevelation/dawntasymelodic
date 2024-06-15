@@ -135,66 +135,10 @@
             margin: 0;
             padding: 0;
             display: flex;
-            flex-direction: column;
             justify-content: center;
             align-items: center;
             height: 100vh;
             background-color: #f0f0f0;
-        }
-        .decorations {
-            position: relative;
-            width: 80%;
-            max-width: 800px;
-            height: 100px;
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-        .star, .constellation, .fireball {
-            position: absolute;
-            background-color: white;
-            border-radius: 50%;
-            box-shadow: 0 0 10px rgba(255, 255, 255, 0.7);
-        }
-        .star {
-            width: 10px;
-            height: 10px;
-            animation: twinkle 2s infinite alternate;
-        }
-        .constellation {
-            width: 15px;
-            height: 15px;
-            animation: twinkle 3s infinite alternate;
-        }
-        .fireball {
-            width: 20px;
-            height: 20px;
-            background-color: orange;
-            box-shadow: 0 0 15px rgba(255, 165, 0, 0.7);
-            animation: move 5s infinite;
-        }
-        @keyframes twinkle {
-            from {
-                opacity: 1;
-            }
-            to {
-                opacity: 0.5;
-            }
-        }
-        @keyframes move {
-            0% {
-                top: 10px;
-                left: 50px;
-            }
-            50% {
-                top: 50px;
-                left: 100px;
-            }
-            100% {
-                top: 10px;
-                left: 50px;
-            }
         }
         .carousel {
             position: relative;
@@ -240,12 +184,6 @@
 </head>
 <body>
 
-<div class="decorations">
-    <div class="star" style="top: 10px; left: 50px;"></div>
-    <div class="constellation" style="top: 30px; right: 100px;"></div>
-    <div class="fireball" style="top: 50px; left: 200px;"></div>
-</div>
-
 <div class="carousel">
     <div class="carousel-images">
         <img src="https://www.dawnstoryrevelation.com/images//THE%20CONCEPT%20OF%20DAWNSTORY.png" alt="The Fall">
@@ -284,6 +222,10 @@
         showImage(currentIndex - 1);
     }
 </script>
+
+</body>
+</html>
+
 
 </body>
 </html>
