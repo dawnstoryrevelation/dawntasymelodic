@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <link rel="icon" href="https://dawnstoryrevelation.github.io/dawnstoryrevelation/images/fantastical%20dsr.jpeg" type="image/x-icon">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stories - Dawntasy </title>
+    <title>Stories - Dawntasy</title>
     <link href="https://fonts.googleapis.com/css2?family=Indie+Flower&display=swap" rel="stylesheet">
     <style>
         @keyframes fadeIn {
@@ -32,20 +32,29 @@
             animation: zoomIn 1.5s ease-out;
         }
 
-        body {
-            font-family: 'Indie Flower', cursive;
-            background-color: #f9f5d7;
-            color: #333;
+        body, html {
             margin: 0;
             padding: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
+            height: 100%;
+            overflow-x: hidden;
+            font-family: 'Indie Flower', cursive;
+        }
+        .parallax {
             background-image: url('https://dawnstoryrevelation.github.io/dawnstoryrevelation/images/fantastical%20dsr.jpeg');
-            background-repeat: no-repeat;
+            min-height: 100vh;
             background-attachment: fixed;
+            background-position: center;
+            background-repeat: no-repeat;
             background-size: cover;
+        }
+        .content {
+            height: 100vh;
+            background-color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
         }
         header {
             text-align: center;
@@ -137,7 +146,10 @@
         <a href="https://dawnstoryrevelation.github.io/dawnstoryrevelation/lore.html">Lore</a>
         <a href="https://dawnstoryrevelation.github.io/dawnstoryrevelation/contact.html">Contact</a>
     </nav>
-    <main class="fade-in">
+
+    <div class="parallax"></div>
+
+    <main class="fade-in content">
         <h2 class="zoom-in">Our Stories</h2>
         <p class="zoom-in">Welcome to the collection of all stories in the Dawntasy saga. Here, you can explore the thrilling adventures and emotional journeys of our characters.</p>
 
@@ -167,8 +179,14 @@
           gtag('config', 'G-80YG5XWYJL');
         </script>
     </main>
+
+    <div class="parallax"></div>
+
     <footer class="fade-in">
         <p>&copy; 2024 Dawntasy: Dawnstory Revelation. All rights reserved.</p>
     </footer>
+
+    <div class="parallax"></div>
+
 </body>
 </html>
