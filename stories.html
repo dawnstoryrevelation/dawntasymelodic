@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <link rel="icon" href="https://dawnstoryrevelation.github.io/dawnstoryrevelation/images/fantastical%20dsr.jpeg" type="image/x-icon">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stories - Dawntasy </title>
+    <title>Stories - Dawntasy</title>
     <link href="https://fonts.googleapis.com/css2?family=Indie+Flower&display=swap" rel="stylesheet">
     <style>
         @keyframes fadeIn {
@@ -31,101 +31,119 @@
         .zoom-in {
             animation: zoomIn 1.5s ease-out;
         }
-css
-Copy code
-    body {
-        font-family: 'Indie Flower', cursive;
-        background-color: #f9f5d7;
-        color: #333;
-        margin: 0;
-        padding: 0;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        min-height: 100vh;
-        background-image: url('https://dawnstoryrevelation.github.io/dawnstoryrevelation/images/fantastical%20dsr.jpeg');
-        background-repeat: no-repeat;
-        background-attachment: fixed;
-        background-size: cover;
-    }
-    header {
-        text-align: center;
-        background-color: #ffebcd;
-        padding: 20px;
-        width: 100%;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    }
-    header h1 {
-        margin: 0;
-        font-size: 3em;
-    }
-    nav {
-        text-align: center;
-        margin: 20px 0;
-    }
-    nav a {
-        margin: 0 15px;
-        text-decoration: none;
-        color: #f1c27d;
-        font-size: 1.5em;
-    }
-    nav a:hover {
-        text-decoration: underline;
-    }
-    main {
-        text-align: center;
-        padding: 20px;
-        max-width: 800px;
-        margin: 0 auto;
-        background-color: #ffffff;
-        border-radius: 10px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    }
-    main h2 {
-        font-size: 2.5em;
-        margin-bottom: 20px;
-    }
-    main p {
-        font-size: 1.2em;
-        line-height: 1.6;
-    }
-    .story {
-        text-align: left;
-        margin: 20px 0;
-        padding: 20px;
-        background-color: #fff;
-        border-radius: 10px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    }
-    .story h3 {
-        font-size: 2em;
-        margin-bottom: 10px;
-    }
-    .story p {
-        font-size: 1.1em;
-    }
-    .story img {
-        max-width: 300px;
-        width: 100%;
-        height: auto;
-        border-radius: 10px;
-        margin-top: 10px;
-        display: block;
-        margin-left: auto;
-        margin-right: auto;
-    }
-    footer {
-        margin-top: 40px;
-        padding: 10px;
-        background-color: #ffebcd;
-        width: 100%;
-        text-align: center;
-        box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.1);
-    }
-    footer p {
-        margin: 0;
-    }
-</style>
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow-x: hidden;
+            font-family: 'Indie Flower', cursive;
+        }
+        .parallax {
+            background-image: url('https://dawnstoryrevelation.github.io/dawnstoryrevelation/images/fantastical%20dsr.jpeg');
+            min-height: 100vh;
+            background-attachment: fixed;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+        }
+        .content {
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            position: relative;
+            z-index: 1;
+            text-align: center;
+        }
+        header {
+            text-align: center;
+            background-color: #ffebcd;
+            padding: 20px;
+            width: 100%;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            position: relative;
+            z-index: 1;
+        }
+        header h1 {
+            margin: 0;
+            font-size: 3em;
+        }
+        nav {
+            text-align: center;
+            margin: 20px 0;
+            position: relative;
+            z-index: 1;
+        }
+        nav a {
+            margin: 0 15px;
+            text-decoration: none;
+            color: #f1c27d;
+            font-size: 1.5em;
+        }
+        nav a:hover {
+            text-decoration: underline;
+        }
+        main {
+            text-align: center;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            position: relative;
+            z-index: 1;
+        }
+        main h2 {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+        }
+        main p {
+            font-size: 1.2em;
+            line-height: 1.6;
+        }
+        .story {
+            text-align: left;
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .story h3 {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+        .story p {
+            font-size: 1.1em;
+        }
+        .story img {
+            max-width: 300px;
+            width: 100%;
+            height: auto;
+            border-radius: 10px;
+            margin-top: 10px;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        footer {
+            margin-top: 40px;
+            padding: 10px;
+            background-color: #ffebcd;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.1);
+            position: relative;
+            z-index: 1;
+        }
+        footer p {
+            margin: 0;
+        }
+    </style>
 </head>
 <body>
     <header class="fade-in">
@@ -138,40 +156,45 @@ Copy code
         <a href="https://dawnstoryrevelation.github.io/dawnstoryrevelation/lore.html">Lore</a>
         <a href="https://dawnstoryrevelation.github.io/dawnstoryrevelation/contact.html">Contact</a>
     </nav>
-    <main class="fade-in">
+
+    <div class="parallax"></div>
+
+    <main class="fade-in content">
         <h2 class="zoom-in">Our Stories</h2>
         <p class="zoom-in">Welcome to the collection of all stories in the Dawntasy saga. Here, you can explore the thrilling adventures and emotional journeys of our characters.</p>
-vbnet
-Copy code
-    <div class="story zoom-in">
-        <h3>His Promise (S1B1)</h3>
-        <p>The world of Dawntasy is governed by a tyrannous, nefarious organization known only as LTR. When all hell breaks loose, the Time Rebellion League is formed with only one obligation, taking down the organization and its devious leader, while Yaya the bearman struggles to find peace within himself after his beloved master is slain by enemy forces. However, he begins to realize that all is not lost, and that backing down was the worst thing he could have done.</p>
-    </div>
 
-    <div class="story zoom-in">
-        <h3>Coaeboa Liberation (S1B2)</h3>
-        <p>His brother is gone, the necklace is gone and his home is going to be gone if he doesn't act fast. Questa knows that time is short, luck is not on his side and that fate is playing its cards cruelly on him. He had promised that he would see his brother again, even if it meant going through unbearable hardship and turmoil, but he hadn't seen reconciliation in a whole decade. With his life in pieces, Questa embarks on the quest of his lifetime to find his long-lost brother, while escaping the clutches of the nefarious Time Smith. </p>
-    </div>
+        <div class="story zoom-in">
+            <h3>His Promise (S1B1)</h3>
+            <p>The world of Dawntasy is governed by a tyrannous, nefarious organization known only as LTR. When all hell breaks loose, the Time Rebellion League is formed with only one obligation, taking down the organization and its devious leader, while Yaya the bearman struggles to find peace within himself after his beloved master is slain by enemy forces. However, he begins to realize that all is not lost, and that backing down was the worst thing he could have done.</p>
+        </div>
 
-    <div class="story zoom-in">
-        <h3>Fadia Light (S1B3)</h3>
-        <p>Legend states that on the Circular Dawn, the Seven Ancient Warlords shall unite and all of Dawnstory will be liberated from Time Smith's draconian rule. Filapawa finds it hard to believe this, and when Time Smith launches a master weapon that even the Seven Ancient Warlords are unable to prevent, he realizes that the fate and destiny of all of Dawnstory depends solely...on him.</p>
-    </div>
-    <h2 class="zoom-in">More Dawntasy books are coming soon!</h2>
+        <div class="story zoom-in">
+            <h3>Coaeboa Liberation (S1B2)</h3>
+            <p>His brother is gone, the necklace is gone and his home is going to be gone if he doesn't act fast. Questa knows that time is short, luck is not on his side and that fate is playing its cards cruelly on him. He had promised that he would see his brother again, even if it meant going through unbearable hardship and turmoil, but he hadn't seen reconciliation in a whole decade. With his life in pieces, Questa embarks on the quest of his lifetime to find his long-lost brother, while escaping the clutches of the nefarious Time Smith. </p>
+        </div>
 
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-80YG5XWYJL"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
+        <div class="story zoom-in">
+            <h3>Fadia Light (S1B3)</h3>
+            <p>Legend states that on the Circular Dawn, the Seven Ancient Warlords shall unite and all of Dawnstory will be liberated from Time Smith's draconian rule. Filapawa finds it hard to believe this, and when Time Smith launches a master weapon that even the Seven Ancient Warlords are unable to prevent, he realizes that the fate and destiny of all of Dawnstory depends solely...on him.</p>
+        </div>
+        <h2 class="zoom-in">More Dawntasy books are coming soon!</h2>
 
-      gtag('config', 'G-80YG5XWYJL');
-    </script>
-</main>
-<footer class="fade-in">
-    <p>&copy; 2024 Dawntasy: Dawnstory Revelation. All rights reserved.</p>
-</footer>
+        <!-- Google tag (gtag.js) -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-80YG5XWYJL"></script>
+        <script>
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+
+          gtag('config', 'G-80YG5XWYJL');
+        </script>
+    </main>
+
+    <div class="parallax"></div>
+
+    <footer class="fade-in">
+        <p>&copy; 2024 Dawntasy: Dawnstory Revelation. All rights reserved.</p>
+    </footer>
+
 </body>
 </html>
-
