@@ -9,6 +9,31 @@
     <link rel="icon" href="https://dawnstoryrevelation.github.io/dawnstoryrevelation/images/fadiA.jpeg" type="image/jpeg">
 
     <style>
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+        @keyframes slideIn {
+            from {
+                transform: translateX(-100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        .fade-in {
+            animation: fadeIn 2s;
+        }
+        .slide-in {
+            animation: slideIn 1.5s ease-out;
+        }
+
         body {
             font-family: 'Indie Flower', cursive;
             background-color: #f9f5d7;
@@ -109,7 +134,7 @@
         footer p {
             margin: 0;
         }
-       .featured-story img {
+        .featured-story img {
             max-width: 300px;
             width: 100%;
             height: auto;
@@ -122,57 +147,57 @@
     </style>
 </head>
 <body>
-    <header>
+    <header class="fade-in">
         <h1>Dawntasy Saga</h1>
     </header>
-    <nav>
+    <nav class="fade-in">
         <a href="https://dawnstoryrevelation.com">Home</a>
         <a href="https://www.dawnstoryrevelation.com/about.html">About</a>
         <a href="https://www.dawnstoryrevelation.com/stories.html">Stories</a>
         <a href="https://www.dawnstoryrevelation.com/lore.html">Lore</a>
         <a href="https://www.dawnstoryrevelation.com/contact.html">Contact</a>
     </nav>
-    <main>
-        <h2>Welcome to the world of Gaze!</h2>
+    <main class="fade-in">
+        <h2 class="slide-in">Welcome to the world of Gaze!</h2>
         <p>Dawntasy Story is an unpublished saga revolving around fantasy and dystopian elements. Delve into the Gaze world in an era in which survival is not guaranteed, and happiness is scarce. The outlook of the health of the future world does not prove to be promising, and as a band of desperate mutineers cling onto the threads of dear life, they realise that not just them are in danger, the whole world is, the whole multiverse.</p>
-        <p>A tale of adventure and courage...</p>
+        <p class="slide-in">A tale of adventure and courage...</p>
 
-        <div class="featured-story">
+        <div class="featured-story slide-in">
             <h3>Featured Story: His Promise (S1B1)</h3>
             <p>The realm of Dawnstory is governed by a tyrannous, nefarious organisation known only as LTR. When all hell breaks loose, the Time Rebellion League is formed with only one obligation, taking down the organisation and its devious leader, while Yaya the bearman struggles to find peace within himself after his beloved master is slain by enemy forces. However, he begins to realise that all is not lost, and that backing down was the worst thing he could have done.</p>
             <img src="https://www.dawnstoryrevelation.com/title%20covdr..jpg">
         </div>
-        <div class="testimonials">
+        <div class="testimonials slide-in">
             <h3>Quotes</h3>
             <p>"You must carry on. The fight...is not over." - Aegis Wick, Chapter 2 S1B1</p>
             <p>"Even if you are beaten, never give up. Even if all your allies are killed, never falter. Remember the reason you’re fighting. So hold that hope in your heart and never let go. That is the true key to victory." - Aegis Wick, Chapter 2 S1B1</p>
         </div>
-        <div class="advertising-line">Check out my YouTube Channel! Featured Song: https://www.youtube.com/watch?v=RJNR6OiHeTw (Constellations)</div>
-      <div class="testimonials">
-        <h3><b>What Readers Say</b></h3>
-        <p>"A must read." - Mark Jones, age 45</p>
-        <p>"A captivating tale that keeps you on the edge of your seat." - Wendy Johnson</p>
-      </div>
+        <div class="advertising-line fade-in">Check out my YouTube Channel! Featured Song: https://www.youtube.com/watch?v=RJNR6OiHeTw (Constellations)</div>
+        <div class="testimonials slide-in">
+            <h3><b>What Readers Say</b></h3>
+            <p>"A must read." - Mark Jones, age 45</p>
+            <p>"A captivating tale that keeps you on the edge of your seat." - Wendy Johnson</p>
+        </div>
 
-      <div class="call-to-action">
-        <h3><b>Why You Should Read Dawntasy Story</b></h3>
-        <p>In Dawntasy, we invite you to embark on a journey like no other. Dive into a world where the lines between fantasy and dystopia blur, and where every turn of the page brings new surprises and revelations. With its richly developed characters, immersive world-building, and gripping plot twists, DSR promises an unforgettable reading experience.</p>
-        <p>Join us as we uncover the secrets of this sprawling saga, where courage, adventure, and the fight for justice reign supreme. Let Dawntasy ignite your imagination and take you on an epic adventure you won't soon forget.</p>
-      </div>
-      <h2>Our Song Album</h2>
-      <p>Our Dawntasy Song Album "Crossing the Divine" brings joy and laughter and features a wide range of different songs.</p>
-      <p>"Constellations" From the eyes to the stars.</p>
-      <p>"The Equinox" When sun and moon meet.</p>
-      <p>"Break of Day" (Upcoming) Seraphic dawn.</p>
-      
-      <h2>Explore Three Unique Realms!</h2>
-      <p>The DSR World Circle is split between three realms: The Eternal Rift Realm, the Fall Point Realm and The Ephemeral Dawnstory Realm. </p>
-      <p>The Rift Realm...a home to danger, mystery and excitement...awaken a sense of transcendence.</p>
-      <p>The Dawnstory Realm...an ordinary world yet imbued with fantasy...until it all falls down.</p>
-        <p>The Fall Point Realm...where reality is mere imagination and light and dark are synonyms.</p>
-
-     </main>
-    <footer>
+        <div class="call-to-action slide-in">
+            <h3><b>Why You Should Read Dawntasy Story</b></h3>
+            <p>In Dawntasy, we invite you to embark on a journey like no other. Dive into a world where the lines between fantasy and dystopia blur, and where every turn of the page brings new surprises and revelations. With its richly developed characters, immersive world-building, and gripping plot twists, DSR promises an unforgettable reading experience.</p>
+            <p>Join us as we uncover the secrets of this sprawling saga, where courage, adventure, and the fight for justice reign supreme. Let Dawntasy ignite your imagination and take you on an epic adventure you won't soon forget.</p>
+            <a href="#">Read More</a>
+        </div>
+        <h2 class="fade-in">Our Song Album</h2>
+        <p class="slide-in">Our Dawntasy Song Album "Crossing the Divine" brings joy and laughter and features a wide range of different songs.</p>
+        <p class="slide-in">"Constellations" From the eyes to the stars.</p>
+        <p class="slide-in">"The Equinox" When sun and moon meet.</p>
+        <p class="slide-in">"Break of Day" (Upcoming) Seraphic dawn.</p>
+        
+        <h2 class="fade-in">Explore Three Unique Realms!</h2>
+        <p class="slide-in">The DSR World Circle is split between three realms: The Eternal Rift Realm, the Fall Point Realm and The Ephemeral Dawnstory Realm. </p>
+        <p class="slide-in">The Rift Realm...a home to danger, mystery and excitement...awaken a sense of transcendence.</p>
+        <p class="slide-in">The Dawnstory Realm...an ordinary world yet imbued with fantasy...until it all falls down.</p>
+        <p class="slide-in">The Fall Point Realm...where reality is mere imagination and light and dark are synonyms.</p>
+    </main>
+    <footer class="fade-in">
         <p>&copy; 2024 Dawntasy: Dawnstory Revelation. All rights reserved.</p>
     </footer>
 </body>
