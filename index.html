@@ -34,6 +34,23 @@
             margin: 0;
             font-size: 3em;
             font-weight: bold;
+            {
+            .btn-signup {
+    position: absolute;
+    right: 20px;
+    top: 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 1em;
+    border-radius: 5px;
+    cursor: pointer;
+}
+.btn-signup:hover {
+    background-color: #0056b3;
+}
+
         }
         .advertising-line {
             font-size: 1.5em;
@@ -145,6 +162,10 @@
     </style>
 </head>
 <body>
+    <header data-aos="fade-down">
+    <h1>Dawntasy Saga</h1>
+    <button class="btn-signup" onclick="window.location.href='signup.html'">Sign Up</button>
+</header>
     <header data-aos="fade-down">
         <h1>Dawntasy Saga</h1>
     </header>
