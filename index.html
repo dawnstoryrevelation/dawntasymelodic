@@ -126,15 +126,19 @@
         footer p {
             margin: 0;
         }
-        .featured-story img {
-            max-width: 300px;
-            width: 100%;
+        .featured-story img, .gaze-image {
+            max-width: 100%;
             height: auto;
             border-radius: 10px;
             margin-top: 10px;
             display: block;
             margin-left: auto;
             margin-right: auto;
+            filter: brightness(0.7);
+            transition: filter 0.3s ease-in-out;
+        }
+        .gaze-image:hover {
+            filter: brightness(1);
         }
         .carousel-item img {
             max-width: 100%;
@@ -145,12 +149,13 @@
             padding: 10px;
             border-radius: 10px;
         }
-        .hover-effect {
-            filter: brightness(0.7);
-            transition: filter 0.3s ease;
-        }
-        .hover-effect:hover {
-            filter: brightness(1);
+        .infobox {
+            background-color: #f1f1f1;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+            text-align: left;
         }
     </style>
 </head>
@@ -169,8 +174,12 @@
         <h2 data-aos="fade-up">Welcome to the world of Gaze!</h2>
         <p data-aos="fade-left">Dawntasy Story is an unpublished saga revolving around fantasy and dystopian elements. Delve into the Gaze world in an era in which survival is not guaranteed, and happiness is scarce. The outlook of the health of the future world does not prove to be promising, and as a band of desperate mutineers cling onto the threads of dear life, they realise that not just them are in danger, the whole world is, the whole multiverse.</p>
         <p data-aos="fade-right">A tale of adventure and courage...</p>
-        
-        <img src="https://www.dawnstoryrevelation.com/images/B680E346-F606-40AD-B88C-CC38CA184D9B.webp" alt="Gaze World" class="hover-effect"
+        <img src="https://www.dawnstoryrevelation.com/images/your-image.jpg" alt="Gaze World" class="gaze-image">
+
+        <div class="infobox" data-aos="fade-up">
+            <h3>About the World of Gaze</h3>
+            <p>The world of Gaze is split into two realms: the Rift Realm and the Dawnstory Realm. The Rift Realm is a dangerous place filled with magic and fantasy, while the Dawnstory Realm is a typical fantasy world. Both realms are surrounded by celestial stars and constellations, making the world of Gaze a unique and fantastical place.</p>
+        </div>
 
         <div class="featured-story" data-aos="zoom-in">
             <h3>Featured Story: His Promise (S1B1)</h3>
