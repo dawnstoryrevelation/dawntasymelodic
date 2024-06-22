@@ -126,15 +126,19 @@
         footer p {
             margin: 0;
         }
-        .featured-story img {
-            max-width: 300px;
-            width: 100%;
+        .featured-story img, .gaze-image {
+            max-width: 100%;
             height: auto;
             border-radius: 10px;
             margin-top: 10px;
             display: block;
             margin-left: auto;
             margin-right: auto;
+            filter: brightness(0.7);
+            transition: filter 0.3s ease-in-out;
+        }
+        .gaze-image:hover {
+            filter: brightness(1);
         }
         .carousel-item img {
             max-width: 100%;
@@ -145,11 +149,13 @@
             padding: 10px;
             border-radius: 10px;
         }
-        .gaze-image {
-            max-width: 100%;
-            height: auto;
+        .infobox {
+            background-color: #f1f1f1;
+            padding: 20px;
             border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             margin-top: 20px;
+            text-align: left;
         }
     </style>
 </head>
@@ -169,7 +175,12 @@
         <p data-aos="fade-left">Dawntasy Story is an unpublished saga revolving around fantasy and dystopian elements. Delve into the Gaze world in an era in which survival is not guaranteed, and happiness is scarce. The outlook of the health of the future world does not prove to be promising, and as a band of desperate mutineers cling onto the threads of dear life, they realise that not just them are in danger, the whole world is, the whole multiverse.</p>
         <p data-aos="fade-right">A tale of adventure and courage...</p>
         <img src="https://www.dawnstoryrevelation.com/images/B680E346-F606-40AD-B88C-CC38CA184D9B.webp" alt="Gaze World" class="gaze-image">
-        
+
+        <div class="infobox" data-aos="fade-up">
+            <h3>About the World of Gaze</h3>
+            <p>The world of Gaze is split into two realms: the Rift Realm and the Dawnstory Realm. The Rift Realm is a dangerous place filled with magic and fantasy, while the Dawnstory Realm is a typical fantasy world. Both realms are surrounded by celestial stars and constellations, making the world of Gaze a unique and fantastical place.</p>
+        </div>
+
         <div class="featured-story" data-aos="zoom-in">
             <h3>Featured Story: His Promise (S1B1)</h3>
             <p>The realm of Dawnstory is governed by a tyrannous, nefarious organisation known only as LTR. When all hell breaks loose, the Time Rebellion League is formed with only one obligation, taking down the organisation and its devious leader, while Yaya the bearman struggles to find peace within himself after his beloved master is slain by enemy forces. However, he begins to realise that all is not lost, and that backing down was the worst thing he could have done.</p>
@@ -189,6 +200,7 @@
             <p>"A must read." - Mark Jones, age 45</p>
             <p>"A captivating tale that keeps you on the edge of your seat." - Wendy Johnson</p>
         </div>
+
         <div class="call-to-action" data-aos="fade-up">
             <h3><b>Why You Should Read Dawntasy Story</b></h3>
             <p>In Dawntasy, we invite you to embark on a journey like no other. Dive into a world where the lines between fantasy and dystopia blur, and where every turn of the page brings new surprises and revelations. With its richly developed characters, immersive world-building, and gripping plot twists, DSR promises an unforgettable reading experience.</p>
