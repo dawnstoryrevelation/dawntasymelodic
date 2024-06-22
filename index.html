@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <link rel="icon" href="https://www.dawnstoryrevelation.com/images/D27E4B00-E095-416E-9AA1-ED12005DE86B.jpeg" type="image/x-icon">
+    <link rel="icon" href="https://github.com/dawnstoryrevelation/dawnstoryrevelation/blob/38eb24f5f682ba4e7ed83d22f563753a667461f1/fantastical%20dsr.jpeg" type="image/x-icon">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dawntasy Saga (Dawnstory Revelation)</title>
     <link href="https://fonts.googleapis.com/css2?family=Indie+Flower&display=swap" rel="stylesheet">
@@ -126,19 +126,15 @@
         footer p {
             margin: 0;
         }
-        .featured-story img, .gaze-image {
-            max-width: 100%;
+        .featured-story img {
+            max-width: 300px;
+            width: 100%;
             height: auto;
             border-radius: 10px;
             margin-top: 10px;
             display: block;
             margin-left: auto;
             margin-right: auto;
-            filter: brightness(0.7);
-            transition: filter 0.3s ease-in-out;
-        }
-        .gaze-image:hover {
-            filter: brightness(1);
         }
         .carousel-item img {
             max-width: 100%;
@@ -149,13 +145,12 @@
             padding: 10px;
             border-radius: 10px;
         }
-        .infobox {
-            background-color: #f1f1f1;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            margin-top: 20px;
-            text-align: left;
+        .hover-effect {
+            filter: brightness(0.7);
+            transition: filter 0.3s ease;
+        }
+        .hover-effect:hover {
+            filter: brightness(1);
         }
     </style>
 </head>
@@ -174,11 +169,24 @@
         <h2 data-aos="fade-up">Welcome to the world of Gaze!</h2>
         <p data-aos="fade-left">Dawntasy Story is an unpublished saga revolving around fantasy and dystopian elements. Delve into the Gaze world in an era in which survival is not guaranteed, and happiness is scarce. The outlook of the health of the future world does not prove to be promising, and as a band of desperate mutineers cling onto the threads of dear life, they realise that not just them are in danger, the whole world is, the whole multiverse.</p>
         <p data-aos="fade-right">A tale of adventure and courage...</p>
-        <img src="https://www.dawnstoryrevelation.com/images/B680E346-F606-40AD-B88C-CC38CA184D9B.webp" alt="Gaze World" class="gaze-image">
+        
+        <img src="https://www.dawnstoryrevelation.com/images/your-image.jpg" alt="Gaze World" class="hover-effect" data-toggle="modal" data-target="#imageModal">
 
-        <div class="infobox" data-aos="fade-up">
-            <h3>About the World of Gaze</h3>
-            <p>The world of Gaze is split into two realms: the Rift Realm and the Dawnstory Realm. The Rift Realm is a dangerous place filled with magic and fantasy, while the Dawnstory Realm is a typical fantasy world. Both realms are surrounded by celestial stars and constellations, making the world of Gaze a unique and fantastical place.</p>
+        <!-- Modal -->
+        <div class="modal fade" id="imageModal" tabindex="-1" role="dialog" aria-labelledby="imageModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="imageModalLabel">Gaze World</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <img src="https://www.dawnstoryrevelation.com/images/your-image.jpg" alt="Gaze World" class="img-fluid">
+                    </div>
+                </div>
+            </div>
         </div>
 
         <div class="featured-story" data-aos="zoom-in">
