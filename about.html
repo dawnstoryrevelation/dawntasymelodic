@@ -20,13 +20,17 @@
             50% { transform: translateY(-10px); }
         }
         .fade-in {
-            animation: fadeIn 2s;
+            opacity: 0;
+            animation: fadeIn 2s forwards;
         }
         .slide-up {
-            animation: slideUp 1.5s ease-out;
+            opacity: 0;
+            transform: translateY(100%);
+            animation: slideUp 1.5s ease-out forwards;
         }
         .bounce-in {
-            animation: bounceIn 2s;
+            opacity: 0;
+            animation: bounceIn 2s forwards;
         }
         .hover-grow {
             transition: transform 0.3s;
@@ -57,7 +61,6 @@
             padding: 20px;
             width: 100%;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            animation: fadeIn 2s;
         }
         header h1 {
             margin: 0;
@@ -66,7 +69,6 @@
         nav {
             text-align: center;
             margin: 20px 0;
-            animation: fadeIn 2s;
         }
         nav a {
             margin: 0 15px;
@@ -85,17 +87,14 @@
             background-color: #ffffff;
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            animation: fadeIn 2s;
         }
         main h2 {
             font-size: 2.5em;
             margin-bottom: 20px;
-            animation: bounceIn 2s;
         }
         main p {
             font-size: 1.2em;
             line-height: 1.6;
-            animation: slideUp 1.5s ease-out;
         }
         .story {
             text-align: left;
@@ -104,7 +103,6 @@
             background-color: #fff;
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            animation: fadeIn 2s;
         }
         .story h3 {
             font-size: 2em;
@@ -134,7 +132,6 @@
             border-radius: 10px;
             margin: 20px 0;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            animation: fadeIn 2s;
         }
         footer {
             margin-top: 40px;
@@ -143,7 +140,6 @@
             width: 100%;
             text-align: center;
             box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.1);
-            animation: fadeIn 2s;
         }
         footer p {
             margin: 0;
@@ -168,22 +164,29 @@
             position: absolute;
             z-index: 0;
         }
-        .star, .fireball, .leaf, .weapon {
+        .star {
             width: 50px;
             height: 50px;
+            background-image: url('https://upload.wikimedia.org/wikipedia/commons/8/87/Comic_Star.svg');
             background-size: cover;
         }
-        .star {
-            background-image: url('https://dawnstoryrevelation.github.io/dawnstoryrevelation/images/star_placeholder.png');
-        }
         .fireball {
-            background-image: url('https://dawnstoryrevelation.github.io/dawnstoryrevelation/images/fireball_placeholder.png');
+            width: 50px;
+            height: 50px;
+            background-image: url('https://upload.wikimedia.org/wikipedia/commons/3/30/Flame_icon.svg');
+            background-size: cover;
         }
         .leaf {
-            background-image: url('https://dawnstoryrevelation.github.io/dawnstoryrevelation/images/leaf_placeholder.png');
+            width: 50px;
+            height: 50px;
+            background-image: url('https://upload.wikimedia.org/wikipedia/commons/0/0d/Leaf_icon.svg');
+            background-size: cover;
         }
         .weapon {
-            background-image: url('https://dawnstoryrevelation.github.io/dawnstoryrevelation/images/weapon_placeholder.png');
+            width: 50px;
+            height: 50px;
+            background-image: url('https://upload.wikimedia.org/wikipedia/commons/6/6b/Sword_icon.svg');
+            background-size: cover;
         }
     </style>
 </head>
@@ -204,7 +207,7 @@
 
         <h2 class="bounce-in">Dawntasy</h2>
         <p class="slide-up">Dawntasy is my upcoming book series that features the adventures of 7 unique characters, Yaya, Questa, Solus, Filapawa, Salvapige, Dryadis and Norsty. If you are looking for an immersive book with numerous layers of story and plot discoveries, check out Dawntasy (Dawnstory Revelation!</p>
-        <img src="https://www.dawnstoryrevelation.com/F958CA78-2039-4820-99A5-970B321B482A.jpeg" alt="Dawntasy" class="o-images">
+        <img src="https://www.dawnstoryrevelation.com/F958CA78-2039-4820-99A5-970B321B482A.jpeg" alt="Dawntasy" class="o-images scroll-image">
         <h2 class="bounce-in">Characters and World-building</h2>
         <p class="slide-up">At the heart of Dawntasy are its characters and world-building. From the brave Questa to the mysterious Solus, I make sure each character brings their own unique story and perspective to the saga. The world of Wintro is filled with excitement, creating a rich tapestry for readers to explore.</p>
 
