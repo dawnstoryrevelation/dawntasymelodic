@@ -31,11 +31,28 @@
             padding: 20px;
             width: 100%;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            position: relative;
         }
         header h1 {
             margin: 0;
             font-size: 3em;
             font-weight: bold;
+        }
+        .newsletter-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background-color: #007bff;
+            color: #fff;
+            text-decoration: none;
+            padding: 10px 20px;
+            font-size: 1.2em;
+            border-radius: 5px;
+            font-family: 'Indie Flower', cursive;
+            transition: background-color 0.3s ease;
+        }
+        .newsletter-button:hover {
+            background-color: #0056b3;
         }
         .advertising-line {
             font-size: 1.5em;
@@ -115,23 +132,6 @@
         .youtube-button:hover {
             background-color: #CC0000;
         }
-        .newsletter-button {
-            display: inline-block;
-            margin-top: 20px;
-            padding: 15px 30px;
-            background-color: #007bff;
-            color: #fff;
-            text-decoration: none;
-            font-size: 1.5em;
-            border-radius: 10px;
-            font-family: 'Indie Flower', cursive;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            transition: background-color 0.3s ease, transform 0.3s ease;
-        }
-        .newsletter-button:hover {
-            background-color: #0056b3;
-            transform: scale(1.05);
-        }
         footer {
             margin-top: 40px;
             padding: 10px;
@@ -206,6 +206,7 @@
 <body>
     <header data-aos="fade-down">
         <h1>Dawntasy Saga</h1>
+        <a href="#" class="newsletter-button">Newsletter</a>
     </header>
     <nav data-aos="fade-down">
         <a href="https://dawnstoryrevelation.com">Home</a>
@@ -354,12 +355,6 @@
                 <span class="sr-only">Next</span>
             </a>
         </div>
-
-        <!-- Newsletter Button -->
-        <div data-aos="fade-up">
-            <a href="dawnstoryrevelation.com/newsletter.html" class="newsletter-button">Newsletter</a>
-        </div>
-
     </main>
     <footer data-aos="fade-up">
         <p>&copy; 2024 Dawntasy: Dawnstory Revelation. All rights reserved.</p>
