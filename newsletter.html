@@ -132,6 +132,20 @@
         .email-input-box button:hover {
             background-color: #45a049;
         }
+        .submission-success {
+            display: none;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border-radius: 4px;
+            text-align: center;
+            margin-top: 10px;
+            font-size: 16px;
+        }
+        .submission-success svg {
+            vertical-align: middle;
+            margin-right: 10px;
+        }
     </style>
 </head>
 <body>
@@ -183,6 +197,12 @@
             <label for="email">Sign up for updates and notifications:</label>
             <input type="email" id="email" name="email" placeholder="example@example.com" required>
             <button type='submit' id="submit">Submit</button>
+            <div class="submission-success" id="success-message">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M20 6L9 17L4 12" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Submission successful! You will receive notifications to your email/gmail for Dawntasy!
+            </div>
         </div>
 
         <!-- Modals -->
@@ -254,5 +274,11 @@
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+    <script>
+        document.getElementById('submit').addEventListener('click', function(e) {
+            e.preventDefault();
+            document.getElementById('success-message').style.display = 'block';
+        });
+    </script>
 </body>
 </html>
