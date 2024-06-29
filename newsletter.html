@@ -146,6 +146,33 @@
             vertical-align: middle;
             margin-right: 10px;
         }
+        .section-title {
+            font-size: 2em;
+            margin: 20px 0;
+            color: #333;
+        }
+        .gallery {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+        }
+        .gallery img {
+            width: 100%;
+            max-width: 300px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .spotlight, .updates, .testimonials, .events {
+            margin: 20px 0;
+        }
+        .events-list {
+            list-style-type: none;
+            padding: 0;
+        }
+        .events-list li {
+            margin: 10px 0;
+        }
     </style>
 </head>
 <body>
@@ -155,7 +182,13 @@
     
     <div class="container">
         <!-- Image above the carousel -->
-        <img src="https://www.dawnstoryrevelation.com/images/989959E5-3F57-4050-A018-5DCBC02DE2D5.jpeg" alt="Dawntasy Logo" style="width:100%; max-width:800px; margin-bottom:20px;">
+        <img src="https://www.dawnstoryrevelation.com/images/989959E5-3F57-4050-A018-5DCBC02DE2D5.jpeg" alt="Spotlight Monthly" style="width:100%; max-width:800px; margin-bottom:20px;">
+
+        <!-- Introduction Section -->
+        <div class="introduction">
+            <h2 class="section-title">Welcome to the Dawntasy Newsletter</h2>
+            <p>Stay updated with the latest news, character spotlights, and upcoming events in the world of Dawntasy. Join our community and never miss an update!</p>
+        </div>
 
         <!-- Carousel -->
         <div id="updatesCarousel" class="carousel slide" data-ride="carousel">
@@ -195,6 +228,62 @@
             </a>
         </div>
 
+        <!-- Gallery Section -->
+        <div class="gallery">
+            <h2 class="section-title">Gallery</h2>
+            <img src="path/to/gallery/image1.png" alt="Gallery Image 1">
+            <img src="path/to/gallery/image2.png" alt="Gallery Image 2">
+            <img src="path/to/gallery/image3.png" alt="Gallery Image 3">
+        </div>
+
+        <!-- Spotlight Section -->
+        <div class="spotlight">
+            <h2 class="section-title">Character Spotlight</h2>
+            <p>Get to know more about your favorite characters in the Dawntasy series.</p>
+            <div class="modal fade" id="questaModal" tabindex="-1" role="dialog" aria-labelledby="questaModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="questaModalLabel">Character Spotlight: Questa</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <p>Get to know more about Questa, the brave and adventurous character who plays a pivotal role in the Dawntasy saga. In this spotlight, we explore his background, motivations, and his journey so far.</p>
+                            <p><a href="https://www.dawnstoryrevelation.com/questa.html" target="_blank" class="button">Learn More</a></p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Updates Section -->
+        <div class="updates">
+            <h2 class="section-title">Latest Updates</h2>
+            <p>Stay informed with the latest updates and news in the Dawntasy universe.</p>
+        </div>
+
+        <!-- Testimonials Section -->
+        <div class="testimonials">
+            <h2 class="section-title">Testimonials</h2>
+            <p>"Dawntasy is an epic adventure that keeps you on the edge of your seat!" - Avid Reader</p>
+            <p>"The characters are so well-developed and the story is incredibly immersive." - Fantasy Fan</p>
+        </div>
+
+        <!-- Events Section -->
+        <div class="events">
+            <h2 class="section-title">Upcoming Events</h2>
+            <ul class="events-list">
+                <li>Q&A with the Author - June 19, 2024</li>
+                <li>Live Reading Session - July 10, 2024</li>
+                <li>Fan Art Contest - August 15, 2024</li>
+            </ul>
+        </div>
+
         <!-- Email Input Box -->
         <div class="email-input-box">
             <label for="email">Sign up for updates and notifications:</label>
@@ -220,26 +309,6 @@
                     </div>
                     <div class="modal-body">
                         <p>We are excited to announce the release of the latest chapter in the Dawntasy series, "His Promise". Dive into the adventures of Yaya and friends as they embark on new quests and face unprecedented challenges.</p>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="modal fade" id="questaModal" tabindex="-1" role="dialog" aria-labelledby="questaModalLabel" aria-hidden="true">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="questaModalLabel">Character Spotlight: Questa</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <p>Get to know more about Questa, the brave and adventurous character who plays a pivotal role in the Dawntasy saga. In this spotlight, we explore his background, motivations, and his journey so far.</p>
-                        <p><a href="https://www.dawnstoryrevelation.com/questa.html" target="_blank" class="button">Learn More</a></p>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
