@@ -183,6 +183,33 @@
             font-size: 1.5em;
             font-weight: bold;
         }
+        .season-image {
+            width: 100%;
+            max-width: 800px;
+            margin-bottom: 20px;
+            transition: transform 0.3s ease;
+        }
+        .season-image:hover {
+            transform: scale(1.05);
+        }
+        .season-button {
+            display: block;
+            margin: 0 auto;
+            padding: 10px 20px;
+            font-size: 16px;
+            font-family: 'Indie Flower', cursive;
+            color: #fff;
+            background-color: #007bff;
+            border: none;
+            border-radius: 5px;
+            text-align: center;
+            text-decoration: none;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .season-button:hover {
+            background-color: #0056b3;
+        }
     </style>
 </head>
 <body>
@@ -204,7 +231,8 @@
         <div class="season-1">
             <h2 class="section-title">Season 1: Holiday Light</h2>
             <p style="text-align: center;">Dawntasy...we're still with you in the holidays. With the first season, Holiday Light, experience a wide variety of events for Dawntasy. More details can be confirmed in the Season About page.</p>
-            <img src="https://www.dawnstoryrevelation.com/9234C975-D7E0-464B-974C-64106D899BBD.jpeg" alt="Holiday Light" style="width:100%; max-width:800px; margin-bottom:20px;">
+            <img src="https://www.dawnstoryrevelation.com/9234C975-D7E0-464B-974C-64106D899BBD.jpeg" alt="Holiday Light" class="season-image">
+            <a href="holidaylight.html" class="season-button">Season 1: Holiday Light</a>
         </div>
 
         <!-- Carousel -->
