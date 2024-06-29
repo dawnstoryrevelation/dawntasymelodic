@@ -7,6 +7,7 @@
     <title>Dawntasy Newsletter</title>
     <link href="https://fonts.googleapis.com/css2?family=Indie+Flower&display=swap" rel="stylesheet">
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet">
+    <script defer src='newsletter.js'></script>
     <style>
         body {
             font-family: 'Indie Flower', cursive;
@@ -94,6 +95,39 @@
             font-size: 1.2em;
             line-height: 1.6;
         }
+        .email-input-box {
+      display: flex;
+      flex-direction: column;
+      width: 300px;
+      margin: 0 auto;
+    }
+
+    .email-input-box label {
+      margin-bottom: 8px;
+      font-size: 14px;
+    }
+
+    .email-input-box input {
+      padding: 10px;
+      margin-bottom: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+
+    .email-input-box button {
+      padding: 10px;
+      border: none;
+      border-radius: 4px;
+      background-color: #4CAF50;
+      color: white;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .email-input-box button:hover {
+      background-color: #45a049;
+    }
     </style>
 </head>
 <body>
@@ -205,7 +239,11 @@
             <p>If you have any questions, feel free to <a href="mailto:contact@dawntasy.com">contact us</a>.</p>
         </footer>
     </div>
-
+     <div class="email-input-box">
+    <label for="email">Enter your email:</label>
+    <input type="email" id="email" name="email" placeholder="example@example.com" required>
+    <button type='submit' id="submit">Submit</button>
+  </div>
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
