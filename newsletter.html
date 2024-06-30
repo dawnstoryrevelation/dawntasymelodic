@@ -33,6 +33,11 @@
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             border-radius: 10px;
             margin-top: 20px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
         }
         header {
             text-align: center;
@@ -50,6 +55,10 @@
             border-radius: 10px;
             margin: 0 auto;
             display: block;
+            transition: transform 0.3s ease;
+        }
+        .carousel-item img:hover {
+            transform: scale(1.05);
         }
         footer {
             text-align: center;
@@ -69,10 +78,11 @@
             text-align: center;
             text-decoration: none;
             cursor: pointer;
-            transition: background-color 0.3s ease;
+            transition: background-color 0.3s ease, transform 0.3s ease;
         }
         .button:hover {
             background-color: #0056b3;
+            transform: translateY(-3px);
         }
         .newsletter-button {
             position: absolute;
@@ -86,10 +96,11 @@
             border: none;
             border-radius: 10px;
             cursor: pointer;
-            transition: background-color 0.3s ease;
+            transition: background-color 0.3s ease, transform 0.3s ease;
         }
         .newsletter-button:hover {
             background-color: #0056b3;
+            transform: translateY(-3px);
         }
         .modal-content p {
             font-size: 1.2em;
@@ -105,6 +116,11 @@
             background-color: #ffebcd;
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .email-input-box:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
         }
         .email-input-box label {
             margin-bottom: 8px;
@@ -119,6 +135,11 @@
             font-size: 16px;
             width: 100%;
             max-width: 300px;
+            transition: border-color 0.3s ease;
+        }
+        .email-input-box input:focus {
+            border-color: #007bff;
+            outline: none;
         }
         .email-input-box button {
             padding: 10px 20px;
@@ -128,9 +149,11 @@
             color: white;
             font-size: 16px;
             cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.3s ease;
         }
         .email-input-box button:hover {
             background-color: #45a049;
+            transform: translateY(-3px);
         }
         .submission-success {
             display: none;
@@ -141,6 +164,7 @@
             text-align: center;
             margin-top: 10px;
             font-size: 16px;
+            transition: transform 0.3s ease;
         }
         .submission-success svg {
             vertical-align: middle;
@@ -163,6 +187,11 @@
             max-width: 300px;
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .gallery img:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
         }
         .spotlight, .updates, .testimonials, .events {
             margin: 20px 0;
@@ -170,6 +199,11 @@
             background-color: #f9f9f9;
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .spotlight:hover, .updates:hover, .testimonials:hover, .events:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
         }
         .events-list {
             list-style-type: none;
@@ -185,10 +219,11 @@
         }
         .season-image {
             cursor: pointer;
-            transition: transform 0.3s ease;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
         .season-image:hover {
             transform: scale(1.05);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
         }
     </style>
 </head>
