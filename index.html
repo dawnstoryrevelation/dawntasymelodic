@@ -25,39 +25,42 @@
             background-attachment: fixed;
             background-size: cover;
         }
-        header {
-            text-align: center;
-            background-color: #ffebcd;
-            padding: 20px;
-            width: 100%;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            position: relative;
-        }
-        header h1 {
-            margin: 0;
-            font-size: 3em;
-            font-weight: bold;
-        }
-        header {
-    text-align: center;
+     header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
     background-color: #ffebcd;
     padding: 20px;
     width: 100%;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     position: relative;
-    display: flex;
-    justify-content: center;
-    align-items: center;
 }
 
 header h1 {
     margin: 0;
     font-size: 3em;
     font-weight: bold;
-    flex-grow: 1;
+    flex-grow: 1; /* Allow the title to take up available space */
+    text-align: center;
 }
 
-.newsletter-button, .sign-up-button {
+header .sign-up-button {
+    background-color: #FF0000;
+    color: #fff;
+    text-decoration: none;
+    padding: 10px 20px;
+    font-size: 1.2em;
+    border-radius: 5px;
+    font-family: 'Indie Flower', cursive;
+    transition: background-color 0.3s ease;
+    margin-right: 10px; /* Add some space between the buttons */
+}
+
+header .sign-up-button:hover {
+    background-color: #CC0000;
+}
+
+header .newsletter-button {
     background-color: #007bff;
     color: #fff;
     text-decoration: none;
@@ -66,20 +69,11 @@ header h1 {
     border-radius: 5px;
     font-family: 'Indie Flower', cursive;
     transition: background-color 0.3s ease;
-    margin-left: 10px;
 }
 
-.sign-up-button {
-    background-color: #ff0000;
-}
-
-.newsletter-button:hover, .sign-up-button:hover {
+header .newsletter-button:hover {
     background-color: #0056b3;
 }
-
-.sign-up-button:hover {
-    background-color: #cc0000;
-        }
         .advertising-line {
             font-size: 1.5em;
             color: #d2691e;
