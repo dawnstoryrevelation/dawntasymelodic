@@ -55,6 +55,10 @@
             border-radius: 10px;
             margin: 0 auto;
             display: block;
+            transition: transform 0.3s ease;
+        }
+        .carousel-item img:hover {
+            transform: scale(1.05);
         }
         footer {
             text-align: center;
@@ -80,7 +84,7 @@
             background-color: #0056b3;
             transform: translateY(-3px);
         }
-        .return-button {
+        .newsletter-button {
             position: absolute;
             top: 20px;
             right: 20px;
@@ -92,10 +96,9 @@
             border: none;
             border-radius: 10px;
             cursor: pointer;
-            text-decoration: none;
             transition: background-color 0.3s ease, transform 0.3s ease;
         }
-        .return-button:hover {
+        .newsletter-button:hover {
             background-color: #0056b3;
             transform: translateY(-3px);
         }
@@ -227,7 +230,6 @@
 <body>
     <header>
         <h1>Dawntasy: Dawnstory Revelation Updates</h1>
-        <a href="https://www.dawnstoryrevelation.com/index.html" class="return-button">Return to Main Website</a>
     </header>
     
     <div class="container">
@@ -406,17 +408,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
     <script>
-        $(document).ready(function(){
-            $('#submit').on('click', function(e) {
-                e.preventDefault();
-                $('#success-message').show();
-            });
-
-            $('#updatesCarousel .btn-primary').on('click', function() {
-                setTimeout(() => {
-                    $(this).blur();
-                }, 100);
-            });
+        document.getElementById('submit').addEventListener('click', function(e) {
+            e.preventDefault();
+            document.getElementById('success-message').style.display = 'block';
         });
     </script>
 </body>
