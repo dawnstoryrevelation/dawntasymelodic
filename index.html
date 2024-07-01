@@ -38,38 +38,47 @@
             font-size: 3em;
             font-weight: bold;
         }
-        .sign-up-button {
-    font-family: 'Indie Flower', cursive;
-    font-size: 1.2em;
+        header {
+    text-align: center;
+    background-color: #ffebcd;
+    padding: 20px;
+    width: 100%;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 3em;
+    font-weight: bold;
+    flex-grow: 1;
+}
+
+.newsletter-button, .sign-up-button {
     background-color: #007bff;
-    color: white;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
+    color: #fff;
     text-decoration: none;
-    cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.3s ease;
+    padding: 10px 20px;
+    font-size: 1.2em;
+    border-radius: 5px;
+    font-family: 'Indie Flower', cursive;
+    transition: background-color 0.3s ease;
+    margin-left: 10px;
+}
+
+.sign-up-button {
+    background-color: #ff0000;
+}
+
+.newsletter-button:hover, .sign-up-button:hover {
+    background-color: #0056b3;
 }
 
 .sign-up-button:hover {
-    background-color: #0056b3;
-    transform: translateY(-3px);
-}
-        .newsletter-button {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background-color: #007bff;
-            color: #fff;
-            text-decoration: none;
-            padding: 10px 20px;
-            font-size: 1.2em;
-            border-radius: 5px;
-            font-family: 'Indie Flower', cursive;
-            transition: background-color 0.3s ease;
-        }
-        .newsletter-button:hover {
-            background-color: #0056b3;
+    background-color: #cc0000;
         }
         .advertising-line {
             font-size: 1.5em;
@@ -221,8 +230,8 @@
     </style>
 </head>
 <body>
-    <header data-aos="fade-down">
-        <h1>Dawntasy Saga</h1>
+   <header data-aos="fade-down">
+    <h1>Dawntasy Saga</h1>
     <a href="signup.html" class="sign-up-button">Sign Up</a>
     <a href="https://www.dawnstoryrevelation.com/newsletter.html" class="newsletter-button">Newsletter</a>
 </header>
