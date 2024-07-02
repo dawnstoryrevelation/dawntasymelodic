@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -25,16 +26,14 @@
             background-attachment: fixed;
             background-size: cover;
         }
-.call-to-action-container {
+        .call-to-action-container {
     display: flex;
-    justify-content: center; /* Center the call-to-action horizontally */
     align-items: center;
-    flex-direction: column; /* Ensure it stacks vertically */
+    justify-content: space-between;
 }
 
 .call-to-action {
     position: relative;
-    text-align: center;
 }
 
 .call-to-action img {
@@ -43,7 +42,11 @@
     height: auto;
     border-radius: 10px;
     margin-top: 10px;
-    cursor: pointer;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    position: relative;
+    cursor: pointer; /* Add cursor pointer for better UX */
 }
 
 .textbox-on-image {
@@ -56,7 +59,7 @@
     padding: 10px;
     border-radius: 5px;
     font-size: 1.5em;
-    pointer-events: none;
+    pointer-events: none; /* Ensure text does not interfere with click */
 }
      header {
     display: flex;
@@ -305,15 +308,12 @@ header .newsletter-button:hover {
         <h3><b>Why You Should Read Dawntasy Story</b></h3>
         <p>In Dawntasy, we invite you to embark on a journey like no other. Dive into a world where the lines between fantasy and dystopia blur, and where every turn of the page brings new surprises and revelations. With its richly developed characters, immersive world-building, and gripping plot twists, DSR promises an unforgettable reading experience.</p>
         <p>Join us as we uncover the secrets of this sprawling saga, where courage, adventure, and the fight for justice reign supreme. Let Dawntasy ignite your imagination and take you on an epic adventure you won't soon forget.</p>
- <div class="call-to-action-container" data-aos="fade-up">
-    <div class="call-to-action">
         <a href="signup.html">
-            <img src="https://www.dawnstoryrevelation.com/images/BE09F029-353F-45D5-AC84-9DED9EBA140E.png" alt="Sign Up">
-            <div class="textbox-on-image">Sign up now! Just click me!</div>
+            <img src="https://www.dawnstoryrevelation.com/images/BE09F029-353F-45D5-AC84-9DED9EBA140E.png" alt="Welcome" class="call-to-action">
+            <div class="textbox-on-image">So why not start now?</div>
         </a>
     </div>
 </div>
-
 
         <h2 data-aos="fade-up">Our Song Album</h2>
         <p data-aos="fade-left">Our Dawntasy Song Album "Crossing the Divine" brings joy and laughter and features a wide range of different songs.</p>
