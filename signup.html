@@ -113,6 +113,9 @@
             if (username && email && password) {
                 document.getElementById('success-message').style.display = 'block';
                 document.getElementById('error-message').style.display = 'none';
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 2000);
                 // Code to send data to backend goes here
             } else {
                 document.getElementById('error-message').style.display = 'block';
