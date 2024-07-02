@@ -1,1 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" href="https://www.dawnstoryrevelation.com/images/D27E4B00-E095-416E-9AA1-ED12005DE86B.jpeg" type="image/x-icon">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Members Panel - Dawntasy Saga</title>
+    <link href="https://fonts.googleapis.com/css2?family=Indie+Flower&display=swap" rel="stylesheet">
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Indie Flower', cursive;
+            background-color: #f9f5d7;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-image: url('https://dawnstoryrevelation.github.io/dawnstoryrevelation/images/fadiA.jpeg');
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            background-size: cover;
+            animation: fadeIn 2s ease-in-out;
+        }
+        @keyframes fadeIn {
+            0% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+        .panel-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            width: 100%;
+            max-width: 1200px;
+            margin: 20px 0;
+        }
+        .panel {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 350px;
+            margin: 10px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .panel:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+        .panel h3 {
+            margin-top: 0;
+            font-size: 1.5em;
+        }
+        .panel p {
+            font-size: 1.1em;
+        }
+        .btn-custom {
+            display: inline-block;
+            padding: 10px 20px;
+            font-size: 1em;
+            border-radius: 5px;
+            color: #fff;
+            text-align: center;
+            text-decoration: none;
+            transition: background-color 0.3s ease;
+        }
+        .btn-blue {
+            background-color: #007bff;
+        }
+        .btn-blue:hover {
+            background-color: #0056b3;
+        }
+        .btn-purple {
+            background-color: #6f42c1;
+        }
+        .btn-purple:hover {
+            background-color: #4e2a7b;
+        }
+        .btn-green {
+            background-color: #28a745;
+        }
+        .btn-green:hover {
+            background-color: #1c7430;
+        }
+    </style>
+</head>
+<body>
+    <div class="panel-container">
+        <div class="panel">
+            <h3>Main Page</h3>
+            <p>Explore the main page of the Dawntasy Saga. Find out more about the story, characters, and latest updates.</p>
+            <a href="index.html" class="btn-custom btn-blue">Go To Main Page</a>
+        </div>
+        <div class="panel">
+            <h3>Newsletter</h3>
+            <p>Stay updated with the latest news, character spotlights, and upcoming events in the world of Dawntasy.</p>
+            <a href="newsletter.html" class="btn-custom btn-purple">Go To Newsletter</a>
+        </div>
+        <div class="panel">
+            <h3>Member Exclusive Site</h3>
+            <p>Access exclusive content available only to Dawntasy members. Dive deeper into the saga with special features.</p>
+            <a href="exclusive.html" class="btn-custom btn-green">Go To Member Exclusive Site</a>
+        </div>
+    </div>
+</body>
+</html>
 
