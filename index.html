@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -26,90 +25,37 @@
             background-attachment: fixed;
             background-size: cover;
         }
-        .call-to-action-container {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-}
-
-.call-to-action {
-    position: relative;
-}
-
-.call-to-action img {
-    max-width: 300px;
-    width: 100%;
-    height: auto;
-    border-radius: 10px;
-    margin-top: 10px;
-    display: block;
-    margin-left: auto;
-    margin-right: auto;
-    position: relative;
-    cursor: pointer; /* Add cursor pointer for better UX */
-}
-
-.textbox-on-image {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background-color: rgba(0, 0, 0, 0.5);
-    color: #fff;
-    padding: 10px;
-    border-radius: 5px;
-    font-size: 1.5em;
-    pointer-events: none; /* Ensure text does not interfere with click */
-}
-     header {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: #ffebcd;
-    padding: 20px;
-    width: 100%;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    position: relative;
-}
-
-header h1 {
-    margin: 0;
-    font-size: 3em;
-    font-weight: bold;
-    flex-grow: 1; /* Allow the title to take up available space */
-    text-align: center;
-}
-
-header .sign-up-button {
-    background-color: #FF0000;
-    color: #fff;
-    text-decoration: none;
-    padding: 10px 20px;
-    font-size: 1.2em;
-    border-radius: 5px;
-    font-family: 'Indie Flower', cursive;
-    transition: background-color 0.3s ease;
-    margin-right: 10px; /* Add some space between the buttons */
-}
-
-header .sign-up-button:hover {
-    background-color: #CC0000;
-}
-
-header .newsletter-button {
-    background-color: #007bff;
-    color: #fff;
-    text-decoration: none;
-    padding: 10px 20px;
-    font-size: 1.2em;
-    border-radius: 5px;
-    font-family: 'Indie Flower', cursive;
-    transition: background-color 0.3s ease;
-}
-
-header .newsletter-button:hover {
-    background-color: #0056b3;
-}
+        header {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #ffebcd;
+            padding: 20px;
+            width: 100%;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+        header h1 {
+            margin: 0;
+            font-size: 3em;
+            font-weight: bold;
+            flex-grow: 1;
+            text-align: center;
+        }
+        header .sign-up-button, header .newsletter-button {
+            background-color: #007bff;
+            color: #fff;
+            text-decoration: none;
+            padding: 10px 20px;
+            font-size: 1.2em;
+            border-radius: 5px;
+            font-family: 'Indie Flower', cursive;
+            transition: background-color 0.3s ease;
+            margin: 5px;
+        }
+        header .sign-up-button:hover, header .newsletter-button:hover {
+            background-color: #0056b3;
+        }
         .advertising-line {
             font-size: 1.5em;
             color: #d2691e;
@@ -234,6 +180,7 @@ header .newsletter-button:hover {
             display: flex;
             align-items: center;
             justify-content: space-between;
+            flex-wrap: wrap;
         }
         .call-to-action img {
             max-width: 300px;
@@ -256,6 +203,33 @@ header .newsletter-button:hover {
             padding: 10px;
             border-radius: 5px;
             font-size: 1.5em;
+        }
+
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+            }
+            nav {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+            nav a {
+                margin: 10px 0;
+            }
+            .call-to-action-container {
+                flex-direction: column;
+                align-items: center;
+            }
+            .featured-story, .testimonials, .call-to-action, main {
+                padding: 10px;
+            }
+            main h2 {
+                font-size: 2em;
+            }
+            main p {
+                font-size: 1em;
+            }
         }
     </style>
 </head>
