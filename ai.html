@@ -45,6 +45,8 @@
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            max-height: 300px;
+            overflow-y: auto;
         }
         .input-area {
             margin-top: 20px;
@@ -111,13 +113,30 @@
             const dialogue = document.getElementById('dialogue');
             let response = '';
 
-            if (question.toLowerCase().includes('tribe')) {
-                response = 'Our tribe is known for its bravery and strength. We live in harmony with nature and protect our lands fiercely.';
-            } else if (question.toLowerCase().includes('mission')) {
-                response = 'My mission is to find the lost artifacts of our tribe and restore peace to our land.';
-            } else if (question.toLowerCase().includes('allies')) {
-                response = 'Yes, I have many allies, including brave warriors and wise elders who guide me on my journey.';
-            } else {
+            // Here we define a larger set of possible responses based on keywords
+            const responses = {
+                'tribe': 'Our tribe is known for its bravery and strength. We live in harmony with nature and protect our lands fiercely.',
+                'mission': 'My mission is to find the lost artifacts of our tribe and restore peace to our land.',
+                'allies': 'Yes, I have many allies, including brave warriors and wise elders who guide me on my journey.',
+                'enemy': 'Our greatest enemy is the nefarious LTR organization that seeks to dominate our lands.',
+                'artifact': 'The artifacts are ancient relics that hold immense power and are key to our survival.',
+                'master': 'My beloved master taught me everything about survival and combat before he was slain by our enemies.',
+                'danger': 'The world is full of dangers, from wild beasts to treacherous terrain and hostile forces.',
+                'hope': 'Despite the challenges, we hold on to hope and strive to make the world a better place.'
+            };
+
+            const lowerQuestion = question.toLowerCase();
+            let foundResponse = false;
+
+            for (let keyword in responses) {
+                if (lowerQuestion.includes(keyword)) {
+                    response = responses[keyword];
+                    foundResponse = true;
+                    break;
+                }
+            }
+
+            if (!foundResponse) {
                 response = 'That is an interesting question! Let me think about it and get back to you.';
             }
 
