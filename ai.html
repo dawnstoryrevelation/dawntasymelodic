@@ -46,22 +46,31 @@
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
-        .choices {
+        .input-area {
             margin-top: 20px;
             display: flex;
             flex-direction: column;
         }
-        .choice {
+        .input-area input {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            width: 100%;
+            max-width: 600px;
+        }
+        .input-area button {
             background-color: #007bff;
             color: white;
             padding: 10px 20px;
             border: none;
             border-radius: 5px;
-            margin-top: 10px;
             cursor: pointer;
             transition: background-color 0.3s ease, transform 0.3s ease;
+            width: 100%;
+            max-width: 200px;
         }
-        .choice:hover {
+        .input-area button:hover {
             background-color: #0056b3;
             transform: translateY(-3px);
         }
@@ -79,22 +88,43 @@
         <div class="dialogue" id="dialogue">
             <p>Welcome to the Dawntasy saga! What would you like to ask Yaya Ursa?</p>
         </div>
-        <div class="choices">
-            <button class="choice" onclick="selectChoice('Tell me about your tribe.')">Tell me about your tribe.</button>
-            <button class="choice" onclick="selectChoice('What is your mission?')">What is your mission?</button>
-            <button class="choice" onclick="selectChoice('Do you have any allies?')">Do you have any allies?</button>
+        <div class="input-area">
+            <input type="text" id="userInput" placeholder="Type your question here...">
+            <button onclick="submitQuestion()">Ask Yaya</button>
         </div>
     </div>
     <script>
-        function selectChoice(choice) {
-            let dialogue = document.getElementById('dialogue');
-            if (choice === 'Tell me about your tribe.') {
-                dialogue.innerHTML = '<p>Our tribe is known for its bravery and strength. We live in harmony with nature and protect our lands fiercely.</p>';
-            } else if (choice === 'What is your mission?') {
-                dialogue.innerHTML = '<p>My mission is to find the lost artifacts of our tribe and restore peace to our land.</p>';
-            } else if (choice === 'Do you have any allies?') {
-                dialogue.innerHTML = '<p>Yes, I have many allies, including brave warriors and wise elders who guide me on my journey.</p>';
+        function submitQuestion() {
+            const userInput = document.getElementById('userInput').value;
+            const dialogue = document.getElementById('dialogue');
+
+            if (userInput.trim() === '') {
+                dialogue.innerHTML += '<p><strong>You:</strong> Please enter a question.</p>';
+                return;
             }
+
+            dialogue.innerHTML += `<p><strong>You:</strong> ${userInput}</p>`;
+            getYayaResponse(userInput);
+        }
+
+        function getYayaResponse(question) {
+            const dialogue = document.getElementById('dialogue');
+            let response = '';
+
+            if (question.toLowerCase().includes('tribe')) {
+                response = 'Our tribe is known for its bravery and strength. We live in harmony with nature and protect our lands fiercely.';
+            } else if (question.toLowerCase().includes('mission')) {
+                response = 'My mission is to find the lost artifacts of our tribe and restore peace to our land.';
+            } else if (question.toLowerCase().includes('allies')) {
+                response = 'Yes, I have many allies, including brave warriors and wise elders who guide me on my journey.';
+            } else {
+                response = 'That is an interesting question! Let me think about it and get back to you.';
+            }
+
+            setTimeout(() => {
+                dialogue.innerHTML += `<p><strong>Yaya:</strong> ${response}</p>`;
+                dialogue.scrollTop = dialogue.scrollHeight;
+            }, 1000);
         }
     </script>
 </body>
