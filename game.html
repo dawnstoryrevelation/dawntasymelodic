@@ -20,7 +20,7 @@
             background-image: url('https://dawnstoryrevelation.github.io/dawnstoryrevelation/images/fadiA.jpeg');
             background-size: cover;
         }
-        .title-screen, .character-selection, .game-container, .full-screen-background, .storyline, .yaya-continued, .yaya-apprentice {
+        .title-screen, .character-selection, .game-container, .full-screen-background, .storyline, .yaya-continued, .yaya-apprentice, .yaya-training, .yaya-ruins {
             display: none;
         }
         .active {
@@ -53,7 +53,7 @@
             font-size: 3em;
             margin-bottom: 20px;
         }
-        .start-button, .character-option, .continue-button, .agree-button, .apprentice-button {
+        .start-button, .character-option, .continue-button, .agree-button, .apprentice-button, .training-button, .ruins-button {
             padding: 10px 20px;
             font-size: 1.2em;
             cursor: pointer;
@@ -63,7 +63,7 @@
             color: #fff;
             transition: background-color 0.3s, transform 0.3s;
         }
-        .start-button:hover, .character-option:hover, .continue-button:hover, .agree-button:hover, .apprentice-button:hover {
+        .start-button:hover, .character-option:hover, .continue-button:hover, .agree-button:hover, .apprentice-button:hover, .training-button:hover, .ruins-button:hover {
             background-color: #0056b3;
             transform: translateY(-3px);
         }
@@ -130,7 +130,7 @@
             font-size: 4em;
             text-shadow: 2px 2px 4px #000;
         }
-        .storyline, .yaya-continued, .yaya-apprentice {
+        .storyline, .yaya-continued, .yaya-apprentice, .yaya-training, .yaya-ruins {
             text-align: center;
             background: rgba(255, 255, 255, 0.9);
             padding: 20px;
@@ -138,11 +138,11 @@
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             width: 80%;
         }
-        .storyline h2, .yaya-continued h2, .yaya-apprentice h2 {
+        .storyline h2, .yaya-continued h2, .yaya-apprentice h2, .yaya-training h2, .yaya-ruins h2 {
             font-size: 2em;
             margin-bottom: 20px;
         }
-        .storyline p, .yaya-continued p, .yaya-apprentice p {
+        .storyline p, .yaya-continued p, .yaya-apprentice p, .yaya-training p, .yaya-ruins p {
             font-size: 1.5em;
             margin-bottom: 20px;
         }
@@ -200,7 +200,27 @@
     <div class="storyline" id="yayaApprentice">
         <h2>Yaya's Story</h2>
         <p>Follow me. How would you like to be my apprentice?</p>
-        <button class="apprentice-button" onclick="acceptApprenticeship()">Sure!</button>
+        <button class="apprentice-button" onclick="choosePath()">Sure!</button>
+    </div>
+
+    <div class="storyline" id="choosePath">
+        <h2>Yaya's Story</h2>
+        <p>Do you want to train with Aegis Wick or explore the ruins of your village?</p>
+        <button class="training-button" onclick="trainWithAegis()">Train with Aegis Wick</button>
+        <button class="ruins-button" onclick="exploreRuins()">Explore the Ruins</button>
+    </div>
+
+    <div class="storyline" id="yayaTraining">
+        <h2>Yaya's Training</h2>
+        <p>You begin training with Aegis Wick. He teaches you how to use a pike effectively.</p>
+        <img src="path_to_training_pike_image.png" alt="Training Pike">
+        <button class="continue-button" onclick="trainingFeedback()">Continue Training</button>
+    </div>
+
+    <div class="storyline" id="yayaRuins">
+        <h2>Exploring the Ruins</h2>
+        <p>You decide to explore the ruins of your village to find clues about LTR.</p>
+        <button class="continue-button" onclick="exploreFeedback()">Continue Exploring</button>
     </div>
 
     <script>
@@ -210,6 +230,9 @@
         const yayaStoryline = document.getElementById('yayaStoryline');
         const yayaContinued = document.getElementById('yayaContinued');
         const yayaApprentice = document.getElementById('yayaApprentice');
+        const choosePath = document.getElementById('choosePath');
+        const yayaTraining = document.getElementById('yayaTraining');
+        const yayaRuins = document.getElementById('yayaRuins');
 
         function startGame() {
             titleScreen.classList.remove('active');
@@ -223,7 +246,11 @@
 
         function selectCharacter(character) {
             characterSelection.classList.remove('active');
-            showYayaStory();
+            document.querySelector('.success-message').classList.add('active');
+            setTimeout(() => {
+                document.querySelector('.success-message').classList.remove('active');
+                showYayaStory();
+            }, 2000);
         }
 
         function showYayaStory() {
@@ -240,9 +267,29 @@
             yayaApprentice.classList.add('active');
         }
 
-        function acceptApprenticeship() {
-            alert('You accepted the apprenticeship!');
-            // Implement the continuation of Yaya's story here
+        function choosePath() {
+            yayaApprentice.classList.remove('active');
+            choosePath.classList.add('active');
+        }
+
+        function trainWithAegis() {
+            choosePath.classList.remove('active');
+            yayaTraining.classList.add('active');
+        }
+
+        function exploreRuins() {
+            choosePath.classList.remove('active');
+            yayaRuins.classList.add('active');
+        }
+
+        function trainingFeedback() {
+            alert('You are getting better at using the pike!');
+            // Implement further training feedback or story continuation
+        }
+
+        function exploreFeedback() {
+            alert('You found some clues about LTR!');
+            // Implement further exploration feedback or story continuation
         }
     </script>
 </body>
