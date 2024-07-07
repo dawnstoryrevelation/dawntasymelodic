@@ -1,1 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gloaming Venturer</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #1e1e2f;
+            color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-image: url('https://dawnstoryrevelation.github.io/dawnstoryrevelation/images/fadiA.jpeg');
+            background-size: cover;
+        }
+        .title-screen, .character-selection, .game-container {
+            display: none;
+        }
+        .active {
+            display: block;
+        }
+        .title-screen, .character-selection {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .title-screen h1, .character-selection h2 {
+            font-size: 3em;
+            margin-bottom: 20px;
+        }
+        .start-button, .character-option {
+            padding: 10px 20px;
+            font-size: 1.2em;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            background-color: #007bff;
+            color: #fff;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+        .start-button:hover, .character-option:hover {
+            background-color: #0056b3;
+            transform: translateY(-3px);
+        }
+        .character-selection .character-option {
+            display: inline-block;
+            margin: 10px;
+            padding: 20px;
+            text-align: center;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            border: 2px solid #fff;
+        }
+        .character-selection .character-option img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            transition: transform 0.3s;
+        }
+        .character-selection .character-option:hover img {
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="title-screen active">
+        <h1>Gloaming Venturer</h1>
+        <button class="start-button" onclick="showCharacterSelection()">Start Game</button>
+    </div>
+
+    <div class="character-selection">
+        <h2>Select Your Character</h2>
+        <div class="character-option" onclick="selectCharacter('yaya')">
+            <img src="https://www.dawnstoryrevelation.com/images/301F15CB-C007-45A2-956F-903A69F3AE11.jpeg" alt="Yaya">
+            <p>Yaya</p>
+        </div>
+        <div class="character-option" onclick="selectCharacter('solus')">
+            <img src="https://www.dawnstoryrevelation.com/images/061AD8FB-09B9-4ED2-8629-147140FCD1CD.webp" alt="Solus">
+            <p>Solus</p>
+        </div>
+        <div class="character-option" onclick="selectCharacter('filapawa')">
+            <img src="https://www.dawnstoryrevelation.com/images/8233283C-3664-4080-8BCB-A8FE0F6A03FA.jpeg" alt="Filapawa">
+            <p>Filapawa</p>
+        </div>
+    </div>
+
+    <script>
+        const titleScreen = document.querySelector('.title-screen');
+        const characterSelection = document.querySelector('.character-selection');
+
+        function showCharacterSelection() {
+            titleScreen.classList.remove('active');
+            characterSelection.classList.add('active');
+        }
+
+        function selectCharacter(character) {
+            alert('You selected ' + character);
+            // Proceed to the next part of the game (to be implemented)
+        }
+    </script>
+</body>
+</html>
 
