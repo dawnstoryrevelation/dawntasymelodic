@@ -20,7 +20,7 @@
             background-image: url('https://dawnstoryrevelation.github.io/dawnstoryrevelation/images/fadiA.jpeg');
             background-size: cover;
         }
-        .title-screen, .character-selection, .game-container, .full-screen-background, .storyline, .yaya-continued {
+        .title-screen, .character-selection, .game-container, .full-screen-background, .storyline, .yaya-continued, .yaya-apprentice {
             display: none;
         }
         .active {
@@ -53,7 +53,7 @@
             font-size: 3em;
             margin-bottom: 20px;
         }
-        .start-button, .character-option, .continue-button, .agree-button {
+        .start-button, .character-option, .continue-button, .agree-button, .apprentice-button {
             padding: 10px 20px;
             font-size: 1.2em;
             cursor: pointer;
@@ -63,7 +63,7 @@
             color: #fff;
             transition: background-color 0.3s, transform 0.3s;
         }
-        .start-button:hover, .character-option:hover, .continue-button:hover, .agree-button:hover {
+        .start-button:hover, .character-option:hover, .continue-button:hover, .agree-button:hover, .apprentice-button:hover {
             background-color: #0056b3;
             transform: translateY(-3px);
         }
@@ -130,7 +130,7 @@
             font-size: 4em;
             text-shadow: 2px 2px 4px #000;
         }
-        .storyline, .yaya-continued {
+        .storyline, .yaya-continued, .yaya-apprentice {
             text-align: center;
             background: rgba(255, 255, 255, 0.9);
             padding: 20px;
@@ -138,11 +138,11 @@
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             width: 80%;
         }
-        .storyline h2, .yaya-continued h2 {
+        .storyline h2, .yaya-continued h2, .yaya-apprentice h2 {
             font-size: 2em;
             margin-bottom: 20px;
         }
-        .storyline p, .yaya-continued p {
+        .storyline p, .yaya-continued p, .yaya-apprentice p {
             font-size: 1.5em;
             margin-bottom: 20px;
         }
@@ -193,8 +193,14 @@
 
     <div class="storyline" id="yayaContinued">
         <h2>Yaya's Story</h2>
-        <p>Yaya, I'm sorry your village was destroyed by LTR. Your parents. But I can help you.</p>
+        <p>"Yaya, I'm sorry your village was destroyed by LTR. Your parents. But I can help you. The name is Aegis, Aegis Wick."</p>
         <button class="agree-button" onclick="nodInAgreement()">Nod In Agreement</button>
+    </div>
+
+    <div class="storyline" id="yayaApprentice">
+        <h2>Yaya's Story</h2>
+        <p>Follow me. How would you like to be my apprentice?</p>
+        <button class="apprentice-button" onclick="acceptApprenticeship()">Sure!</button>
     </div>
 
     <script>
@@ -203,6 +209,7 @@
         const fullScreenBackground = document.getElementById('fullScreenBackground');
         const yayaStoryline = document.getElementById('yayaStoryline');
         const yayaContinued = document.getElementById('yayaContinued');
+        const yayaApprentice = document.getElementById('yayaApprentice');
 
         function startGame() {
             titleScreen.classList.remove('active');
@@ -215,12 +222,16 @@
         }
 
         function selectCharacter(character) {
-            if (character === 'yaya') {
-                characterSelection.classList.remove('active');
-                yayaStoryline.classList.add('active');
-            } else {
-                alert('You selected ' + character + '. This character\'s storyline is not yet implemented.');
-            }
+            characterSelection.classList.remove('active');
+            document.querySelector('.success-message').classList.add('active');
+            setTimeout(() => {
+                document.querySelector('.success-message').classList.remove('active');
+                showYayaStory();
+            }, 2000);
+        }
+
+        function showYayaStory() {
+            yayaStoryline.classList.add('active');
         }
 
         function continueYayaStory() {
@@ -229,7 +240,12 @@
         }
 
         function nodInAgreement() {
-            alert('Nodding in agreement...');
+            yayaContinued.classList.remove('active');
+            yayaApprentice.classList.add('active');
+        }
+
+        function acceptApprenticeship() {
+            alert('You accepted the apprenticeship!');
             // Implement the continuation of Yaya's story here
         }
     </script>
