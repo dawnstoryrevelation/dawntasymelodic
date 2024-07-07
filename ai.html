@@ -1,16 +1,17 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dawntasy Character Interaction</title>
-    <link href="https://fonts.googleapis.com/css2?family=Indie+Flower&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Indie+Flower&display=swap" rel="stylesheet">
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
-            font-family: 'Montserrat', sans-serif;
-            background-color: #1e1e2f;
-            color: #f5f5f5;
+            font-family: 'Indie Flower', cursive;
+            background-color: #f9f5d7;
+            color: #333;
             margin: 0;
             padding: 0;
             display: flex;
@@ -18,10 +19,9 @@
             align-items: center;
             min-height: 100vh;
             background-image: url('https://dawnstoryrevelation.github.io/dawnstoryrevelation/images/fadiA.jpeg');
-            background-size: cover;
+            background-repeat: no-repeat;
             background-attachment: fixed;
-            overflow-y: auto;
-            scroll-behavior: smooth;
+            background-size: cover;
         }
         .container {
             background-color: rgba(255, 255, 255, 0.9);
@@ -30,19 +30,16 @@
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             max-width: 800px;
             margin-top: 50px;
-            animation: fadeInUp 2s;
         }
         .character {
             display: flex;
             align-items: center;
             margin-bottom: 20px;
-            animation: fadeIn 2s;
         }
         .character img {
             max-width: 150px;
             border-radius: 10px;
             margin-right: 20px;
-            animation: bounce 2s infinite alternate;
         }
         .dialogue {
             background-color: #fff;
@@ -51,13 +48,11 @@
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             max-height: 300px;
             overflow-y: auto;
-            animation: fadeInUp 2s;
         }
         .input-area {
             margin-top: 20px;
             display: flex;
             flex-direction: column;
-            align-items: center;
         }
         .input-area input {
             padding: 10px;
@@ -66,7 +61,6 @@
             margin-bottom: 10px;
             width: 100%;
             max-width: 600px;
-            animation: fadeInUp 2s;
         }
         .input-area button {
             background-color: #007bff;
@@ -78,53 +72,15 @@
             transition: background-color 0.3s ease, transform 0.3s ease;
             width: 100%;
             max-width: 200px;
-            animation: fadeInUp 2s;
         }
         .input-area button:hover {
             background-color: #0056b3;
             transform: translateY(-3px);
         }
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(50px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        @keyframes bounce {
-            from {
-                transform: translateY(0);
-            }
-            to {
-                transform: translateY(-10px);
-            }
-        }
-        .fade-in-element {
-            opacity: 0;
-            transform: translateY(20px);
-            transition: opacity 1s ease-out, transform 1s ease-out;
-        }
-        .fade-in-element.visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
     </style>
 </head>
 <body>
-    <div class="container fade-in-element">
+    <div class="container">
         <div class="character">
             <img src="https://www.dawnstoryrevelation.com/images/301F15CB-C007-45A2-956F-903A69F3AE11.jpeg" alt="Yaya Ursa">
             <div>
@@ -160,6 +116,7 @@
             let response = '';
 
             const responses = {
+                // Generic questions
                 'hello': 'Hello! How can I help you today?',
                 'hi': 'Hi there!',
                 'hey': 'Hey! What can I do for you?',
@@ -331,17 +288,6 @@
             dialogue.innerHTML += `<p><strong>Yaya Ursa:</strong> ${response}</p>`;
             dialogue.scrollTop = dialogue.scrollHeight;
         }
-
-        window.addEventListener('scroll', function() {
-            const elements = document.querySelectorAll('.fade-in-element');
-            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-            elements.forEach(element => {
-                const offsetTop = element.offsetTop;
-                if (scrollTop + window.innerHeight > offsetTop) {
-                    element.classList.add('visible');
-                }
-            });
-        });
     </script>
 </body>
 </html>
