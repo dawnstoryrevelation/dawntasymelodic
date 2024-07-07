@@ -57,6 +57,10 @@
             background: rgba(0, 0, 0, 0.7);
             color: white;
             border: 2px solid #fff;
+            transition: transform 0.3s;
+        }
+        .class-selection .class-option:hover {
+            transform: scale(1.05);
         }
         .class-selection .class-option img {
             width: 100px;
@@ -71,6 +75,9 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            border: 5px solid #000;
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
         }
         .character, .enemy {
             position: relative;
@@ -79,12 +86,6 @@
             background-size: cover;
             border: 2px solid #000;
             transition: transform 0.5s;
-        }
-        .character {
-            background-image: url('https://www.dawnstoryrevelation.com/49AF05F9-C392-4335-8363-05EE915A46B2.webp');
-        }
-        .enemy {
-            background-image: url('https://www.dawnstoryrevelation.com/04331B49-E485-4CD2-9A54-665CB145E3BE.webp');
         }
         .control-panel {
             margin-top: 20px;
@@ -170,6 +171,8 @@
         let characterHP = 100;
         let enemyHP = 100;
         let selectedClass = '';
+        let shieldActive = false;
+        let shieldTurns = 0;
 
         function showClassSelection() {
             titleScreen.classList.remove('active');
@@ -181,13 +184,13 @@
             let classImage = '';
             switch (characterClass) {
                 case 'warrior':
-                    classImage = '/mnt/data/A_cartoon-style_warrior_character_in_battle_pose,_holding_a_sword_and_shield.png';
+                    classImage = 'https://www.dawnstoryrevelation.com/49AF05F9-C392-4335-8363-05EE915A46B2.webp';
                     break;
                 case 'mage':
-                    classImage = '/mnt/data/A_cartoon-style_mage_character_in_battle_pose,_wearing_a_robe_and_holding_a_staff.png';
+                    classImage = 'https://www.dawnstoryrevelation.com/576513C3-743B-40A5-986B-42998658A8D8.webp';
                     break;
                 case 'knight':
-                    classImage = '/mnt/data/A_cartoon-style_knight_character_in_battle_pose,_wearing_armor_and_holding_a_sword.png';
+                    classImage = 'https://www.dawnstoryrevelation.com/859DA1BB-5A37-4E1A-91EC-CC1AF4ED4C0C.webp';
                     break;
             }
             characterElement.style.backgroundImage = `url(${classImage})`;
@@ -197,9 +200,42 @@
 
         function useSkill(skill) {
             if (enemyHP > 0) {
+                let damage = 0;
+                switch (selectedClass) {
+                    case 'warrior':
+                        if (skill === 'skill1') damage = 20;
+                        else if (skill === 'skill2') {
+                            shieldActive = true;
+                            shieldTurns = 1;
+                        } else if (skill === 'skill3') damage = 30;
+                        break;
+                    case 'mage':
+                        if (skill === 'skill1') damage = 25;
+                        else if (skill === 'skill2') {
+                            shieldActive = true;
+                            shieldTurns = 3;
+                        } else if (skill === 'skill3') {
+                            damage = 15;
+                            if (Math.random() < 0.5) {
+                                enemyElement.classList.add('stunned');
+                                setTimeout(() => enemyElement.classList.remove('stunned'), 1000);
+                            }
+                        }
+                        break;
+                    case 'knight':
+                        if (skill === 'skill1') damage = 15;
+                        else if (skill === 'skill2') {
+                            shieldActive = true;
+                            shieldTurns = 2;
+                        } else if (skill === 'skill3') {
+                            damage = 20;
+                            characterHP += 10;
+                        }
+                        break;
+                }
                 characterElement.classList.add('attack');
                 setTimeout(() => characterElement.classList.remove('attack'), 500);
-                enemyHP -= 10;
+                enemyHP -= damage;
                 if (enemyHP <= 0) {
                     enemyHP = 0;
                     status.textContent = 'You defeated the goblin!';
@@ -214,7 +250,13 @@
             if (characterHP > 0) {
                 enemyElement.classList.add('attack');
                 setTimeout(() => enemyElement.classList.remove('attack'), 500);
-                characterHP -= 10;
+                let damage = 10;
+                if (shieldActive) {
+                    damage = Math.floor(damage / 2);
+                    shieldTurns--;
+                    if (shieldTurns <= 0) shieldActive = false;
+                }
+                characterHP -= damage;
                 if (characterHP <= 0) {
                     characterHP = 0;
                     status.textContent = 'The goblin defeated you!';
