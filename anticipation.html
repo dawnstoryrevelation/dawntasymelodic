@@ -56,6 +56,7 @@
             max-width: 900px;
             margin: 20px auto;
             animation: fadeInUp 2s;
+            position: relative;
         }
         .content h2 {
             color: #007bff;
@@ -80,6 +81,44 @@
         .highlight p {
             font-size: 1.1em;
             color: #555;
+        }
+        .video-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+            position: relative;
+        }
+        .video-container iframe {
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .decorations {
+            position: absolute;
+            top: -30px;
+            left: -30px;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+        .decorations::before, .decorations::after {
+            content: '';
+            position: absolute;
+            border: 5px solid #e67e22;
+            border-radius: 50%;
+            opacity: 0.7;
+        }
+        .decorations::before {
+            width: 200px;
+            height: 200px;
+            top: -20px;
+            left: -20px;
+        }
+        .decorations::after {
+            width: 150px;
+            height: 150px;
+            bottom: -20px;
+            right: -20px;
         }
         @keyframes fadeInDown {
             from {
@@ -151,7 +190,7 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ml-auto">
                 <li class="nav-item">
-                    <a class="nav-link" href="index.html">Introduction</a>
+                    <a class="nav-link" href="exclusive.html">Introduction</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="ai.html">Yaya the AI</a>
@@ -172,7 +211,10 @@
     </header>
 
     <div class="content">
-        <iframe width="560" height="315" src="https://www.youtube.com/embed/xWdqHFMr88I?autoplay=1" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+        <div class="video-container">
+            <iframe width="560" height="315" src="https://www.youtube.com/embed/xWdqHFMr88I?autoplay=1" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+            <div class="decorations"></div>
+        </div>
         
         <h2>Exciting New Chapters</h2>
         <p>As a valued member, you have exclusive access to the latest and upcoming chapters of the Dawntasy Saga. Dive into new adventures, uncover hidden secrets, and follow your favorite characters as they embark on their journeys.</p>
