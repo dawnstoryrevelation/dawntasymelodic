@@ -17,12 +17,13 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
+            justify-content: flex-start;
             min-height: 100vh;
             background-image: url('https://dawnstoryrevelation.github.io/dawnstoryrevelation/images/fadiA.jpeg');
             background-size: cover;
             background-attachment: fixed;
-            overflow: hidden;
+            overflow-y: scroll;
+            scroll-behavior: smooth;
         }
         .navbar {
             background-color: rgba(0, 0, 0, 0.8);
@@ -197,6 +198,15 @@
             background-color: #0056b3;
             transform: translateY(-3px);
         }
+        .fade-in-element {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 1s ease-out, transform 1s ease-out;
+        }
+        .fade-in-element.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
     </style>
 </head>
 <body>
@@ -228,10 +238,10 @@
         <p>Enhance your connection with the Dawntasy Saga</p>
     </header>
 
-    <div class="container">
+    <div class="container fade-in-element">
         <p class="intro-text">As a valued member of the Dawntasy community, you have exclusive access to a variety of content and features designed to enhance your experience and deepen your connection with the Dawntasy Saga. This exclusive site offers a range of benefits, including early access to new chapters, behind-the-scenes content, special events, and much more.</p>
         
-        <div class="highlight">
+        <div class="highlight fade-in-element">
             <h3>Exclusive Features</h3>
             <ul class="features-list">
                 <li><strong>Early Access:</strong> Be the first to read new chapters and content before anyone else.</li>
@@ -242,10 +252,10 @@
             </ul>
         </div>
 
-        <h2 class="section-title">How to Make the Most of Your Membership</h2>
-        <p class="intro-text">To ensure you get the most out of your membership, we recommend exploring all the sections of this site. Stay tuned for regular updates and new content. Participate in events and discussions to connect with other members and share your thoughts and theories about the Dawntasy Saga. Your feedback and engagement help shape the future of the saga.</p>
+        <h2 class="section-title fade-in-element">How to Make the Most of Your Membership</h2>
+        <p class="intro-text fade-in-element">To ensure you get the most out of your membership, we recommend exploring all the sections of this site. Stay tuned for regular updates and new content. Participate in events and discussions to connect with other members and share your thoughts and theories about the Dawntasy Saga. Your feedback and engagement help shape the future of the saga.</p>
 
-        <p class="intro-text">We are thrilled to have you as part of our exclusive community and look forward to sharing this journey with you. Enjoy your exclusive access and happy reading!</p>
+        <p class="intro-text fade-in-element">We are thrilled to have you as part of our exclusive community and look forward to sharing this journey with you. Enjoy your exclusive access and happy reading!</p>
         <a href="index.html" class="animated-button">Go to Main Page</a>
     </div>
 
@@ -256,5 +266,18 @@
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const elements = document.querySelectorAll('.fade-in-element');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                    }
+                });
+            }, { threshold: 0.1 });
+            elements.forEach(element => observer.observe(element));
+        });
+    </script>
 </body>
 </html>
