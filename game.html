@@ -223,11 +223,7 @@
 
         function selectCharacter(character) {
             characterSelection.classList.remove('active');
-            document.querySelector('.success-message').classList.add('active');
-            setTimeout(() => {
-                document.querySelector('.success-message').classList.remove('active');
-                showYayaStory();
-            }, 2000);
+            showYayaStory();
         }
 
         function showYayaStory() {
