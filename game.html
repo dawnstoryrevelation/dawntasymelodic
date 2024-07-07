@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" href="https://www.dawnstoryrevelation.com/images/821049A8-FDF0-413E-A1A3-533ECC529C7B.webp" type="image/x-icon">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DOFUS-Inspired Mini Game</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-image: url('https://dawnstoryrevelation.github.io/dawnstoryrevelation/images/fadiA.jpeg');
+            background-size: cover;
+        }
+        .game-container {
+            position: relative;
+            width: 800px;
+            height: 600px;
+            background-color: #8b4513;
+            overflow: hidden;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .character, .enemy {
+            position: relative;
+            width: 150px;
+            height: 150px;
+            background-size: cover;
+            border: 2px solid #000;
+            transition: transform 0.5s;
+        }
+        .character {
+            background-image: url('/mnt/data/A_cartoon-style_warrior_character_in_battle_pose,_holding_a_sword_and_shield.png');
+        }
+        .enemy {
+            background-image: url('/mnt/data/A_cartoon-style_goblin_enemy_in_battle_pose,_with_green_skin_and_primitive_weapons.png');
+        }
+        .control-panel {
+            margin-top: 20px;
+            text-align: center;
+        }
+        .skills {
+            display: flex;
+            justify-content: space-around;
+        }
+        .skill-button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            background-color: #007bff;
+            color: #fff;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+        .skill-button:hover {
+            background-color: #0056b3;
+            transform: translateY(-3px);
+        }
+        @keyframes attack {
+            0% { transform: translateX(0); }
+            50% { transform: translateX(-30px); }
+            100% { transform: translateX(0); }
+        }
+        @keyframes damage {
+            0% { background-color: #ff0000; }
+            100% { background-color: transparent; }
+        }
+        .character.attack, .enemy.attack {
+            animation: attack 0.5s;
+        }
+        .character.damage, .enemy.damage {
+            animation: damage 0.5s;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="character" id="character"></div>
+        <div class="enemy" id="enemy"></div>
+    </div>
+    <div class="control-panel">
+        <div class="skills">
+            <button class="skill-button" onclick="useSkill('skill1')">Skill 1</button>
+            <button class="skill-button" onclick="useSkill('skill2')">Skill 2</button>
+            <button class="skill-button" onclick="useSkill('skill3')">Skill 3</button>
+        </div>
+        <p id="status"></p>
+    </div>
+    <script>
+        const character = document.getElementById('character');
+        const enemy = document.getElementById('enemy');
+        const status = document.getElementById('status');
+        let characterHP = 100;
+        let enemyHP = 100;
+
+        function useSkill(skill) {
+            if (enemyHP > 0) {
+                character.classList.add('attack');
+                setTimeout(() => character.classList.remove('attack'), 500);
+                enemyHP -= 10;
+                if (enemyHP <= 0) {
+                    enemyHP = 0;
+                    status.textContent = 'You defeated the goblin!';
+                } else {
+                    status.textContent = `Goblin HP: ${enemyHP}`;
+                    setTimeout(enemyAttack, 1000);
+                }
+            }
+        }
+
+        function enemyAttack() {
+            if (characterHP > 0) {
+                enemy.classList.add('attack');
+                setTimeout(() => enemy.classList.remove('attack'), 500);
+                characterHP -= 10;
+                if (characterHP <= 0) {
+                    characterHP = 0;
+                    status.textContent = 'The goblin defeated you!';
+                } else {
+                    status.textContent = `Character HP: ${characterHP}`;
+                }
+            }
+        }
+    </script>
+</body>
+</html>
