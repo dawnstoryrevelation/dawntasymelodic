@@ -17,7 +17,7 @@
             align-items: center;
             justify-content: center;
             height: 100vh;
-            background-image: url('/mnt/data/A_fantasy_background_for_a_text-based_adventure_ga.png');
+            background-image: url('https://dawnstoryrevelation.github.io/dawnstoryrevelation/images/fadiA.jpeg');
             background-size: cover;
         }
         .title-screen, .character-selection, .game-container {
@@ -110,6 +110,25 @@
             bottom: -20px;
             right: -20px;
         }
+        .full-screen-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('https://www.dawnstoryrevelation.com/579D5F2F-6EFF-43C4-9D77-5F48B28BC1A2.webp');
+            background-size: cover;
+            background-position: center;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .full-screen-background h1 {
+            color: white;
+            font-size: 4em;
+            text-shadow: 2px 2px 4px #000;
+        }
     </style>
 </head>
 <body>
@@ -120,7 +139,7 @@
 
     <div class="title-screen active">
         <h1>Gloaming Venturer</h1>
-        <button class="start-button" onclick="showCharacterSelection()">Start Game</button>
+        <button class="start-button" onclick="startGame()">Start Game</button>
         <div class="decorations"></div>
     </div>
 
@@ -140,13 +159,22 @@
         </div>
     </div>
 
+    <div class="full-screen-background" id="fullScreenBackground">
+        <h1>Gloaming Venturer</h1>
+    </div>
+
     <script>
         const titleScreen = document.querySelector('.title-screen');
         const characterSelection = document.querySelector('.character-selection');
+        const fullScreenBackground = document.getElementById('fullScreenBackground');
 
-        function showCharacterSelection() {
+        function startGame() {
             titleScreen.classList.remove('active');
-            characterSelection.classList.add('active');
+            fullScreenBackground.style.display = 'flex';
+            setTimeout(() => {
+                fullScreenBackground.style.display = 'none';
+                characterSelection.classList.add('active');
+            }, 3000); // 3 seconds delay
         }
 
         function selectCharacter(character) {
