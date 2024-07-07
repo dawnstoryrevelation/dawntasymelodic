@@ -20,7 +20,7 @@
             background-image: url('https://dawnstoryrevelation.github.io/dawnstoryrevelation/images/fadiA.jpeg');
             background-size: cover;
         }
-        .title-screen, .character-selection, .game-container, .full-screen-background, .storyline {
+        .title-screen, .character-selection, .game-container, .full-screen-background, .storyline, .yaya-continued {
             display: none;
         }
         .active {
@@ -53,7 +53,7 @@
             font-size: 3em;
             margin-bottom: 20px;
         }
-        .start-button, .character-option, .continue-button {
+        .start-button, .character-option, .continue-button, .agree-button {
             padding: 10px 20px;
             font-size: 1.2em;
             cursor: pointer;
@@ -63,7 +63,7 @@
             color: #fff;
             transition: background-color 0.3s, transform 0.3s;
         }
-        .start-button:hover, .character-option:hover, .continue-button:hover {
+        .start-button:hover, .character-option:hover, .continue-button:hover, .agree-button:hover {
             background-color: #0056b3;
             transform: translateY(-3px);
         }
@@ -130,7 +130,7 @@
             font-size: 4em;
             text-shadow: 2px 2px 4px #000;
         }
-        .storyline {
+        .storyline, .yaya-continued {
             text-align: center;
             background: rgba(255, 255, 255, 0.9);
             padding: 20px;
@@ -138,11 +138,11 @@
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             width: 80%;
         }
-        .storyline h2 {
+        .storyline h2, .yaya-continued h2 {
             font-size: 2em;
             margin-bottom: 20px;
         }
-        .storyline p {
+        .storyline p, .yaya-continued p {
             font-size: 1.5em;
             margin-bottom: 20px;
         }
@@ -191,11 +191,18 @@
         <button class="continue-button" onclick="continueYayaStory()">Continue</button>
     </div>
 
+    <div class="storyline" id="yayaContinued">
+        <h2>Yaya's Story</h2>
+        <p>Yaya, I'm sorry your village was destroyed by LTR. Your parents. But I can help you.</p>
+        <button class="agree-button" onclick="nodInAgreement()">Nod In Agreement</button>
+    </div>
+
     <script>
         const titleScreen = document.querySelector('.title-screen');
         const characterSelection = document.querySelector('.character-selection');
         const fullScreenBackground = document.getElementById('fullScreenBackground');
         const yayaStoryline = document.getElementById('yayaStoryline');
+        const yayaContinued = document.getElementById('yayaContinued');
 
         function startGame() {
             titleScreen.classList.remove('active');
@@ -217,7 +224,12 @@
         }
 
         function continueYayaStory() {
-            alert('Continue Yaya\'s story...');
+            yayaStoryline.classList.remove('active');
+            yayaContinued.classList.add('active');
+        }
+
+        function nodInAgreement() {
+            alert('Nodding in agreement...');
             // Implement the continuation of Yaya's story here
         }
     </script>
