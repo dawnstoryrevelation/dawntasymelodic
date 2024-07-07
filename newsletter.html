@@ -5,126 +5,208 @@
     <link rel="icon" href="https://www.dawnstoryrevelation.com/images/821049A8-FDF0-413E-A1A3-533ECC529C7B.webp" type="image/x-icon">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dawntasy Newsletter</title>
-    <link href="https://fonts.googleapis.com/css2?family=Indie+Flower&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Indie+Flower&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet">
     <script defer src='newsletter.js'></script>
     <style>
-        @keyframes fadeIn {
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #1e1e2f;
+            color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            min-height: 100vh;
+            background-image: url('https://dawnstoryrevelation.github.io/dawnstoryrevelation/images/fadiA.jpeg');
+            background-size: cover;
+            background-attachment: fixed;
+            overflow-y: scroll;
+            scroll-behavior: smooth;
+        }
+        .navbar {
+            background-color: rgba(0, 0, 0, 0.8);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+            width: 100%;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            animation: fadeInDown 1s;
+        }
+        .navbar-brand, .navbar-nav .nav-link {
+            color: #f5f5f5;
+            font-size: 1.2em;
+        }
+        .navbar-brand:hover, .navbar-nav .nav-link:hover {
+            color: #f9f5d7;
+        }
+        .header {
+            text-align: center;
+            margin-top: 70px;
+            color: #fff;
+            animation: fadeInDown 2s;
+        }
+        .header h1 {
+            font-family: 'Indie Flower', cursive;
+            font-size: 4em;
+            text-shadow: 2px 2px 4px #000;
+        }
+        .header p {
+            font-size: 1.5em;
+            margin-top: 10px;
+        }
+        .container {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            max-width: 1200px;
+            animation: fadeInUp 2s;
+        }
+        .section-title {
+            font-size: 2.5em;
+            margin: 20px 0;
+            text-align: center;
+            color: #007bff;
+            text-shadow: 2px 2px #ffebcd;
+            animation: textGlow 1.5s infinite alternate;
+        }
+        @keyframes textGlow {
+            from {
+                text-shadow: 2px 2px #ffebcd, 0 0 10px #ffebcd, 0 0 20px #ffebcd;
+            }
+            to {
+                text-shadow: 2px 2px #ffebcd, 0 0 20px #f39c12, 0 0 30px #f39c12;
+            }
+        }
+        .intro-text {
+            font-size: 1.2em;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            color: #555;
+            animation: fadeInUp 2s;
+        }
+        .features-list {
+            list-style-type: none;
+            padding: 0;
+            animation: fadeIn 2s;
+        }
+        .features-list li {
+            margin: 10px 0;
+            font-size: 1.1em;
+            color: #444;
+            position: relative;
+            padding-left: 20px;
+            animation: slideInLeft 1.5s;
+        }
+        .features-list li:before {
+            content: "★";
+            position: absolute;
+            left: 0;
+            color: #f39c12;
+            font-size: 1.5em;
+            animation: starGlow 1.5s infinite alternate;
+        }
+        footer {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: rgba(0, 0, 0, 0.8);
+            color: #fff;
+            text-align: center;
+            width: 100%;
+            box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.5);
+            animation: fadeInUp 2s;
+        }
+        .highlight {
+            background-color: #ffebcd;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            animation: pulse 2s infinite alternate;
+        }
+        .highlight h3 {
+            color: #e67e22;
+            font-size: 1.8em;
+        }
+        .highlight p {
+            font-size: 1.1em;
+            color: #555;
+        }
+        @keyframes fadeInDown {
             from {
                 opacity: 0;
-                transform: translateY(20px);
+                transform: translateY(-50px);
             }
             to {
                 opacity: 1;
                 transform: translateY(0);
             }
         }
-
-        body {
-            font-family: 'Indie Flower', cursive;
-            background-color: #f9f5d7;
-            color: #333;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-            background-image: url('https://dawnstoryrevelation.github.io/dawnstoryrevelation/images/fadiA.jpeg');
-            background-repeat: no-repeat;
-            background-attachment: fixed;
-            background-size: cover;
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
-        .container {
-            width: 80%;
-            margin: 0 auto;
-            max-width: 800px;
-            background-color: #fff;
-            padding: 20px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            border-radius: 10px;
-            margin-top: 20px;
-            animation: fadeIn 2s ease-out;
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+            100% {
+                transform: scale(1);
+            }
         }
-        header {
-            text-align: center;
-            padding: 20px 0;
-            position: relative;
+        @keyframes starGlow {
+            from {
+                text-shadow: 0 0 5px #f39c12, 0 0 10px #f39c12;
+            }
+            to {
+                text-shadow: 0 0 10px #e67e22, 0 0 20px #e67e22;
+            }
         }
-        header h1 {
-            margin: 0;
-            font-size: 2.5em;
-            color: #ffebcd;
-        }
-        .carousel-item img {
-            max-width: 100%;
-            height: auto;
-            border-radius: 10px;
-            margin: 0 auto;
-            display: block;
-        }
-        footer {
-            text-align: center;
-            padding: 20px 0;
-            font-size: 0.9em;
-            color: #666;
-        }
-        .button {
+        .animated-button {
             display: inline-block;
             padding: 10px 20px;
-            font-size: 16px;
-            font-family: 'Indie Flower', cursive;
+            font-size: 1.2em;
             color: #fff;
             background-color: #007bff;
             border: none;
             border-radius: 5px;
-            text-align: center;
-            text-decoration: none;
             cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-        .button:hover {
-            background-color: #0056b3;
-        }
-        .return-button {
-            font-family: 'Indie Flower', cursive;
-            font-size: 1.2em;
-            background-color: #007bff;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
             text-decoration: none;
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            cursor: pointer;
-            transition: background-color 0.3s ease, transform 0.3s ease;
+            transition: background-color 0.3s, transform 0.3s;
+            animation: bounce 2s infinite alternate;
         }
-        .return-button:hover {
+        @keyframes bounce {
+            from {
+                transform: translateY(0);
+            }
+            to {
+                transform: translateY(-10px);
+            }
+        }
+        .animated-button:hover {
             background-color: #0056b3;
             transform: translateY(-3px);
         }
-        .newsletter-button {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            font-family: 'Indie Flower', cursive;
-            font-size: 1.5em;
-            background-color: #007bff;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
+        .fade-in-element {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 1s ease-out, transform 1s ease-out;
         }
-        .newsletter-button:hover {
-            background-color: #0056b3;
-        }
-        .modal-content p {
-            font-size: 1.2em;
-            line-height: 1.6;
+        .fade-in-element.visible {
+            opacity: 1;
+            transform: translateY(0);
         }
         .email-input-box {
             display: flex;
@@ -177,12 +259,6 @@
             vertical-align: middle;
             margin-right: 10px;
         }
-        .section-title {
-            font-size: 2em;
-            margin: 20px 0;
-            color: #333;
-            text-align: center;
-        }
         .gallery {
             display: flex;
             flex-wrap: wrap;
@@ -210,10 +286,6 @@
             margin: 10px 0;
             font-size: 1.2em;
         }
-        .modal-title {
-            font-size: 1.5em;
-            font-weight: bold;
-        }
         .season-image {
             cursor: pointer;
             transition: transform 0.3s ease;
@@ -224,8 +296,31 @@
     </style>
 </head>
 <body>
-    <header>
-        <h1>Dawntasy: Dawnstory Revelation Updates</h1>
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+        <a class="navbar-brand" href="#">Dawntasy Exclusive</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item active">
+                    <a class="nav-link" href="#">Introduction</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="ai.html">Yaya the AI</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="anticipation.html">Anticipation</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Upgrade</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <header class="header">
+        <h1>Welcome to the Dawntasy Newsletter</h1>
     </header>
     
     <div class="container">
@@ -233,13 +328,13 @@
         <img src="https://www.dawnstoryrevelation.com/images/989959E5-3F57-4050-A018-5DCBC02DE2D5.jpeg" alt="Spotlight Monthly" style="width:100%; max-width:800px; margin-bottom:20px;">
 
         <!-- Introduction Section -->
-        <div class="introduction">
+        <div class="introduction fade-in-element">
             <h2 class="section-title">Welcome to the Dawntasy Newsletter</h2>
             <p>Stay updated with the latest news, character spotlights, and upcoming events in the world of Dawntasy. Join our community and never miss an update!</p>
         </div>
 
         <!-- Season 1 Section -->
-        <div class="season-1">
+        <div class="season-1 fade-in-element">
             <h2 class="section-title">Season 1: Holiday Light</h2>
             <p style="text-align: center;">Dawntasy...we're still with you in the holidays. With the first season, Holiday Light, experience a wide variety of events for Dawntasy. More details can be confirmed in the Season About page.</p>
             <a href="holidaylight.html">
@@ -248,7 +343,7 @@
         </div>
 
         <!-- Carousel -->
-        <div id="updatesCarousel" class="carousel slide" data-ride="carousel">
+        <div id="updatesCarousel" class="carousel slide fade-in-element" data-ride="carousel">
             <div class="carousel-inner">
                 <div class="carousel-item active">
                     <img src="https://www.dawnstoryrevelation.com/images/5FEF0ACE-C55F-4745-BCC5-F39B7B47C8D6.jpeg" alt="New Chapter Release">
@@ -286,7 +381,7 @@
         </div>
 
         <!-- Gallery Section -->
-        <div class="gallery">
+        <div class="gallery fade-in-element">
             <h2 class="section-title">Gallery</h2>
             <img src="https://www.dawnstoryrevelation.com/737FD4D7-9D19-482C-A711-EE14BF27F22A.jpeg" alt="Gallery Image 1">
             <img src="https://www.dawnstoryrevelation.com/E67993FB-341E-495F-8429-0D607006A1C8.jpeg" alt="Gallery Image 2">
@@ -294,7 +389,7 @@
         </div>
 
         <!-- Spotlight Section -->
-        <div class="spotlight">
+        <div class="spotlight fade-in-element">
             <h2 class="section-title">Character Spotlight</h2>
             <p>Get to know more about your favorite characters in the Dawntasy series.</p>
             <div class="modal fade" id="questaModal" tabindex="-1" role="dialog" aria-labelledby="questaModalLabel" aria-hidden="true">
@@ -319,20 +414,20 @@
         </div>
 
         <!-- Updates Section -->
-        <div class="updates">
+        <div class="updates fade-in-element">
             <h2 class="section-title">Latest Updates</h2>
             <p>Stay informed with the latest updates and news in the Dawntasy universe.</p>
         </div>
 
         <!-- Testimonials Section -->
-        <div class="testimonials">
+        <div class="testimonials fade-in-element">
             <h2 class="section-title">Testimonials</h2>
             <p>"Dawntasy is an epic adventure that keeps you on the edge of your seat!" - Avid Reader</p>
             <p>"The characters are so well-developed and the story is incredibly immersive." - Fantasy Fan</p>
         </div>
 
         <!-- Events Section -->
-        <div class="events">
+        <div class="events fade-in-element">
             <h2 class="section-title">Upcoming Events</h2>
             <ul class="events-list">
                 <li>Q&A with the Author - July 19, 2024</li>
@@ -344,7 +439,7 @@
         <a href="https://www.dawnstoryrevelation.com/index.html" class="return-button">Return to Main Website</a>
 
         <!-- Email Input Box -->
-        <div class="email-input-box">
+        <div class="email-input-box fade-in-element">
             <label for="email">Sign up for updates and notifications:</label>
             <input type="email" id="email" name="email" placeholder="example@example.com" required>
             <button type='submit' id="submit">Submit</button>
@@ -396,7 +491,7 @@
             </div>
         </div>
 
-        <footer>
+        <footer class="fade-in-element">
             <p>&copy; 2024 Dawntasy: Dawnstory Revelation. All rights reserved.</p>
             <p>If you have any questions, feel free to <a href="mailto:dawntasyofficial@gmail.com">contact us</a>.</p>
         </footer>
@@ -409,6 +504,17 @@
         document.getElementById('submit').addEventListener('click', function(e) {
             e.preventDefault();
             document.getElementById('success-message').style.display = 'block';
+        });
+
+        window.addEventListener('scroll', function() {
+            const elements = document.querySelectorAll('.fade-in-element');
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            elements.forEach(element => {
+                const offsetTop = element.offsetTop;
+                if (scrollTop + window.innerHeight > offsetTop) {
+                    element.classList.add('visible');
+                }
+            });
         });
     </script>
 </body>
