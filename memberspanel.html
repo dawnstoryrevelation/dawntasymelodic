@@ -38,7 +38,7 @@
             margin: 20px 0;
         }
         .panel {
-            background-color: #ffffff;
+            background-color: rgba(255, 255, 255, 0.9);
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -46,6 +46,17 @@
             max-width: 350px;
             margin: 10px;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
+            animation: zoomIn 1s;
+        }
+        @keyframes zoomIn {
+            from {
+                transform: scale(0.8);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
         }
         .panel:hover {
             transform: translateY(-10px);
@@ -53,10 +64,13 @@
         }
         .panel h3 {
             margin-top: 0;
-            font-size: 1.5em;
+            font-size: 1.8em;
+            color: #007bff;
+            text-shadow: 1px 1px 4px #000;
         }
         .panel p {
             font-size: 1.1em;
+            color: #555;
         }
         .btn-custom {
             display: inline-block;
@@ -66,7 +80,10 @@
             color: #fff;
             text-align: center;
             text-decoration: none;
-            transition: background-color 0.3s ease;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+        .btn-custom:hover {
+            transform: translateY(-3px);
         }
         .btn-blue {
             background-color: #007bff;
@@ -103,9 +120,8 @@
         <div class="panel">
             <h3>Member Exclusive Site</h3>
             <p>Access exclusive content available only to Dawntasy members. Dive deeper into the saga with special features.</p>
-            <a href="exclusive.html" class="btn-custom btn-green">Go To Member Exclusive Site</a>
+            <a href="exclusive.html" target="_blank" class="btn-custom btn-green">Go To Member Exclusive Site</a>
         </div>
     </div>
 </body>
 </html>
-
