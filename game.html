@@ -20,7 +20,7 @@
             background-image: url('https://dawnstoryrevelation.github.io/dawnstoryrevelation/images/fadiA.jpeg');
             background-size: cover;
         }
-        .title-screen, .character-selection, .game-container {
+        .title-screen, .character-selection, .game-container, .full-screen-background {
             display: none;
         }
         .active {
@@ -123,6 +123,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            flex-direction: column;
         }
         .full-screen-background h1 {
             color: white;
@@ -161,6 +162,7 @@
 
     <div class="full-screen-background" id="fullScreenBackground">
         <h1>Gloaming Venturer</h1>
+        <button class="start-button" onclick="showCharacterSelection()">Start</button>
     </div>
 
     <script>
@@ -171,10 +173,11 @@
         function startGame() {
             titleScreen.classList.remove('active');
             fullScreenBackground.style.display = 'flex';
-            setTimeout(() => {
-                fullScreenBackground.style.display = 'none';
-                characterSelection.classList.add('active');
-            }, 3000); // 3 seconds delay
+        }
+
+        function showCharacterSelection() {
+            fullScreenBackground.style.display = 'none';
+            characterSelection.classList.add('active');
         }
 
         function selectCharacter(character) {
