@@ -1,1 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anticipation - Dawntasy Saga</title>
+    <link href="https://fonts.googleapis.com/css2?family=Indie+Flower&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #1e1e2f;
+            color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background-image: url('https://dawnstoryrevelation.github.io/dawnstoryrevelation/images/fadiA.jpeg');
+            background-size: cover;
+            background-attachment: fixed;
+        }
+        .navbar {
+            background-color: rgba(0, 0, 0, 0.8);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+        }
+        .navbar-brand, .navbar-nav .nav-link {
+            color: #f5f5f5;
+            font-size: 1.2em;
+        }
+        .navbar-brand:hover, .navbar-nav .nav-link:hover {
+            color: #f9f5d7;
+        }
+        .header {
+            text-align: center;
+            margin-top: 50px;
+            color: #fff;
+            animation: fadeInDown 2s;
+        }
+        .header h1 {
+            font-family: 'Indie Flower', cursive;
+            font-size: 4em;
+            text-shadow: 2px 2px 4px #000;
+        }
+        .header p {
+            font-size: 1.5em;
+            margin-top: 10px;
+        }
+        .content {
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            max-width: 900px;
+            margin: 20px auto;
+            animation: fadeInUp 2s;
+        }
+        .content h2 {
+            color: #007bff;
+            font-size: 2.5em;
+            margin-bottom: 20px;
+        }
+        .content p {
+            font-size: 1.2em;
+            color: #333;
+        }
+        .highlight {
+            background-color: #ffebcd;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+            animation: pulse 2s infinite;
+        }
+        .highlight h3 {
+            color: #e67e22;
+            font-size: 1.8em;
+        }
+        .highlight p {
+            font-size: 1.1em;
+            color: #555;
+        }
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+        .animated-button {
+            display: inline-block;
+            padding: 10px 20px;
+            font-size: 1.2em;
+            color: #fff;
+            background-color: #007bff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+        .animated-button:hover {
+            background-color: #0056b3;
+            transform: translateY(-3px);
+        }
+        footer {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: rgba(0, 0, 0, 0.8);
+            color: #fff;
+            text-align: center;
+            width: 100%;
+            box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.5);
+        }
+        footer p {
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+        <a class="navbar-brand" href="#">Dawntasy Exclusive</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Introduction</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="ai.html">Yaya the AI</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="anticipation.html">Anticipation</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Upgrade</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
 
+    <header class="header">
+        <h1>Anticipation Awaits</h1>
+        <p>Discover the upcoming adventures and exclusive insights of the Dawntasy Saga</p>
+    </header>
+
+    <div class="content">
+        <h2>Exciting New Chapters</h2>
+        <p>As a valued member, you have exclusive access to the latest and upcoming chapters of the Dawntasy Saga. Dive into new adventures, uncover hidden secrets, and follow your favorite characters as they embark on their journeys.</p>
+        
+        <div class="highlight">
+            <h3>Upcoming Events</h3>
+            <p>Stay tuned for special events, including live readings, Q&A sessions with the author, and more. Mark your calendars and be part of these exclusive experiences.</p>
+        </div>
+
+        <h2>Behind the Scenes</h2>
+        <p>Get a glimpse into the creative process behind the Dawntasy Saga. Enjoy concept art, author notes, and exclusive interviews that give you a deeper understanding of the world and its characters.</p>
+
+        <a href="index.html" class="animated-button">Go to Main Page</a>
+    </div>
+
+    <footer>
+        <p>&copy; 2024 Dawntasy: Dawnstory Revelation. All rights reserved.</p>
+    </footer>
+
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+</body>
+</html>
