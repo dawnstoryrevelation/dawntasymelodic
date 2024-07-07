@@ -17,7 +17,7 @@
             align-items: center;
             justify-content: center;
             height: 100vh;
-            background-image: url('https://dawnstoryrevelation.github.io/dawnstoryrevelation/images/fadiA.jpeg');
+            background-image: url('/mnt/data/A_fantasy_background_for_a_text-based_adventure_ga.png');
             background-size: cover;
         }
         .title-screen, .character-selection, .game-container {
@@ -25,6 +25,22 @@
         }
         .active {
             display: block;
+        }
+        .description {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            width: 80%;
+        }
+        .description h2 {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+        .description p {
+            font-size: 1.2em;
         }
         .title-screen, .character-selection {
             text-align: center;
@@ -69,12 +85,43 @@
         .character-selection .character-option:hover img {
             transform: scale(1.1);
         }
+        .decorations {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+        .decorations::before, .decorations::after {
+            content: '';
+            position: absolute;
+            border: 5px solid #e67e22;
+            border-radius: 50%;
+            opacity: 0.7;
+        }
+        .decorations::before {
+            width: 200px;
+            height: 200px;
+            top: -20px;
+            left: -20px;
+        }
+        .decorations::after {
+            width: 150px;
+            height: 150px;
+            bottom: -20px;
+            right: -20px;
+        }
     </style>
 </head>
 <body>
+    <div class="description">
+        <h2>Gloaming Venturer</h2>
+        <p>Play as a character of Dawntasy while exploring their storyline!</p>
+    </div>
+
     <div class="title-screen active">
         <h1>Gloaming Venturer</h1>
         <button class="start-button" onclick="showCharacterSelection()">Start Game</button>
+        <div class="decorations"></div>
     </div>
 
     <div class="character-selection">
