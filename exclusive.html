@@ -22,10 +22,29 @@
             background-attachment: fixed;
             background-size: cover;
             min-height: 100vh;
+            animation: fadeInBackground 5s infinite alternate;
+        }
+        @keyframes fadeInBackground {
+            0% { background-position: top; }
+            100% { background-position: bottom; }
         }
         .navbar {
             background-color: #007bff;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            animation: fadeInDown 1s;
+        }
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
         .navbar-brand, .navbar-nav .nav-link {
             color: #fff;
@@ -59,16 +78,37 @@
             text-align: center;
             color: #007bff;
             text-shadow: 2px 2px #ffebcd;
+            animation: textGlow 1.5s infinite alternate;
+        }
+        @keyframes textGlow {
+            from {
+                text-shadow: 2px 2px #ffebcd, 0 0 10px #ffebcd, 0 0 20px #ffebcd;
+            }
+            to {
+                text-shadow: 2px 2px #ffebcd, 0 0 20px #f39c12, 0 0 30px #f39c12;
+            }
         }
         .intro-text {
             font-size: 1.2em;
             line-height: 1.6;
             margin-bottom: 20px;
             color: #555;
+            animation: fadeInUp 2s;
+        }
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
         .features-list {
             list-style-type: none;
             padding: 0;
+            animation: fadeIn 2s;
         }
         .features-list li {
             margin: 10px 0;
@@ -76,6 +116,17 @@
             color: #444;
             position: relative;
             padding-left: 20px;
+            animation: slideInLeft 1.5s;
+        }
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
         }
         .features-list li:before {
             content: "★";
@@ -83,6 +134,15 @@
             left: 0;
             color: #f39c12;
             font-size: 1.5em;
+            animation: starGlow 1.5s infinite alternate;
+        }
+        @keyframes starGlow {
+            from {
+                text-shadow: 0 0 5px #f39c12, 0 0 10px #f39c12;
+            }
+            to {
+                text-shadow: 0 0 10px #e67e22, 0 0 20px #e67e22;
+            }
         }
         footer {
             margin-top: 20px;
@@ -91,6 +151,7 @@
             color: #fff;
             text-align: center;
             box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.1);
+            animation: fadeInUp 2s;
         }
         footer p {
             margin: 0;
@@ -100,6 +161,15 @@
             padding: 10px;
             border-radius: 5px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            animation: pulse 2s infinite alternate;
+        }
+        @keyframes pulse {
+            from {
+                transform: scale(1);
+            }
+            to {
+                transform: scale(1.05);
+            }
         }
         .highlight h3 {
             color: #e67e22;
@@ -120,20 +190,19 @@
             cursor: pointer;
             text-decoration: none;
             transition: background-color 0.3s, transform 0.3s;
+            animation: bounce 2s infinite alternate;
+        }
+        @keyframes bounce {
+            from {
+                transform: translateY(0);
+            }
+            to {
+                transform: translateY(-10px);
+            }
         }
         .animated-button:hover {
             background-color: #0056b3;
             transform: translateY(-3px);
-        }
-        .nav-item img {
-            width: 20px;
-            height: 20px;
-            margin-left: 5px;
-        }
-        .carousel-caption {
-            background-color: rgba(0, 0, 0, 0.7);
-            padding: 10px;
-            border-radius: 10px;
         }
     </style>
 </head>
