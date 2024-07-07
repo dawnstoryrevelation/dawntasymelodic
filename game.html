@@ -20,7 +20,7 @@
             background-image: url('https://dawnstoryrevelation.github.io/dawnstoryrevelation/images/fadiA.jpeg');
             background-size: cover;
         }
-        .title-screen, .character-selection, .game-container, .full-screen-background {
+        .title-screen, .character-selection, .game-container, .full-screen-background, .storyline {
             display: none;
         }
         .active {
@@ -53,7 +53,7 @@
             font-size: 3em;
             margin-bottom: 20px;
         }
-        .start-button, .character-option {
+        .start-button, .character-option, .continue-button {
             padding: 10px 20px;
             font-size: 1.2em;
             cursor: pointer;
@@ -63,7 +63,7 @@
             color: #fff;
             transition: background-color 0.3s, transform 0.3s;
         }
-        .start-button:hover, .character-option:hover {
+        .start-button:hover, .character-option:hover, .continue-button:hover {
             background-color: #0056b3;
             transform: translateY(-3px);
         }
@@ -130,6 +130,27 @@
             font-size: 4em;
             text-shadow: 2px 2px 4px #000;
         }
+        .storyline {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 80%;
+        }
+        .storyline h2 {
+            font-size: 2em;
+            margin-bottom: 20px;
+        }
+        .storyline p {
+            font-size: 1.5em;
+            margin-bottom: 20px;
+        }
+        .success-message {
+            color: green;
+            font-size: 1.5em;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
@@ -164,10 +185,17 @@
         <button class="start-button" onclick="showCharacterSelection()">Start</button>
     </div>
 
+    <div class="storyline" id="yayaStoryline">
+        <h2>Yaya's Story</h2>
+        <p>Someone calls to you, "Yaya...come here!"</p>
+        <button class="continue-button" onclick="continueYayaStory()">Continue</button>
+    </div>
+
     <script>
         const titleScreen = document.querySelector('.title-screen');
         const characterSelection = document.querySelector('.character-selection');
         const fullScreenBackground = document.getElementById('fullScreenBackground');
+        const yayaStoryline = document.getElementById('yayaStoryline');
 
         function startGame() {
             titleScreen.classList.remove('active');
@@ -180,8 +208,17 @@
         }
 
         function selectCharacter(character) {
-            alert('You selected ' + character);
-            // Proceed to the next part of the game (to be implemented)
+            if (character === 'yaya') {
+                characterSelection.classList.remove('active');
+                yayaStoryline.classList.add('active');
+            } else {
+                alert('You selected ' + character + '. This character\'s storyline is not yet implemented.');
+            }
+        }
+
+        function continueYayaStory() {
+            alert('Continue Yaya\'s story...');
+            // Implement the continuation of Yaya's story here
         }
     </script>
 </body>
