@@ -277,6 +277,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/ScrollTrigger.min.js"></script>
     <script>
+        gsap.registerPlugin(ScrollTrigger);
+
         // Navbar Animation
         gsap.from(".navbar", {duration: 1, y: -100, opacity: 0, ease: "bounce"});
 
@@ -319,6 +321,16 @@
             button.addEventListener('mouseout', () => {
                 gsap.to(button.querySelector('.button-hover-effect'), {duration: 0.5, scale: 0, opacity: 1});
             });
+        });
+
+        // Scroll-triggered animation
+        gsap.timeline({
+            scrollTrigger: {
+                scrub: 1,
+                trigger: ".content",
+                start: "top 90%",
+                end: "bottom 30%",
+            }
         });
     </script>
 </body>
