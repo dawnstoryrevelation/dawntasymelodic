@@ -162,6 +162,13 @@
             border-radius: 5px;
             background: linear-gradient(45deg, #f1c27d, #ffebcd);
         }
+        .fireball {
+            width: 20px;
+            height: 20px;
+            background: orange;
+            border-radius: 50%;
+            box-shadow: 0 0 10px red;
+        }
     </style>
 </head>
 <body>
@@ -243,23 +250,19 @@
         gsap.from("main h2, main p, .story", {duration: 1.5, y: 50, opacity: 0, stagger: 0.3, ease: "power2.out"});
         gsap.from("footer", {duration: 1.5, y: 50, opacity: 0, ease: "power2.out"});
 
+        // Story hover effect
         document.querySelectorAll('.story').forEach(story => {
             story.addEventListener('mouseenter', () => {
-                gsap.to(story, {scale: 1.1, duration: 0.5});
+                gsap.to(story, {scale: 1.05, duration: 0.5});
                 let fireball = document.createElement('div');
                 fireball.classList.add('fireball');
-                fireball.style.position = 'absolute';
-                fireball.style.width = '20px';
-                fireball.style.height = '20px';
-                fireball.style.background = 'orange';
-                fireball.style.borderRadius = '50%';
-                fireball.style.boxShadow = '0 0 10px red';
                 story.appendChild(fireball);
                 gsap.fromTo(fireball, {x: -10, opacity: 0}, {
                     x: 50, 
                     opacity: 1, 
                     duration: 0.5, 
                     repeat: -1, 
+                    yoyo: true,
                     ease: "power2.inOut",
                     onComplete: () => fireball.remove()
                 });
@@ -269,6 +272,7 @@
             });
         });
 
+        // Create magic elements
         function createMagicElement(className) {
             let element = document.createElement('div');
             element.classList.add(className);
@@ -276,6 +280,7 @@
             return element;
         }
 
+        // Animate magic elements
         function animateMagicElement(element) {
             gsap.to(element, {
                 x: () => Math.random() * window.innerWidth,
@@ -287,6 +292,7 @@
             });
         }
 
+        // Add magic elements
         for (let i = 0; i < 20; i++) {
             animateMagicElement(createMagicElement('magic-star'));
             animateMagicElement(createMagicElement('magic-planet'));
