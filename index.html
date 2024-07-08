@@ -1,15 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dawntasy Saga (Dawnstory Revelation)</title>
-    <link href="https://fonts.googleapis.com/css2?family=Indie+Flower&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Indie+Flower&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" rel="stylesheet">
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
-            font-family: 'Indie Flower', cursive;
+            font-family: 'Montserrat', sans-serif;
             background-color: #f9f5d7;
             color: #333;
             margin: 0;
@@ -33,114 +34,100 @@
 
         header {
             display: flex;
-            justify-content: center;
+            justify-content: space-between;
             align-items: center;
-            background-color: #ffebcd;
-            padding: 20px;
+            background-color: rgba(255, 235, 205, 0.9);
+            padding: 10px 20px;
             width: 100%;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            position: relative;
         }
 
         header h1 {
             margin: 0;
-            font-size: 3em;
-            font-weight: bold;
+            font-family: 'Indie Flower', cursive;
+            font-size: 2.5em;
             flex-grow: 1;
             text-align: center;
         }
 
-        header .sign-up-button, header .newsletter-button {
+        header .buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        header .buttons a {
             background-color: #007bff;
             color: #fff;
             text-decoration: none;
             padding: 10px 20px;
-            font-size: 1.2em;
+            font-size: 1em;
             border-radius: 5px;
-            font-family: 'Indie Flower', cursive;
             transition: background-color 0.3s ease;
-            margin: 5px;
         }
 
-        header .sign-up-button:hover, header .newsletter-button:hover {
+        header .buttons a:hover {
             background-color: #0056b3;
         }
 
-        .advertising-line {
-            font-size: 1.5em;
-            color: #d2691e;
-            margin-top: 10px;
-        }
-
         nav {
+            background-color: rgba(0, 0, 0, 0.8);
+            width: 100%;
+            padding: 10px 0;
             text-align: center;
-            margin: 20px 0;
         }
 
         nav a {
             margin: 0 15px;
             text-decoration: none;
             color: #f1c27d;
-            font-size: 1.5em;
+            font-size: 1.2em;
+            transition: color 0.3s ease;
         }
 
         nav a:hover {
-            text-decoration: underline;
+            color: #fff;
         }
 
         main {
-            text-align: center;
-            padding: 20px;
-            max-width: 800px;
-            margin: 0 auto;
-            background-color: #ffffff;
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 40px 20px;
+            max-width: 900px;
+            width: 100%;
+            margin: 20px auto;
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
 
         main h2 {
-            font-size: 2.5em;
+            font-size: 2em;
             margin-bottom: 20px;
             font-weight: bold;
+            color: #007bff;
         }
 
         main p {
-            font-size: 1.2em;
+            font-size: 1.1em;
             line-height: 1.6;
+            margin-bottom: 20px;
         }
 
-        .featured-story, .testimonials, .call-to-action {
-            text-align: left;
-            margin: 20px 0;
-            padding: 20px;
+        .highlight {
             background-color: #fff;
+            padding: 20px;
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
         }
 
-        .featured-story h3, .testimonials h3, .call-to-action h3 {
-            font-size: 2em;
+        .highlight h3 {
+            font-size: 1.8em;
             margin-bottom: 10px;
-            font-weight: bold;
+            color: #e67e22;
         }
 
-        .featured-story p, .testimonials p, .call-to-action p {
+        .highlight p {
             font-size: 1.1em;
-        }
-
-        .call-to-action a {
-            display: inline-block;
-            margin-top: 10px;
-            padding: 10px 20px;
-            background-color: #007bff;
-            color: #fff;
-            text-decoration: none;
-            font-size: 1.2em;
-            border-radius: 5px;
-        }
-
-        .call-to-action a:hover {
-            background-color: #0056b3;
+            color: #555;
         }
 
         .youtube-button {
@@ -152,6 +139,7 @@
             text-decoration: none;
             font-size: 1.2em;
             border-radius: 5px;
+            transition: background-color 0.3s ease;
         }
 
         .youtube-button:hover {
@@ -159,119 +147,18 @@
         }
 
         footer {
-            margin-top: 40px;
+            background-color: rgba(255, 235, 205, 0.9);
             padding: 10px;
-            background-color: #ffebcd;
             width: 100%;
             text-align: center;
             box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
         }
 
         footer p {
             margin: 0;
         }
 
-        .featured-story img, .gaze-image {
-            max-width: 100%;
-            height: auto;
-            border-radius: 10px;
-            margin-top: 10px;
-            display: block;
-            margin-left: auto;
-            margin-right: auto;
-            filter: brightness(0.7);
-            transition: filter 0.3s ease-in-out;
-        }
-
-        .gaze-image:hover {
-            filter: brightness(1);
-        }
-
-        .carousel-item img {
-            max-width: 100%;
-            height: auto;
-        }
-
-        .carousel-caption {
-            background-color: rgba(0, 0, 0, 0.7);
-            padding: 10px;
-            border-radius: 10px;
-        }
-
-        .infobox {
-            background-color: #f1f1f1;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            margin-top: 20px;
-            text-align: left;
-        }
-
-        .call-to-action-container {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-wrap: wrap;
-        }
-
-        .call-to-action img {
-            max-width: 300px;
-            width: 100%;
-            height: auto;
-            border-radius: 10px;
-            margin-top: 10px;
-            display: block;
-            margin-left: auto;
-            margin-right: auto;
-            position: relative;
-        }
-
-        .textbox-on-image {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background-color: rgba(0, 0, 0, 0.5);
-            color: #fff;
-            padding: 10px;
-            border-radius: 5px;
-            font-size: 1.5em;
-        }
-
-        @media (max-width: 768px) {
-            header {
-                flex-direction: column;
-            }
-
-            nav {
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-            }
-
-            nav a {
-                margin: 10px 0;
-            }
-
-            .call-to-action-container {
-                flex-direction: column;
-                align-items: center;
-            }
-
-            .featured-story, .testimonials, .call-to-action, main {
-                padding: 10px;
-            }
-
-            main h2 {
-                font-size: 2em;
-            }
-
-            main p {
-                font-size: 1em;
-            }
-        }
-
-        /* Social Media Buttons */
         .social-share-buttons a {
             margin: 0 10px;
             display: inline-block;
@@ -281,16 +168,23 @@
             width: 32px;
             height: 32px;
         }
+
+        .carousel-inner img {
+            border-radius: 10px;
+        }
     </style>
 </head>
+
 <body>
     <video class="video-background" autoplay loop muted>
         <source src="https://www.dawnstoryrevelation.com/2CC28CCE-DBE3-4B1A-9D5D-1FC1D6AD3F64.mp4" type="video/mp4">
     </video>
     <header data-aos="fade-down">
         <h1>Dawntasy Saga</h1>
-        <a href="signup.html" class="sign-up-button">Sign Up</a>
-        <a href="https://www.dawnstoryrevelation.com/newsletter.html" class="newsletter-button">Newsletter</a>
+        <div class="buttons">
+            <a href="signup.html">Sign Up</a>
+            <a href="https://www.dawnstoryrevelation.com/newsletter.html">Newsletter</a>
+        </div>
     </header>
     <nav data-aos="fade-down">
         <a href="https://dawnstoryrevelation.com">Home</a>
@@ -300,49 +194,50 @@
         <a href="https://www.dawnstoryrevelation.com/contact.html">Contact</a>
     </nav>
     <main data-aos="fade-up">
-        <h2 data-aos="fade-up">Welcome to the world of Gaze!</h2>
-        <p data-aos="fade-left">Dawntasy Story is an unpublished saga revolving around fantasy and dystopian elements. Delve into the Gaze world in an era in which survival is not guaranteed, and happiness is scarce. The outlook of the health of the future world does not prove to be promising, and as a band of desperate mutineers cling onto the threads of dear life, they realise that not just them are in danger, the whole world is, the whole multiverse.</p>
-        <p data-aos="fade-right">A tale of adventure and courage...</p>
-        <img src="https://www.dawnstoryrevelation.com/images/B680E346-F606-40AD-B88C-CC38CA184D9B.webp" alt="Gaze World" class="gaze-image">
+        <h2>Welcome to the world of Gaze!</h2>
+        <p>Dawntasy Story is an unpublished saga revolving around fantasy and dystopian elements. Delve into the Gaze world in an era in which survival is not guaranteed, and happiness is scarce. The outlook of the health of the future world does not prove to be promising, and as a band of desperate mutineers cling onto the threads of dear life, they realise that not just them are in danger, the whole world is, the whole multiverse.</p>
+        <p>A tale of adventure and courage...</p>
+        <img src="https://www.dawnstoryrevelation.com/images/B680E346-F606-40AD-B88C-CC38CA184D9B.webp" alt="Gaze World" class="img-fluid my-3">
 
-        <div class="infobox" data-aos="fade-up">
+        <div class="highlight" data-aos="fade-up">
             <h3>About the World of Gaze</h3>
             <p>The world of Gaze is split into two realms: the Rift Realm and the Dawnstory Realm. The Rift Realm is a dangerous place filled with magic and fantasy, while the Dawnstory Realm is a typical fantasy world. Both realms are surrounded by celestial stars and constellations, making the world of Gaze a unique and fantastical place.</p>
         </div>
 
-        <div class="featured-story" data-aos="zoom-in">
+        <div class="highlight" data-aos="zoom-in">
             <h3>Featured Story: His Promise (S1B1)</h3>
             <p>The realm of Dawnstory is governed by a tyrannous, nefarious organisation known only as LTR. When all hell breaks loose, the Time Rebellion League is formed with only one obligation, taking down the organisation and its devious leader, while Yaya the bearman struggles to find peace within himself after his beloved master is slain by enemy forces. However, he begins to realise that all is not lost, and that backing down was the worst thing he could have done.</p>
-            <img src="https://www.dawnstoryrevelation.com/images/5FEF0ACE-C55F-4745-BCC5-F39B7B47C8D6.jpeg" alt="Featured Story">
+            <img src="https://www.dawnstoryrevelation.com/images/5FEF0ACE-C55F-4745-BCC5-F39B7B47C8D6.jpeg" alt="Featured Story" class="img-fluid">
         </div>
-        <div class="testimonials" data-aos="zoom-in">
+
+        <div class="highlight" data-aos="zoom-in">
             <h3>Quotes</h3>
             <p>"You must carry on. The fight...is not over." - Aegis Wick, Chapter 2 S1B1</p>
             <p>"Even if you are beaten, never give up. Even if all your allies are killed, never falter. Remember the reason you’re fighting. So hold that hope in your heart and never let go. That is the true key to victory." - Aegis Wick, Chapter 2 S1B1</p>
         </div>
-        <div class="advertising-line" data-aos="fade-in">
-            Check out my YouTube Channel! Featured Song: 
+
+        <div class="highlight" data-aos="fade-in">
+            <h3>Check out my YouTube Channel! Featured Song:</h3>
             <a href="https://www.youtube.com/watch?v=RJNR6OiHeTw" class="youtube-button">Constellations</a>
-            <div class="youtube-video">
+            <div class="youtube-video mt-3">
                 <iframe width="560" height="315" src="https://www.youtube.com/embed/RJNR6OiHeTw?si=O2HlbtKebu4P34cw" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
             </div>
         </div>
-        <div class="testimonials" data-aos="zoom-in">
-            <h3><b>What Readers Say</b></h3>
+
+        <div class="highlight" data-aos="zoom-in">
+            <h3>What Readers Say</h3>
             <p>"A must read." - Mark Jones, age 45</p>
             <p>"A captivating tale that keeps you on the edge of your seat." - Wendy Johnson</p>
         </div>
 
-        <div class="call-to-action-container" data-aos="fade-up">
-            <div class="call-to-action">
-                <h3><b>Why You Should Read Dawntasy Story</b></h3>
-                <p>In Dawntasy, we invite you to embark on a journey like no other. Dive into a world where the lines between fantasy and dystopia blur, and where every turn of the page brings new surprises and revelations. With its richly developed characters, immersive world-building, and gripping plot twists, DSR promises an unforgettable reading experience.</p>
-                <p>Join us as we uncover the secrets of this sprawling saga, where courage, adventure, and the fight for justice reign supreme. Let Dawntasy ignite your imagination and take you on an epic adventure you won't soon forget.</p>
-                <a href="signup.html">
-                    <img src="https://www.dawnstoryrevelation.com/images/BE09F029-353F-45D5-AC84-9DED9EBA140E.png" alt="Welcome" class="call-to-action">
-                    <div class="textbox-on-image">So why not start now?</div>
-                </a>
-            </div>
+        <div class="highlight" data-aos="fade-up">
+            <h3>Why You Should Read Dawntasy Story</h3>
+            <p>In Dawntasy, we invite you to embark on a journey like no other. Dive into a world where the lines between fantasy and dystopia blur, and where every turn of the page brings new surprises and revelations. With its richly developed characters, immersive world-building, and gripping plot twists, DSR promises an unforgettable reading experience.</p>
+            <p>Join us as we uncover the secrets of this sprawling saga, where courage, adventure, and the fight for justice reign supreme. Let Dawntasy ignite your imagination and take you on an epic adventure you won't soon forget.</p>
+            <a href="signup.html">
+                <img src="https://www.dawnstoryrevelation.com/images/BE09F029-353F-45D5-AC84-9DED9EBA140E.png" alt="Welcome" class="img-fluid my-3">
+                <div class="textbox-on-image">So why not start now?</div>
+            </a>
         </div>
 
         <h2 data-aos="fade-up">Our Song Album</h2>
@@ -351,7 +246,7 @@
         <p data-aos="fade-left">"The Equinox" When sun and moon meet.</p>
         <p data-aos="fade-right">"Break of Day" Seraphic dawn.</p>
         <p data-aos="fade-right">"Never Falter" A shimmer of hope.</p>
-        
+
         <h2 data-aos="fade-up">Explore Three Unique Realms!</h2>
         <p data-aos="fade-left">The DSR World Circle is split between three realms: The Eternal Rift Realm, the Fall Point Realm and The Ephemeral Dawnstory Realm. </p>
         <p data-aos="fade-right">The Rift Realm...a home to danger, mystery and excitement...awaken a sense of transcendence.</p>
@@ -444,13 +339,9 @@
                 <span class="sr-only">Next</span>
             </a>
         </div>
-
-
-
     </main>
     <footer data-aos="fade-up">
         <p>&copy; 2024 Dawntasy: Dawnstory Revelation. All rights reserved.</p>
-        <!-- Social Media Sharing Buttons -->
         <div class="social-share-buttons">
             <a href="https://www.facebook.com/sharer/sharer.php?u=https://www.dawnstoryrevelation.com" target="_blank">
                 <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/16/Facebook-icon-1.png/32px-Facebook-icon-1.png" alt="Facebook">
@@ -472,4 +363,5 @@
         AOS.init();
     </script>
 </body>
+
 </html>
