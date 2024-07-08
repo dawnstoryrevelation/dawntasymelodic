@@ -33,21 +33,20 @@
             color: #333;
             margin: 0;
             padding: 0;
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
-            min-height: 100vh;
-            overflow: hidden;
+            overflow-x: hidden;
         }
         .video-background {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            right: 0;
+            bottom: 0;
+            min-width: 100%;
+            min-height: 100%;
             z-index: -1;
-            object-fit: cover;
-            opacity: 0.7;
+            opacity: 0.5;
         }
         .container {
             width: 80%;
@@ -216,9 +215,8 @@
     </style>
 </head>
 <body>
-    <video autoplay muted loop class="video-background">
+    <video class="video-background" autoplay loop muted>
         <source src="https://www.dawnstoryrevelation.com/DF296D22-715E-4729-90B7-D9985BE59223.mp4" type="video/mp4">
-        Your browser does not support the video tag.
     </video>
     
     <header>
@@ -402,23 +400,10 @@
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/ScrollTrigger.min.js"></script>
     <script>
-        gsap.from("header h1", {duration: 1.5, y: -50, opacity: 0, ease: "power2.out"});
-        gsap.from(".section-title", {duration: 1.5, y: 50, opacity: 0, stagger: 0.3, ease: "power2.out"});
-        gsap.from(".container img, .gallery img, .spotlight, .updates, .testimonials, .events, .return-button", {
-            duration: 1.5,
-            scale: 0.8,
-            opacity: 0,
-            stagger: 0.3,
-            ease: "back.out(1.7)"
-        });
-
         document.getElementById('submit').addEventListener('click', function(e) {
             e.preventDefault();
             document.getElementById('success-message').style.display = 'block';
-            gsap.from("#success-message", {duration: 1.5, scale: 0.8, opacity: 0, ease: "back.out(1.7)"});
         });
     </script>
 </body>
