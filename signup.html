@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,6 +8,7 @@
     <title>Sign Up - Dawntasy Saga</title>
     <link href="https://fonts.googleapis.com/css2?family=Indie+Flower&display=swap" rel="stylesheet">
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet">
+    <script defer src='script.js'></script>
     <style>
         body {
             font-family: 'Indie Flower', cursive;
@@ -37,7 +39,6 @@
             width: 100%;
             max-width: 400px;
             animation: slideIn 2s ease-in-out;
-            position: relative;
         }
         @keyframes slideIn {
             0% { transform: translateY(20px); opacity: 0; }
@@ -70,21 +71,6 @@
         .error-message {
             background-color: #f44336;
             color: white;
-        }
-        .magic-star, .magic-planet, .magic-staff {
-            position: absolute;
-            width: 30px;
-            height: 30px;
-            opacity: 0.7;
-            border-radius: 50%;
-            background: linear-gradient(45deg, #ffebcd, #f1c27d);
-            box-shadow: 0 0 10px rgba(255, 235, 205, 0.5);
-        }
-        .magic-staff {
-            width: 10px;
-            height: 50px;
-            border-radius: 5px;
-            background: linear-gradient(45deg, #f1c27d, #ffebcd);
         }
     </style>
 </head>
@@ -119,61 +105,24 @@
             Please fill in the components.
         </div>
     </div>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.6.0/gsap.min.js"></script>
     <script>
-        // GSAP animations
-        gsap.from("body", {duration: 1.5, opacity: 0, ease: "power2.inOut"});
-        gsap.from(".signup-form", {duration: 1.5, y: -50, opacity: 0, ease: "power2.out"});
-        gsap.from("h2", {duration: 1, x: -50, opacity: 0, ease: "power2.out"});
-        gsap.from(".form-group", {duration: 1, opacity: 0, y: 20, stagger: 0.2, ease: "power2.out"});
-        gsap.from("button", {duration: 1, scale: 0.5, opacity: 0, ease: "back.out(1.7)"});
-
-        // Success and error messages animation
         document.getElementById('form').addEventListener('submit', function(e) {
             e.preventDefault();
             const username = document.getElementById('username').value;
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
             if (username && email && password) {
-                gsap.to("#success-message", {display: 'block', opacity: 1, duration: 1});
-                gsap.to("#error-message", {display: 'none', opacity: 0, duration: 1});
+                document.getElementById('success-message').style.display = 'block';
+                document.getElementById('error-message').style.display = 'none';
                 setTimeout(() => {
                     window.location.href = 'memberspanel.html';
                 }, 2000);
                 // Code to send data to backend goes here
             } else {
-                gsap.to("#error-message", {display: 'block', opacity: 1, duration: 1});
-                gsap.to("#success-message", {display: 'none', opacity: 0, duration: 1});
+                document.getElementById('error-message').style.display = 'block';
+                document.getElementById('success-message').style.display = 'none';
             }
         });
-
-        // Create magic elements
-        function createMagicElement(className) {
-            let element = document.createElement('div');
-            element.classList.add(className);
-            document.body.appendChild(element);
-            return element;
-        }
-
-        // Animate magic elements
-        function animateMagicElement(element) {
-            gsap.to(element, {
-                x: () => Math.random() * window.innerWidth,
-                y: () => Math.random() * window.innerHeight,
-                duration: 5 + Math.random() * 5,
-                ease: "power1.inOut",
-                repeat: -1,
-                yoyo: true
-            });
-        }
-
-        // Add magic elements
-        for (let i = 0; i < 10; i++) {
-            animateMagicElement(createMagicElement('magic-star'));
-            animateMagicElement(createMagicElement('magic-planet'));
-            animateMagicElement(createMagicElement('magic-staff'));
-        }
     </script>
 </body>
 </html>
