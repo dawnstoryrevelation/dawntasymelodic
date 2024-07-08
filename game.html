@@ -21,152 +21,102 @@
             background-size: cover;
             background-attachment: fixed;
         }
-        .title-screen, .class-selection, .game-container {
+        .screen {
             display: none;
-        }
-        .active {
-            display: block;
-        }
-        .title-screen, .class-selection {
             text-align: center;
             background: rgba(255, 255, 255, 0.9);
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            animation: fadeIn 1s ease-in-out;
+            animation: fadeIn 1s forwards;
         }
-        .title-screen h1, .class-selection h2 {
+        .active {
+            display: block;
+        }
+        .screen h1, .screen h2 {
             font-size: 3em;
             margin-bottom: 20px;
             color: #007bff;
             text-shadow: 2px 2px 4px #000;
         }
-        .start-button, .class-option {
-            font-family: 'Uncial Antiqua', cursive;
-            padding: 15px 30px;
-            font-size: 1.5em;
+        .button {
+            padding: 10px 20px;
+            font-size: 1.2em;
             cursor: pointer;
             border: none;
-            border-radius: 10px;
+            border-radius: 5px;
             background-color: #007bff;
             color: #fff;
             transition: background-color 0.3s, transform 0.3s;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
-        .start-button:hover, .class-option:hover {
+        .button:hover {
             background-color: #0056b3;
             transform: translateY(-3px);
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-        }
-        .class-selection .class-option {
-            display: inline-block;
-            margin: 10px;
-            padding: 20px;
-            text-align: center;
-            background: rgba(0, 0, 0, 0.7);
-            color: white;
-            border: 2px solid #fff;
-            border-radius: 10px;
-            transition: transform 0.3s, box-shadow 0.3s;
-        }
-        .class-selection .class-option:hover {
-            transform: scale(1.1);
-            box-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
-        }
-        .class-selection .class-option img {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            transition: transform 0.3s;
-        }
-        .class-selection .class-option:hover img {
-            transform: scale(1.2);
-        }
-        .popup {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(0, 0, 0, 0.8);
-            color: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.7);
-            display: none;
-            z-index: 10;
-            text-align: center;
-            animation: popupAnim 0.5s forwards;
-        }
-        .popup.active {
-            display: block;
         }
         @keyframes fadeIn {
-            0% { opacity: 0; }
-            100% { opacity: 1; }
-        }
-        @keyframes popupAnim {
-            0% { transform: translate(-50%, -60%); opacity: 0; }
-            100% { transform: translate(-50%, -50%); opacity: 1; }
-        }
-        .close-popup {
-            background: #007bff;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-        .close-popup:hover {
-            background: #0056b3;
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
 <body>
-    <div class="title-screen active">
+    <div class="screen active" id="titleScreen">
         <h1>Gloaming Venturer</h1>
-        <button class="start-button" onclick="showClassSelection()">Start Game</button>
+        <button class="button" onclick="showClassSelection()">Start Game</button>
     </div>
 
-    <div class="class-selection">
+    <div class="screen" id="classSelection">
         <h2>Select Your Class</h2>
-        <div class="class-option" onclick="selectClass('warrior')">
+        <div class="button" onclick="selectClass('warrior')">
             <img src="https://www.dawnstoryrevelation.com/CF643EAD-1895-4F5D-9C06-599A721EA917.webp" alt="Warrior">
             <p>Warrior</p>
         </div>
-        <div class="class-option" onclick="selectClass('mage')">
+        <div class="button" onclick="selectClass('mage')">
             <img src="https://www.dawnstoryrevelation.com/96213042-B734-48F7-8DAB-F47304CB5DFD.webp" alt="Mage">
             <p>Mage</p>
         </div>
-        <div class="class-option" onclick="selectClass('tempest')">
+        <div class="button" onclick="selectClass('tempest')">
             <img src="https://www.dawnstoryrevelation.com/B87B865A-2EC6-4220-987A-B11830273D57.webp" alt="Tempest">
             <p>Tempest</p>
         </div>
     </div>
 
-    <div class="popup" id="popup">
-        <p id="popupText"></p>
-        <button class="close-popup" onclick="closePopup()">Close</button>
+    <div class="screen" id="warriorStory">
+        <h1>From Fighter to Warlord: A Warrior Story</h1>
+        <button class="button" onclick="showBareskaBay()">Proceed</button>
+    </div>
+
+    <div class="screen" id="bareskaBay">
+        <h1>Bareska Bay</h1>
+        <p>You have arrived at Bareska Bay.</p>
+        <button class="button" onclick="exploreIsland()">Explore the island</button>
     </div>
 
     <script>
-        const titleScreen = document.querySelector('.title-screen');
-        const classSelection = document.querySelector('.class-selection');
-        const popup = document.getElementById('popup');
-        const popupText = document.getElementById('popupText');
-
         function showClassSelection() {
-            titleScreen.classList.remove('active');
-            classSelection.classList.add('active');
+            document.getElementById('titleScreen').classList.remove('active');
+            document.getElementById('classSelection').classList.add('active');
         }
 
         function selectClass(className) {
-            popupText.textContent = `You selected ${className.charAt(0).toUpperCase() + className.slice(1)}!`;
-            popup.classList.add('active');
+            document.getElementById('classSelection').classList.remove('active');
+            if (className === 'warrior') {
+                document.getElementById('warriorStory').classList.add('active');
+            } else if (className === 'mage') {
+                alert('Mage story coming soon!');
+            } else if (className === 'tempest') {
+                alert('Tempest story coming soon!');
+            }
         }
 
-        function closePopup() {
-            popup.classList.remove('active');
+        function showBareskaBay() {
+            document.getElementById('warriorStory').classList.remove('active');
+            document.getElementById('bareskaBay').classList.add('active');
+        }
+
+        function exploreIsland() {
+            alert('Exploring the island...');
+            // Implement the next part of the story here
         }
     </script>
 </body>
