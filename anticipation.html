@@ -276,18 +276,35 @@
         </a>
     </div>
 
-//WITH Timelines (cleaner, more versatile)
-var tl = gsap.timeline({repeat: 2, repeatDelay: 1});
-tl.to("#id", {x: 100, duration: 1});
-tl.to("#id", {y: 50, duration: 1});
-tl.to("#id", {opacity: 0, duration: 1});
+// create the timeline that repeats 3 times
+// with 1 second between each repeat and
+// then call myFunction() when it completes
+var tl = gsap.timeline({ repeat: 3, repeatDelay: 1, onComplete: myFunction });
 
-// then we can control the whole thing easily...
-tl.pause();
-tl.resume();
-tl.seek(1.5);
+// add a tween
+tl.to(".class", { duration: 1, x: 200, y: 100 });
+
+// add another tween 0.5 seconds after the end
+// of the timeline (makes sequencing easy)
+tl.to("#id", { duration: 0.8, opacity: 0 }, "+=0.5");
+
+// reverse anytime
 tl.reverse();
-...
+
+// Add a "spin" label 3-seconds into the timeline
+tl.addLabel("spin", 3);
+
+// insert a rotation tween at the "spin" label
+// (you could also define the insertion point as the time instead of a label)
+tl.to(".class", { duration: 2, rotation: "+=360" }, "spin");
+
+// go to the "spin" label and play the timeline from there
+tl.play("spin");
+
+// nest another timeline inside your timeline...
+var nested = gsap.timeline();
+nested.to(".class2", { duration: 1, x: 200 });
+tl.add(nested, "+=3"); //add nested timeline after a 3-second gap
 
     <footer>
         <p>&copy; 2024 Dawntasy: Dawnstory Revelation. All rights reserved.</p>
