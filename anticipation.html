@@ -276,9 +276,18 @@
         </a>
     </div>
 
-    <div class="scroll-trigger-ready__worm-wrap">
-        <p class="worm">This is a worm example for ScrollTrigger</p>
-    </div>
+//WITH Timelines (cleaner, more versatile)
+var tl = gsap.timeline({repeat: 2, repeatDelay: 1});
+tl.to("#id", {x: 100, duration: 1});
+tl.to("#id", {y: 50, duration: 1});
+tl.to("#id", {opacity: 0, duration: 1});
+
+// then we can control the whole thing easily...
+tl.pause();
+tl.resume();
+tl.seek(1.5);
+tl.reverse();
+...
 
     <footer>
         <p>&copy; 2024 Dawntasy: Dawnstory Revelation. All rights reserved.</p>
