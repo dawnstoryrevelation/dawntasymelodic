@@ -21,6 +21,7 @@
             background-image: url('https://dawnstoryrevelation.github.io/dawnstoryrevelation/images/fadiA.jpeg');
             background-size: cover;
             background-attachment: fixed;
+            overflow-x: hidden;
         }
         .navbar {
             background-color: rgba(0, 0, 0, 0.8);
@@ -29,6 +30,8 @@
         .navbar-brand, .navbar-nav .nav-link {
             color: #f5f5f5;
             font-size: 1.2em;
+            position: relative;
+            transition: color 0.3s;
         }
         .navbar-brand:hover, .navbar-nav .nav-link:hover {
             color: #f9f5d7;
@@ -70,6 +73,7 @@
             padding: 20px;
             border-radius: 5px;
             margin: 20px 0;
+            position: relative;
         }
         .highlight h3 {
             color: #e67e22;
@@ -90,34 +94,7 @@
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
-        .decorations {
-            position: absolute;
-            top: -30px;
-            left: -30px;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-        }
-        .decorations::before, .decorations::after {
-            content: '';
-            position: absolute;
-            border: 5px solid #e67e22;
-            border-radius: 50%;
-            opacity: 0.7;
-        }
-        .decorations::before {
-            width: 200px;
-            height: 200px;
-            top: -20px;
-            left: -20px;
-        }
-        .decorations::after {
-            width: 150px;
-            height: 150px;
-            bottom: -20px;
-            right: -20px;
-        }
-        .animated-button {
+        .animated-button, .minigame-button {
             display: inline-block;
             padding: 10px 20px;
             font-size: 1.2em;
@@ -128,27 +105,53 @@
             cursor: pointer;
             text-decoration: none;
             transition: background-color 0.3s, transform 0.3s;
+            margin-top: 20px;
+            position: relative;
+            overflow: hidden;
         }
-        .animated-button:hover {
+        .minigame-button {
+            background-color: #28a745;
+        }
+        .animated-button:hover, .minigame-button:hover {
             background-color: #0056b3;
             transform: translateY(-3px);
         }
-        .minigame-button {
-            display: inline-block;
-            padding: 15px 30px;
-            font-size: 1.5em;
-            color: #fff;
-            background-color: #28a745;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            text-decoration: none;
-            transition: background-color 0.3s, transform 0.3s;
-            margin-top: 20px;
-        }
         .minigame-button:hover {
             background-color: #218838;
-            transform: translateY(-3px);
+        }
+        .button-hover-effect {
+            content: '';
+            position: absolute;
+            width: 300%;
+            height: 300%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            transition: transform 0.5s, opacity 0.5s;
+        }
+        .animated-button:hover .button-hover-effect, .minigame-button:hover .button-hover-effect {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 0;
+        }
+        .popup {
+            position: absolute;
+            top: -10px;
+            left: 110%;
+            width: 200px;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            opacity: 0;
+            transform: translateX(-50px);
+            transition: opacity 0.3s, transform 0.3s;
+        }
+        .navbar-nav .nav-link:hover .popup {
+            opacity: 1;
+            transform: translateX(0);
         }
         footer {
             margin-top: 20px;
@@ -173,16 +176,24 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ml-auto">
                 <li class="nav-item">
-                    <a class="nav-link" href="exclusive.html">Introduction</a>
+                    <a class="nav-link" href="exclusive.html">Introduction
+                        <span class="popup">Explore the introduction to Dawntasy</span>
+                    </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="ai.html">Yaya the AI</a>
+                    <a class="nav-link" href="ai.html">Yaya the AI
+                        <span class="popup">Chat with Yaya the AI</span>
+                    </a>
                 </li>
                 <li class="nav-item active">
-                    <a class="nav-link" href="anticipation.html">Anticipation</a>
+                    <a class="nav-link" href="anticipation.html">Anticipation
+                        <span class="popup">Discover upcoming adventures</span>
+                    </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="upgrade.html">Upgrade</a>
+                    <a class="nav-link" href="upgrade.html">Upgrade
+                        <span class="popup">Upgrade your experience</span>
+                    </a>
                 </li>
             </ul>
         </div>
@@ -194,51 +205,84 @@
     </header>
 
     <div class="content">
-            <div class="video-container">
-        <iframe width="560" height="315" src="https://www.youtube.com/embed/xWdqHFMr88I?autoplay=1" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-        <div class="decorations"></div>
+        <div class="video-container">
+            <iframe width="560" height="315" src="https://www.youtube.com/embed/xWdqHFMr88I?autoplay=1" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+        </div>
+        
+        <h2>Exciting New Chapters</h2>
+        <p>As a valued member, you have exclusive access to the latest and upcoming chapters of the Dawntasy Saga. Dive into new adventures, uncover hidden secrets, and follow your favorite characters as they embark on their journeys.</p>
+        
+        <div class="highlight">
+            <h3>Upcoming Events</h3>
+            <p>Stay tuned for special events, including live readings, Q&A sessions with the author, and more. Mark your calendars and be part of these exclusive experiences.</p>
+        </div>
+
+        <h2>Behind the Scenes</h2>
+        <p>Get a glimpse into the creative process behind the Dawntasy Saga. Enjoy concept art, author notes, and exclusive interviews that give you a deeper understanding of the world and its characters.</p>
+
+        <a href="index.html" class="animated-button">Go to Main Page
+            <span class="button-hover-effect"></span>
+        </a>
+        <a href="game.html" target="_blank" class="minigame-button">Gloaming Venturer Minigame
+            <span class="button-hover-effect"></span>
+        </a>
     </div>
-    
-    <h2>Exciting New Chapters</h2>
-    <p>As a valued member, you have exclusive access to the latest and upcoming chapters of the Dawntasy Saga. Dive into new adventures, uncover hidden secrets, and follow your favorite characters as they embark on their journeys.</p>
-    
-    <div class="highlight">
-        <h3>Upcoming Events</h3>
-        <p>Stay tuned for special events, including live readings, Q&A sessions with the author, and more. Mark your calendars and be part of these exclusive experiences.</p>
-    </div>
 
-    <h2>Behind the Scenes</h2>
-    <p>Get a glimpse into the creative process behind the Dawntasy Saga. Enjoy concept art, author notes, and exclusive interviews that give you a deeper understanding of the world and its characters.</p>
+    <footer>
+        <p>&copy; 2024 Dawntasy: Dawnstory Revelation. All rights reserved.</p>
+    </footer>
 
-    <a href="index.html" class="animated-button">Go to Main Page</a>
-    <a href="game.html" target="_blank" class="minigame-button">Gloaming Venturer Minigame</a>
-</div>
-
-<footer>
-    <p>&copy; 2024 Dawntasy: Dawnstory Revelation. All rights reserved.</p>
-</footer>
-
-<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.10.4/gsap.min.js"></script>
-<script>
-    document.addEventListener("DOMContentLoaded", () => {
-        // Animate the navbar
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/ScrollTrigger.min.js"></script>
+    <script>
+        // Navbar Animation
         gsap.from(".navbar", {duration: 1, y: -100, opacity: 0, ease: "bounce"});
 
-        // Animate the header
+        // Header Animation
         gsap.from(".header h1", {duration: 1.5, x: -200, opacity: 0, ease: "power2.inOut"});
         gsap.from(".header p", {duration: 1.5, x: 200, opacity: 0, ease: "power2.inOut", delay: 0.5});
 
-        // Animate the content section
+        // Content Animation
         gsap.from(".content", {duration: 2, y: 100, opacity: 0, ease: "power2.out"});
 
-        // Animate the buttons
+        // Button Animations
         gsap.from(".animated-button", {duration: 1.5, scale: 0, opacity: 0, ease: "back.out(1.7)", delay: 1});
         gsap.from(".minigame-button", {duration: 1.5, scale: 0, opacity: 0, ease: "back.out(1.7)", delay: 1.2});
-    });
-</script>
+
+        // Highlight Section Animation
+        gsap.from(".highlight", {duration: 2, y: 50, opacity: 0, ease: "power2.out", scrollTrigger: {
+            trigger: ".highlight",
+            start: "top 80%",
+            toggleActions: "play none none reverse"
+        }});
+
+        // Video Container Animation
+        gsap.from(".video-container", {duration: 1.5, scale: 0.8, opacity: 0, ease: "elastic.out(1, 0.3)", delay: 0.5});
+
+        // Navbar Hover Animations
+        document.querySelectorAll('.navbar-nav .nav-link').forEach(link => {
+            link.addEventListener('mouseover', () => {
+                gsap.to(link, {duration: 0.5, scale: 1.1, color: '#f9f5d7'});
+            });
+            link.addEventListener('mouseout', () => {
+                gsap.to(link, {duration: 0.5, scale: 1, color: '#f5f5f5'});
+            });
+        });
+
+        // Button Hover Effect
+        document.querySelectorAll('.animated-button, .minigame-button').forEach(button => {
+            button.addEventListener('mouseover', () => {
+                gsap.to(button.querySelector('.button-hover-effect'), {duration: 0.5, scale: 1, opacity: 0});
+            });
+            button.addEventListener('mouseout', () => {
+                gsap.to(button.querySelector('.button-hover-effect'), {duration: 0.5, scale: 0, opacity: 1});
+            });
+        });
+    </script>
 </body>
 </html>
 ```
+
