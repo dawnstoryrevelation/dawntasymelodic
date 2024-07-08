@@ -10,7 +10,6 @@
     <style>
         body {
             font-family: 'Indie Flower', cursive;
-            background-color: #f9f5d7;
             color: #333;
             margin: 0;
             padding: 0;
@@ -18,11 +17,24 @@
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
-            background-image: url('https://dawnstoryrevelation.github.io/dawnstoryrevelation/images/fadiA.jpeg');
-            background-repeat: no-repeat;
-            background-attachment: fixed;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        video {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            min-width: 100%;
+            min-height: 100%;
+            width: auto;
+            height: auto;
+            z-index: -1;
+            transform: translate(-50%, -50%);
+            background: no-repeat;
             background-size: cover;
         }
+
         header {
             display: flex;
             justify-content: center;
@@ -68,6 +80,7 @@
             text-decoration: none;
             color: #f1c27d;
             font-size: 1.5em;
+            position: relative;
         }
         nav a:hover {
             text-decoration: underline;
@@ -80,6 +93,7 @@
             background-color: #ffffff;
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            position: relative;
         }
         main h2 {
             font-size: 2.5em;
@@ -239,9 +253,31 @@
             width: 32px;
             height: 32px;
         }
+
+        /* Magic elements */
+        .magic-element {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            opacity: 0.7;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #ffebcd, #f1c27d);
+            box-shadow: 0 0 10px rgba(255, 235, 205, 0.5);
+        }
+        .fireball {
+            width: 20px;
+            height: 20px;
+            background: orange;
+            border-radius: 50%;
+            box-shadow: 0 0 10px red;
+        }
     </style>
 </head>
 <body>
+    <video autoplay muted loop id="bgvideo">
+        <source src="https://www.dawnstoryrevelation.com/vid%20dawngtugf.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
     <header data-aos="fade-down">
         <h1>Dawntasy Saga</h1>
         <a href="signup.html" class="sign-up-button">Sign Up</a>
@@ -399,9 +435,6 @@
                 <span class="sr-only">Next</span>
             </a>
         </div>
-
-
-
     </main>
     <footer data-aos="fade-up">
         <p>&copy; 2024 Dawntasy: Dawnstory Revelation. All rights reserved.</p>
@@ -420,11 +453,63 @@
     </footer>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/ScrollTrigger.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
     <script>
         AOS.init();
+
+        // GSAP Animations
+        gsap.from("header h1", {duration: 1.5, y: -50, opacity: 0, ease: "power2.out"});
+        gsap.from("nav a", {duration: 1, opacity: 0, y: -20, stagger: 0.2, ease: "power2.out"});
+        gsap.from("main h2, main p, .featured-story, .testimonials, .call-to-action, .advertising-line", {duration: 1.5, y: 50, opacity: 0, stagger: 0.3, ease: "power2.out"});
+        gsap.from("footer", {duration: 1.5, y: 50, opacity: 0, ease: "power2.out"});
+
+        // Magic elements
+        function createMagicElement(className) {
+            let element = document.createElement('div');
+            element.classList.add(className);
+            document.body.appendChild(element);
+            return element;
+        }
+
+        function animateMagicElement(element) {
+            gsap.to(element, {
+                x: () => Math.random() * window.innerWidth,
+                y: () => Math.random() * window.innerHeight,
+                duration: 5 + Math.random() * 5,
+                ease: "power1.inOut",
+                repeat: -1,
+                yoyo: true
+            });
+        }
+
+        for (let i = 0; i < 20; i++) {
+            animateMagicElement(createMagicElement('magic-element'));
+        }
+
+        // Fireball effect
+        document.querySelectorAll('.call-to-action, .featured-story img').forEach(item => {
+            item.addEventListener('mouseenter', () => {
+                let fireball = document.createElement('div');
+                fireball.classList.add('fireball');
+                item.appendChild(fireball);
+                gsap.fromTo(fireball, {x: -10, opacity: 0}, {
+                    x: 50, 
+                    opacity: 1, 
+                    duration: 0.5, 
+                    repeat: -1, 
+                    yoyo: true,
+                    ease: "power2.inOut",
+                    onComplete: () => fireball.remove()
+                });
+            });
+            item.addEventListener('mouseleave', () => {
+                gsap.to(item, {scale: 1, duration: 0.5});
+            });
+        });
     </script>
 </body>
 </html>
