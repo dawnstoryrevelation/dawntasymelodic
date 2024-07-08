@@ -33,6 +33,7 @@
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            animation: fadeIn 1s ease-in-out;
         }
         .title-screen h1, .class-selection h2 {
             font-size: 3em;
@@ -41,18 +42,21 @@
             text-shadow: 2px 2px 4px #000;
         }
         .start-button, .class-option {
-            padding: 10px 20px;
-            font-size: 1.2em;
+            font-family: 'Uncial Antiqua', cursive;
+            padding: 15px 30px;
+            font-size: 1.5em;
             cursor: pointer;
             border: none;
-            border-radius: 5px;
+            border-radius: 10px;
             background-color: #007bff;
             color: #fff;
             transition: background-color 0.3s, transform 0.3s;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
         .start-button:hover, .class-option:hover {
             background-color: #0056b3;
             transform: translateY(-3px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
         }
         .class-selection .class-option {
             display: inline-block;
@@ -91,10 +95,14 @@
             display: none;
             z-index: 10;
             text-align: center;
+            animation: popupAnim 0.5s forwards;
         }
         .popup.active {
             display: block;
-            animation: popupAnim 0.5s forwards;
+        }
+        @keyframes fadeIn {
+            0% { opacity: 0; }
+            100% { opacity: 1; }
         }
         @keyframes popupAnim {
             0% { transform: translate(-50%, -60%); opacity: 0; }
@@ -163,4 +171,3 @@
     </script>
 </body>
 </html>
-
