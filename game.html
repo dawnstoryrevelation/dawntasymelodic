@@ -125,6 +125,30 @@
         <button class="button" onclick="exploreOption('dock')">Dock</button>
     </div>
 
+    <div class="screen" id="aegisOptions">
+        <h1>Aegis Wick Memorial</h1>
+        <p style="color: #000;">Choose your action:</p>
+        <button class="button" onclick="exploreAegis('reflect')">Reflect on the Past</button>
+        <button class="button" onclick="exploreAegis('respects')">Pay Respects</button>
+        <button class="button" onclick="exploreAegis('discover')">Discover Hidden Secrets</button>
+    </div>
+
+    <div class="screen" id="trainingOptions">
+        <h1>Training Camp</h1>
+        <p style="color: #000;">Choose your action:</p>
+        <button class="button" onclick="exploreTraining('practice')">Practice Combat Skills</button>
+        <button class="button" onclick="exploreTraining('meet')">Meet Other Warriors</button>
+        <button class="button" onclick="exploreTraining('special')">Special Training Session</button>
+    </div>
+
+    <div class="screen" id="dockOptions">
+        <h1>Dock</h1>
+        <p style="color: #000;">Choose your action:</p>
+        <button class="button" onclick="exploreDock('voyage')">Prepare for Voyage</button>
+        <button class="button" onclick="exploreDock('fishermen')">Talk to Fishermen</button>
+        <button class="button" onclick="exploreDock('secret')">Secret Passage</button>
+    </div>
+
     <script>
         function showClassSelection() {
             document.getElementById('titleScreen').classList.remove('active');
@@ -154,7 +178,27 @@
 
         function exploreOption(option) {
             document.getElementById('exploreOptions').classList.remove('active');
-            alert('Exploring ' + option + '...');
+            if (option === 'aegis') {
+                document.getElementById('aegisOptions').classList.add('active');
+            } else if (option === 'training') {
+                document.getElementById('trainingOptions').classList.add('active');
+            } else if (option === 'dock') {
+                document.getElementById('dockOptions').classList.add('active');
+            }
+        }
+
+        function exploreAegis(action) {
+            alert('Exploring Aegis Wick Memorial: ' + action + '...');
+            // Implement the next part of the story here
+        }
+
+        function exploreTraining(action) {
+            alert('Exploring Training Camp: ' + action + '...');
+            // Implement the next part of the story here
+        }
+
+        function exploreDock(action) {
+            alert('Exploring Dock: ' + action + '...');
             // Implement the next part of the story here
         }
     </script>
