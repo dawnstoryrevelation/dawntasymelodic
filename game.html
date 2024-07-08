@@ -77,6 +77,13 @@
         .class-option:hover img {
             transform: scale(1.2);
         }
+        .visible-text {
+            color: #1e1e2f;
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 10px;
+            border-radius: 5px;
+            display: inline-block;
+        }
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
@@ -112,7 +119,7 @@
 
     <div class="screen" id="bareskaBay">
         <h1>Bareska Bay</h1>
-        <p>You have arrived at Bareska Bay.</p>
+        <p class="visible-text">You have arrived at Bareska Bay.</p>
         <button class="button" onclick="exploreIsland()">Explore the Island</button>
     </div>
 
