@@ -25,13 +25,6 @@
                 opacity: 1;
             }
         }
-        .fade-in {
-            animation: fadeIn 2s;
-        }
-        .slide-up {
-            animation: slideUp 1.5s ease-out;
-        }
-
         body {
             font-family: 'Indie Flower', cursive;
             background-color: #f9f5d7;
@@ -63,9 +56,24 @@
             text-decoration: none;
             color: #f1c27d;
             font-size: 1.5em;
+            position: relative;
         }
         nav a:hover {
             text-decoration: underline;
+        }
+        nav a::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 3px;
+            background: #f1c27d;
+            bottom: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+            transition: width 0.3s;
+        }
+        nav a:hover::after {
+            width: 100%;
         }
         main {
             text-align: center;
@@ -108,9 +116,27 @@
             text-decoration: none;
             cursor: pointer;
             transition: background-color 0.3s ease;
+            position: relative;
+            overflow: hidden;
         }
         .button:hover {
             background-color: #CC0000; /* Darker Red for hover effect */
+        }
+        .button::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 300%;
+            height: 300%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%) scale(0);
+            border-radius: 50%;
+            transition: transform 0.5s, opacity 0.5s;
+        }
+        .button:hover::before {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 0;
         }
         .decorative-star {
             position: absolute;
@@ -171,6 +197,77 @@
     <footer class="fade-in">
         <p>&copy; 2024 Dawntasy: Dawnstory Revelation. All rights reserved.</p>
     </footer>
-    <script src="https://www.cognitoforms.com/f/seamless.js" data-key="sG8042bqckmJM1cjASF9rQ" data-form="1"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/ScrollTrigger.min.js"></script>
+    <script>
+        // Navbar Animation
+        gsap.from("nav a", {
+            duration: 1, 
+            opacity: 0, 
+            y: -20, 
+            stagger: 0.2, 
+            ease: "power2.out"
+        });
+
+        // Header Animation
+        gsap.from("header h1", {
+            duration: 1.5, 
+            y: -50, 
+            opacity: 0, 
+            ease: "power2.out"
+        });
+
+        // Main Content Animation
+        gsap.from("main", {
+            duration: 1.5, 
+            y: 50, 
+            opacity: 0, 
+            ease: "power2.out"
+        });
+
+        // Decorative Stars Animation
+        gsap.to(".decorative-star", {
+            duration: 2, 
+            rotation: 360, 
+            repeat: -1, 
+            ease: "linear"
+        });
+
+        // Button Hover Effect with Fireball Animation
+        document.querySelectorAll('.button').forEach(button => {
+            button.addEventListener('mouseenter', () => {
+                gsap.fromTo(button, {
+                    boxShadow: '0 0 0px rgba(255, 0, 0, 0.5)',
+                    backgroundPosition: 'center'
+                }, {
+                    boxShadow: '0 0 20px rgba(255, 0, 0, 0.5)',
+                    backgroundPosition: 'left',
+                    duration: 0.5,
+                    yoyo: true,
+                    repeat: -1
+                });
+                let fireball = document.createElement('div');
+                fireball.classList.add('fireball');
+                fireball.style.position = 'absolute';
+                fireball.style.width = '20px';
+                fireball.style.height = '20px';
+                fireball.style.background = 'orange';
+                fireball.style.borderRadius = '50%';
+                fireball.style.boxShadow = '0 0 10px red';
+                button.appendChild(fireball);
+                gsap.fromTo(fireball, {x: -10, opacity: 0}, {
+                    x: 50, 
+                    opacity: 1, 
+                    duration: 0.5, 
+                    repeat: -1, 
+                    ease: "power2.inOut",
+                    onComplete: () => fireball.remove()
+                });
+            });
+            button.addEventListener('mouseleave', () => {
+                gsap.to(button, {boxShadow: '0 0 0px rgba(255, 0, 0, 0.5)', duration: 0.5});
+            });
+        });
+    </script>
 </body>
 </html>
