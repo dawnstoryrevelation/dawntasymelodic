@@ -37,7 +37,6 @@
             text-align: center;
             margin-top: 50px;
             color: #fff;
-            animation: fadeInDown 2s;
         }
         .header h1 {
             font-family: 'Indie Flower', cursive;
@@ -67,8 +66,8 @@
             margin-right: 20px;
         }
         .dialogue {
-            background-color: #fff; /* Change background to white */
-            color: #000; /* Change text color to black */
+            background-color: #fff;
+            color: #000;
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -116,25 +115,19 @@
         footer p {
             margin: 0;
         }
-        @keyframes fadeInDown {
-            from {
-                opacity: 0;
-                transform: translateY(-50px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        .magic-star, .magic-planet {
+            position: absolute;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+            pointer-events: none;
         }
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(50px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        .magic-star {
+            width: 10px;
+            height: 10px;
+        }
+        .magic-planet {
+            width: 20px;
+            height: 20px;
         }
     </style>
 </head>
@@ -190,82 +183,255 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.7.1/gsap.min.js"></script>
     <script>
-        // Animate Navbar
-        gsap.from(".navbar", { duration: 1, y: -100, ease: "bounce" });
+        const responses = {
+            'hello': 'Hello! How can I help you today?',
+            'hi': 'Hi there!',
+            'hey': 'Hey! What can I do for you?',
+            'bye': 'Goodbye! See you next time!',
+            'goodbye': 'Take care! Bye!',
+            'who are you': 'I am Yaya Ursa, a brave bearman from the Dawntasy saga.',
+            'what is your name': 'My name is Yaya Ursa.',
+            'how are you': 'I am doing well, thank you!',
+            'what are you': 'I am a bearman from the bear tribe.',
+            'your mission': 'My mission is to liberate the world from that brat Time Smith. Hopefully it will be successful!',
+            'friends': 'Ahh...great question. I have many friends, including Solus, Questa, Filapawa, and Aegis Wick. I still mourn Aegis...',
+            'allies': 'I have many allies, including brave warriors and wise elders who guide me on my journey. Solus...ah, that old hermit.',
+            'enemy': 'Our greatest enemy is the nefarious LTR organization that seeks to dominate our lands. GRR!',
+            'artifact': 'The artifacts are ancient relics that hold immense power and are key to our survival.',
+            'master': 'My beloved master taught me everything about survival and combat before he was slain by our enemies.',
+            'danger': 'The world is full of dangers, from wild beasts to treacherous terrain and hostile forces.',
+            'hope': 'Despite the challenges, we hold on to hope and strive to make the world a better place.',
+            'tell me about your tribe': 'Our tribe is known for its bravery and strength. We live in harmony with nature and protect our lands fiercely.',
+            'your tribe': 'We are a proud tribe that values bravery and harmony with nature.',
+            'mission': 'My mission is to defeat Time Smith and restore peace to our land.',
+            'artifacts': 'The artifacts are ancient relics that hold immense power and are key to our survival.',
+            'what do you do': 'I protect my tribe and embark on quests to find ancient artifacts.',
+            'your role': 'I am a protector and a quest seeker for my tribe.',
+            'story': 'Our story is one of survival, bravery, and the search for ancient artifacts.',
+            'your story': 'My story is about protecting my tribe and finding ancient artifacts.',
+            'where are you from': 'I am from the bear tribe in the Dawntasy saga.',
+            'your home': 'My home is with my tribe in the world of Dawntasy.',
+            'favorite food': 'I love honey and berries!',
+            'hobby': 'I enjoy exploring the forests and mountains.',
+            'what do you like': 'I like exploring, protecting my tribe, and finding ancient artifacts.',
+            'dislikes': 'I dislike enemies that threaten my tribe and our way of life.',
+            'family': 'My tribe is my family. We are very close and protective of each other.',
+            'past': 'My past is filled with training, exploration, and learning from my master.',
+            'future': 'I hope to find all the artifacts and bring peace to our land.',
+            'dreams': 'My dream is to see my tribe live in peace and prosperity.',
+            'nightmares': 'I fear the loss of my tribe and the rise of our enemies.',
+            'strength': 'My strength lies in my bravery and my loyalty to my tribe.',
+            'weakness': 'My weakness is my fear of losing my loved ones.',
+            'questa': 'Questa Revelate is a brave human swordsman who fights for freedom.',
+            'solus': 'Solus Oculte is an arcane wizard with dark powers.',
+            'filapawa': 'Filapawa Revelate is a herbal shaman in the form of an elemental bird.',
+            'aegis': 'Aegis Wick is my former master, a skilled fighter.',
+            'time smith': 'Time Smith is the tyrant we must defeat.',
+            'blokk': 'Blokk is the leader of the Time Rebellion League.',
+            'trl': 'The Time Rebellion League is a group fighting against LTR.',
+            'ltr': 'LTR is the tyrannical organization we are fighting against.',
+            'unknown town': 'Unknown Town is a desolate place where safety is not guaranteed.',
+            'bear village': 'Bear Village is my home, a peaceful place for my tribe.',
+            'sepdet': 'Sepdet is the secret hideout of the Time Rebellion League.',
+            'isllandio': 'Isllandio is a town under LTR\'s control.',
+            'beri forest': 'Beri Forest is a dense, mysterious forest.',
+            'myst': 'Myst is a magical forest with arcane creatures.',
+            'gragnok': 'Gragnok is a dwarvish colony.',
+            'da falkor': 'Dafalkor is a place known for mining.',
+            'rapi': 'Rapi is a sanctuary with statues.',
+            'doom trail': 'Doom Trail is a perilous path through the forest.',
+            'perilspectre forest': 'Perilspectre Forest is a ghostly forest with witches.',
+            'rift gate': 'Rift Gate Minor Epsilon Benevegean is a portal to a rift realm.',
+            'temporal shrine': 'Temporal Shrine is a mountain with a city and a giant hourglass portal.',
+            'sky city': 'Sky City is a flying phoenix with a city on it.',
+            'shadow island': 'Shadow Island is a place of darkness and mystery.',
+            'bun island': 'Bun Island is a peaceful place for shamans.',
+            'terracontinent island': 'Terracontinent Island has statues and shrines.',
+            'secret island': 'A secret island with a small hut and unknown mysteries.',
+            'evasion': 'My friends and I often evade the clutches of LTR.',
+            'artifact': 'I seek ancient artifacts to restore peace.',
+            'battle': 'We often engage in battles to protect our land.',
+            'hero': 'I strive to be a hero for my tribe and the world.',
+            'why are you here': 'I am here to protect my tribe and find the lost artifacts.',
+            'what do you want': 'I want to bring peace and prosperity to my tribe.',
+            'your goal': 'My goal is to find the lost artifacts and restore peace to our land.',
+            'your quest': 'My quest is to find the ancient artifacts and protect my tribe.',
+            'any advice': 'Stay brave, stay loyal, and never give up on your quest.',
+            'what should I do': 'Follow your heart, stay brave, and always protect those you love.',
+            'can you help me': 'Of course! What do you need help with?',
+            'what can you do': 'I can offer advice, share stories, and help you understand our world.',
+            'tell me more': 'What would you like to know more about? My tribe, my mission, or my world?',
+            'thank you': 'You\'re welcome! I am here to help.',
+            'thanks': 'You\'re welcome! Glad I could help.',
+            'journey': 'My journey is long and filled with both danger and adventure.',
+            'adventure': 'Every day is an adventure when you\'re part of the bear tribe!',
+            'bravery': 'Bravery is what keeps us going, even in the face of great danger.',
+            'loyalty': 'Loyalty to my tribe and my mission is my greatest strength.',
+            'nature': 'We live in harmony with nature, protecting and respecting it.',
+            'peace': 'We strive for peace, even in a world full of conflict.',
+            'harmony': 'Harmony with nature and each other is key to our survival.',
+            'conflict': 'Conflict is inevitable, but we face it with courage and strength.',
+            'survival': 'Survival requires strength, wisdom, and unity.',
+            'unity': 'Unity is what holds our tribe together.',
+            'strength': 'Strength comes from within and from the support of our tribe.',
+            'wisdom': 'Wisdom guides us through our challenges and quests.',
+            'support': 'Support from our tribe and allies is essential to our success.',
+            'success': 'Success is achieving our goals and protecting our tribe.',
+            'challenges': 'Challenges are part of our journey and make us stronger.',
+            'goals': 'Our goals are to find the artifacts and bring peace to our land.',
+            'land': 'Our land is beautiful and worth protecting with all our might.',
+            'beautiful': 'The world of Dawntasy is beautiful, filled with wonders and mysteries.',
+            'wonders': 'The wonders of our world inspire us to keep exploring and protecting.',
+            'mysteries': 'Mysteries abound in Dawntasy, waiting for brave souls to uncover them.',
+            'exploring': 'Exploring the forests and mountains is one of my favorite activities.',
+            'forests': 'Our forests are lush and teeming with life, a true wonder to behold.',
+            'mountains': 'The mountains are majestic and challenging, perfect for a quest.',
+            'quests': 'Quests lead us to new discoveries and strengthen our tribe.',
+            'discoveries': 'Discoveries of ancient relics and new lands drive our adventures.',
+            'relics': 'Relics from the past hold great power and are key to our survival.',
+            'power': 'Power lies not just in strength, but in wisdom and unity.',
+            'unity': 'Unity in our tribe is our greatest strength.',
+            'life': 'Life in our tribe is full of challenges, but also joy and camaraderie.',
+            'challenges': 'Challenges make us stronger and more resilient.',
+            'joy': 'Joy comes from the bonds we share and the victories we achieve.',
+            'victories': 'Every victory, no matter how small, brings us closer to our goals.',
+            'bonds': 'The bonds within our tribe are unbreakable and vital to our survival.',
+            'resilient': 'Resilience is what allows us to face any challenge with courage.',
+            'courage': 'Courage is needed to face the unknown and protect our loved ones.',
+            'loved ones': 'My tribe and friends are my loved ones, and I will do anything to protect them.',
+            'protect': 'Protection of our tribe and land is our top priority.',
+            'priority': 'Our priority is to ensure the safety and prosperity of our tribe.',
+            'safety': 'Safety comes from being prepared and staying united.',
+            'prepared': 'Being prepared means having the knowledge and resources to face any challenge.',
+            'resources': 'Resources from our land help us survive and thrive.',
+            'thrive': 'To thrive, we must work together and support each other.',
+            'support each other': 'Supporting each other strengthens our bonds and ensures our survival.',
+            'ensure': 'Ensuring our future requires dedication and hard work.',
+            'future': 'Our future depends on finding the artifacts and restoring peace.',
+            'dedication': 'Dedication to our mission and each other keeps us strong.',
+            'hard work': 'Hard work and perseverance are key to achieving our goals.',
+            'perseverance': 'Perseverance through tough times makes us stronger.',
+            'tough times': 'Tough times test our resolve, but we face them with bravery.',
+            'resolve': 'Our resolve is unshakable, driven by our love for our tribe.',
+            'love': 'Love for our tribe and land motivates us to keep fighting.',
+            'fighting': 'Fighting for what is right and just is our duty.',
+            'duty': 'It is our duty to protect our tribe and our way of life.',
+            'way of life': 'Our way of life is rooted in harmony with nature and each other.',
+            'rooted': 'Rooted in tradition, we honor our ancestors and their wisdom.',
+            'tradition': 'Tradition guides us and keeps us connected to our past.',
+            'ancestors': 'Our ancestors watch over us and their wisdom guides our actions.',
+            'wisdom': 'Wisdom from our ancestors helps us navigate the challenges we face.',
+            'navigate': 'We navigate the world with caution and bravery, seeking out new discoveries.',
+            'new discoveries': 'New discoveries bring us closer to understanding our world and our place in it.',
+            'understanding': 'Understanding our world and each other is key to achieving peace.',
+            'place in it': 'Our place in the world is defined by our actions and our loyalty to our tribe.',
+            'actions': 'Our actions speak louder than words and define who we are.',
+            'words': 'Words of wisdom from our elders guide us in our quests.',
+            'elders': 'Our elders are wise and their guidance is invaluable.',
+            'guidance': 'Guidance from our elders helps us stay on the right path.',
+            'path': 'The path we walk is filled with challenges, but also hope and opportunity.',
+            'opportunity': 'Opportunity to learn and grow is always present, if we are willing to seek it.',
+            'learn': 'Learning from our experiences makes us wiser and stronger.',
+            'grow': 'Growing together as a tribe makes us resilient and united.',
+            'together': 'Together, we can overcome any obstacle and achieve our goals.',
+            'obstacle': 'Every obstacle is a challenge to be faced with courage and determination.',
+            'determination': 'Determination and hard work are key to our success.',
+            'success': 'Success is measured by our ability to protect our tribe and achieve our goals.'
+        };
 
-        // Animate Header
-        gsap.from(".header h1", { duration: 1.5, opacity: 0, y: -50, delay: 0.5 });
-        gsap.from(".header p", { duration: 1.5, opacity: 0, y: 50, delay: 1 });
+        function submitQuestion() {
+            const userInput = document.getElementById('userInput').value;
+            const dialogue = document.getElementById('dialogue');
 
-        // Animate Container
-        gsap.from(".container", { duration: 1.5, opacity: 0, y: 100, delay: 1.5 });
-
-        // Animate Character
-        gsap.from(".character img", { duration: 1.5, opacity: 0, x: -100, delay: 2 });
-        gsap.from(".character div", { duration: 1.5, opacity: 0, x: 100, delay: 2 });
-
-        // Animate Dialogue
-        gsap.from(".dialogue", { duration: 1.5, opacity: 0, scale: 0.5, delay: 2.5 });
-
-        // Animate Input Area
-        gsap.from(".input-area", { duration: 1.5, opacity: 0, y: 100, delay: 3 });
-
-        // Animate Footer
-        gsap.from("footer", { duration: 1.5, opacity: 0, y: 100, delay: 3.5 });
-
-        // Hover Animations for Navbar
-        document.querySelectorAll('.navbar-nav .nav-link').forEach(item => {
-            item.addEventListener('mouseover', () => {
-                gsap.to(item, { duration: 0.3, scale: 1.2, color: '#f9f5d7' });
-            });
-            item.addEventListener('mouseout', () => {
-                gsap.to(item, { duration: 0.3, scale: 1, color: '#f5f5f5' });
-            });
-        });
-
-        // Hover Animations for Input Button
-        const button = document.querySelector('.input-area button');
-        button.addEventListener('mouseover', () => {
-            gsap.to(button, { duration: 0.3, backgroundColor: '#ff5733', scale: 1.1 });
-        });
-        button.addEventListener('mouseout', () => {
-            gsap.to(button, { duration: 0.3, backgroundColor: '#007bff', scale: 1 });
-        });
-
-        // Function to create magic stars and planets
-        function createMagicElements() {
-            const container = document.querySelector('body');
-            for (let i = 0; i < 20; i++) {
-                const star = document.createElement('div');
-                star.classList.add('magic-star');
-                container.appendChild(star);
-                gsap.fromTo(star, { opacity: 0, scale: 0 }, { opacity: 1, scale: 1, duration: 1, repeat: -1, yoyo: true, delay: Math.random() * 5 });
+            if (userInput.trim() === '') {
+                dialogue.innerHTML += '<p><strong>You:</strong> Please enter a question.</p>';
+                return;
             }
-            for (let i = 0; i < 10; i++) {
-                const planet = document.createElement('div');
-                planet.classList.add('magic-planet');
-                container.appendChild(planet);
-                gsap.fromTo(planet, { opacity: 0, scale: 0 }, { opacity: 1, scale: 1, duration: 1, repeat: -1, yoyo: true, delay: Math.random() * 5 });
-            }
+
+            dialogue.innerHTML += `<p><strong>You:</strong> ${userInput}</p>`;
+            getYayaResponse(userInput);
+            document.getElementById('userInput').value = '';
         }
 
-        createMagicElements();
+        function getYayaResponse(question) {
+            const dialogue = document.getElementById('dialogue');
+            let response = '';
+
+            for (const [key, value] of Object.entries(responses)) {
+                if (question.toLowerCase().includes(key)) {
+                    response = value;
+                    break;
+                }
+            }
+
+            if (response === '') {
+                response = "I'm sorry, I don't have an answer to that question right now. Try asking something else about Dawntasy!";
+            }
+
+            dialogue.innerHTML += `<p><strong>Yaya Ursa:</strong> ${response}</p>`;
+            dialogue.scrollTop = dialogue.scrollHeight;
+        }
+
+        // GSAP animations
+        gsap.from(".navbar", { duration: 1, y: -100, opacity: 0 });
+        gsap.from(".header h1", { duration: 1.5, scale: 0.5, opacity: 0, ease: "bounce" });
+        gsap.from(".header p", { duration: 1.5, delay: 0.5, y: 30, opacity: 0 });
+        gsap.from(".character img", { duration: 1.5, delay: 1, x: -200, opacity: 0 });
+        gsap.from(".character h2", { duration: 1.5, delay: 1.5, x: 200, opacity: 0 });
+        gsap.from(".character p", { duration: 1.5, delay: 2, x: 200, opacity: 0 });
+        gsap.from(".dialogue", { duration: 1.5, delay: 2.5, scale: 0.5, opacity: 0 });
+        gsap.from(".input-area", { duration: 1.5, delay: 3, y: 100, opacity: 0 });
+        gsap.from("footer", { duration: 1.5, delay: 3.5, y: 50, opacity: 0 });
+
+        // GSAP hover effect for buttons
+        document.querySelectorAll('.nav-link, .input-area button').forEach(button => {
+            button.addEventListener('mouseover', () => {
+                gsap.to(button, { duration: 0.5, scale: 1.1, boxShadow: '0px 0px 10px rgba(0, 255, 255, 0.7)' });
+            });
+            button.addEventListener('mouseout', () => {
+                gsap.to(button, { duration: 0.5, scale: 1, boxShadow: 'none' });
+            });
+        });
+
+        // Floating magical stars and planets
+        function createFloatingElements() {
+            const numElements = 20;
+            const container = document.body;
+
+            for (let i = 0; i < numElements; i++) {
+                const element = document.createElement('div');
+                element.className = Math.random() > 0.5 ? 'magic-star' : 'magic-planet';
+                element.style.left = `${Math.random() * 100}%`;
+                element.style.top = `${Math.random() * 100}%`;
+                container.appendChild(element);
+            }
+
+            gsap.to(".magic-star", {
+                duration: 5,
+                y: "-=100",
+                repeat: -1,
+                yoyo: true,
+                ease: "sine.inOut",
+                stagger: {
+                    each: 0.5,
+                    from: "random"
+                }
+            });
+
+            gsap.to(".magic-planet", {
+                duration: 7,
+                y: "-=150",
+                repeat: -1,
+                yoyo: true,
+                ease: "sine.inOut",
+                stagger: {
+                    each: 0.5,
+                    from: "random"
+                }
+            });
+        }
+
+        createFloatingElements();
     </script>
-    <style>
-        .magic-star, .magic-planet {
-            position: absolute;
-            background-color: rgba(255, 255, 255, 0.8);
-            border-radius: 50%;
-            pointer-events: none;
-        }
-        .magic-star {
-            width: 10px;
-            height: 10px;
-        }
-        .magic-planet {
-            width: 20px;
-            height: 20px;
-        }
-    </style>
 </body>
 </html>
