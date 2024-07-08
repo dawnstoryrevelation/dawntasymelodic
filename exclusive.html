@@ -3,13 +3,10 @@
 
 <head>
     <meta charset="UTF-8">
-    <link rel="icon"
-        href="https://www.dawnstoryrevelation.com/images/821049A8-FDF0-413E-A1A3-533ECC529C7B.webp" type="image/x-icon">
+    <link rel="icon" href="https://www.dawnstoryrevelation.com/images/821049A8-FDF0-413E-A1A3-533ECC529C7B.webp" type="image/x-icon">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Members Exclusive Site - Dawntasy Saga</title>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Indie+Flower&family=Montserrat:wght@300;400;600&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Indie+Flower&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
@@ -24,6 +21,7 @@
             min-height: 100vh;
             overflow-y: scroll;
             scroll-behavior: smooth;
+            position: relative;
         }
 
         .video-background {
@@ -49,11 +47,32 @@
         .navbar-nav .nav-link {
             color: #f5f5f5;
             font-size: 1.2em;
+            position: relative;
         }
 
         .navbar-brand:hover,
         .navbar-nav .nav-link:hover {
             color: #f9f5d7;
+        }
+
+        .popup {
+            position: absolute;
+            top: -10px;
+            left: 110%;
+            width: 200px;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            opacity: 0;
+            transform: translateX(-50px);
+            transition: opacity 0.3s, transform 0.3s;
+        }
+
+        .navbar-nav .nav-link:hover .popup {
+            opacity: 1;
+            transform: translateX(0);
         }
 
         .header {
@@ -190,16 +209,24 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ml-auto">
                 <li class="nav-item active">
-                    <a class="nav-link" href="#">Introduction</a>
+                    <a class="nav-link" href="#">Introduction
+                        <span class="popup">Explore the introduction to Dawntasy</span>
+                    </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="ai.html">Yaya the AI</a>
+                    <a class="nav-link" href="ai.html">Yaya the AI
+                        <span class="popup">Chat with Yaya the AI</span>
+                    </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="anticipation.html">Anticipation</a>
+                    <a class="nav-link" href="anticipation.html">Anticipation
+                        <span class="popup">Discover upcoming adventures</span>
+                    </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#">Upgrade</a>
+                    <a class="nav-link" href="#">Upgrade
+                        <span class="popup">Upgrade your experience</span>
+                    </a>
                 </li>
             </ul>
         </div>
