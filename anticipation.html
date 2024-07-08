@@ -200,6 +200,15 @@
         footer p {
             margin: 0;
         }
+
+        .scroll-trigger-ready__worm-wrap {
+            margin-top: 50px;
+        }
+
+        .worm {
+            font-size: 2em;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -267,6 +276,10 @@
         </a>
     </div>
 
+    <div class="scroll-trigger-ready__worm-wrap">
+        <p class="worm">This is a worm example for ScrollTrigger</p>
+    </div>
+
     <footer>
         <p>&copy; 2024 Dawntasy: Dawnstory Revelation. All rights reserved.</p>
     </footer>
@@ -323,15 +336,15 @@
             });
         });
 
-        // Scroll-triggered animation
+        // ScrollTrigger Animation for the worm example
         gsap.timeline({
-            scrollTrigger: {
-                scrub: 1,
-                trigger: ".content",
-                start: "top 90%",
-                end: "bottom 30%",
-            }
-        });
+          scrollTrigger: {
+            scrub: 1,
+            trigger: ".scroll-trigger-ready__worm-wrap",
+            start: "top 90%",
+            end: "bottom 30%",
+          },
+        }).to(".worm", {y: -50, opacity: 1, duration: 2});
     </script>
 </body>
 </html>
