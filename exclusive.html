@@ -195,7 +195,7 @@
     </style>
 </head>
 
-<body>
+<body class='animate'>
     <video class="video-background" autoplay loop muted>
         <source src="https://www.dawnstoryrevelation.com/DF296D22-715E-4729-90B7-D9985BE59223.mp4" type="video/mp4">
     </video>
@@ -275,8 +275,20 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/ScrollTrigger.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
     <script>
         gsap.registerPlugin(ScrollTrigger);
+    //WITH Timelines (cleaner, more versatile)
+        var tl = gsap.timeline({repeat: 2, repeatDelay: 1});
+        tl.to(".animate", {x: 100, duration: 1});
+        tl.to(".animate", {y: 50, duration: 1});
+        tl.to(".animate", {opacity: 0, duration: 1});
+        
+        // then we can control the whole thing easily...
+        tl.pause();
+        tl.resume();
+        tl.seek(1.5);
+        tl.reverse();
 
         // Fade in elements on scroll
         document.addEventListener('DOMContentLoaded', function () {
