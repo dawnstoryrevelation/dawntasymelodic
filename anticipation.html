@@ -257,7 +257,7 @@
             <iframe width="560" height="315" src="https://www.youtube.com/embed/xWdqHFMr88I?autoplay=1" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
         </div>
         
-        <h2>Exciting New Chapters</h2>
+        <h2 class="vincent">Exciting New Chapters</h2> 
         <p>As a valued member, you have exclusive access to the latest and upcoming chapters of the Dawntasy Saga. Dive into new adventures, uncover hidden secrets, and follow your favorite characters as they embark on their journeys.</p>
         
         <div class="highlight">
@@ -265,7 +265,7 @@
             <p>Stay tuned for special events, including live readings, Q&A sessions with the author, and more. Mark your calendars and be part of these exclusive experiences.</p>
         </div>
 
-        <h2>Behind the Scenes</h2>
+        <h2 class="vonce">Behind the Scenes</h2>
         <p>Get a glimpse into the creative process behind the Dawntasy Saga. Enjoy concept art, author notes, and exclusive interviews that give you a deeper understanding of the world and its characters.</p>
 
         <a href="index.html" class="animated-button">Go to Main Page
@@ -285,10 +285,28 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/ScrollTrigger.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
     <script>
         gsap.registerPlugin(ScrollTrigger);
 
         // Navbar Animation
+        ScrollTrigger.create({
+    trigger: '.vincent',
+    start: 'top top',
+    endTrigger: '.vonce',
+    end: 'bottom 50%+=100px',
+    onToggle: (self) => console.log('toggled, isActive:', self.isActive),
+    onUpdate: (self) => {
+        console.log(
+            'progress:',
+            self.progress.toFixed(3),
+            'direction:',
+            self.direction,
+            'velocity',
+            self.getVelocity()
+        );
+    }
+});
         gsap.from(".navbar", {duration: 1, y: -100, opacity: 0, ease: "bounce"});
 
         // Header Animation
