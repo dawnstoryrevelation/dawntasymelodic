@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,25 +5,10 @@
     <link rel="icon" href="https://www.dawnstoryrevelation.com/images/821049A8-FDF0-413E-A1A3-533ECC529C7B.webp" type="image/x-icon">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dawntasy - Lore</title>
-    <link href="https://fonts.googleapis.com/css2?family=Indie+Flower&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Indie+Flower&family=Merriweather:wght@400;700&family=Lobster&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" rel="stylesheet">
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-        @keyframes slideUp {
-            from { transform: translateY(100%); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-        @keyframes bounceIn {
-            0%, 20%, 40%, 60%, 80%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
-        }
-        .fade-in { animation: fadeIn 2s; }
-        .slide-up { animation: slideUp 1.5s ease-out; }
-        .bounce-in { animation: bounceIn 2s; }
-
         body {
             font-family: 'Indie Flower', cursive;
             background-color: #f9f5d7;
@@ -36,41 +19,91 @@
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
-            background-image: url('https://www.dawnstoryrevelation.com/2CC28CCE-DBE3-4B1A-9D5D-1FC1D6AD3F64.mp4');
+            scroll-behavior: smooth;
+            overflow-x: hidden;
+            background-image: url('https://dawnstoryrevelation.github.io/dawnstoryrevelation/images/fadiA.jpeg');
             background-repeat: no-repeat;
             background-attachment: fixed;
             background-size: cover;
         }
+
         header {
-            text-align: center;
-            background-color: rgba(255, 235, 205, 0.9);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #343a40;
             padding: 20px;
             width: 100%;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
-        header h1 { margin: 0; font-size: 3em; font-weight: bold; }
-        nav {
-            text-align: center;
-            margin: 20px 0;
+
+        header h1 {
+            margin: 0;
+            font-size: 3em;
+            font-family: 'Lobster', cursive;
+            color: #ffffff;
         }
+
+        nav {
+            background-color: #007bff;
+            width: 100%;
+            padding: 10px 0;
+            text-align: center;
+            font-family: 'Montserrat', sans-serif;
+        }
+
         nav a {
             margin: 0 15px;
             text-decoration: none;
-            color: #f1c27d;
-            font-size: 1.5em;
+            color: #fff;
+            font-size: 1.2em;
+            position: relative;
         }
-        nav a:hover { text-decoration: underline; }
+
+        nav a:hover {
+            text-decoration: underline;
+        }
+
+        nav a::after {
+            content: attr(data-description);
+            position: absolute;
+            left: 50%;
+            bottom: -25px;
+            transform: translateX(-50%);
+            background-color: #007bff;
+            color: #fff;
+            padding: 5px 10px;
+            border-radius: 5px;
+            white-space: nowrap;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
+
+        nav a:hover::after {
+            opacity: 1;
+        }
+
         main {
             text-align: center;
             padding: 20px;
-            max-width: 800px;
-            margin: 0 auto;
-            background-color: rgba(255, 255, 255, 0.8);
+            max-width: 900px;
+            margin: 20px auto;
+            background-color: #ffffff;
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
-        main h2 { font-size: 2.5em; margin-bottom: 20px; font-weight: bold; }
-        main p { font-size: 1.2em; line-height: 1.6; }
+
+        main h2 {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            font-family: 'Lobster', cursive;
+        }
+
+        main p {
+            font-size: 1.2em;
+            line-height: 1.6;
+        }
+
         .carousel {
             position: relative;
             width: 80%;
@@ -80,10 +113,12 @@
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
             margin: 20px auto;
         }
+
         .carousel-images {
             display: flex;
             transition: transform 0.5s ease-in-out;
         }
+
         .carousel-images img {
             width: 100%;
             flex-shrink: 0;
@@ -92,37 +127,36 @@
             filter: brightness(0.5);
             transition: filter 0.3s ease-in-out;
         }
+
         .carousel-images img:hover {
             filter: brightness(1);
         }
+
         footer {
             margin-top: 40px;
             padding: 10px;
-            background-color: rgba(255, 235, 205, 0.9);
+            background-color: #343a40;
             width: 100%;
             text-align: center;
+            color: #fff;
             box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.1);
         }
-        footer p { margin: 0; }
+
+        footer p {
+            margin: 0;
+        }
+
         .carousel-item img {
             max-width: 100%;
             height: auto;
         }
+
         .carousel-caption {
             background-color: rgba(0, 0, 0, 0.7);
             padding: 10px;
             border-radius: 10px;
         }
-        .youtube-button {
-            display: inline-block;
-            padding: 10px 20px;
-            background-color: #FF0000;
-            color: #fff;
-            text-decoration: none;
-            font-size: 1.2em;
-            border-radius: 5px;
-        }
-        .youtube-button:hover { background-color: #CC0000; }
+
         .fall-river-img {
             width: 100%;
             max-width: 800px;
@@ -130,25 +164,28 @@
             border-radius: 10px;
             margin: 20px 0;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            filter: brightness(0.9);
+            transition: filter 0.3s ease-in-out, transform 0.3s;
         }
+
         .fall-river-img:hover {
-            filter: brightness(1.2);
-            transition: filter 0.3s ease-in-out;
+            filter: brightness(1);
+            transform: scale(1.05);
         }
     </style>
 </head>
 <body>
-    <header class="fade-in">
+    <header data-aos="fade-down">
         <h1>Dawntasy Saga</h1>
     </header>
-    <nav class="fade-in">
-        <a href="https://dawnstoryrevelation.github.io/dawnstoryrevelation/">Home</a>
-        <a href="https://dawnstoryrevelation.github.io/dawnstoryrevelation/about.html">About</a>
-        <a href="https://dawnstoryrevelation.github.io/dawnstoryrevelation/stories.html">Stories</a>
-        <a href="https://dawnstoryrevelation.github.io/dawnstoryrevelation/lore.html">Lore</a>
-        <a href="https://dawnstoryrevelation.github.io/dawnstoryrevelation/contact.html">Contact</a>
+    <nav data-aos="fade-down">
+        <a href="https://dawnstoryrevelation.github.io/dawnstoryrevelation/" data-description="Home of Dawntasy">Home</a>
+        <a href="https://dawnstoryrevelation.github.io/dawnstoryrevelation/about.html" data-description="Learn more about me">About</a>
+        <a href="https://dawnstoryrevelation.github.io/dawnstoryrevelation/stories.html" data-description="Explore our stories">Stories</a>
+        <a href="https://dawnstoryrevelation.github.io/dawnstoryrevelation/lore.html" data-description="Discover the lore">Lore</a>
+        <a href="https://dawnstoryrevelation.github.io/dawnstoryrevelation/contact.html" data-description="Get in touch">Contact</a>
     </nav>
-    <main class="fade-in">
+    <main data-aos="fade-up">
         <h2 class="bounce-in">The Circular Dawn Concept</h2>
         <p class="slide-up">The World of the Dreamscape is constantly in motion. It is ruled by a single law, the Circular Dawn. This concept suggests that "time is circular", which is yet to be explained by the adventurers of DSR. The Circular Dawn is comprised of two main polar energies, which influence the world we live in. These two energies are known as Eternality and Ephemerality, and define the concept of time. In the Dreamscape, Ephemerality, with its physical definition/representation known as the Realm of Dawnstoria (Dawnstory), can be explained by "negative time" or being too short for time to exist. Eternality, or physically represented as The Rift, can be explained by "positive time", in a way in which the mere lengthiness of the Circular Dawn in this concept would be too long for time to exist. The middle of them both is known as the Fall (or Fall Point), though with no explicit name, is deemed the most optimal for life to be maintained. However, the Fall can only be maintained if Dawnstory and Rift are at equal power. If this stability is suddenly broken, all hell will break loose and the world will be in shambles as time will bend. Luckily, there exists a primordial being known as ADE (Astral Dream Essence), who ensures that the Dreamscape is at its balance at all times. But they say even the goodest people have their darkest sides. So does ADE. And thus, CSE (Chaos Shadow Essence) was born, the darker alter ego of Astral Dream. Twelve powerful beings of celestial might known as the Tempests, now seen as the constellations in the night sky, fought CSE, but were defeated, and thus, ADE knew that he had to take this Gordian knot into his own hands. As a result, ADE banished CSE to the Rift Realm, a neverending torture for the supereons to come. But they say that on the Twelfth Night of the Purple Moon, the Rift shall open. The inhabitants of Dawnstory are unbeknownst of this impending threat, and with a "malicious" dictator clutching their cities with a draconian grasp, they are not yet prepared for the threat bigger than anything they've ever experienced.</p>
 
@@ -162,10 +199,8 @@
 
         <h2 class="bounce-in">The Ancient Stone Principles</h2>
         <p class="slide-up">The principle that comes with the Circular Dawn is the Harmony. It is believed that opposites attract, and that all polarities coalesce to form harmony; for instance, without sun and moon there would be none of the day-night cycle. Without winter, summer, spring and autumn, there would be no diversity for life to thrive. This is a vital law that everyone in DSR must abide by.</p>
-        <!-- Image of the Ancient Rift Stones with hover effect -->
         <img src="https://www.dawnstoryrevelation.com/A97883C6-218C-47FA-9D1D-5B52C565F69F.jpeg" alt="Ancient Rift Stone" class="fall-river-img" data-toggle="modal" data-target="#riftStoneModal" style="cursor: pointer;">
 
-        <!-- Modal Structure -->
         <div class="modal fade" id="riftStoneModal" tabindex="-1" role="dialog" aria-labelledby="riftStoneModalLabel" aria-hidden="true">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
@@ -272,14 +307,17 @@
             </a>
         </div>
     </main>
-    <footer class="fade-in">
+    <footer data-aos="fade-up">
         <p>&copy; 2024 Dawntasy: Dawnstory Revelation. All rights reserved.</p>
     </footer>
 
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
     <script>
+        AOS.init();
+
         $('.carousel').carousel({
             interval: 5000
         });
