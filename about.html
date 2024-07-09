@@ -5,7 +5,7 @@
     <link rel="icon" href="https://www.dawnstoryrevelation.com/images/821049A8-FDF0-413E-A1A3-533ECC529C7B.webp" type="image/x-icon">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>About Me</title>
-    <link href="https://fonts.googleapis.com/css2?family=Indie+Flower&family=Merriweather:wght@400;700&family=Lobster&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Indie+Flower&family=Merriweather:wght@400;700&family=Lobster&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" rel="stylesheet">
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet">
     <style>
@@ -71,7 +71,7 @@
             width: 100%;
             padding: 10px 0;
             text-align: center;
-            font-family: 'Merriweather', serif;
+            font-family: 'Montserrat', sans-serif;
         }
 
         nav a {
@@ -144,6 +144,23 @@
 
         .gaze-image:hover,
         .story img:hover {
+            filter: brightness(1);
+            transform: scale(1.05);
+        }
+
+        .o-images {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+            margin-top: 10px;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            filter: brightness(0.9);
+            transition: filter 0.3s ease-in-out, transform 0.3s;
+        }
+
+        .o-images:hover {
             filter: brightness(1);
             transform: scale(1.05);
         }
@@ -238,7 +255,7 @@
 
         <h2 class="bounce-in">Dawntasy</h2>
         <p class="slide-up">Dawntasy is my upcoming book series that features the adventures of 7 unique characters, Yaya, Questa, Solus, Filapawa, Salvapige, Dryadis and Norsty. If you are looking for an immersive book with numerous layers of story and plot discoveries, check out Dawntasy (Dawnstory Revelation!</p>
-        <img src="https://www.dawnstoryrevelation.com/F958CA78-2039-4820-99A5-970B321B482A.jpeg" alt="Dawntasy" class="o-images scroll-image">
+        <img src="https://www.dawnstoryrevelation.com/F958CA78-2039-4820-99A5-970B321B482A.jpeg" alt="Dawntasy" class="o-images scroll-image" style="max-width: 80%; height: auto;">
         <h2 class="bounce-in">Characters and World-building</h2>
         <p class="slide-up">At the heart of Dawntasy are its characters and world-building. From the brave Questa to the mysterious Solus, I make sure each character brings their own unique story and perspective to the saga. The world of Wintro is filled with excitement, creating a rich tapestry for readers to explore.</p>
 
