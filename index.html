@@ -195,20 +195,20 @@ header .btn:hover {
         }
 
         .featured-story img,
-        .gaze-image {
-            max-width: 100%;
-            height: auto;
-            border-radius: 10px;
-            margin-top: 10px;
-            display: block;
-            margin-left: auto;
-            margin-right: auto;
-            filter: brightness(0.9);
-            transition: filter 0.3s ease-in-out;
-        }
+    .gaze-image {
+    max-width: 100%;
+    height: auto;
+    border-radius: 10px;
+    margin-top: 10px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    transition: transform 0.3s, filter 0.3s;
+}
 
-        .gaze-image:hover {
-            filter: brightness(1);
+.gaze-image:hover {
+    filter: brightness(180%);
+    transform: scale(1.05);
         }
 
         .carousel-item img {
