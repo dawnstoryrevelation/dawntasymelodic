@@ -121,6 +121,8 @@
             background-color: #f4f4f9;
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
         }
 
         .story h3 {
@@ -263,6 +265,17 @@
             background: linear-gradient(45deg, #ffebcd, #f1c27d);
             box-shadow: 0 0 10px rgba(255, 235, 205, 0.5);
         }
+
+        .story:nth-child(odd) {
+            transform: translateX(-50px);
+            opacity: 0;
+        }
+
+        .story:nth-child(even) {
+            transform: translateX(50px);
+            opacity: 0;
+        }
+
     </style>
 </head>
 <body>
@@ -272,17 +285,17 @@
         Your browser does not support the video tag.
     </video>
 
-    <header data-aos="fade-down">
+    <header>
         <h1>Dawntasy Saga</h1>
     </header>
-    <nav data-aos="fade-down">
+    <nav>
         <a href="https://dawnstoryrevelation.github.io/dawnstoryrevelation/" data-description="Home of Dawntasy">Home</a>
         <a href="https://dawnstoryrevelation.github.io/dawnstoryrevelation/about.html" data-description="Learn more about me">About</a>
         <a href="https://dawnstoryrevelation.github.io/dawnstoryrevelation/stories.html" data-description="Explore our stories">Stories</a>
         <a href="https://dawnstoryrevelation.github.io/dawnstoryrevelation/lore.html" data-description="Discover the lore">Lore</a>
         <a href="https://dawnstoryrevelation.github.io/dawnstoryrevelation/contact.html" data-description="Get in touch">Contact</a>
     </nav>
-    <main data-aos="fade-up">
+    <main>
         <h2 class="bounce-in">Our Stories</h2>
         <p class="slide-up">Welcome to the collection of all stories in the Dawntasy saga. Here, you can explore the thrilling adventures and emotional journeys of our characters.</p>
 
@@ -328,7 +341,7 @@
             </div>
         </div>
     </main>
-    <footer class="fade-in">
+    <footer>
         <p>&copy; 2024 Dawntasy: Dawnstory Revelation. All rights reserved.</p>
     </footer>
 
@@ -349,22 +362,29 @@
             start: "top 80%",
         });
 
-        gsap.to("nav a", {
-            scale: 1.1,
-            color: "#f9f5d7",
-            duration: 0.3,
-            paused: true,
-            ease: "power1.inOut",
-            repeat: -1,
-            yoyo: true,
+        gsap.fromTo(".story:nth-child(odd)", {x: -50, opacity: 0}, {
+            x: 0,
+            opacity: 1,
+            duration: 1,
             scrollTrigger: {
-                trigger: "nav",
-                start: "top top",
-                end: "bottom top",
+                trigger: ".story:nth-child(odd)",
+                start: "top 80%",
                 toggleActions: "play none none reverse"
             }
         });
 
+        gsap.fromTo(".story:nth-child(even)", {x: 50, opacity: 0}, {
+            x: 0,
+            opacity: 1,
+            duration: 1,
+            scrollTrigger: {
+                trigger: ".story:nth-child(even)",
+                start: "top 80%",
+                toggleActions: "play none none reverse"
+            }
+        });
+
+        // Header animation on scroll
         gsap.to("header", {
             backgroundColor: "rgba(52, 58, 64, 0.8)",
             duration: 0.5,
@@ -374,6 +394,14 @@
                 end: "bottom top",
                 toggleActions: "play none none reverse"
             }
+        });
+
+        // Navbar hover effects
+        gsap.utils.toArray("nav a").forEach(link => {
+            const tl = gsap.timeline({paused: true});
+            tl.to(link, {scale: 1.1, color: "#f9f5d7", duration: 0.3, ease: "power1.inOut"});
+            link.addEventListener("mouseenter", () => tl.play());
+            link.addEventListener("mouseleave", () => tl.reverse());
         });
 
         // Modal functions
