@@ -51,24 +51,24 @@
             color: #ffffff;
         }
 
-header .btn {
-    background-color: #ff0000; /* Red Sign Up button */
-    background-image: linear-gradient(to right, #ff0000, #cc0000); /* Gradient effect */
-    color: #fff;
-    text-decoration: none;
-    padding: 10px 20px;
-    font-size: 1em;
-    border-radius: 5px;
-    transition: background-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease, color 0.3s ease; /* Smooth transitions */
-    margin-left: 10px;
-    font-family: 'Merriweather', serif;
-}
+        header .btn {
+            background-color: #ff0000; /* Red Sign Up button */
+            background-image: linear-gradient(to right, #ff0000, #cc0000); /* Gradient effect */
+            color: #fff;
+            text-decoration: none;
+            padding: 10px 20px;
+            font-size: 1em;
+            border-radius: 5px;
+            transition: background-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease, color 0.3s ease; /* Smooth transitions */
+            margin-left: 10px;
+            font-family: 'Merriweather', serif;
+        }
 
-header .btn:hover {
-    background-color: #cc0000;
-    background-image: linear-gradient(to right, #cc0000, #ff0000); /* Gradient change on hover */
-    box-shadow: 0 0 15px rgba(255, 255, 255, 0.6), 0 0 5px rgba(255, 255, 255, 0.3);
-    transform: scale(1.05); /* Slight scale up on hover */
+        header .btn:hover {
+            background-color: #cc0000;
+            background-image: linear-gradient(to right, #cc0000, #ff0000); /* Gradient change on hover */
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.6), 0 0 5px rgba(255, 255, 255, 0.3);
+            transform: scale(1.05); /* Slight scale up on hover */
         }
 
         @keyframes shake {
@@ -195,20 +195,20 @@ header .btn:hover {
         }
 
         .featured-story img,
-    .gaze-image {
-    max-width: 100%;
-    height: auto;
-    border-radius: 10px;
-    margin-top: 10px;
-    display: block;
-    margin-left: auto;
-    margin-right: auto;
-    transition: transform 0.3s, filter 0.3s;
-}
+        .gaze-image {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+            margin-top: 10px;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            transition: transform 0.3s, filter 0.3s;
+        }
 
-.gaze-image:hover {
-    filter: brightness(180%);
-    transform: scale(1.05);
+        .gaze-image:hover {
+            filter: brightness(180%);
+            transform: scale(1.05);
         }
 
         .carousel-item img {
@@ -518,13 +518,13 @@ header .btn:hover {
             }
         });
 
-      // Smooth scrolling with GSAP
-gsap.to(window, {
-    scrollTo: { y: "+=0", autoKill: false },
-    duration: 25.0 // Increase duration for slower scrolling
-    ease: "power2.out",
-    overwrite: "auto"
-});
+        // Smooth scrolling with GSAP
+        gsap.to(window, {
+            scrollTo: { y: "+=0", autoKill: false },
+            duration: 25.0, // Increase duration for slower scrolling
+            ease: "power2.out",
+            overwrite: "auto"
+        });
 
         // Navigation bar text popups
         document.querySelectorAll('nav a').forEach(link => {
@@ -532,9 +532,11 @@ gsap.to(window, {
                 gsap.to(link, { duration: 0.3, color: '#f1c40f', textShadow: '0 0 10px #f1c40f, 0 0 20px #f1c40f, 0 0 30px #f1c40f' });
             });
             link.addEventListener('mouseout', () => {
-                gsap.to(link, { duration: 0.3, color: '#f1c40f'}};
+                gsap.to(link, { duration: 0.3, color: '#fff', textShadow: 'none' });
+            });
+        });
 
-                       // Button hover effects
+        // Button hover effects
         document.querySelectorAll('header .btn').forEach(button => {
             button.addEventListener('mouseover', () => {
                 gsap.to(button, {
@@ -555,84 +557,6 @@ gsap.to(window, {
             duration: 3,
             ease: "power2.inOut",
             overwrite: "auto"
-        });
-    
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
-    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/ScrollTrigger.min.js"></script>
-    <script>
-        AOS.init();
-
-        gsap.registerPlugin(MotionPathPlugin, ScrollTrigger, MorphSVGPlugin);
-    
-        ScrollTrigger.create({
-            trigger: '.featured-story',
-            start: 'top top',
-            endTrigger: '.call-to-action-container',
-            end: 'bottom 50%+=100px',
-            onToggle: (self) => console.log('toggled, isActive:', self.isActive),
-            onUpdate: (self) => {
-                console.log(
-                    'progress:',
-                    self.progress.toFixed(3),
-                    'direction:',
-                    self.direction,
-                    'velocity',
-                    self.getVelocity()
-                );
-            }
-        });
-
-        // Fade in elements on scroll
-        document.addEventListener('DOMContentLoaded', function () {
-            const elements = document.querySelectorAll('.fade-in-element');
-            elements.forEach(element => {
-                gsap.fromTo(element, { opacity: 0, y: 20 }, {
-                    opacity: 1, y: 0, duration: 1, ease: 'power4.out', scrollTrigger: {
-                        trigger: element,
-                        start: 'top 80%',
-                        toggleActions: 'play none none reverse'
-                    }
-                });
-            });
-        });
-
-        // Navigation bar text popups
-        document.querySelectorAll('.nav-link').forEach(link => {
-            link.addEventListener('mouseover', () => {
-                gsap.to(link, { duration: 0.5, scale: 1.1, color: '#f9f5d7' });
-            });
-            link.addEventListener('mouseout', () => {
-                gsap.to(link, { duration: 0.5, scale: 1, color: '#f5f5f5' });
-            });
-        });
-
-        // Graphic hover effects
-        document.querySelectorAll('.features-list li').forEach(item => {
-            item.addEventListener('mouseover', () => {
-                gsap.to(item, { duration: 0.5, scale: 1.1 });
-            });
-            item.addEventListener('mouseout', () => {
-                gsap.to(item, { duration: 0.5, scale: 1 });
-            });
-        });
-
-        // Button hover effects
-        document.querySelectorAll('header .btn').forEach(button => {
-            button.addEventListener('mouseover', () => {
-                gsap.to(button, {
-                    duration: 0.3,
-                    scale: 1.1,
-                    boxShadow: '0 0 15px rgba(255, 255, 255, 0.6), 0 0 5px rgba(255, 255, 255, 0.3)'
-                });
-                gsap.fromTo(button, { x: -10 }, { x: 10, duration: 0.2, repeat: 5, yoyo: true });
-            });
-            button.addEventListener('mouseout', () => {
-                gsap.to(button, { duration: 0.3, scale: 1, boxShadow: 'none' });
-            });
         });
     </script>
 </body>
