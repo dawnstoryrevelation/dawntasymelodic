@@ -526,7 +526,6 @@ gsap.to(window, {
     overwrite: "auto"
 });
 
-
         // Navigation bar text popups
         document.querySelectorAll('nav a').forEach(link => {
             link.addEventListener('mouseover', () => {
@@ -534,7 +533,30 @@ gsap.to(window, {
             });
             link.addEventListener('mouseout', () => {
                 gsap.to(link, { duration: 0.3, color: '#f1c40f'}};
-                    
+
+                       // Button hover effects
+        document.querySelectorAll('header .btn').forEach(button => {
+            button.addEventListener('mouseover', () => {
+                gsap.to(button, {
+                    duration: 0.3,
+                    scale: 1.1,
+                    boxShadow: '0 0 15px rgba(255, 255, 255, 0.6), 0 0 5px rgba(255, 255, 255, 0.3)'
+                });
+                gsap.fromTo(button, { x: -10 }, { x: 10, duration: 0.2, repeat: 5, yoyo: true });
+            });
+            button.addEventListener('mouseout', () => {
+                gsap.to(button, { duration: 0.3, scale: 1, boxShadow: 'none' });
+            });
+        });
+
+        // Smooth scroll
+        gsap.to(window, {
+            scrollTo: {y: "+=0", autoKill: false},
+            duration: 3,
+            ease: "power2.inOut",
+            overwrite: "auto"
+        });
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"></script>
