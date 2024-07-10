@@ -20,6 +20,8 @@
             align-items: center;
             min-height: 100vh;
             overflow-x: hidden;
+            cursor: url('https://www.dawnstoryrevelation.com/images/custom-cursor.png'), auto; /* Custom cursor */
+            scroll-behavior: smooth;
         }
 
         .video-background {
@@ -50,7 +52,7 @@
         }
 
         header .btn {
-            background-color: #007bff;
+            background-color: #ff0000; /* Red Sign Up button */
             color: #fff;
             text-decoration: none;
             padding: 10px 20px;
@@ -62,7 +64,7 @@
         }
 
         header .btn:hover {
-            background-color: #0056b3;
+            background-color: #cc0000;
             box-shadow: 0 0 15px rgba(255, 255, 255, 0.6), 0 0 5px rgba(255, 255, 255, 0.3);
             transform: scale(1.1);
         }
@@ -96,10 +98,12 @@
             text-decoration: none;
             color: #fff;
             font-size: 1.2em;
+            transition: color 0.3s ease, text-shadow 0.3s ease;
         }
 
         nav a:hover {
-            text-decoration: underline;
+            color: #f1c40f;
+            text-shadow: 0 0 10px #f1c40f, 0 0 20px #f1c40f, 0 0 30px #f1c40f;
         }
 
         main {
@@ -483,6 +487,51 @@
         </div>
     </footer>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/ScrollTrigger.min.js"></script>
+    <script>
+        AOS.init();
+
+        gsap.registerPlugin(MotionPathPlugin, ScrollTrigger, MorphSVGPlugin);
+    
+        ScrollTrigger.create({
+            trigger: '.featured-story',
+            start: 'top top',
+            endTrigger: '.call-to-action-container',
+            end: 'bottom 50%+=100px',
+            onToggle: (self) => console.log('toggled, isActive:', self.isActive),
+            onUpdate: (self) => {
+                console.log(
+                    'progress:',
+                    self.progress.toFixed(3),
+                    'direction:',
+                    self.direction,
+                    'velocity',
+                    self.getVelocity()
+                );
+            }
+        });
+
+        // Smooth scrolling
+        gsap.to(window, {
+            scrollTo: {y: "+=0", autoKill: false},
+            duration: 0.5,
+            ease: "power2.out",
+            overwrite: "auto"
+        });
+
+        // Navigation bar text popups
+        document.querySelectorAll('nav a').forEach(link => {
+            link.addEventListener('mouseover', () => {
+                gsap.to(link, { duration: 0.3, color: '#f1c40f', textShadow: '0 0 10px #f1c40f, 0 0 20px #f1c40f, 0 0 30px #f1c40f' });
+            });
+            link.addEventListener('mouseout', () => {
+                gsap.to(link, { duration: 0.3, color: '#f1c40f'}};
+                    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"></script>
