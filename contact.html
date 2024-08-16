@@ -1,273 +1,311 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <link rel="icon" href="https://www.dawnstoryrevelation.com/images/821049A8-FDF0-413E-A1A3-533ECC529C7B.webp" type="image/x-icon">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Contact Me</title>
-    <link href="https://fonts.googleapis.com/css2?family=Indie+Flower&display=swap" rel="stylesheet">
+    <title>Members Exclusive Site - Dawntasy Saga</title>
+    <link href="https://fonts.googleapis.com/css2?family=Indie+Flower&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
-            to {
-                opacity: 1;
-            }
-        }
-        @keyframes slideUp {
-            from {
-                transform: translateY(100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
-        }
         body {
-            font-family: 'Indie Flower', cursive;
-            background-color: #f9f5d7;
-            color: #333;
+            font-family: 'Montserrat', sans-serif;
+            color: #f5f5f5;
             margin: 0;
             padding: 0;
             display: flex;
             flex-direction: column;
             align-items: center;
+            justify-content: flex-start;
             min-height: 100vh;
-        }
-        header {
-            text-align: center;
-            background-color: #ffebcd;
-            padding: 20px;
-            width: 100%;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-        header h1 {
-            margin: 0;
-            font-size: 3em;
-        }
-        nav {
-            text-align: center;
-            margin: 20px 0;
-        }
-        nav a {
-            margin: 0 15px;
-            text-decoration: none;
-            color: #f1c27d;
-            font-size: 1.5em;
+            overflow-y: scroll;
+            scroll-behavior: smooth;
             position: relative;
         }
-        nav a:hover {
-            text-decoration: underline;
-        }
-        nav a::after {
-            content: '';
-            position: absolute;
-            width: 0;
-            height: 3px;
-            background: #f1c27d;
-            bottom: -5px;
-            left: 50%;
-            transform: translateX(-50%);
-            transition: width 0.3s;
-        }
-        nav a:hover::after {
+
+        .video-background {
+            position: fixed;
+            top: 0;
+            left: 0;
             width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: -1;
         }
-        main {
+
+        .navbar {
+            background-color: rgba(0, 0, 0, 0.8);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+            width: 100%;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .navbar-brand,
+        .navbar-nav .nav-link {
+            color: #f5f5f5;
+            font-size: 1.2em;
+            position: relative;
+        }
+
+        .navbar-brand:hover,
+        .navbar-nav .nav-link:hover {
+            color: #f9f5d7;
+        }
+
+        .popup {
+            position: absolute;
+            top: -10px;
+            left: 110%;
+            width: 200px;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            opacity: 0;
+            transform: translateX(-50px);
+            transition: opacity 0.3s, transform 0.3s;
+        }
+
+        .navbar-nav .nav-link:hover .popup {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .header {
             text-align: center;
+            margin-top: 70px;
+            color: #fff;
+        }
+
+        .header h1 {
+            font-family: 'Indie Flower', cursive;
+            font-size: 4em;
+            text-shadow: 2px 2px 4px #000;
+        }
+
+        .header p {
+            font-size: 1.5em;
+            margin-top: 10px;
+        }
+
+        .container {
+            margin-top: 20px;
             padding: 20px;
-            max-width: 800px;
-            margin: 0 auto;
-            background-color: #ffffff;
+            background-color: rgba(255, 255, 255, 0.9);
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            position: relative; /* For decorative elements positioning */
+            max-width: 1200px;
         }
-        main h2 {
+
+        .section-title {
             font-size: 2.5em;
-            margin-bottom: 20px;
+            margin: 20px 0;
+            text-align: center;
+            color: #007bff;
+            text-shadow: 2px 2px #ffebcd;
         }
-        main p {
+
+        .intro-text {
             font-size: 1.2em;
             line-height: 1.6;
+            margin-bottom: 20px;
+            color: #555;
         }
+
+        .features-list {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .features-list li {
+            margin: 10px 0;
+            font-size: 1.1em;
+            color: #444;
+            position: relative;
+            padding-left: 20px;
+        }
+
+        .features-list li:before {
+            content: "★";
+            position: absolute;
+            left: 0;
+            color: #f39c12;
+            font-size: 1.5em;
+        }
+
         footer {
-            margin-top: 40px;
+            margin-top: 20px;
             padding: 10px;
-            background-color: #ffebcd;
-            width: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            color: #fff;
             text-align: center;
-            box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.5);
         }
-        footer p {
-            margin: 0;
+
+        .highlight {
+            background-color: #ffebcd;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
-        .button {
+
+        .highlight h3 {
+            color: #e67e22;
+            font-size: 1.8em;
+        }
+
+        .highlight p {
+            font-size: 1.1em;
+            color: #555;
+        }
+
+        .animated-button {
             display: inline-block;
             padding: 10px 20px;
-            font-size: 16px;
+            font-size: 1.2em;
             color: #fff;
-            background-color: #FF0000; /* YouTube Red */
+            background-color: #007bff;
             border: none;
             border-radius: 5px;
-            text-align: center;
-            text-decoration: none;
             cursor: pointer;
-            transition: background-color 0.3s ease;
-            position: relative;
-            overflow: hidden;
+            text-decoration: none;
+            transition: background-color 0.3s, transform 0.3s;
         }
-        .button:hover {
-            background-color: #CC0000; /* Darker Red for hover effect */
+
+        .animated-button:hover {
+            background-color: #0056b3;
+            transform: translateY(-3px);
         }
-        .button::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 300%;
-            height: 300%;
-            background: rgba(255, 255, 255, 0.3);
-            transform: translate(-50%, -50%) scale(0);
-            border-radius: 50%;
-            transition: transform 0.5s, opacity 0.5s;
-        }
-        .button:hover::before {
-            transform: translate(-50%, -50%) scale(1);
+
+        .fade-in-element {
             opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 1s ease-out, transform 1s ease-out;
         }
-        .decorative-star {
-            position: absolute;
-            font-size: 3em;
-            color: #ffebcd;
-            opacity: 0.8;
-            animation: fadeIn 2s infinite alternate;
-        }
-        .star-1 {
-            top: 10px;
-            left: 10px;
-        }
-        .star-2 {
-            top: 20px;
-            right: 20px;
-        }
-        .star-3 {
-            bottom: 20px;
-            left: 30px;
-        }
-        .star-4 {
-            bottom: 30px;
-            right: 40px;
+
+        .fade-in-element.visible {
+            opacity: 1;
+            transform: translateY(0);
         }
     </style>
 </head>
-<body>
-    <header class="fade-in">
-        <h1>Contact Me</h1>
-    </header>
-    <nav class="fade-in">
-        <a href="https://dawnstoryrevelation.github.io/dawnstoryrevelation/">Home</a>
-        <a href="https://dawnstoryrevelation.github.io/dawnstoryrevelation/about.html">About</a>
-        <a href="https://dawnstoryrevelation.github.io/dawnstoryrevelation/stories.html">Stories</a>
-        <a href="https://dawnstoryrevelation.github.io/dawnstoryrevelation/lore.html">Lore</a>
-        <a href="https://dawnstoryrevelation.github.io/dawnstoryrevelation/contact.html">Contact</a>
+
+<body class='animate'>
+    <video class="video-background" autoplay loop muted>
+        <source src="https://www.dawnstoryrevelation.com/DF296D22-715E-4729-90B7-D9985BE59223.mp4" type="video/mp4">
+    </video>
+
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+        <a class="navbar-brand" href="#">Dawntasy Contact</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item active">
+                    <a class="nav-link" href="#">Introduction
+                        <span class="popup">Explore the introduction to Dawntasy</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="ai.html">Yaya the AI
+                        <span class="popup">Chat with Yaya the AI</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="anticipation.html">Anticipation
+                        <span class="popup">Discover upcoming adventures</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Upgrade
+                        <span class="popup">Upgrade your experience</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
     </nav>
-    <main class="fade-in">
-        <div class="decorative-star star-1">★</div>
-        <div class="decorative-star star-2">★</div>
-        <div class="decorative-star star-3">★</div>
-        <div class="decorative-star star-4">★</div>
-        <h2 class="slide-up">I'd love to hear from you!</h2>
-        <p class="slide-up">Whether you have a question about our stories, want to share your own, or just want to say hello, feel free to reach out.</p>
-        <p class="slide-up">Discord: <a href="https://discord.gg/xFHCdqVh">https://discord.gg/xFHCdqVh</a></p>
-        <p class="slide-up">Email: <a href="mailto:inquiry@dawnstoryrevelation.com">inquiry@dawnstoryrevelation.com</a></p>
-        <p class="slide-up">YouTube Channel: <a href="https://www.youtube.com/@DawntasyRevelate/videos">https://www.youtube.com/@DawntasyRevelate/videos</a></p>
-        <a href="https://docs.google.com/document/d/1GyT8Q_L2b3_fzAwsNVQkIRZe-NQIyRnNbEtlEkimsUU/edit" class="button">Read His Promise</a>
-    </main>
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-80YG5XWYJL"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-80YG5XWYJL');
-    </script>
-    <footer class="fade-in">
+
+    <header class="header">
+        <h1>Contact me</h1>
+        <p>I'd love to hear from you!</p>
+    </header>
+
+    <div class="container fade-in-element">
+        <p class="intro-text">Whether you have a question about our stories, want to share your own, or just want to say hello, feel free to reach out.
+
+Discord: https://discord.gg/xFHCdqVh
+
+Email: inquiry@dawnstoryrevelation.com
+
+YouTube Channel: https://www.youtube.com/@DawntasyRevelate/videos</p>
+
+        <p class="intro-text fade-in-element">We are thrilled to have you as part of our community and look
+            forward to sharing this journey with you. Enjoy your experience and happy reading!</p>
+        <a href="index.html" class="animated-button">Explore More</a>
+    </div>
+
+    <footer>
         <p>&copy; 2024 Dawntasy: Dawnstory Revelation. All rights reserved.</p>
     </footer>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/ScrollTrigger.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
     <script>
-        // Navbar Animation
-        gsap.from("nav a", {
-            duration: 1, 
-            opacity: 0, 
-            y: -20, 
-            stagger: 0.2, 
-            ease: "power2.out"
-        });
+        gsap.registerPlugin(ScrollTrigger);
+    //WITH Timelines (cleaner, more versatile)
+        var tl = gsap.timeline({repeat: 2, repeatDelay: 1});
+        tl.to(".animate", {x: 100, duration: 1});
+        tl.to(".animate", {y: 50, duration: 1});
+        tl.to(".animate", {opacity: 0, duration: 1});
+        
+        // then we can control the whole thing easily...
+        tl.pause();
+        tl.resume();
+        tl.seek(1.5);
+        tl.reverse();
 
-        // Header Animation
-        gsap.from("header h1", {
-            duration: 1.5, 
-            y: -50, 
-            opacity: 0, 
-            ease: "power2.out"
-        });
-
-        // Main Content Animation
-        gsap.from("main", {
-            duration: 1.5, 
-            y: 50, 
-            opacity: 0, 
-            ease: "power2.out"
-        });
-
-        // Decorative Stars Animation
-        gsap.to(".decorative-star", {
-            duration: 2, 
-            rotation: 360, 
-            repeat: -1, 
-            ease: "linear"
-        });
-
-        // Button Hover Effect with Fireball Animation
-        document.querySelectorAll('.button').forEach(button => {
-            button.addEventListener('mouseenter', () => {
-                gsap.fromTo(button, {
-                    boxShadow: '0 0 0px rgba(255, 0, 0, 0.5)',
-                    backgroundPosition: 'center'
-                }, {
-                    boxShadow: '0 0 20px rgba(255, 0, 0, 0.5)',
-                    backgroundPosition: 'left',
-                    duration: 0.5,
-                    yoyo: true,
-                    repeat: -1
-                });
-                let fireball = document.createElement('div');
-                fireball.classList.add('fireball');
-                fireball.style.position = 'absolute';
-                fireball.style.width = '20px';
-                fireball.style.height = '20px';
-                fireball.style.background = 'orange';
-                fireball.style.borderRadius = '50%';
-                fireball.style.boxShadow = '0 0 10px red';
-                button.appendChild(fireball);
-                gsap.fromTo(fireball, {x: -10, opacity: 0}, {
-                    x: 50, 
-                    opacity: 1, 
-                    duration: 0.5, 
-                    repeat: -1, 
-                    ease: "power2.inOut",
-                    onComplete: () => fireball.remove()
+        // Fade in elements on scroll
+        document.addEventListener('DOMContentLoaded', function () {
+            const elements = document.querySelectorAll('.fade-in-element');
+            elements.forEach(element => {
+                gsap.fromTo(element, { opacity: 0, y: 20 }, {
+                    opacity: 1, y: 0, duration: 1, ease: 'power4.out', scrollTrigger: {
+                        trigger: element,
+                        start: 'top 80%',
+                        toggleActions: 'play none none reverse'
+                    }
                 });
             });
-            button.addEventListener('mouseleave', () => {
-                gsap.to(button, {boxShadow: '0 0 0px rgba(255, 0, 0, 0.5)', duration: 0.5});
+        });
+
+        // Navigation bar text popups
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('mouseover', () => {
+                gsap.to(link, { duration: 0.5, scale: 1.1, color: '#f9f5d7' });
+            });
+            link.addEventListener('mouseout', () => {
+                gsap.to(link, { duration: 0.5, scale: 1, color: '#f5f5f5' });
+            });
+        });
+
+        // Graphic hover effects
+        document.querySelectorAll('.features-list li').forEach(item => {
+            item.addEventListener('mouseover', () => {
+                gsap.to(item, { duration: 0.5, scale: 1.1 });
+            });
+            item.addEventListener('mouseout', () => {
+                gsap.to(item, { duration: 0.5, scale: 1 });
             });
         });
     </script>
 </body>
+
 </html>
