@@ -1,27 +1,27 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
+    <link rel="icon" href="https://www.dawnstoryrevelation.com/images/821049A8-FDF0-413E-A1A3-533ECC529C7B.webp" type="image/x-icon">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dawntasy Saga (Dawnstory Revelation)</title>
     <link href="https://fonts.googleapis.com/css2?family=Indie+Flower&family=Montserrat:wght@300;400;600&family=Lobster&display=swap" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" rel="stylesheet">
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
     <style>
         body {
-            font-family: 'Indie Flower', cursive;
-            background-color: #f4f4f9;
-            color: #333;
+            font-family: 'Montserrat', sans-serif;
+            color: #f5f5f5;
             margin: 0;
             padding: 0;
             display: flex;
             flex-direction: column;
             align-items: center;
+            justify-content: flex-start;
             min-height: 100vh;
-            overflow-x: hidden;
-            cursor: url('https://www.dawnstoryrevelation.com/images/custom-cursor.png'), auto; /* Custom cursor */
+            overflow-y: scroll;
             scroll-behavior: smooth;
+            position: relative;
         }
 
         .video-background {
@@ -34,361 +34,247 @@
             z-index: -1;
         }
 
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background-color: #343a40;
-            padding: 20px;
+        .navbar {
+            background-color: rgba(0, 0, 0, 0.8);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
             width: 100%;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
         }
 
-        header h1 {
-            margin: 0;
-            font-size: 3em;
-            font-family: 'Lobster', cursive;
-            color: #ffffff;
-        }
-
-        header .btn {
-            background-color: #ff0000; /* Red Sign Up button */
-            background-image: linear-gradient(to right, #ff0000, #cc0000); /* Gradient effect */
-            color: #fff;
-            text-decoration: none;
-            padding: 10px 20px;
-            font-size: 1em;
-            border-radius: 5px;
-            transition: background-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease, color 0.3s ease; /* Smooth transitions */
-            margin-left: 10px;
-            font-family: 'Merriweather', serif;
-        }
-
-        header .btn:hover {
-            background-color: #cc0000;
-            background-image: linear-gradient(to right, #cc0000, #ff0000); /* Gradient change on hover */
-            box-shadow: 0 0 15px rgba(255, 255, 255, 0.6), 0 0 5px rgba(255, 255, 255, 0.3);
-            transform: scale(1.05); /* Slight scale up on hover */
-        }
-
-        @keyframes shake {
-            0%, 100% {
-                transform: translateX(0);
-            }
-            20%, 60% {
-                transform: translateX(-10px);
-            }
-            40%, 80% {
-                transform: translateX(10px);
-            }
-        }
-
-        header .btn:hover {
-            animation: shake 0.5s;
-        }
-
-        nav {
-            background-color: #007bff;
-            width: 100%;
-            padding: 10px 0;
-            text-align: center;
-            font-family: 'Montserrat', sans-serif;
-        }
-
-        nav a {
-            margin: 0 15px;
-            text-decoration: none;
-            color: #fff;
+        .navbar-brand,
+        .navbar-nav .nav-link {
+            color: #f5f5f5;
             font-size: 1.2em;
-            transition: color 0.3s ease, text-shadow 0.3s ease;
-        }
-
-        nav a:hover {
-            color: #f1c40f;
-            text-shadow: 0 0 10px #f1c40f, 0 0 20px #f1c40f, 0 0 30px #f1c40f;
-        }
-
-        main {
-            text-align: center;
-            padding: 20px;
-            max-width: 900px;
-            margin: 20px auto;
-            background-color: #ffffff;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        main h2 {
-            font-size: 2.5em;
-            margin-bottom: 20px;
-            font-weight: bold;
-            font-family: 'Lobster', cursive;
-        }
-
-        main p {
-            font-size: 1.2em;
-            line-height: 1.6;
-        }
-
-        .featured-story,
-        .testimonials,
-        .call-to-action {
-            text-align: left;
-            margin: 20px 0;
-            padding: 20px;
-            background-color: #f4f4f9;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        .featured-story h3,
-        .testimonials h3,
-        .call-to-action h3 {
-            font-size: 1.8em;
-            margin-bottom: 10px;
-            font-weight: bold;
-            font-family: 'Lobster', cursive;
-        }
-
-        .call-to-action a {
-            display: inline-block;
-            margin-top: 10px;
-            padding: 10px 20px;
-            background-color: #007bff;
-            color: #fff;
-            text-decoration: none;
-            font-size: 1em;
-            border-radius: 5px;
-        }
-
-        .call-to-action a:hover {
-            background-color: #0056b3;
-        }
-
-        .youtube-button {
-            display: inline-block;
-            margin-top: 10px;
-            padding: 10px 20px;
-            background-color: #FF0000;
-            color: #fff;
-            text-decoration: none;
-            font-size: 1em;
-            border-radius: 5px;
-        }
-
-        .youtube-button:hover {
-            background-color: #CC0000;
-        }
-
-        footer {
-            margin-top: 40px;
-            padding: 10px;
-            background-color: #343a40;
-            width: 100%;
-            text-align: center;
-            color: #fff;
-            box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        footer p {
-            margin: 0;
-        }
-
-        .featured-story img,
-        .gaze-image {
-            max-width: 100%;
-            height: auto;
-            border-radius: 10px;
-            margin-top: 10px;
-            display: block;
-            margin-left: auto;
-            margin-right: auto;
-            transition: transform 0.3s, filter 0.3s;
-        }
-
-        .gaze-image:hover {
-            filter: brightness(180%);
-            transform: scale(1.05);
-        }
-
-        .carousel-item img {
-            max-width: 100%;
-            height: auto;
-        }
-
-        .carousel-caption {
-            background-color: rgba(0, 0, 0, 0.7);
-            padding: 10px;
-            border-radius: 10px;
-        }
-
-        .infobox {
-            background-color: #f1f1f1;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            margin-top: 20px;
-            text-align: left;
-        }
-
-        .call-to-action-container {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-wrap: wrap;
-        }
-
-        .call-to-action img {
-            max-width: 300px;
-            width: 100%;
-            height: auto;
-            border-radius: 10px;
-            margin-top: 10px;
-            display: block;
-            margin-left: auto;
-            margin-right: auto;
             position: relative;
         }
 
-        .textbox-on-image {
+        .navbar-brand:hover,
+        .navbar-nav .nav-link:hover {
+            color: #f9f5d7;
+        }
+
+        .popup {
             position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background-color: rgba(0, 0, 0, 0.5);
+            top: -10px;
+            left: 110%;
+            width: 200px;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.8);
             color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            opacity: 0;
+            transform: translateX(-50px);
+            transition: opacity 0.3s, transform 0.3s;
+        }
+
+        .navbar-nav .nav-link:hover .popup {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .header {
+            text-align: center;
+            margin-top: 70px;
+            color: #fff;
+        }
+
+        .header h1 {
+            font-family: 'Indie Flower', cursive;
+            font-size: 4em;
+            text-shadow: 2px 2px 4px #000;
+        }
+
+        .header p {
+            font-size: 1.5em;
+            margin-top: 10px;
+        }
+
+        .container {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            max-width: 1200px;
+        }
+
+        .section-title {
+            font-size: 2.5em;
+            margin: 20px 0;
+            text-align: center;
+            color: #007bff;
+            text-shadow: 2px 2px #ffebcd;
+        }
+
+        .intro-text {
+            font-size: 1.2em;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            color: #555;
+        }
+
+        .features-list {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .features-list li {
+            margin: 10px 0;
+            font-size: 1.1em;
+            color: #444;
+            position: relative;
+            padding-left: 20px;
+        }
+
+        .features-list li:before {
+            content: "★";
+            position: absolute;
+            left: 0;
+            color: #f39c12;
+            font-size: 1.5em;
+        }
+
+        footer {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: rgba(0, 0, 0, 0.8);
+            color: #fff;
+            text-align: center;
+            width: 100%;
+            box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.5);
+        }
+
+        .highlight {
+            background-color: #ffebcd;
             padding: 10px;
             border-radius: 5px;
-            font-size: 1.2em;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
 
-        @media (max-width: 768px) {
-            header {
-                flex-direction: column;
-            }
-
-            nav {
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-            }
-
-            nav a {
-                margin: 10px 0;
-            }
-
-            .call-to-action-container {
-                flex-direction: column;
-                align-items: center;
-            }
-
-            .featured-story,
-            .testimonials,
-            .call-to-action,
-            main {
-                padding: 10px;
-            }
-
-            main h2 {
-                font-size: 2em;
-            }
-
-            main p {
-                font-size: 1em;
-            }
+        .highlight h3 {
+            color: #e67e22;
+            font-size: 1.8em;
         }
 
-        .social-share-buttons a {
-            margin: 0 10px;
+        .highlight p {
+            font-size: 1.1em;
+            color: #555;
+        }
+
+        .animated-button {
             display: inline-block;
+            padding: 10px 20px;
+            font-size: 1.2em;
+            color: #fff;
+            background-color: #007bff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background-color 0.3s, transform 0.3s;
         }
 
-        .social-share-buttons img {
-            width: 32px;
-            height: 32px;
+        .animated-button:hover {
+            background-color: #0056b3;
+            transform: translateY(-3px);
+        }
+
+        .fade-in-element {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 1s ease-out, transform 1s ease-out;
+        }
+
+        .fade-in-element.visible {
+            opacity: 1;
+            transform: translateY(0);
         }
     </style>
 </head>
 
-<body>
+<body class='animate'>
     <video class="video-background" autoplay loop muted>
         <source src="https://www.dawnstoryrevelation.com/2CC28CCE-DBE3-4B1A-9D5D-1FC1D6AD3F64.mp4" type="video/mp4">
     </video>
-    <header data-aos="fade-down">
-        <h1>Dawntasy Saga</h1>
-        <div>
-            <a href="signup.html" class="btn">Sign Up</a>
-            <a href="https://www.dawnstoryrevelation.com/newsletter.html" class="btn">Newsletter</a>
-        </div>
-    </header>
-    <nav data-aos="fade-down">
-        <a href="https://dawnstoryrevelation.com">Home</a>
-        <a href="https://www.dawnstoryrevelation.com/about.html">About</a>
-        <a href="https://www.dawnstoryrevelation.com/stories.html">Stories</a>
-        <a href="https://www.dawnstoryrevelation.com/lore.html">Lore</a>
-        <a href="https://www.dawnstoryrevelation.com/contact.html">Contact</a>
-    </nav>
-    <main data-aos="fade-up">
-        <h2 data-aos="fade-up">Welcome to the world of Gaze!</h2>
-        <p data-aos="fade-left">Dawntasy Story is an unpublished saga revolving around fantasy and dystopian elements. Delve into the Gaze world in an era in which survival is not guaranteed, and happiness is scarce. The outlook of the health of the future world does not prove to be promising, and as a band of desperate mutineers cling onto the threads of dear life, they realise that not just them are in danger, the whole world is, the whole multiverse.</p>
-        <p data-aos="fade-right">A tale of adventure and courage...</p>
-        <img src="https://www.dawnstoryrevelation.com/images/B680E346-F606-40AD-B88C-CC38CA184D9B.webp" alt="Gaze World" class="gaze-image">
 
-        <div class="infobox" data-aos="fade-up">
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+        <a class="navbar-brand" href="#">Dawntasy Saga</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item active">
+                    <a class="nav-link" href="https://dawnstoryrevelation.com">Home
+                        <span class="popup">Return to the home page</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="https://www.dawnstoryrevelation.com/about.html">About
+                        <span class="popup">Learn more about Dawntasy</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="https://www.dawnstoryrevelation.com/stories.html">Stories
+                        <span class="popup">Explore the stories</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="https://www.dawnstoryrevelation.com/lore.html">Lore
+                        <span class="popup">Dive into the lore</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="https://www.dawnstoryrevelation.com/contact.html">Contact
+                        <span class="popup">Get in touch</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <header class="header">
+        <h1>Dawntasy Saga (Dawnstory Revelation)</h1>
+        <p>Welcome to the world of Gaze!</p>
+    </header>
+
+    <div class="container fade-in-element">
+        <h2 class="section-title fade-in-element">Welcome to the world of Gaze!</h2>
+        <p class="intro-text">Dawntasy Story is an unpublished saga revolving around fantasy and dystopian elements. Delve into the Gaze world in an era in which survival is not guaranteed, and happiness is scarce. The outlook of the health of the future world does not prove to be promising, and as a band of desperate mutineers cling onto the threads of dear life, they realise that not just them are in danger, the whole world is, the whole multiverse.</p>
+        <p class="intro-text">A tale of adventure and courage...</p>
+        <img src="https://www.dawnstoryrevelation.com/images/B680E346-F606-40AD-B88C-CC38CA184D9B.webp" alt="Gaze World" class="img-fluid">
+
+        <div class="highlight fade-in-element">
             <h3>About the World of Gaze</h3>
             <p>The world of Gaze is split into two realms: the Rift Realm and the Dawnstory Realm. The Rift Realm is a dangerous place filled with magic and fantasy, while the Dawnstory Realm is a typical fantasy world. Both realms are surrounded by celestial stars and constellations, making the world of Gaze a unique and fantastical place.</p>
         </div>
 
-        <div class="featured-story" data-aos="zoom-in">
+        <div class="highlight fade-in-element">
             <h3>Featured Story: His Promise (S1B1)</h3>
             <p>The realm of Dawnstory is governed by a tyrannous, nefarious organisation known only as LTR. When all hell breaks loose, the Time Rebellion League is formed with only one obligation, taking down the organisation and its devious leader, while Yaya the bearman struggles to find peace within himself after his beloved master is slain by enemy forces. However, he begins to realise that all is not lost, and that backing down was the worst thing he could have done.</p>
-            <img src="https://www.dawnstoryrevelation.com/images/5FEF0ACE-C55F-4745-BCC5-F39B7B47C8D6.jpeg" alt="Featured Story">
+            <img src="https://www.dawnstoryrevelation.com/images/5FEF0ACE-C55F-4745-BCC5-F39B7B47C8D6.jpeg" alt="Featured Story" class="img-fluid">
         </div>
-        <div class="testimonials" data-aos="zoom-in">
+
+        <div class="highlight fade-in-element">
             <h3>Quotes</h3>
             <p>"You must carry on. The fight...is not over." - Aegis Wick, Chapter 2 S1B1</p>
             <p>"Even if you are beaten, never give up. Even if all your allies are killed, never falter. Remember the reason you’re fighting. So hold that hope in your heart and never let go. That is the true key to victory." - Aegis Wick, Chapter 2 S1B1</p>
         </div>
-        <div class="advertising-line" data-aos="fade-in">
-            Check out my YouTube Channel! Featured Song:
-            <a href="https://www.youtube.com/watch?v=RJNR6OiHeTw" class="youtube-button">Constellations</a>
-            <div class="youtube-video">
-                <iframe width="560" height="315" src="https://www.youtube.com/embed/RJNR6OiHeTw?si=O2HlbtKebu4P34cw" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-            </div>
-        </div>
-        <div class="testimonials" data-aos="zoom-in">
-            <h3><b>What Readers Say</b></h3>
-            <p>"A must read." - Mark Jones, age 45</p>
-            <p>"A captivating tale that keeps you on the edge of your seat." - Wendy Johnson</p>
+
+        <div class="highlight fade-in-element">
+            <h3>Explore Three Unique Realms!</h3>
+            <p class="intro-text">The DSR World Circle is split between three realms: The Eternal Rift Realm, the Fall Point Realm and The Ephemeral Dawnstory Realm.</p>
+            <p class="intro-text">The Rift Realm...a home to danger, mystery and excitement...awaken a sense of transcendence.</p>
+            <p class="intro-text">The Dawnstory Realm...an ordinary world yet imbued with fantasy...until it all falls down.</p>
+            <p class="intro-text">The Fall Point Realm...where reality is mere imagination and light and dark are synonyms.</p>
         </div>
 
-        <div class="call-to-action-container" data-aos="fade-up">
-            <div class="call-to-action">
-                <h3><b>Why You Should Read Dawntasy Story</b></h3>
-                <p>In Dawntasy, we invite you to embark on a journey like no other. Dive into a world where the lines between fantasy and dystopia blur, and where every turn of the page brings new surprises and revelations. With its richly developed characters, immersive world-building, and gripping plot twists, DSR promises an unforgettable reading experience.</p>
-                <p>Join us as we uncover the secrets of this sprawling saga, where courage, adventure, and the fight for justice reign supreme. Let Dawntasy ignite your imagination and take you on an epic adventure you won't soon forget.</p>
-                <div style="position: relative; text-align: center; margin-top: 20px;">
-                    <img src="https://www.dawnstoryrevelation.com/images/BE09F029-353F-45D5-AC84-9DED9EBA140E.png" alt="Welcome" class="call-to-action" style="display: block; margin-left: auto; margin-right: auto;">
-                    <div class="textbox-on-image">So why not start now?</div>
-                </div>
-            </div>
-        </div>
-
-        <h2 data-aos="fade-up">Our Song Album</h2>
-        <p data-aos="fade-left">Our Dawntasy Song Album "Crossing the Divine" brings joy and laughter and features a wide range of different songs.</p>
-        <p data-aos="fade-right">"Constellations" From the eyes to the stars.</p>
-        <p data-aos="fade-left">"The Equinox" When sun and moon meet.</p>
-        <p data-aos="fade-right">"Break of Day" Seraphic dawn.</p>
-        <p data-aos="fade-right">"Never Falter" A shimmer of hope.</p>
-
-        <h2 data-aos="fade-up">Explore Three Unique Realms!</h2>
-        <p data-aos="fade-left">The DSR World Circle is split between three realms: The Eternal Rift Realm, the Fall Point Realm and The Ephemeral Dawnstory Realm. </p>
-        <p data-aos="fade-right">The Rift Realm...a home to danger, mystery and excitement...awaken a sense of transcendence.</p>
-        <p data-aos="fade-left">The Dawnstory Realm...an ordinary world yet imbued with fantasy...until it all falls down.</p>
-        <p data-aos="fade-right">The Fall Point Realm...where reality is mere imagination and light and dark are synonyms.</p>
-
-        <h2 data-aos="fade-up">The Heroes of Dawnstory!</h2>
-        <div id="carouselExampleIndicators" class="carousel slide" data-ride="carousel">
+        <h2 class="section-title fade-in-element">The Heroes of Dawnstory!</h2>
+        <div id="carouselExampleIndicators" class="carousel slide fade-in-element" data-ride="carousel">
             <ol class="carousel-indicators">
                 <li data-target="#carouselExampleIndicators" data-slide-to="0" class="active"></li>
                 <li data-target="#carouselExampleIndicators" data-slide-to="1"></li>
@@ -473,91 +359,52 @@
                 <span class="sr-only">Next</span>
             </a>
         </div>
-    </main>
-    <footer data-aos="fade-up">
+    </div>
+
+    <footer>
         <p>&copy; 2024 Dawntasy: Dawnstory Revelation. All rights reserved.</p>
-        <div class="social-share-buttons">
-            <a href="https://www.facebook.com/sharer/sharer.php?u=https://www.dawnstoryrevelation.com" target="_blank">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/16/Facebook-icon-1.png/32px-Facebook-icon-1.png" alt="Facebook">
-            </a>
-            <a href="https://twitter.com/intent/tweet?url=https://www.dawnstoryrevelation.com&text=Check out this site!" target="_blank">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/Twitter_bird_logo_2012.svg/32px-Twitter_bird_logo_2012.svg.png" alt="Twitter">
-            </a>
-            <a href="https://www.linkedin.com/shareArticle?mini=true&url=https://www.dawnstoryrevelation.com&title=Your Title&summary=Your Summary&source=Your Source" target="_blank">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/81/LinkedIn_icon.svg/32px-LinkedIn_icon.svg.png" alt="LinkedIn">
-            </a>
-        </div>
     </footer>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
-    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/ScrollTrigger.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
     <script>
-        AOS.init();
+        gsap.registerPlugin(ScrollTrigger);
 
-        gsap.registerPlugin(MotionPathPlugin, ScrollTrigger, MorphSVGPlugin);
-    
-        ScrollTrigger.create({
-            trigger: '.featured-story',
-            start: 'top top',
-            endTrigger: '.call-to-action-container',
-            end: 'bottom 50%+=100px',
-            onToggle: (self) => console.log('toggled, isActive:', self.isActive),
-            onUpdate: (self) => {
-                console.log(
-                    'progress:',
-                    self.progress.toFixed(3),
-                    'direction:',
-                    self.direction,
-                    'velocity',
-                    self.getVelocity()
-                );
-            }
-        });
-
-        // Smooth scrolling with GSAP
-        gsap.to(window, {
-            scrollTo: { y: "+=0", autoKill: false },
-            duration: 25.0, // Increase duration for slower scrolling
-            ease: "power2.out",
-            overwrite: "auto"
+        // Fade in elements on scroll
+        document.addEventListener('DOMContentLoaded', function () {
+            const elements = document.querySelectorAll('.fade-in-element');
+            elements.forEach(element => {
+                gsap.fromTo(element, { opacity: 0, y: 20 }, {
+                    opacity: 1, y: 0, duration: 1, ease: 'power4.out', scrollTrigger: {
+                        trigger: element,
+                        start: 'top 80%',
+                        toggleActions: 'play none none reverse'
+                    }
+                });
+            });
         });
 
         // Navigation bar text popups
-        document.querySelectorAll('nav a').forEach(link => {
+        document.querySelectorAll('.nav-link').forEach(link => {
             link.addEventListener('mouseover', () => {
-                gsap.to(link, { duration: 0.3, color: '#f1c40f', textShadow: '0 0 10px #f1c40f, 0 0 20px #f1c40f, 0 0 30px #f1c40f' });
+                gsap.to(link, { duration: 0.5, scale: 1.1, color: '#f9f5d7' });
             });
             link.addEventListener('mouseout', () => {
-                gsap.to(link, { duration: 0.3, color: '#fff', textShadow: 'none' });
+                gsap.to(link, { duration: 0.5, scale: 1, color: '#f5f5f5' });
             });
         });
 
-        // Button hover effects
-        document.querySelectorAll('header .btn').forEach(button => {
-            button.addEventListener('mouseover', () => {
-                gsap.to(button, {
-                    duration: 0.3,
-                    scale: 1.1,
-                    boxShadow: '0 0 15px rgba(255, 255, 255, 0.6), 0 0 5px rgba(255, 255, 255, 0.3)'
-                });
-                gsap.fromTo(button, { x: -10 }, { x: 10, duration: 0.2, repeat: 5, yoyo: true });
+        // Graphic hover effects
+        document.querySelectorAll('.features-list li').forEach(item => {
+            item.addEventListener('mouseover', () => {
+                gsap.to(item, { duration: 0.5, scale: 1.1 });
             });
-            button.addEventListener('mouseout', () => {
-                gsap.to(button, { duration: 0.3, scale: 1, boxShadow: 'none' });
+            item.addEventListener('mouseout', () => {
+                gsap.to(item, { duration: 0.5, scale: 1 });
             });
-        });
-
-        // Smooth scroll
-        gsap.to(window, {
-            scrollTo: {y: "+=0", autoKill: false},
-            duration: 3,
-            ease: "power2.inOut",
-            overwrite: "auto"
         });
     </script>
 </body>
+
 </html>
