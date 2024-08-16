@@ -54,26 +54,6 @@
             color: #f9f5d7;
         }
 
-        .popup {
-            position: absolute;
-            top: -10px;
-            left: 110%;
-            width: 200px;
-            padding: 10px;
-            background: rgba(0, 0, 0, 0.8);
-            color: #fff;
-            border-radius: 5px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-            opacity: 0;
-            transform: translateX(-50px);
-            transition: opacity 0.3s, transform 0.3s;
-        }
-
-        .navbar-nav .nav-link:hover .popup {
-            opacity: 1;
-            transform: translateX(0);
-        }
-
         .header {
             text-align: center;
             margin-top: 70px;
@@ -115,27 +95,6 @@
             color: #555;
         }
 
-        .features-list {
-            list-style-type: none;
-            padding: 0;
-        }
-
-        .features-list li {
-            margin: 10px 0;
-            font-size: 1.1em;
-            color: #444;
-            position: relative;
-            padding-left: 20px;
-        }
-
-        .features-list li:before {
-            content: "★";
-            position: absolute;
-            left: 0;
-            color: #f39c12;
-            font-size: 1.5em;
-        }
-
         footer {
             margin-top: 20px;
             padding: 10px;
@@ -144,23 +103,6 @@
             text-align: center;
             width: 100%;
             box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.5);
-        }
-
-        .highlight {
-            background-color: #ffebcd;
-            padding: 10px;
-            border-radius: 5px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        .highlight h3 {
-            color: #e67e22;
-            font-size: 1.8em;
-        }
-
-        .highlight p {
-            font-size: 1.1em;
-            color: #555;
         }
 
         .animated-button {
@@ -199,44 +141,14 @@
         }
 
         .hover-effect-2:hover {
-            transform: rotate(15deg);
+            transform: scale(1.05);
         }
 
         .hover-effect-3:hover {
-            border-color: #ff00ff;
-            background-color: #ffebcd;
-            color: #333;
-        }
-
-        .hover-effect-4:hover {
-            text-decoration: underline;
-            letter-spacing: 2px;
-        }
-
-        .hover-effect-5:hover {
-            transform: scale(1.1) rotate(-10deg);
-        }
-
-        .hover-effect-6:hover {
-            filter: blur(2px);
-        }
-
-        .hover-effect-7:hover {
-            opacity: 0.5;
-        }
-
-        .hover-effect-8:hover {
-            box-shadow: 0 0 15px #00ff00;
-        }
-
-        .hover-effect-9:hover {
             background-color: #333;
             color: #fff;
         }
 
-        .hover-effect-10:hover {
-            transform: translateX(20px);
-        }
     </style>
 </head>
 
@@ -254,84 +166,74 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ml-auto">
                 <li class="nav-item active">
-                    <a class="nav-link hover-effect-2" href="https://dawnstoryrevelation.github.io/dawnstoryrevelation/">Home
-                        <span class="popup">Return to the home page</span>
-                    </a>
+                    <a class="nav-link hover-effect-2" href="https://dawnstoryrevelation.github.io/dawnstoryrevelation/">Home</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link hover-effect-3" href="https://dawnstoryrevelation.github.io/dawnstoryrevelation/about.html">About
-                        <span class="popup">Learn more about Dawntasy</span>
-                    </a>
+                    <a class="nav-link hover-effect-2" href="https://dawnstoryrevelation.github.io/dawnstoryrevelation/about.html">About</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link hover-effect-4" href="https://dawnstoryrevelation.github.io/dawnstoryrevelation/stories.html">Stories
-                        <span class="popup">Explore the stories</span>
-                    </a>
+                    <a class="nav-link hover-effect-2" href="https://dawnstoryrevelation.github.io/dawnstoryrevelation/stories.html">Stories</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link hover-effect-5" href="https://dawnstoryrevelation.github.io/dawnstoryrevelation/lore.html">Lore
-                        <span class="popup">Dive into the lore</span>
-                    </a>
+                    <a class="nav-link hover-effect-2" href="https://dawnstoryrevelation.github.io/dawnstoryrevelation/lore.html">Lore</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link hover-effect-6" href="https://dawnstoryrevelation.github.io/dawnstoryrevelation/contact.html">Contact
-                        <span class="popup">Get in touch</span>
-                    </a>
+                    <a class="nav-link hover-effect-2" href="https://dawnstoryrevelation.github.io/dawnstoryrevelation/contact.html">Contact</a>
                 </li>
             </ul>
         </div>
     </nav>
 
     <header class="header">
-        <h1 class="hover-effect-7">Dawntasy Saga</h1>
-        <p class="hover-effect-8">Welcome to the world of Gaze!</p>
+        <h1 class="hover-effect-1">Dawntasy Saga</h1>
+        <p>Welcome to the world of Gaze!</p>
     </header>
 
     <div class="container fade-in-element">
-        <h2 class="section-title fade-in-element hover-effect-9">About Me</h2>
-        <p class="intro-text fade-in-element hover-effect-10">I am an inspired young kid with the hopes of publishing my book series, Dawntasy: Dawnstory Revelation, in the future when I am an adult. My journey delving into the Dawntasy Saga began ever since I was 6, and with a keen and imaginative mind I would often drift off into my own worlds where anything was possible and adventures spark from everywhere. 5 years into the series, various iterations have been made since its commencement to hone in on the saga and refine any parts that required further development on. Thank you to everyone who has supported me on this journey; I wouldn't have made it this far without everyone!</p>
+        <h2 class="section-title fade-in-element hover-effect-3">About Me</h2>
+        <p class="intro-text fade-in-element">I am an inspired young kid with the hopes of publishing my book series, Dawntasy: Dawnstory Revelation, in the future when I am an adult. My journey delving into the Dawntasy Saga began ever since I was 6, and with a keen and imaginative mind I would often drift off into my own worlds where anything was possible and adventures spark from everywhere. 5 years into the series, various iterations have been made since its commencement to hone in on the saga and refine any parts that required further development on. Thank you to everyone who has supported me on this journey; I wouldn't have made it this far without everyone!</p>
 
-        <h2 class="section-title fade-in-element hover-effect-9">Dawntasy</h2>
-        <p class="intro-text fade-in-element hover-effect-10">Dawntasy is my upcoming book series that features the adventures of 7 unique characters, Yaya, Questa, Solus, Filapawa, Salvapige, Dryadis and Norsty. If you are looking for an immersive book with numerous layers of story and plot discoveries, check out Dawntasy (Dawnstory Revelation!</p>
+        <h2 class="section-title fade-in-element hover-effect-3">Dawntasy</h2>
+        <p class="intro-text fade-in-element">Dawntasy is my upcoming book series that features the adventures of 7 unique characters, Yaya, Questa, Solus, Filapawa, Salvapige, Dryadis and Norsty. If you are looking for an immersive book with numerous layers of story and plot discoveries, check out Dawntasy (Dawnstory Revelation!</p>
         <img src="https://www.dawnstoryrevelation.com/F958CA78-2039-4820-99A5-970B321B482A.jpeg" alt="Dawntasy" class="img-fluid scroll-image hover-effect-2" style="max-width: 80%; height: auto;">
-        <h2 class="section-title fade-in-element hover-effect-9">Characters and World-building</h2>
-        <p class="intro-text fade-in-element hover-effect-10">At the heart of Dawntasy are its characters and world-building. From the brave Questa to the mysterious Solus, I make sure each character brings their own unique story and perspective to the saga. The world of Wintro is filled with excitement, creating a rich tapestry for readers to explore.</p>
+        <h2 class="section-title fade-in-element hover-effect-3">Characters and World-building</h2>
+        <p class="intro-text fade-in-element">At the heart of Dawntasy are its characters and world-building. From the brave Questa to the mysterious Solus, I make sure each character brings their own unique story and perspective to the saga. The world of Wintro is filled with excitement, creating a rich tapestry for readers to explore.</p>
 
-        <h2 class="section-title fade-in-element hover-effect-9">Mission and Vision</h2>
-        <p class="intro-text fade-in-element hover-effect-10">My mission with the Dawntasy saga is to spark interest and spread joy and ecstasy within such a technology reliant world. I believe that stories have the power to move hearts and change the way people feel, and I hope that Dawnstory will resonate with readers on a deep and meaningful level.</p>
+        <h2 class="section-title fade-in-element hover-effect-3">Mission and Vision</h2>
+        <p class="intro-text fade-in-element">My mission with the Dawntasy saga is to spark interest and spread joy and ecstasy within such a technology reliant world. I believe that stories have the power to move hearts and change the way people feel, and I hope that Dawnstory will resonate with readers on a deep and meaningful level.</p>
 
-        <h2 class="section-title fade-in-element hover-effect-9">Get in Touch</h2>
-        <p class="intro-text fade-in-element hover-effect-10">Connect with me on YouTube or Discord to stay updated on news and announcements related to Dawntasy.</p>
+        <h2 class="section-title fade-in-element hover-effect-3">Get in Touch</h2>
+        <p class="intro-text fade-in-element">Connect with me on YouTube or Discord to stay updated on news and announcements related to Dawntasy.</p>
 
-        <h2 class="section-title fade-in-element hover-effect-9">Explore Dawntasy</h2>
-        <p class="intro-text fade-in-element hover-effect-10">Ready to dive into the world of Gaze? Check out this for a little preview of the first book!</p>
-        <a href="https://docs.google.com/document/d/1GyT8Q_L2b3_fzAwsNVQkIRZe-NQIyRnNbEtlEkimsUU/edit" class="animated-button hover-effect-3">His Promise</a>
+        <h2 class="section-title fade-in-element hover-effect-3">Explore Dawntasy</h2>
+        <p class="intro-text fade-in-element">Ready to dive into the world of Gaze? Check out this for a little preview of the first book!</p>
+        <a href="https://docs.google.com/document/d/1GyT8Q_L2b3_fzAwsNVQkIRZe-NQIyRnNbEtlEkimsUU/edit" class="animated-button">His Promise</a>
 
-        <h2 class="section-title fade-in-element hover-effect-9">Filapawa - The Official Dawntasy YouTube Channel</h2>
-        <p class="intro-text fade-in-element hover-effect-10">Welcome to Filapawa, the official YouTube channel dedicated to all things in Dawntasy: Dawnstory Revelation! Here, we dive deep into the captivating world of Gaze, offering fans an immersive experience like no other. Our mission at Filapawa is to provide you with exclusive insights, behind-the-scenes content, and engaging discussions that bring the world of Gaze to life.</p>
-        <p class="intro-text fade-in-element hover-effect-10">Join us as we explore the rich tapestry of characters, lore, and settings that make up the Dawntasy: Dawnstory Revelation saga. From in-depth character profiles that delve into the motivations and backstories of your favorite heroes and villains to detailed explorations of the world-building that brings the land of Gaze to vivid life, there's always something new to discover on Filapawa.</p>
-        <p class="intro-text fade-in-element hover-effect-10">But Filapawa is more than just a channel – it's a community. Connect with fellow fans as we share theories, discuss our favorite moments, and celebrate the world together. Our interactive experiences, including live streams, Q&A sessions, and community events, offer you the chance to engage directly with the author and fellow fans, making Filapawa a place where your voice truly matters.</p>
-        <p class="intro-text fade-in-element hover-effect-10">Don't miss out on the latest updates and exclusive content from Filapawa! Subscribe to our channel and hit the notification bell to stay informed about new uploads, live streams, and community events. Join us as we embark on an epic journey through the world of Dawnstory – we can't wait to share it with you!</p>
-        <a href="https://www.youtube.com/@DawntasyRevelate/videos" class="animated-button hover-effect-3">Go To YouTube Channel</a>
+        <h2 class="section-title fade-in-element hover-effect-3">Filapawa - The Official Dawntasy YouTube Channel</h2>
+        <p class="intro-text fade-in-element">Welcome to Filapawa, the official YouTube channel dedicated to all things in Dawntasy: Dawnstory Revelation! Here, we dive deep into the captivating world of Gaze, offering fans an immersive experience like no other. Our mission at Filapawa is to provide you with exclusive insights, behind-the-scenes content, and engaging discussions that bring the world of Gaze to life.</p>
+        <p class="intro-text fade-in-element">Join us as we explore the rich tapestry of characters, lore, and settings that make up the Dawntasy: Dawnstory Revelation saga. From in-depth character profiles that delve into the motivations and backstories of your favorite heroes and villains to detailed explorations of the world-building that brings the land of Gaze to vivid life, there's always something new to discover on Filapawa.</p>
+        <p class="intro-text fade-in-element">But Filapawa is more than just a channel – it's a community. Connect with fellow fans as we share theories, discuss our favorite moments, and celebrate the world together. Our interactive experiences, including live streams, Q&A sessions, and community events, offer you the chance to engage directly with the author and fellow fans, making Filapawa a place where your voice truly matters.</p>
+        <p class="intro-text fade-in-element">Don't miss out on the latest updates and exclusive content from Filapawa! Subscribe to our channel and hit the notification bell to stay informed about new uploads, live streams, and community events. Join us as we embark on an epic journey through the world of Dawnstory – we can't wait to share it with you!</p>
+        <a href="https://www.youtube.com/@DawntasyRevelate/videos" class="animated-button">Go To YouTube Channel</a>
 
-        <h2 class="section-title fade-in-element hover-effect-9">Arya</h2>
-        <p class="intro-text fade-in-element hover-effect-10">Arya has been in the field of writing for a very long time and has constantly supported me in my literature during the years of our friendship. He has contributed a great deal to Dawntasy, acting as an editor for any grammatical errors or plot holes and writing massive chapters with precise fluency. A big word of gratitude to Arya Amit who has done so much for me!</p> 
+        <h2 class="section-title fade-in-element hover-effect-3">Arya</h2>
+        <p class="intro-text fade-in-element">Arya has been in the field of writing for a very long time and has constantly supported me in my literature during the years of our friendship. He has contributed a great deal to Dawntasy, acting as an editor for any grammatical errors or plot holes and writing massive chapters with precise fluency. A big word of gratitude to Arya Amit who has done so much for me!</p> 
 
-        <h2 class="section-title fade-in-element hover-effect-9">Jackson</h2>
-        <p class="intro-text fade-in-element hover-effect-10">Jackson is a highly skilled artist and sketcher who demonstrates a natural penchant toward drawing. He takes gusto into every drawing that he makes and has helped me so much...thank you Jackson!</p> 
+        <h2 class="section-title fade-in-element hover-effect-3">Jackson</h2>
+        <p class="intro-text fade-in-element">Jackson is a highly skilled artist and sketcher who demonstrates a natural penchant toward drawing. He takes gusto into every drawing that he makes and has helped me so much...thank you Jackson!</p> 
 
-        <h2 class="section-title fade-in-element hover-effect-9">Jai</h2>
-        <p class="intro-text fade-in-element hover-effect-10">Jai helps me with every element and every fundamental idea that contributes to Dawntasy. From the moment he helped me with Dawnstory, I knew that Jai would lead the light to help me. Thank you Jai!</p> 
+        <h2 class="section-title fade-in-element hover-effect-3">Jai</h2>
+        <p class="intro-text fade-in-element">Jai helps me with every element and every fundamental idea that contributes to Dawntasy. From the moment he helped me with Dawnstory, I knew that Jai would lead the light to help me. Thank you Jai!</p> 
 
-        <h2 class="section-title fade-in-element hover-effect-9">Our Motto</h2>    
-        <p class="intro-text fade-in-element hover-effect-10">"Dawnstoria bling tes a bromage pemm balea lite fadia, benevegean adver brust sinc mae gloam, preste res tabla questa bpte. Besti mayes!" - Original Dawntasy "Yoodal" Vernacular</p>
-        <p class="intro-text fade-in-element hover-effect-10">The reality we live in is unreal, unfair and ambivalent, but at the end of the day, bravery and commitment is what makes reality real, fair and just. - Translated to English</p>
-        <p class="intro-text fade-in-element hover-effect-10">Support Dawntasy!</p>
+        <h2 class="section-title fade-in-element hover-effect-3">Our Motto</h2>    
+        <p class="intro-text fade-in-element">"Dawnstoria bling tes a bromage pemm balea lite fadia, benevegean adver brust sinc mae gloam, preste res tabla questa bpte. Besti mayes!" - Original Dawntasy "Yoodal" Vernacular</p>
+        <p class="intro-text fade-in-element">The reality we live in is unreal, unfair and ambivalent, but at the end of the day, bravery and commitment is what makes reality real, fair and just. - Translated to English</p>
+        <p class="intro-text fade-in-element">Support Dawntasy!</p>
 
-        <img src="https://www.dawnstoryrevelation.com/images//Sun%20and%20Moon%20Destino.jpeg" alt="Sun and Moon Destino" class="scroll-image hover-effect-5">
+        <img src="https://www.dawnstoryrevelation.com/images//Sun%20and%20Moon%20Destino.jpeg" alt="Sun and Moon Destino" class="scroll-image hover-effect-2">
     </div>
 
-    <footer class="fade-in">
+    <footer>
         <p>&copy; 2024 Dawntasy: Dawnstory Revelation. All rights reserved.</p>
     </footer>
 
@@ -374,82 +276,19 @@
 
         document.querySelectorAll('.hover-effect-2').forEach(el => {
             el.addEventListener('mouseover', () => {
-                gsap.to(el, {rotation: 15});
+                gsap.to(el, {scale: 1.05});
             });
             el.addEventListener('mouseout', () => {
-                gsap.to(el, {rotation: 0});
+                gsap.to(el, {scale: 1});
             });
         });
 
         document.querySelectorAll('.hover-effect-3').forEach(el => {
             el.addEventListener('mouseover', () => {
-                gsap.to(el, {borderColor: '#ff00ff', backgroundColor: '#ffebcd', color: '#333'});
-            });
-            el.addEventListener('mouseout', () => {
-                gsap.to(el, {borderColor: 'initial', backgroundColor: 'initial', color: 'initial'});
-            });
-        });
-
-        document.querySelectorAll('.hover-effect-4').forEach(el => {
-            el.addEventListener('mouseover', () => {
-                gsap.to(el, {textDecoration: 'underline', letterSpacing: '2px'});
-            });
-            el.addEventListener('mouseout', () => {
-                gsap.to(el, {textDecoration: 'none', letterSpacing: 'normal'});
-            });
-        });
-
-        document.querySelectorAll('.hover-effect-5').forEach(el => {
-            el.addEventListener('mouseover', () => {
-                gsap.to(el, {scale: 1.1, rotation: -10});
-            });
-            el.addEventListener('mouseout', () => {
-                gsap.to(el, {scale: 1, rotation: 0});
-            });
-        });
-
-        document.querySelectorAll('.hover-effect-6').forEach(el => {
-            el.addEventListener('mouseover', () => {
-                gsap.to(el, {filter: 'blur(2px)'});
-            });
-            el.addEventListener('mouseout', () => {
-                gsap.to(el, {filter: 'none'});
-            });
-        });
-
-        document.querySelectorAll('.hover-effect-7').forEach(el => {
-            el.addEventListener('mouseover', () => {
-                gsap.to(el, {opacity: 0.5});
-            });
-            el.addEventListener('mouseout', () => {
-                gsap.to(el, {opacity: 1});
-            });
-        });
-
-        document.querySelectorAll('.hover-effect-8').forEach(el => {
-            el.addEventListener('mouseover', () => {
-                gsap.to(el, {boxShadow: '0 0 15px #00ff00'});
-            });
-            el.addEventListener('mouseout', () => {
-                gsap.to(el, {boxShadow: 'none'});
-            });
-        });
-
-        document.querySelectorAll('.hover-effect-9').forEach(el => {
-            el.addEventListener('mouseover', () => {
                 gsap.to(el, {backgroundColor: '#333', color: '#fff'});
             });
             el.addEventListener('mouseout', () => {
                 gsap.to(el, {backgroundColor: 'initial', color: 'initial'});
-            });
-        });
-
-        document.querySelectorAll('.hover-effect-10').forEach(el => {
-            el.addEventListener('mouseover', () => {
-                gsap.to(el, {x: 20});
-            });
-            el.addEventListener('mouseout', () => {
-                gsap.to(el, {x: 0});
             });
         });
     </script>
