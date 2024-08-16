@@ -6,21 +6,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>About Me</title>
     <link href="https://fonts.googleapis.com/css2?family=Indie+Flower&family=Merriweather:wght@400;700&family=Lobster&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" rel="stylesheet">
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
-            font-family: 'Indie Flower', cursive;
-            background-color: #f9f5d7;
-            color: #333;
+            font-family: 'Montserrat', sans-serif;
+            color: #f5f5f5;
             margin: 0;
             padding: 0;
             display: flex;
             flex-direction: column;
             align-items: center;
+            justify-content: flex-start;
             min-height: 100vh;
+            overflow-y: scroll;
             scroll-behavior: smooth;
-            overflow-x: hidden;
+            position: relative;
         }
 
         .video-background {
@@ -33,286 +33,326 @@
             z-index: -1;
         }
 
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background-color: #343a40;
-            padding: 20px;
+        .navbar {
+            background-color: rgba(0, 0, 0, 0.8);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
             width: 100%;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
         }
 
-        header h1 {
-            margin: 0;
-            font-size: 3em;
-            font-family: 'Lobster', cursive;
-            color: #ffffff;
-        }
-
-        header .btn {
-            background-color: #007bff;
-            color: #fff;
-            text-decoration: none;
-            padding: 10px 20px;
-            font-size: 1em;
-            border-radius: 5px;
-            transition: background-color 0.3s ease;
-            margin-left: 10px;
-            font-family: 'Merriweather', serif;
-        }
-
-        header .btn:hover {
-            background-color: #0056b3;
-        }
-
-        nav {
-            background-color: #007bff;
-            width: 100%;
-            padding: 10px 0;
-            text-align: center;
-            font-family: 'Montserrat', sans-serif;
-        }
-
-        nav a {
-            margin: 0 15px;
-            text-decoration: none;
-            color: #fff;
+        .navbar-brand,
+        .navbar-nav .nav-link {
+            color: #f5f5f5;
             font-size: 1.2em;
-            transition: transform 0.3s, color 0.3s, text-shadow 0.3s;
+            position: relative;
         }
 
-        nav a:hover {
-            color: #f1c40f;
-            text-shadow: 0 0 10px #f1c40f, 0 0 20px #f1c40f, 0 0 30px #f1c40f;
-            transform: scale(1.1);
+        .navbar-brand:hover,
+        .navbar-nav .nav-link:hover {
+            color: #f9f5d7;
         }
 
-        main {
+        .popup {
+            position: absolute;
+            top: -10px;
+            left: 110%;
+            width: 200px;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            opacity: 0;
+            transform: translateX(-50px);
+            transition: opacity 0.3s, transform 0.3s;
+        }
+
+        .navbar-nav .nav-link:hover .popup {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .header {
             text-align: center;
+            margin-top: 70px;
+            color: #fff;
+        }
+
+        .header h1 {
+            font-family: 'Indie Flower', cursive;
+            font-size: 4em;
+            text-shadow: 2px 2px 4px #000;
+        }
+
+        .header p {
+            font-size: 1.5em;
+            margin-top: 10px;
+        }
+
+        .container {
+            margin-top: 20px;
             padding: 20px;
-            max-width: 900px;
-            margin: 20px auto;
-            background-color: #ffffff;
+            background-color: rgba(255, 255, 255, 0.9);
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            max-width: 1200px;
         }
 
-        main h2 {
+        .section-title {
             font-size: 2.5em;
-            margin-bottom: 20px;
-            font-family: 'Lobster', cursive;
+            margin: 20px 0;
+            text-align: center;
+            color: #007bff;
+            text-shadow: 2px 2px #ffebcd;
         }
 
-        main p {
+        .intro-text {
             font-size: 1.2em;
             line-height: 1.6;
+            margin-bottom: 20px;
+            color: #555;
         }
 
-        .story,
-        .infobox,
-        .testimonials,
-        .call-to-action {
-            text-align: left;
-            margin: 20px 0;
-            padding: 20px;
-            background-color: #f4f4f9;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        .features-list {
+            list-style-type: none;
+            padding: 0;
         }
 
-        .story h3,
-        .infobox h3,
-        .testimonials h3,
-        .call-to-action h3 {
-            font-size: 1.8em;
-            margin-bottom: 10px;
-            font-family: 'Lobster', cursive;
+        .features-list li {
+            margin: 10px 0;
+            font-size: 1.1em;
+            color: #444;
+            position: relative;
+            padding-left: 20px;
         }
 
-        .story img,
-        .gaze-image {
-            max-width: 100%;
-            height: auto;
-            border-radius: 10px;
-            margin-top: 10px;
-            display: block;
-            margin-left: auto;
-            margin-right: auto;
-            filter: brightness(0.9);
-            transition: filter 0.3s ease-in-out, transform 0.3s;
-        }
-
-        .gaze-image:hover,
-        .story img:hover {
-            filter: brightness(1);
-            transform: scale(1.05);
-        }
-
-        .o-images {
-            max-width: 100%;
-            height: auto;
-            border-radius: 10px;
-            margin-top: 10px;
-            display: block;
-            margin-left: auto;
-            margin-right: auto;
-            filter: brightness(0.9);
-            transition: filter 0.3s ease-in-out, transform 0.3s;
-        }
-
-        .o-images:hover {
-            filter: brightness(1);
-            transform: scale(1.05);
-        }
-
-        .button {
-            display: inline-block;
-            padding: 10px 20px;
-            font-size: 16px;
-            color: #fff;
-            background-color: #FF0000;
-            border: none;
-            border-radius: 5px;
-            text-align: center;
-            text-decoration: none;
-            cursor: pointer;
-            transition: background-color 0.3s ease, transform 0.3s;
-        }
-
-        .button:hover {
-            background-color: #CC0000;
-            transform: scale(1.1);
+        .features-list li:before {
+            content: "★";
+            position: absolute;
+            left: 0;
+            color: #f39c12;
+            font-size: 1.5em;
         }
 
         footer {
-            margin-top: 40px;
+            margin-top: 20px;
             padding: 10px;
-            background-color: #343a40;
-            width: 100%;
-            text-align: center;
+            background-color: rgba(0, 0, 0, 0.8);
             color: #fff;
-            box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 100%;
+            box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.5);
         }
 
-        footer p {
-            margin: 0;
+        .highlight {
+            background-color: #ffebcd;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
 
-        @media (max-width: 768px) {
-            header {
-                flex-direction: column;
-            }
+        .highlight h3 {
+            color: #e67e22;
+            font-size: 1.8em;
+        }
 
-            nav {
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-            }
+        .highlight p {
+            font-size: 1.1em;
+            color: #555;
+        }
 
-            nav a {
-                margin: 10px 0;
-            }
+        .animated-button {
+            display: inline-block;
+            padding: 10px 20px;
+            font-size: 1.2em;
+            color: #fff;
+            background-color: #007bff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background-color 0.3s, transform 0.3s;
+        }
 
-            .story,
-            .infobox,
-            .testimonials,
-            .call-to-action,
-            main {
-                padding: 10px;
-            }
+        .animated-button:hover {
+            background-color: #0056b3;
+            transform: translateY(-3px);
+        }
 
-            main h2 {
-                font-size: 2em;
-            }
+        .fade-in-element {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 1s ease-out, transform 1s ease-out;
+        }
 
-            main p {
-                font-size: 1em;
-            }
+        .fade-in-element.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Hover effects */
+        .hover-effect-1:hover {
+            color: #ff0000;
+            text-shadow: 0 0 10px #ff0000, 0 0 20px #ff0000, 0 0 30px #ff0000;
+        }
+
+        .hover-effect-2:hover {
+            transform: rotate(15deg);
+        }
+
+        .hover-effect-3:hover {
+            border-color: #ff00ff;
+            background-color: #ffebcd;
+            color: #333;
+        }
+
+        .hover-effect-4:hover {
+            text-decoration: underline;
+            letter-spacing: 2px;
+        }
+
+        .hover-effect-5:hover {
+            transform: scale(1.1) rotate(-10deg);
+        }
+
+        .hover-effect-6:hover {
+            filter: blur(2px);
+        }
+
+        .hover-effect-7:hover {
+            opacity: 0.5;
+        }
+
+        .hover-effect-8:hover {
+            box-shadow: 0 0 15px #00ff00;
+        }
+
+        .hover-effect-9:hover {
+            background-color: #333;
+            color: #fff;
+        }
+
+        .hover-effect-10:hover {
+            transform: translateX(20px);
         }
     </style>
 </head>
-<body>
+
+<body class='animate'>
     <video class="video-background" autoplay loop muted>
         <source src="https://www.dawnstoryrevelation.com/2CC28CCE-DBE3-4B1A-9D5D-1FC1D6AD3F64.mp4" type="video/mp4">
     </video>
-    <header data-aos="fade-down">
-        <h1>Dawntasy Saga</h1>
-        <div>
-            <a href="signup.html" class="btn">Sign Up</a>
-            <a href="https://www.dawnstoryrevelation.com/newsletter.html" class="btn">Newsletter</a>
+
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+        <a class="navbar-brand hover-effect-1" href="#">About Me</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item active">
+                    <a class="nav-link hover-effect-2" href="https://dawnstoryrevelation.github.io/dawnstoryrevelation/">Home
+                        <span class="popup">Return to the home page</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link hover-effect-3" href="https://dawnstoryrevelation.github.io/dawnstoryrevelation/about.html">About
+                        <span class="popup">Learn more about Dawntasy</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link hover-effect-4" href="https://dawnstoryrevelation.github.io/dawnstoryrevelation/stories.html">Stories
+                        <span class="popup">Explore the stories</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link hover-effect-5" href="https://dawnstoryrevelation.github.io/dawnstoryrevelation/lore.html">Lore
+                        <span class="popup">Dive into the lore</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link hover-effect-6" href="https://dawnstoryrevelation.github.io/dawnstoryrevelation/contact.html">Contact
+                        <span class="popup">Get in touch</span>
+                    </a>
+                </li>
+            </ul>
         </div>
-    </header>
-    <nav data-aos="fade-down">
-        <a href="https://dawnstoryrevelation.github.io/dawnstoryrevelation/">Home</a>
-        <a href="https://dawnstoryrevelation.github.io/dawnstoryrevelation/about.html">About</a>
-        <a href="https://dawnstoryrevelation.github.io/dawnstoryrevelation/stories.html">Stories</a>
-        <a href="https://dawnstoryrevelation.github.io/dawnstoryrevelation/lore.html">Lore</a>
-        <a href="https://dawnstoryrevelation.github.io/dawnstoryrevelation/contact.html">Contact</a>
     </nav>
-    <main data-aos="fade-up">
-        <h2 class="bounce-in">About Me</h2>
-        <p class="slide-up">I am an inspired young kid with the hopes of publishing my book series, Dawntasy: Dawnstory Revelation, in the future when I am an adult. My journey delving into the Dawntasy Saga began ever since I was 6, and with a keen and imaginative mind I would often drift off into my own worlds where anything was possible and adventures spark from everywhere. 5 years into the series, various iterations have been made since its commencement to hone in on the saga and refine any parts that required further development on. Thank you to everyone who has supported me on this journey; I wouldn't have made it this far without everyone!</p>
 
-        <h2 class="bounce-in">Dawntasy</h2>
-        <p class="slide-up">Dawntasy is my upcoming book series that features the adventures of 7 unique characters, Yaya, Questa, Solus, Filapawa, Salvapige, Dryadis and Norsty. If you are looking for an immersive book with numerous layers of story and plot discoveries, check out Dawntasy (Dawnstory Revelation!</p>
-        <img src="https://www.dawnstoryrevelation.com/F958CA78-2039-4820-99A5-970B321B482A.jpeg" alt="Dawntasy" class="o-images scroll-image" style="max-width: 80%; height: auto;">
-        <h2 class="bounce-in">Characters and World-building</h2>
-        <p class="slide-up">At the heart of Dawntasy are its characters and world-building. From the brave Questa to the mysterious Solus, I make sure each character brings their own unique story and perspective to the saga. The world of Wintro is filled with excitement, creating a rich tapestry for readers to explore.</p>
+    <header class="header">
+        <h1 class="hover-effect-7">Dawntasy Saga</h1>
+        <p class="hover-effect-8">Welcome to the world of Gaze!</p>
+    </header>
 
-        <h2 class="bounce-in">Mission and Vision</h2>
-        <p class="slide-up">My mission with the Dawntasy saga is to spark interest and spread joy and ecstasy within such a technology reliant world. I believe that stories have the power to move hearts and change the way people feel, and I hope that Dawnstory will resonate with readers on a deep and meaningful level.</p>
+    <div class="container fade-in-element">
+        <h2 class="section-title fade-in-element hover-effect-9">About Me</h2>
+        <p class="intro-text fade-in-element hover-effect-10">I am an inspired young kid with the hopes of publishing my book series, Dawntasy: Dawnstory Revelation, in the future when I am an adult. My journey delving into the Dawntasy Saga began ever since I was 6, and with a keen and imaginative mind I would often drift off into my own worlds where anything was possible and adventures spark from everywhere. 5 years into the series, various iterations have been made since its commencement to hone in on the saga and refine any parts that required further development on. Thank you to everyone who has supported me on this journey; I wouldn't have made it this far without everyone!</p>
 
-        <h2 class="bounce-in">Get in Touch</h2>
-        <p class="slide-up">Connect with me on YouTube or Discord to stay updated on news and announcements related to Dawntasy.</p>
+        <h2 class="section-title fade-in-element hover-effect-9">Dawntasy</h2>
+        <p class="intro-text fade-in-element hover-effect-10">Dawntasy is my upcoming book series that features the adventures of 7 unique characters, Yaya, Questa, Solus, Filapawa, Salvapige, Dryadis and Norsty. If you are looking for an immersive book with numerous layers of story and plot discoveries, check out Dawntasy (Dawnstory Revelation!</p>
+        <img src="https://www.dawnstoryrevelation.com/F958CA78-2039-4820-99A5-970B321B482A.jpeg" alt="Dawntasy" class="img-fluid scroll-image hover-effect-2" style="max-width: 80%; height: auto;">
+        <h2 class="section-title fade-in-element hover-effect-9">Characters and World-building</h2>
+        <p class="intro-text fade-in-element hover-effect-10">At the heart of Dawntasy are its characters and world-building. From the brave Questa to the mysterious Solus, I make sure each character brings their own unique story and perspective to the saga. The world of Wintro is filled with excitement, creating a rich tapestry for readers to explore.</p>
 
-        <h2 class="bounce-in">Explore Dawntasy</h2>
-        <p class="slide-up">Ready to dive into the world of Gaze? Check out this for a little preview of the first book!</p>
-        <a href="https://docs.google.com/document/d/1GyT8Q_L2b3_fzAwsNVQkIRZe-NQIyRnNbEtlEkimsUU/edit" class="button hover-grow">His Promise</a>
+        <h2 class="section-title fade-in-element hover-effect-9">Mission and Vision</h2>
+        <p class="intro-text fade-in-element hover-effect-10">My mission with the Dawntasy saga is to spark interest and spread joy and ecstasy within such a technology reliant world. I believe that stories have the power to move hearts and change the way people feel, and I hope that Dawnstory will resonate with readers on a deep and meaningful level.</p>
 
-        <h2 class="bounce-in">Filapawa - The Official Dawntasy YouTube Channel</h2>
-        <p class="slide-up">Welcome to Filapawa, the official YouTube channel dedicated to all things in Dawntasy: Dawnstory Revelation! Here, we dive deep into the captivating world of Gaze, offering fans an immersive experience like no other. Our mission at Filapawa is to provide you with exclusive insights, behind-the-scenes content, and engaging discussions that bring the world of Gaze to life.</p>
-        <p class="slide-up">Join us as we explore the rich tapestry of characters, lore, and settings that make up the Dawntasy: Dawnstory Revelation saga. From in-depth character profiles that delve into the motivations and backstories of your favorite heroes and villains to detailed explorations of the world-building that brings the land of Gaze to vivid life, there's always something new to discover on Filapawa.</p>
-        <p class="slide-up">But Filapawa is more than just a channel – it's a community. Connect with fellow fans as we share theories, discuss our favorite moments, and celebrate the world together. Our interactive experiences, including live streams, Q&A sessions, and community events, offer you the chance to engage directly with the author and fellow fans, making Filapawa a place where your voice truly matters.</p>
-        <p class="slide-up">Don't miss out on the latest updates and exclusive content from Filapawa! Subscribe to our channel and hit the notification bell to stay informed about new uploads, live streams, and community events. Join us as we embark on an epic journey through the world of Dawnstory – we can't wait to share it with you!</p>
-        <a href="https://www.youtube.com/@DawntasyRevelate/videos" class="button hover-grow">Go To YouTube Channel</a>
+        <h2 class="section-title fade-in-element hover-effect-9">Get in Touch</h2>
+        <p class="intro-text fade-in-element hover-effect-10">Connect with me on YouTube or Discord to stay updated on news and announcements related to Dawntasy.</p>
 
-        <h2 class="bounce-in">Arya</h2>
-        <p class="slide-up">Arya has been in the field of writing for a very long time and has constantly supported me in my literature during the years of our friendship. He has contributed a great deal to Dawntasy, acting as an editor for any grammatical errors or plot holes and writing massive chapters with precise fluency. A big word of gratitude to Arya Amit who has done so much for me!</p> 
+        <h2 class="section-title fade-in-element hover-effect-9">Explore Dawntasy</h2>
+        <p class="intro-text fade-in-element hover-effect-10">Ready to dive into the world of Gaze? Check out this for a little preview of the first book!</p>
+        <a href="https://docs.google.com/document/d/1GyT8Q_L2b3_fzAwsNVQkIRZe-NQIyRnNbEtlEkimsUU/edit" class="animated-button hover-effect-3">His Promise</a>
 
-        <h2 class="bounce-in">Jackson</h2>
-        <p class="slide-up">Jackson is a highly skilled artist and sketcher who demonstrates a natural penchant toward drawing. He takes gusto into every drawing that he makes and has helped me so much...thank you Jackson!</p> 
+        <h2 class="section-title fade-in-element hover-effect-9">Filapawa - The Official Dawntasy YouTube Channel</h2>
+        <p class="intro-text fade-in-element hover-effect-10">Welcome to Filapawa, the official YouTube channel dedicated to all things in Dawntasy: Dawnstory Revelation! Here, we dive deep into the captivating world of Gaze, offering fans an immersive experience like no other. Our mission at Filapawa is to provide you with exclusive insights, behind-the-scenes content, and engaging discussions that bring the world of Gaze to life.</p>
+        <p class="intro-text fade-in-element hover-effect-10">Join us as we explore the rich tapestry of characters, lore, and settings that make up the Dawntasy: Dawnstory Revelation saga. From in-depth character profiles that delve into the motivations and backstories of your favorite heroes and villains to detailed explorations of the world-building that brings the land of Gaze to vivid life, there's always something new to discover on Filapawa.</p>
+        <p class="intro-text fade-in-element hover-effect-10">But Filapawa is more than just a channel – it's a community. Connect with fellow fans as we share theories, discuss our favorite moments, and celebrate the world together. Our interactive experiences, including live streams, Q&A sessions, and community events, offer you the chance to engage directly with the author and fellow fans, making Filapawa a place where your voice truly matters.</p>
+        <p class="intro-text fade-in-element hover-effect-10">Don't miss out on the latest updates and exclusive content from Filapawa! Subscribe to our channel and hit the notification bell to stay informed about new uploads, live streams, and community events. Join us as we embark on an epic journey through the world of Dawnstory – we can't wait to share it with you!</p>
+        <a href="https://www.youtube.com/@DawntasyRevelate/videos" class="animated-button hover-effect-3">Go To YouTube Channel</a>
 
-        <h2 class="bounce-in">Jai</h2>
-        <p class="slide-up">Jai helps me with every element and every fundamental idea that contributes to Dawntasy. From the moment he helped me with Dawnstory, I knew that Jai would lead the light to help me. Thank you Jai!</p> 
+        <h2 class="section-title fade-in-element hover-effect-9">Arya</h2>
+        <p class="intro-text fade-in-element hover-effect-10">Arya has been in the field of writing for a very long time and has constantly supported me in my literature during the years of our friendship. He has contributed a great deal to Dawntasy, acting as an editor for any grammatical errors or plot holes and writing massive chapters with precise fluency. A big word of gratitude to Arya Amit who has done so much for me!</p> 
 
-        <h2 class="bounce-in">Our Motto</h2>    
-        <p class="slide-up">"Dawnstoria bling tes a bromage pemm balea lite fadia, benevegean adver brust sinc mae gloam, preste res tabla questa bpte. Besti mayes!" - Original Dawntasy "Yoodal" Vernacular</p>
-        <p class="slide-up">The reality we live in is unreal, unfair and ambivalent, but at the end of the day, bravery and commitment is what makes reality real, fair and just. - Translated to English</p>
-        <p class="slide-up">Support Dawntasy!</p>
+        <h2 class="section-title fade-in-element hover-effect-9">Jackson</h2>
+        <p class="intro-text fade-in-element hover-effect-10">Jackson is a highly skilled artist and sketcher who demonstrates a natural penchant toward drawing. He takes gusto into every drawing that he makes and has helped me so much...thank you Jackson!</p> 
 
-        <img src="https://www.dawnstoryrevelation.com/images//Sun%20and%20Moon%20Destino.jpeg" alt="Sun and Moon Destino" class="scroll-image">
-    </main>
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-80YG5XWYJL"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-        gtag('config', 'G-80YG5XWYJL');
-    </script>
+        <h2 class="section-title fade-in-element hover-effect-9">Jai</h2>
+        <p class="intro-text fade-in-element hover-effect-10">Jai helps me with every element and every fundamental idea that contributes to Dawntasy. From the moment he helped me with Dawnstory, I knew that Jai would lead the light to help me. Thank you Jai!</p> 
+
+        <h2 class="section-title fade-in-element hover-effect-9">Our Motto</h2>    
+        <p class="intro-text fade-in-element hover-effect-10">"Dawnstoria bling tes a bromage pemm balea lite fadia, benevegean adver brust sinc mae gloam, preste res tabla questa bpte. Besti mayes!" - Original Dawntasy "Yoodal" Vernacular</p>
+        <p class="intro-text fade-in-element hover-effect-10">The reality we live in is unreal, unfair and ambivalent, but at the end of the day, bravery and commitment is what makes reality real, fair and just. - Translated to English</p>
+        <p class="intro-text fade-in-element hover-effect-10">Support Dawntasy!</p>
+
+        <img src="https://www.dawnstoryrevelation.com/images//Sun%20and%20Moon%20Destino.jpeg" alt="Sun and Moon Destino" class="scroll-image hover-effect-5">
+    </div>
+
     <footer class="fade-in">
         <p>&copy; 2024 Dawntasy: Dawnstory Revelation. All rights reserved.</p>
     </footer>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
-    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/ScrollTrigger.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/ScrollToPlugin.min.js"></script>
     <script>
-        AOS.init();
+        gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
 
-        gsap.registerPlugin(MotionPathPlugin, ScrollTrigger, MorphSVGPlugin);
+        // Fade-in animations on scroll
+        gsap.from(".fade-in-element", {
+            opacity: 0,
+            y: 50,
+            stagger: 0.2,
+            duration: 1.5,
+            ease: "power4.out",
+            scrollTrigger: {
+                trigger: ".fade-in-element",
+                start: "top 80%",
+            }
+        });
 
         // Smooth scrolling
         gsap.to(window, {
@@ -322,48 +362,97 @@
             overwrite: "auto"
         });
 
-        // Scroll-triggered animations
-        ScrollTrigger.batch(".fade-in, .slide-up, .bounce-in, .scroll-image", {
-            onEnter: batch => gsap.to(batch, { opacity: 1, y: 0, stagger: 0.15 }),
-            start: "top 80%",
-        });
-
-        // Navigation bar hover effects with GSAP
-        document.querySelectorAll('nav a').forEach(link => {
-            link.addEventListener('mouseover', () => {
-                gsap.to(link, { duration: 0.3, color: '#f1c40f', textShadow: '0 0 10px #f1c40f, 0 0 20px #f1c40f, 0 0 30px #f1c40f' });
+        // Hover effects with GSAP
+        document.querySelectorAll('.hover-effect-1').forEach(el => {
+            el.addEventListener('mouseover', () => {
+                gsap.to(el, {color: '#ff0000', textShadow: '0 0 10px #ff0000, 0 0 20px #ff0000, 0 0 30px #ff0000'});
             });
-            link.addEventListener('mouseout', () => {
-                gsap.to(link, { duration: 0.3, color: '#fff', textShadow: 'none' });
+            el.addEventListener('mouseout', () => {
+                gsap.to(el, {color: '#f5f5f5', textShadow: 'none'});
             });
         });
 
-        // Button hover effects with GSAP
-        document.querySelectorAll('header .btn, .button').forEach(button => {
-            button.addEventListener('mouseover', () => {
-                gsap.to(button, {
-                    duration: 0.3,
-                    scale: 1.1,
-                    boxShadow: '0 0 15px rgba(255, 255, 255, 0.6), 0 0 5px rgba(255, 255, 255, 0.3)'
-                });
+        document.querySelectorAll('.hover-effect-2').forEach(el => {
+            el.addEventListener('mouseover', () => {
+                gsap.to(el, {rotation: 15});
             });
-            button.addEventListener('mouseout', () => {
-                gsap.to(button, { duration: 0.3, scale: 1, boxShadow: 'none' });
+            el.addEventListener('mouseout', () => {
+                gsap.to(el, {rotation: 0});
             });
         });
 
-        // Parallax scrolling effect
-        gsap.utils.toArray(".scroll-image").forEach((image, i) => {
-            gsap.to(image, {
-                y: (i % 2 === 0 ? 20 : -20) + "vh", // alternate up and down movement
-                ease: "none",
-                scrollTrigger: {
-                    trigger: image,
-                    start: "top bottom",
-                    scrub: true
-                }
+        document.querySelectorAll('.hover-effect-3').forEach(el => {
+            el.addEventListener('mouseover', () => {
+                gsap.to(el, {borderColor: '#ff00ff', backgroundColor: '#ffebcd', color: '#333'});
+            });
+            el.addEventListener('mouseout', () => {
+                gsap.to(el, {borderColor: 'initial', backgroundColor: 'initial', color: 'initial'});
+            });
+        });
+
+        document.querySelectorAll('.hover-effect-4').forEach(el => {
+            el.addEventListener('mouseover', () => {
+                gsap.to(el, {textDecoration: 'underline', letterSpacing: '2px'});
+            });
+            el.addEventListener('mouseout', () => {
+                gsap.to(el, {textDecoration: 'none', letterSpacing: 'normal'});
+            });
+        });
+
+        document.querySelectorAll('.hover-effect-5').forEach(el => {
+            el.addEventListener('mouseover', () => {
+                gsap.to(el, {scale: 1.1, rotation: -10});
+            });
+            el.addEventListener('mouseout', () => {
+                gsap.to(el, {scale: 1, rotation: 0});
+            });
+        });
+
+        document.querySelectorAll('.hover-effect-6').forEach(el => {
+            el.addEventListener('mouseover', () => {
+                gsap.to(el, {filter: 'blur(2px)'});
+            });
+            el.addEventListener('mouseout', () => {
+                gsap.to(el, {filter: 'none'});
+            });
+        });
+
+        document.querySelectorAll('.hover-effect-7').forEach(el => {
+            el.addEventListener('mouseover', () => {
+                gsap.to(el, {opacity: 0.5});
+            });
+            el.addEventListener('mouseout', () => {
+                gsap.to(el, {opacity: 1});
+            });
+        });
+
+        document.querySelectorAll('.hover-effect-8').forEach(el => {
+            el.addEventListener('mouseover', () => {
+                gsap.to(el, {boxShadow: '0 0 15px #00ff00'});
+            });
+            el.addEventListener('mouseout', () => {
+                gsap.to(el, {boxShadow: 'none'});
+            });
+        });
+
+        document.querySelectorAll('.hover-effect-9').forEach(el => {
+            el.addEventListener('mouseover', () => {
+                gsap.to(el, {backgroundColor: '#333', color: '#fff'});
+            });
+            el.addEventListener('mouseout', () => {
+                gsap.to(el, {backgroundColor: 'initial', color: 'initial'});
+            });
+        });
+
+        document.querySelectorAll('.hover-effect-10').forEach(el => {
+            el.addEventListener('mouseover', () => {
+                gsap.to(el, {x: 20});
+            });
+            el.addEventListener('mouseout', () => {
+                gsap.to(el, {x: 0});
             });
         });
     </script>
 </body>
+
 </html>
