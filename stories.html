@@ -1,17 +1,17 @@
-
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <link rel="icon" href="https://www.dawnstoryrevelation.com/images/821049A8-FDF0-413E-A1A3-533ECC529C7B.webp" type="image/x-icon">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Stories</title>
     <link href="https://fonts.googleapis.com/css2?family=Indie+Flower&family=Merriweather:wght@400;700&family=Lobster&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" rel="stylesheet">
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" rel="stylesheet">
     <style>
         body {
-            font-family: 'Indie Flower', cursive;
+            font-family: 'Montserrat', sans-serif;
             background-color: #f9f5d7;
             color: #333;
             margin: 0;
@@ -22,6 +22,7 @@
             min-height: 100vh;
             scroll-behavior: smooth;
             overflow-x: hidden;
+            position: relative;
         }
 
         .video-bg {
@@ -38,10 +39,10 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background-color: #343a40;
+            background-color: rgba(0, 0, 0, 0.8);
             padding: 20px;
             width: 100%;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
         }
 
         header h1 {
@@ -72,7 +73,6 @@
             width: 100%;
             padding: 10px 0;
             text-align: center;
-            font-family: 'Montserrat', sans-serif;
         }
 
         nav a {
@@ -110,7 +110,7 @@
             padding: 20px;
             max-width: 900px;
             margin: 20px auto;
-            background-color: #ffffff;
+            background-color: rgba(255, 255, 255, 0.9);
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
@@ -124,31 +124,31 @@
         main p {
             font-size: 1.2em;
             line-height: 1.6;
+            color: #555;
         }
 
-        .story,
-        .infobox,
-        .testimonials,
-        .call-to-action {
+        .story {
             text-align: left;
             margin: 20px 0;
             padding: 20px;
             background-color: #f4f4f9;
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
         }
 
-        .story h3,
-        .infobox h3,
-        .testimonials h3,
-        .call-to-action h3 {
+        .story:hover {
+            transform: scale(1.02);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .story h3 {
             font-size: 1.8em;
             margin-bottom: 10px;
             font-family: 'Lobster', cursive;
         }
 
-        .story img,
-        .gaze-image {
+        .story img {
             max-width: 100%;
             height: auto;
             border-radius: 10px;
@@ -160,7 +160,6 @@
             transition: filter 0.3s ease-in-out, transform 0.3s;
         }
 
-        .gaze-image:hover,
         .story img:hover {
             filter: brightness(1);
             transform: scale(1.05);
@@ -188,11 +187,11 @@
         footer {
             margin-top: 40px;
             padding: 10px;
-            background-color: #343a40;
+            background-color: rgba(0, 0, 0, 0.8);
             width: 100%;
             text-align: center;
             color: #fff;
-            box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.5);
         }
 
         footer p {
@@ -215,9 +214,6 @@
             }
 
             .story,
-            .infobox,
-            .testimonials,
-            .call-to-action,
             main {
                 padding: 10px;
             }
@@ -240,8 +236,7 @@
             width: 100%;
             height: 100%;
             overflow: auto;
-            background-color: rgb(0,0,0);
-            background-color: rgba(0,0,0,0.4);
+            background-color: rgba(0, 0, 0, 0.4);
             padding-top: 60px;
         }
 
@@ -253,6 +248,7 @@
             width: 80%;
             max-width: 600px;
             border-radius: 10px;
+            transition: all 0.5s;
         }
 
         .close {
@@ -268,33 +264,9 @@
             text-decoration: none;
             cursor: pointer;
         }
-
-        .magic-star, .magic-planet, .magic-staff {
-            position: absolute;
-            width: 30px;
-            height: 30px;
-            opacity: 0.7;
-            border-radius: 50%;
-            background: linear-gradient(45deg, #ffebcd, #f1c27d);
-            box-shadow: 0 0 10px rgba(255, 235, 205, 0.5);
-        }
-
-        .magic-staff {
-            width: 10px;
-            height: 50px;
-            border-radius: 5px;
-            background: linear-gradient(45deg, #f1c27d, #ffebcd);
-        }
-
-        .fireball {
-            width: 20px;
-            height: 20px;
-            background: orange;
-            border-radius: 50%;
-            box-shadow: 0 0 10px red;
-        }
     </style>
 </head>
+
 <body>
     <!-- Video Background -->
     <video autoplay loop muted class="video-bg">
@@ -302,38 +274,38 @@
         Your browser does not support the video tag.
     </video>
 
-    <header data-aos="fade-down">
+    <header>
         <h1>Dawntasy Saga</h1>
     </header>
-    <nav data-aos="fade-down">
+    <nav>
         <a href="https://dawnstoryrevelation.github.io/dawnstoryrevelation/" data-description="Home of Dawntasy">Home</a>
         <a href="https://dawnstoryrevelation.github.io/dawnstoryrevelation/about.html" data-description="Learn more about me">About</a>
         <a href="https://dawnstoryrevelation.github.io/dawnstoryrevelation/stories.html" data-description="Explore our stories">Stories</a>
         <a href="https://dawnstoryrevelation.github.io/dawnstoryrevelation/lore.html" data-description="Discover the lore">Lore</a>
         <a href="https://dawnstoryrevelation.github.io/dawnstoryrevelation/contact.html" data-description="Get in touch">Contact</a>
     </nav>
-    <main data-aos="fade-up">
-        <h2 class="bounce-in">Our Stories</h2>
-        <p class="slide-up">Welcome to the collection of all stories in the Dawntasy saga. Here, you can explore the thrilling adventures and emotional journeys of our characters.</p>
+    <main>
+        <h2>Our Stories</h2>
+        <p>Welcome to the collection of all stories in the Dawntasy saga. Here, you can explore the thrilling adventures and emotional journeys of our characters.</p>
 
-        <div class="story zoom-in" onclick="openModal('modal1')">
+        <div class="story" onclick="openModal('modal1')">
             <h3>His Promise (S1B1)</h3>
             <p>The world of Dawntasy is governed by a tyrannous, nefarious organization known only as LTR. When all hell breaks loose, the Time Rebellion League is formed with only one obligation, taking down the organization and its devious leader, while Yaya the bearman struggles to find peace within himself after his beloved master is slain by enemy forces. However, he begins to realize that all is not lost, and that backing down was the worst thing he could have done.</p>
             <img src="https://www.dawnstoryrevelation.com/images/5FEF0ACE-C55F-4745-BCC5-F39B7B47C8D6.jpeg" alt="His Promise">
         </div>
 
-        <div class="story zoom-in" onclick="openModal('modal2')">
+        <div class="story" onclick="openModal('modal2')">
             <h3>Coaeboa Liberation (S1B2)</h3>
-            <p>His brother is gone, the necklace is gone and his home is going to be gone if he doesn't act fast. Questa knows that time is short, luck is not on his side and that fate is playing its cards cruelly on him. He had promised that he would see his brother again, even if it meant going through unbearable hardship and turmoil, but he hadn't seen reconciliation in a whole decade. With his life in pieces, Questa embarks on the quest of his lifetime to find his long-lost brother, while escaping the clutches of the nefarious Time Smith. </p>
+            <p>His brother is gone, the necklace is gone and his home is going to be gone if he doesn't act fast. Questa knows that time is short, luck is not on his side and that fate is playing its cards cruelly on him. He had promised that he would see his brother again, even if it meant going through unbearable hardship and turmoil, but he hadn't seen reconciliation in a whole decade. With his life in pieces, Questa embarks on the quest of his lifetime to find his long-lost brother, while escaping the clutches of the nefarious Time Smith.</p>
             <img src="https://www.dawnstoryrevelation.com/images/0511AA84-5A0C-4A11-BD3F-4B69A185F8A8.jpeg" alt="Coaeboa Liberation">
         </div>
 
-        <div class="story zoom-in" onclick="openModal('modal3')">
+        <div class="story" onclick="openModal('modal3')">
             <h3>Fadia Light (S1B3)</h3>
             <p>Legend states that on the Circular Dawn, the Seven Ancient Warlords shall unite and all of Dawnstory will be liberated from Time Smith's draconian rule. Filapawa finds it hard to believe this, and when Time Smith launches a master weapon that even the Seven Ancient Warlords are unable to prevent, he realizes that the fate and destiny of all of Dawnstory depends solely...on him.</p>
             <img src="https://www.dawnstoryrevelation.com/images/4A62537E-CE46-4256-B7E4-75A9BCEC6586.jpeg" alt="Fadia Light">
         </div>
-        <h2 class="zoom-in">More Dawntasy books are coming soon!</h2>
+        <h2>More Dawntasy books are coming soon!</h2>
 
         <!-- Modals for each story -->
         <div id="modal1" class="modal">
@@ -347,7 +319,7 @@
             <div class="modal-content">
                 <span class="close" onclick="closeModal('modal2')">&times;</span>
                 <h3>Coaeboa Liberation (S1B2)</h3>
-                <p>His brother is gone, the necklace is gone and his home is going to be gone if he doesn't act fast. Questa knows that time is short, luck is not on his side and that fate is playing its cards cruelly on him. He had promised that he would see his brother again, even if it meant going through unbearable hardship and turmoil, but he hadn't seen reconciliation in a whole decade. With his life in pieces, Questa embarks on the quest of his lifetime to find his long-lost brother, while escaping the clutches of the nefarious Time Smith. </p>
+                <p>His brother is gone, the necklace is gone and his home is going to be gone if he doesn't act fast. Questa knows that time is short, luck is not on his side and that fate is playing its cards cruelly on him. He had promised that he would see his brother again, even if it meant going through unbearable hardship and turmoil, but he hadn't seen reconciliation in a whole decade. With his life in pieces, Questa embarks on the quest of his lifetime to find his long-lost brother, while escaping the clutches of the nefarious Time Smith.</p>
             </div>
         </div>
         <div id="modal3" class="modal">
@@ -358,7 +330,7 @@
             </div>
         </div>
     </main>
-    <footer class="fade-in">
+    <footer>
         <p>&copy; 2024 Dawntasy: Dawnstory Revelation. All rights reserved.</p>
     </footer>
 
@@ -371,7 +343,7 @@
     <script>
         AOS.init();
 
-        gsap.registerPlugin(MotionPathPlugin, ScrollTrigger, MorphSVGPlugin);
+        gsap.registerPlugin(ScrollTrigger);
 
         // Scroll-triggered animations
         ScrollTrigger.batch(".fade-in, .slide-up, .bounce-in, .scroll-image", {
@@ -379,37 +351,17 @@
             start: "top 80%",
         });
 
-        // Decorate with stars, fireballs, leaves, and weapons
-        const decorations = [
-            { class: 'star', left: '10%', top: '20%' },
-            { class: 'fireball', left: '80%', top: '30%' },
-            { class: 'leaf', left: '50%', top: '50%' },
-            { class: 'weapon', left: '20%', top: '70%' },
-            { class: 'star', left: '70%', top: '80%' },
-            { class: 'fireball', left: '30%', top: '90%' },
-            { class: 'leaf', left: '90%', top: '60%' },
-            { class: 'weapon', left: '40%', top: '10%' },
-        ];
-
-        decorations.forEach(decoration => {
-            const elem = document.createElement('div');
-            elem.classList.add('decorative', decoration.class);
-            elem.style.left = decoration.left;
-            elem.style.top = decoration.top;
-            document.body.appendChild(elem);
-        });
-
         // Modal functions
         function openModal(modalId) {
             document.getElementById(modalId).style.display = "block";
-            gsap.from(`#${modalId} .modal-content`, {scale: 0.5, opacity: 0, duration: 0.5});
+            gsap.from(`#${modalId} .modal-content`, { scale: 0.5, opacity: 0, duration: 0.5 });
         }
 
         function closeModal(modalId) {
             gsap.to(`#${modalId} .modal-content`, {
-                scale: 0.5, 
-                opacity: 0, 
-                duration: 0.5, 
+                scale: 0.5,
+                opacity: 0,
+                duration: 0.5,
                 onComplete: () => document.getElementById(modalId).style.display = "none"
             });
         }
@@ -419,9 +371,9 @@
             modals.forEach(modal => {
                 if (event.target == modal) {
                     gsap.to(modal.querySelector('.modal-content'), {
-                        scale: 0.5, 
-                        opacity: 0, 
-                        duration: 0.5, 
+                        scale: 0.5,
+                        opacity: 0,
+                        duration: 0.5,
                         onComplete: () => modal.style.display = "none"
                     });
                 }
@@ -429,4 +381,5 @@
         }
     </script>
 </body>
+
 </html>
