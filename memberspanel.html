@@ -18,36 +18,42 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            height: 100vh;
+            min-height: 100vh;
             background-image: url('https://dawnstoryrevelation.github.io/dawnstoryrevelation/images/fadiA.jpeg');
             background-repeat: no-repeat;
             background-attachment: fixed;
             background-size: cover;
+            overflow-y: scroll;
             animation: fadeIn 2s ease-in-out;
         }
+        
         @keyframes fadeIn {
             0% { opacity: 0; }
             100% { opacity: 1; }
         }
+        
         .panel-container {
             display: flex;
             flex-wrap: wrap;
             justify-content: space-around;
             width: 100%;
             max-width: 1200px;
-            margin: 20px 0;
+            margin: 40px 0;
         }
+        
         .panel {
             background-color: rgba(255, 255, 255, 0.9);
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
             width: 100%;
             max-width: 350px;
-            margin: 10px;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            animation: zoomIn 1s;
+            margin: 20px;
+            transition: transform 0.5s ease, box-shadow 0.5s ease;
+            position: relative;
+            animation: zoomIn 1.5s;
         }
+        
         @keyframes zoomIn {
             from {
                 transform: scale(0.8);
@@ -58,50 +64,101 @@
                 opacity: 1;
             }
         }
+        
         .panel:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            transform: translateY(-20px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
         }
+        
         .panel h3 {
             margin-top: 0;
-            font-size: 1.8em;
-            color: #007bff;
-            text-shadow: 1px 1px 4px #000;
+            font-size: 2em;
+            color: #6f42c1;
+            text-shadow: 2px 2px 6px #000;
+            animation: fadeIn 1.2s ease;
         }
+        
         .panel p {
-            font-size: 1.1em;
+            font-size: 1.2em;
             color: #555;
+            transition: color 0.3s;
         }
+        
         .btn-custom {
             display: inline-block;
-            padding: 10px 20px;
-            font-size: 1em;
-            border-radius: 5px;
+            padding: 15px 25px;
+            font-size: 1.2em;
+            border-radius: 10px;
             color: #fff;
             text-align: center;
             text-decoration: none;
-            transition: background-color 0.3s ease, transform 0.3s ease;
+            transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
         }
+        
         .btn-custom:hover {
-            transform: translateY(-3px);
+            transform: translateY(-10px);
+            box-shadow: 0 16px 32px rgba(0, 0, 0, 0.3);
         }
+        
         .btn-blue {
             background-color: #007bff;
         }
+        
         .btn-blue:hover {
             background-color: #0056b3;
         }
-        .btn-purple {
-            background-color: #6f42c1;
-        }
-        .btn-purple:hover {
-            background-color: #4e2a7b;
-        }
+        
         .btn-green {
             background-color: #28a745;
         }
+        
         .btn-green:hover {
             background-color: #1c7430;
+        }
+        
+        .dropdown-container {
+            position: relative;
+            margin-top: 15px;
+        }
+        
+        .dropdown-button {
+            background-color: #007bff;
+            color: #fff;
+            padding: 10px 20px;
+            font-size: 1.1em;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .dropdown-button:hover {
+            background-color: #0056b3;
+        }
+        
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            top: 110%;
+            left: 0;
+            background-color: #f9f9f9;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            padding: 10px;
+            border-radius: 10px;
+            z-index: 1;
+        }
+        
+        .dropdown-content a {
+            display: block;
+            color: #007bff;
+            padding: 10px;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+        
+        .dropdown-content a:hover {
+            background-color: #f1f1f1;
         }
     </style>
 </head>
@@ -113,9 +170,9 @@
             <a href="index.html" class="btn-custom btn-blue">Go To Main Page</a>
         </div>
         <div class="panel">
-            <h3>Newsletter</h3>
-            <p>Stay updated with the latest news, character spotlights, and upcoming events in the world of Dawntasy.</p>
-            <a href="newsletter.html" class="btn-custom btn-purple">Go To Newsletter</a>
+            <h3>Back to Verification</h3>
+            <p>Return to the verification page if you have any updates or need to change your verification details.</p>
+            <a href="signup.html" class="btn-custom btn-green">Go To Verification</a>
         </div>
         <div class="panel">
             <h3>Member Exclusive Site</h3>
@@ -123,5 +180,21 @@
             <a href="exclusive.html" target="_blank" class="btn-custom btn-green">Go To Member Exclusive Site</a>
         </div>
     </div>
+
+    <div class="dropdown-container">
+        <div class="dropdown-button">More Options</div>
+        <div class="dropdown-content">
+            <a href="profile.html">Profile Settings</a>
+            <a href="favorites.html">My Favorites</a>
+            <a href="support.html">Support</a>
+        </div>
+    </div>
+
+    <script>
+        document.querySelector('.dropdown-button').addEventListener('click', function() {
+            const dropdownContent = document.querySelector('.dropdown-content');
+            dropdownContent.style.display = dropdownContent.style.display === 'block' ? 'none' : 'block';
+        });
+    </script>
 </body>
 </html>
