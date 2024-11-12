@@ -40,38 +40,95 @@
         }
 
         .signup-form {
-            background-color: #ffffff;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
             width: 100%;
-            max-width: 400px;
+            max-width: 500px;
             animation: fadeIn 2s ease-in-out;
         }
 
         .signup-form h2 {
-            margin-bottom: 20px;
+            margin-bottom: 25px;
             font-weight: bold;
+            font-size: 2.2em;
+            text-align: center;
+            color: #e67e22;
         }
 
-        .form-group {
-            margin-bottom: 15px;
+        .form-group label {
+            font-size: 1.1em;
+            color: #007bff;
+            transition: color 0.3s ease;
+        }
+
+        .form-group label:hover {
+            color: #e67e22;
         }
 
         .form-control {
-            margin-bottom: 10px;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            box-shadow: inset 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: box-shadow 0.3s ease;
+        }
+
+        .form-control:hover {
+            box-shadow: inset 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        .verify-checkbox {
+            margin-top: 20px;
+            display: flex;
+            align-items: center;
+        }
+
+        .verify-checkbox input[type="checkbox"] {
+            margin-right: 10px;
+            transform: scale(1.5);
+            cursor: pointer;
+        }
+
+        .verify-checkbox label {
+            font-size: 1.2em;
+            color: #007bff;
+            cursor: pointer;
+        }
+
+        .verify-checkbox label:hover {
+            text-decoration: underline;
         }
 
         .btn-primary {
             margin-top: 20px;
+            width: 100%;
+            padding: 15px;
+            font-size: 1.2em;
+            border-radius: 30px;
+            background: linear-gradient(90deg, #e67e22, #d35400);
+            border: none;
+            color: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transition: box-shadow 0.3s ease, transform 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+            transform: translateY(-3px);
+        }
+
+        .btn-primary:disabled {
+            background: #ccc;
+            cursor: not-allowed;
         }
 
         .success-message, .error-message {
             display: none;
             margin-top: 20px;
-            padding: 10px;
-            border-radius: 5px;
-            font-size: 16px;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 1.1em;
         }
 
         .success-message {
@@ -82,6 +139,28 @@
         .error-message {
             background-color: #f44336;
             color: white;
+        }
+
+        .shine-effect {
+            position: relative;
+            display: inline-block;
+            overflow: hidden;
+        }
+
+        .shine-effect::after {
+            content: "";
+            position: absolute;
+            top: -100%;
+            left: -100%;
+            width: 300%;
+            height: 300%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: rotate(30deg);
+            transition: transform 0.5s ease;
+        }
+
+        .shine-effect:hover::after {
+            transform: translateX(200%) translateY(200%);
         }
     </style>
 </head>
@@ -94,18 +173,22 @@
         <h2 class="bold">Sign Up - Dawntasy Saga</h2>
         <form id='form'>
             <div class="form-group">
-                <label for="username">Username</label>
+                <label for="username" class="shine-effect">Username</label>
                 <input type="text" class="form-control" id="username" name="username" placeholder="Enter username">
             </div>
             <div class="form-group">
-                <label for="email">Email address</label>
+                <label for="email" class="shine-effect">Email address</label>
                 <input type="email" class="form-control" id="email" name="email" placeholder="Enter email">
             </div>
             <div class="form-group">
-                <label for="password">Password</label>
+                <label for="password" class="shine-effect">Password</label>
                 <input type="password" class="form-control" id="password" name="password" placeholder="Password">
             </div>
-            <button type="submit" class="btn btn-primary">Sign Up</button>
+            <div class="verify-checkbox">
+                <input type="checkbox" id="verifyCheck" name="verifyCheck">
+                <label for="verifyCheck">I want to verify for Dawntasy</label>
+            </div>
+            <button type="submit" class="btn btn-primary" id="signupButton" disabled>Sign Up</button>
         </form>
         <div class="success-message" id="success-message">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -126,17 +209,23 @@
             const username = document.getElementById('username').value;
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
-            if (username && email && password) {
+            const verifyCheck = document.getElementById('verifyCheck').checked;
+
+            if (username && email && password && verifyCheck) {
                 document.getElementById('success-message').style.display = 'block';
                 document.getElementById('error-message').style.display = 'none';
                 setTimeout(() => {
                     window.location.href = 'memberspanel.html';
                 }, 2000);
-                // Code to send data to backend goes here
             } else {
                 document.getElementById('error-message').style.display = 'block';
                 document.getElementById('success-message').style.display = 'none';
             }
+        });
+
+        document.getElementById('verifyCheck').addEventListener('change', function() {
+            const signupButton = document.getElementById('signupButton');
+            signupButton.disabled = !this.checked;
         });
     </script>
 </body>
