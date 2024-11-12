@@ -57,8 +57,9 @@
 
         .popup {
             position: absolute;
-            top: -10px;
-            left: 110%;
+            top: 40px;
+            left: 50%;
+            transform: translateX(-50%);
             width: 200px;
             padding: 10px;
             background: rgba(0, 0, 0, 0.8);
@@ -66,13 +67,12 @@
             border-radius: 5px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
             opacity: 0;
-            transform: translateX(-50px);
             transition: opacity 0.3s, transform 0.3s;
         }
 
         .navbar-nav .nav-link:hover .popup {
             opacity: 1;
-            transform: translateX(0);
+            transform: translateY(10px);
         }
 
         .verify-button {
@@ -84,22 +84,14 @@
             font-weight: 600;
             transition: background-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            background-image: linear-gradient(90deg, rgba(255, 69, 0, 0.4), rgba(255, 140, 0, 1), rgba(255, 69, 0, 0.4));
+            animation: shimmer 2s infinite;
         }
 
         .verify-button:hover {
             background-color: #d35400;
             box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
             color: #f5f5f5;
-        }
-
-        .verify-button::after {
-            content: "";
-            display: block;
-            width: 100%;
-            height: 3px;
-            background: linear-gradient(90deg, rgba(255, 69, 0, 0.4), rgba(255, 140, 0, 1), rgba(255, 69, 0, 0.4));
-            animation: shimmer 1.5s infinite;
-            border-radius: 3px;
         }
 
         @keyframes shimmer {
@@ -199,6 +191,30 @@
             font-size: 1.1em;
             color: #555;
         }
+
+        .star-anim {
+            position: absolute;
+            width: 5px;
+            height: 5px;
+            background: #fff;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #fff;
+            animation: star 5s infinite ease-in-out;
+        }
+
+        @keyframes star {
+            0% {
+                transform: translateY(0) scale(0.5);
+                opacity: 0;
+            }
+            50% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100vh) scale(1.2);
+                opacity: 0;
+            }
+        }
     </style>
 </head>
 
@@ -236,11 +252,6 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="https://www.dawnstoryrevelation.com/contact.html">Contact
-                        <span class="popup">Get in touch</span>
-                    </a>
-                </li>
-                <li class="nav-item">
                     <a class="nav-link verify-button" href="signup.html">Verify
                         <span class="popup">Join our community</span>
                     </a>
@@ -253,8 +264,6 @@
         <h1>Dawntasy Saga (Dawnstory Revelation)</h1>
         <p>Welcome to the world of Gaze!</p>
     </header>
-
-    <!-- Content continues as in the original code -->
  <div class="container fade-in-element">
         <h2 class="section-title fade-in-element">Welcome to the world of Gaze!</h2>
         <p class="intro-text">Dawntasy Story is an unpublished saga revolving around fantasy and dystopian elements. Delve into the Gaze world in an era in which survival is not guaranteed, and happiness is scarce. The outlook of the health of the future world does not prove to be promising, and as a band of desperate mutineers cling onto the threads of dear life, they realise that not just them are in danger, the whole world is, the whole multiverse.</p>
@@ -413,32 +422,32 @@
         });
 
         // Verify button shimmer effect with fire animation
-        document.querySelector('.verify-button').addEventListener('mouseover', function () {
-            gsap.to(this, {
-                duration: 0.6,
-                backgroundColor: '#d35400',
-                boxShadow: '0 8px 16px rgba(0, 0, 0, 0.5)',
-                onComplete: () => {
-                    gsap.to(this, {
-                        backgroundImage: 'linear-gradient(90deg, rgba(255, 69, 0, 0.4), rgba(255, 140, 0, 1), rgba(255, 69, 0, 0.4))',
-                        repeat: -1,
-                        yoyo: true,
-                        duration: 0.8,
-                        ease: 'power1.inOut'
-                    });
-                }
-            });
+        gsap.fromTo('.verify-button', {
+            backgroundImage: 'linear-gradient(90deg, rgba(255, 69, 0, 0.4), rgba(255, 140, 0, 1), rgba(255, 69, 0, 0.4))'
+        }, {
+            repeat: -1,
+            yoyo: true,
+            duration: 2,
+            ease: 'power1.inOut'
         });
 
-        document.querySelector('.verify-button').addEventListener('mouseout', function () {
-            gsap.to(this, {
-                duration: 0.6,
-                backgroundColor: '#e67e22',
-                boxShadow: '0 4px 8px rgba(0, 0, 0, 0.3)',
-                clearProps: 'backgroundImage'
-            });
-        });
+        // Scroll-triggered star animations
+        function createStar() {
+            const star = document.createElement('div');
+            star.classList.add('star-anim');
+            star.style.left = Math.random() * window.innerWidth + 'px';
+            star.style.top = window.innerHeight + 'px';
+            document.body.appendChild(star);
+            setTimeout(() => {
+                document.body.removeChild(star);
+            }, 5000);
+        }
 
+        window.addEventListener('scroll', () => {
+            if (Math.random() > 0.8) {
+                createStar();
+            }
+        });
     </script>
 </body>
 
