@@ -75,6 +75,37 @@
             transform: translateX(0);
         }
 
+        .verify-button {
+            color: #fff;
+            background-color: #e67e22;
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-size: 1.1em;
+            font-weight: 600;
+            transition: background-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .verify-button:hover {
+            background-color: #d35400;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
+            color: #f5f5f5;
+        }
+
+        .verify-button::after {
+            content: "";
+            display: block;
+            width: 0;
+            height: 3px;
+            background: linear-gradient(90deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.2));
+            transition: width 0.5s;
+            border-radius: 3px;
+        }
+
+        .verify-button:hover::after {
+            width: 100%;
+        }
+
         .header {
             text-align: center;
             margin-top: 70px;
@@ -163,46 +194,6 @@
             font-size: 1.1em;
             color: #555;
         }
-
-        .carousel-caption h5 {
-            color: #f39c12;
-            font-size: 1.5em;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
-        }
-
-        .carousel-caption p {
-            color: #e3110e;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
-        }
-
-        .animated-button {
-            display: inline-block;
-            padding: 10px 20px;
-            font-size: 1.2em;
-            color: #fff;
-            background-color: #007bff;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            text-decoration: none;
-            transition: background-color 0.3s, transform 0.3s;
-        }
-
-        .animated-button:hover {
-            background-color: #0056b3;
-            transform: translateY(-3px);
-        }
-
-        .fade-in-element {
-            opacity: 0;
-            transform: translateY(20px);
-            transition: opacity 1s ease-out, transform 1s ease-out;
-        }
-
-        .fade-in-element.visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
     </style>
 </head>
 
@@ -245,7 +236,7 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="signup.html">Verify
+                    <a class="nav-link verify-button" href="signup.html">Verify
                         <span class="popup">Join our community</span>
                     </a>
                 </li>
@@ -257,8 +248,7 @@
         <h1>Dawntasy Saga (Dawnstory Revelation)</h1>
         <p>Welcome to the world of Gaze!</p>
     </header>
-
-    <div class="container fade-in-element">
+ <div class="container fade-in-element">
         <h2 class="section-title fade-in-element">Welcome to the world of Gaze!</h2>
         <p class="intro-text">Dawntasy Story is an unpublished saga revolving around fantasy and dystopian elements. Delve into the Gaze world in an era in which survival is not guaranteed, and happiness is scarce. The outlook of the health of the future world does not prove to be promising, and as a band of desperate mutineers cling onto the threads of dear life, they realise that not just them are in danger, the whole world is, the whole multiverse.</p>
         <p class="intro-text">A tale of adventure and courage...</p>
@@ -414,15 +404,33 @@
             });
         });
 
-        // Graphic hover effects
-        document.querySelectorAll('.features-list li').forEach(item => {
-            item.addEventListener('mouseover', () => {
-                gsap.to(item, { duration: 0.5, scale: 1.1 });
-            });
-            item.addEventListener('mouseout', () => {
-                gsap.to(item, { duration: 0.5, scale: 1 });
+        // Verify button shimmer effect
+        document.querySelector('.verify-button').addEventListener('mouseover', function () {
+            gsap.to(this, {
+                duration: 0.6,
+                backgroundColor: '#d35400',
+                boxShadow: '0 8px 16px rgba(0, 0, 0, 0.5)',
+                onComplete: () => {
+                    gsap.to(this, {
+                        backgroundImage: 'linear-gradient(90deg, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 1), rgba(255, 255, 255, 0.4))',
+                        repeat: -1,
+                        yoyo: true,
+                        duration: 0.8,
+                        ease: 'power1.inOut'
+                    });
+                }
             });
         });
+
+        document.querySelector('.verify-button').addEventListener('mouseout', function () {
+            gsap.to(this, {
+                duration: 0.6,
+                backgroundColor: '#e67e22',
+                boxShadow: '0 4px 8px rgba(0, 0, 0, 0.3)',
+                clearProps: 'backgroundImage'
+            });
+        });
+
     </script>
 </body>
 
