@@ -5,15 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dawntasy - Home</title>
     <!-- External CSS and GSAP Library -->
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <style>
         body {
             margin: 0;
-            font-family: 'Montserrat', sans-serif;
-            color: #333;
-            background-color: #f4f4f9;
+            font-family: 'Poppins', sans-serif;
+            color: #2b2b2b;
+            background-color: #ffffff;
         }
 
         /* Navigation Bar */
@@ -21,112 +20,116 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background-color: #1a1a2e;
+            background-color: #1e293b;
             padding: 1rem 2rem;
             position: sticky;
             top: 0;
             z-index: 1000;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
 
         .nav-logo {
-            font-size: 1.5rem;
-            color: #f5a623;
+            font-size: 1.8rem;
+            color: #facc15;
             font-weight: 700;
             text-decoration: none;
+            text-transform: uppercase;
         }
 
         .nav-links {
             list-style: none;
             display: flex;
-            gap: 2rem;
+            gap: 1.5rem;
         }
 
         .nav-item {
-            color: #fff;
+            color: #f8fafc;
             text-decoration: none;
             font-weight: 500;
+            font-size: 1.1rem;
             transition: color 0.3s;
         }
 
         .nav-item:hover {
-            color: #f5a623;
+            color: #facc15;
         }
 
         /* Hero Section */
         .hero {
             height: 100vh;
-            background: linear-gradient(to bottom, rgba(26, 26, 46, 0.8), rgba(26, 26, 46, 0.9)), url('hero-background.jpg') no-repeat center center/cover;
+            background: linear-gradient(to bottom, rgba(30, 41, 59, 0.9), rgba(30, 41, 59, 0.95)), url('https://via.placeholder.com/1920x1080') no-repeat center center/cover;
             display: flex;
             justify-content: center;
             align-items: center;
             text-align: center;
-            color: #fff;
+            color: #f8fafc;
         }
 
         .hero-title {
-            font-size: 3.5rem;
+            font-size: 4rem;
             margin-bottom: 1rem;
+            line-height: 1.2;
         }
 
         .hero-subtitle {
             font-size: 1.5rem;
             font-weight: 300;
+            margin-top: 1rem;
         }
 
         /* Section Styles */
         .section-container {
-            padding: 4rem 2rem;
+            padding: 5rem 2rem;
             max-width: 1200px;
             margin: 0 auto;
             text-align: center;
         }
 
         .section-title {
-            font-size: 2.5rem;
+            font-size: 2.8rem;
             margin-bottom: 1rem;
-            color: #1a1a2e;
+            color: #1e293b;
         }
 
         .section-description {
-            font-size: 1.2rem;
-            margin-bottom: 2rem;
-            color: #666;
+            font-size: 1.3rem;
+            margin-bottom: 2.5rem;
+            color: #64748b;
         }
 
         .book-link {
             display: inline-block;
-            padding: 0.75rem 2rem;
+            padding: 0.8rem 2.5rem;
             font-size: 1.2rem;
-            color: #fff;
-            background-color: #f5a623;
+            color: #f8fafc;
+            background-color: #facc15;
             text-decoration: none;
             border-radius: 5px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            transition: background-color 0.3s, transform 0.2s;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s, transform 0.3s;
         }
 
         .book-link:hover {
-            background-color: #ff8c00;
-            transform: translateY(-3px);
+            background-color: #eab308;
+            transform: translateY(-5px);
         }
 
         /* Subscribe Section */
         .subscribe {
-            background-color: #1a1a2e;
-            color: #fff;
+            background-color: #1e293b;
+            color: #f8fafc;
             text-align: center;
-            padding: 3rem 2rem;
+            padding: 4rem 2rem;
         }
 
         .subscribe-title {
-            font-size: 2rem;
-            margin-bottom: 1rem;
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
         }
 
         .subscribe-description {
             font-size: 1.2rem;
-            margin-bottom: 2rem;
+            margin-bottom: 2.5rem;
         }
 
         .subscribe-form {
@@ -136,41 +139,47 @@
         }
 
         .subscribe-input {
-            padding: 0.75rem;
+            padding: 0.8rem;
             font-size: 1rem;
-            border: none;
+            border: 1px solid #e2e8f0;
             border-radius: 5px;
             width: 300px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         .subscribe-button {
-            padding: 0.75rem 2rem;
-            font-size: 1rem;
-            color: #fff;
-            background-color: #f5a623;
+            padding: 0.8rem 2rem;
+            font-size: 1.1rem;
+            color: #1e293b;
+            background-color: #facc15;
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            transition: background-color 0.3s, transform 0.2s;
+            transition: background-color 0.3s, transform 0.3s;
         }
 
         .subscribe-button:hover {
-            background-color: #ff8c00;
-            transform: translateY(-3px);
+            background-color: #eab308;
+            transform: translateY(-5px);
         }
 
         /* Footer */
         .footer {
-            background-color: #1a1a2e;
-            color: #fff;
+            background-color: #1e293b;
+            color: #f8fafc;
             text-align: center;
-            padding: 1.5rem 0;
+            padding: 2rem 0;
+            font-size: 0.9rem;
         }
 
         /* Animations */
         .animated {
             opacity: 0;
+        }
+
+        .reveal {
+            opacity: 1;
+            transform: translateY(0);
         }
     </style>
 </head>
@@ -180,10 +189,10 @@
         <div class="nav-container">
             <a href="#" class="nav-logo">Dawntasy</a>
             <ul class="nav-links">
-                <li><a href="#" class="nav-item">Home</a></li>
+                <li><a href="#who-am-i" class="nav-item">Home</a></li>
+                <li><a href="#books" class="nav-item">Books</a></li>
+                <li><a href="#subscribe" class="nav-item">Subscribe</a></li>
                 <li><a href="#contact" class="nav-item">Contact</a></li>
-                <li><a href="#events" class="nav-item">Events</a></li>
-                <li><a href="#more-info" class="nav-item">More Info</a></li>
             </ul>
         </div>
     </nav>
@@ -191,8 +200,8 @@
     <!-- Hero Section -->
     <header class="hero">
         <div class="hero-content animated">
-            <h1 class="hero-title">Welcome to the World of Dawntasy</h1>
-            <p class="hero-subtitle">A journey that transcends reality.</p>
+            <h1 class="hero-title">Welcome to Dawntasy</h1>
+            <p class="hero-subtitle">Explore the realms of imagination and adventure.</p>
         </div>
     </header>
 
@@ -202,7 +211,7 @@
         <section class="about" id="who-am-i">
             <div class="section-container animated">
                 <h2 class="section-title">Who Am I?</h2>
-                <p class="section-description">(I will fill this in)</p>
+                <p class="section-description">I am an author passionate about crafting worlds and characters that inspire, challenge, and captivate readers. Dawntasy is a culmination of my love for storytelling and a desire to share something truly special with the world.</p>
             </div>
         </section>
 
@@ -210,16 +219,17 @@
         <section class="books" id="books">
             <div class="section-container animated">
                 <h2 class="section-title">Books</h2>
+                <p class="section-description">Embark on a journey through stories that explore the depths of fantasy, mystery, and magic.</p>
                 <a href="https://www.amazon.com" target="_blank" class="book-link">Explore on Amazon</a>
             </div>
         </section>
     </main>
 
     <!-- Subscribe Section -->
-    <section class="subscribe">
+    <section class="subscribe" id="subscribe">
         <div class="subscribe-container animated">
             <h3 class="subscribe-title">Subscribe to Our Newsletter</h3>
-            <p class="subscribe-description">Stay updated with the latest from Dawntasy.</p>
+            <p class="subscribe-description">Be the first to know about new releases, events, and exclusive content.</p>
             <form class="subscribe-form">
                 <input type="email" placeholder="Enter your email" class="subscribe-input" required>
                 <button type="submit" class="subscribe-button">Subscribe</button>
@@ -236,11 +246,26 @@
 
     <!-- GSAP Animations -->
     <script>
+        gsap.registerPlugin(ScrollTrigger);
+
         gsap.from(".hero-title", { opacity: 0, y: -50, duration: 1 });
         gsap.from(".hero-subtitle", { opacity: 0, y: 50, duration: 1.5 });
         gsap.from(".nav-item", { opacity: 0, y: -20, stagger: 0.2, duration: 1 });
-        gsap.from(".animated", { opacity: 0, y: 50, stagger: 0.3, duration: 1 });
-        gsap.from(".book-link", { opacity: 0, scale: 0.9, duration: 1.5 });
+
+        gsap.utils.toArray(".animated").forEach((el) => {
+            gsap.from(el, {
+                scrollTrigger: {
+                    trigger: el,
+                    start: "top 80%",
+                    toggleClass: "reveal",
+                },
+                opacity: 0,
+                y: 50,
+                duration: 1,
+            });
+        });
+
+        gsap.from(".book-link", { opacity: 0, scale: 0.9, duration: 1.5, delay: 0.5 });
         gsap.from(".subscribe-title", { opacity: 0, x: -50, duration: 1 });
         gsap.from(".subscribe-input", { opacity: 0, y: 20, duration: 1 });
         gsap.from(".subscribe-button", { opacity: 0, y: 20, duration: 1 });
