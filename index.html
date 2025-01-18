@@ -3,272 +3,209 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dawntasy - Home</title>
-    <!-- External CSS and GSAP Library -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <title>Professional Animated Website</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     <style>
         body {
+            font-family: 'Roboto', sans-serif;
             margin: 0;
-            font-family: 'Poppins', sans-serif;
-            color: #2b2b2b;
-            background-color: #ffffff;
+            overflow-x: hidden;
         }
 
-        /* Navigation Bar */
-        .navbar {
+        header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background-color: #1e293b;
-            padding: 1rem 2rem;
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 20px 10%;
+            background: linear-gradient(90deg, #0f2027, #203a43, #2c5364);
+            color: #fff;
+            position: fixed;
+            width: 100%;
+            z-index: 10;
         }
 
-        .nav-logo {
-            font-size: 1.8rem;
-            color: #facc15;
-            font-weight: 700;
+        header a {
+            color: #fff;
             text-decoration: none;
-            text-transform: uppercase;
-        }
-
-        .nav-links {
-            list-style: none;
-            display: flex;
-            gap: 1.5rem;
-        }
-
-        .nav-item {
-            color: #f8fafc;
-            text-decoration: none;
-            font-weight: 500;
-            font-size: 1.1rem;
+            margin: 0 15px;
             transition: color 0.3s;
         }
 
-        .nav-item:hover {
-            color: #facc15;
+        header a:hover {
+            color: #00aaff;
         }
 
-        /* Hero Section */
         .hero {
             height: 100vh;
-            background: linear-gradient(to bottom, rgba(30, 41, 59, 0.9), rgba(30, 41, 59, 0.95)), url('https://via.placeholder.com/1920x1080') no-repeat center center/cover;
+            background: url('https://source.unsplash.com/1920x1080/?nature') no-repeat center center/cover;
             display: flex;
-            justify-content: center;
             align-items: center;
+            justify-content: center;
+            color: #fff;
             text-align: center;
-            color: #f8fafc;
+            flex-direction: column;
         }
 
-        .hero-title {
+        .hero h1 {
             font-size: 4rem;
-            margin-bottom: 1rem;
-            line-height: 1.2;
+            margin-bottom: 20px;
         }
 
-        .hero-subtitle {
+        .hero p {
             font-size: 1.5rem;
-            font-weight: 300;
-            margin-top: 1rem;
+            margin-bottom: 40px;
         }
 
-        /* Section Styles */
-        .section-container {
-            padding: 5rem 2rem;
-            max-width: 1200px;
-            margin: 0 auto;
+        .hero button {
+            background: #00aaff;
+            color: #fff;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .hero button:hover {
+            background: #0077cc;
+        }
+
+        section {
+            padding: 80px 10%;
             text-align: center;
         }
 
-        .section-title {
-            font-size: 2.8rem;
-            margin-bottom: 1rem;
-            color: #1e293b;
-        }
-
-        .section-description {
-            font-size: 1.3rem;
-            margin-bottom: 2.5rem;
-            color: #64748b;
-        }
-
-        .book-link {
-            display: inline-block;
-            padding: 0.8rem 2.5rem;
-            font-size: 1.2rem;
-            color: #f8fafc;
-            background-color: #facc15;
-            text-decoration: none;
-            border-radius: 5px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            transition: background-color 0.3s, transform 0.3s;
-        }
-
-        .book-link:hover {
-            background-color: #eab308;
-            transform: translateY(-5px);
-        }
-
-        /* Subscribe Section */
-        .subscribe {
-            background-color: #1e293b;
-            color: #f8fafc;
-            text-align: center;
-            padding: 4rem 2rem;
-        }
-
-        .subscribe-title {
+        section h2 {
             font-size: 2.5rem;
-            margin-bottom: 1.5rem;
+            margin-bottom: 20px;
         }
 
-        .subscribe-description {
+        section p {
             font-size: 1.2rem;
-            margin-bottom: 2.5rem;
+            color: #666;
+            margin-bottom: 40px;
         }
 
-        .subscribe-form {
+        .books {
             display: flex;
             justify-content: center;
-            gap: 1rem;
+            gap: 20px;
         }
 
-        .subscribe-input {
-            padding: 0.8rem;
-            font-size: 1rem;
-            border: 1px solid #e2e8f0;
+        .books div {
+            background: #f5f5f5;
+            padding: 20px;
+            border-radius: 10px;
+            width: 250px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+        }
+
+        .books div:hover {
+            transform: scale(1.05);
+        }
+
+        .newsletter {
+            background: #f0f8ff;
+            padding: 50px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .newsletter input {
+            padding: 10px;
+            width: 60%;
+            border: 1px solid #ddd;
             border-radius: 5px;
-            width: 300px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-right: 10px;
         }
 
-        .subscribe-button {
-            padding: 0.8rem 2rem;
-            font-size: 1.1rem;
-            color: #1e293b;
-            background-color: #facc15;
+        .newsletter button {
+            padding: 10px 20px;
             border: none;
+            background: #00aaff;
+            color: white;
             border-radius: 5px;
             cursor: pointer;
-            transition: background-color 0.3s, transform 0.3s;
+            transition: background 0.3s;
         }
 
-        .subscribe-button:hover {
-            background-color: #eab308;
-            transform: translateY(-5px);
+        .newsletter button:hover {
+            background: #0077cc;
         }
 
-        /* Footer */
-        .footer {
-            background-color: #1e293b;
-            color: #f8fafc;
+        footer {
             text-align: center;
-            padding: 2rem 0;
-            font-size: 0.9rem;
+            padding: 20px;
+            background: #0f2027;
+            color: white;
         }
 
-        /* Animations */
-        .animated {
+        .gsap-animation {
             opacity: 0;
-        }
-
-        .reveal {
-            opacity: 1;
-            transform: translateY(0);
+            transform: translateY(50px);
         }
     </style>
 </head>
 <body>
-    <!-- Navigation Bar -->
-    <nav class="navbar">
-        <div class="nav-container">
-            <a href="#" class="nav-logo">Dawntasy</a>
-            <ul class="nav-links">
-                <li><a href="#who-am-i" class="nav-item">Home</a></li>
-                <li><a href="#books" class="nav-item">Books</a></li>
-                <li><a href="#subscribe" class="nav-item">Subscribe</a></li>
-                <li><a href="#contact" class="nav-item">Contact</a></li>
-            </ul>
-        </div>
-    </nav>
-
-    <!-- Hero Section -->
-    <header class="hero">
-        <div class="hero-content animated">
-            <h1 class="hero-title">Welcome to Dawntasy</h1>
-            <p class="hero-subtitle">Explore the realms of imagination and adventure.</p>
-        </div>
+    <header>
+        <div class="logo">Logo</div>
+        <nav>
+            <a href="#home">Home</a>
+            <a href="#contact">Contact</a>
+            <a href="#events">Events</a>
+            <a href="#info">More Info</a>
+        </nav>
     </header>
 
-    <!-- Main Content -->
-    <main>
-        <!-- Who Am I Section -->
-        <section class="about" id="who-am-i">
-            <div class="section-container animated">
-                <h2 class="section-title">Who Am I?</h2>
-                <p class="section-description">I am an author passionate about crafting worlds and characters that inspire, challenge, and captivate readers. Dawntasy is a culmination of my love for storytelling and a desire to share something truly special with the world.</p>
-            </div>
-        </section>
+    <div class="hero" id="home">
+        <h1>Welcome to Our World</h1>
+        <p>Explore books, connect with stories, and join our journey.</p>
+        <button>Explore Now</button>
+    </div>
 
-        <!-- Books Section -->
-        <section class="books" id="books">
-            <div class="section-container animated">
-                <h2 class="section-title">Books</h2>
-                <p class="section-description">Embark on a journey through stories that explore the depths of fantasy, mystery, and magic.</p>
-                <a href="https://www.amazon.com" target="_blank" class="book-link">Explore on Amazon</a>
-            </div>
-        </section>
-    </main>
+    <section id="about">
+        <h2>Who Am I</h2>
+        <p>A passionate storyteller with a journey through captivating tales.</p>
+    </section>
 
-    <!-- Subscribe Section -->
-    <section class="subscribe" id="subscribe">
-        <div class="subscribe-container animated">
-            <h3 class="subscribe-title">Subscribe to Our Newsletter</h3>
-            <p class="subscribe-description">Be the first to know about new releases, events, and exclusive content.</p>
-            <form class="subscribe-form">
-                <input type="email" placeholder="Enter your email" class="subscribe-input" required>
-                <button type="submit" class="subscribe-button">Subscribe</button>
-            </form>
+    <section id="books">
+        <h2>Books</h2>
+        <div class="books">
+            <div>Book 1</div>
+            <div>Book 2</div>
+            <div>Book 3</div>
         </div>
     </section>
 
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="footer-container">
-            <p class="footer-text">&copy; 2025 Dawntasy. All Rights Reserved.</p>
+    <section id="newsletter">
+        <h2>Subscribe to Our Newsletter</h2>
+        <div class="newsletter">
+            <input type="email" placeholder="Enter your email">
+            <button>Subscribe</button>
         </div>
+    </section>
+
+    <footer>
+        <p>&copy; 2025 Your Name. All rights reserved.</p>
     </footer>
 
-    <!-- GSAP Animations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script>
-        gsap.registerPlugin(ScrollTrigger);
-
-        gsap.from(".hero-title", { opacity: 0, y: -50, duration: 1 });
-        gsap.from(".hero-subtitle", { opacity: 0, y: 50, duration: 1.5 });
-        gsap.from(".nav-item", { opacity: 0, y: -20, stagger: 0.2, duration: 1 });
-
-        gsap.utils.toArray(".animated").forEach((el) => {
-            gsap.from(el, {
-                scrollTrigger: {
-                    trigger: el,
-                    start: "top 80%",
-                    toggleClass: "reveal",
-                },
-                opacity: 0,
-                y: 50,
-                duration: 1,
-            });
+        gsap.from(".hero h1", { duration: 1, y: -50, opacity: 0, ease: "bounce.out" });
+        gsap.from(".hero p", { duration: 1.5, y: 50, opacity: 0, delay: 0.5 });
+        gsap.from(".hero button", { duration: 1, scale: 0.8, opacity: 0, delay: 1 });
+        gsap.from("section", {
+            scrollTrigger: {
+                trigger: "section",
+                start: "top 80%",
+            },
+            duration: 1,
+            opacity: 0,
+            y: 50,
+            stagger: 0.3,
         });
-
-        gsap.from(".book-link", { opacity: 0, scale: 0.9, duration: 1.5, delay: 0.5 });
-        gsap.from(".subscribe-title", { opacity: 0, x: -50, duration: 1 });
-        gsap.from(".subscribe-input", { opacity: 0, y: 20, duration: 1 });
-        gsap.from(".subscribe-button", { opacity: 0, y: 20, duration: 1 });
     </script>
 </body>
 </html>
