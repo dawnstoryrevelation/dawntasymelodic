@@ -942,6 +942,15 @@ ScrollSmoother.create({
 <!-- takes 0.8 seconds to "catch up" -->
         let scroller = ScrollSmoother.create({...});
 scroller.effects(".box", {lag: 0.5, speed: 1});
+      let tween = gsap.to(".class", { x: 100 }),
+  st = ScrollTrigger.create({
+    trigger: ".trigger",
+    start: "top center",
+    end: "+=500",
+    animation: tween,
+  });
+
+console.log(st.animation); // tween
     </script>
   </body>
 </html>
