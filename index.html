@@ -181,7 +181,11 @@
       }
 
       footer {
-        margin-top: 20px;
+position: fixed;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  text-align: center;
         padding: 10px;
         background-color: rgba(0, 0, 0, 0.8);
         color: #fff;
@@ -230,6 +234,395 @@
           opacity: 0;
         }
       }
+      .btn {
+  --fancy-button-gradient-0: #8d49fd;
+  --fancy-button-gradient-50: #7f56f3;
+  --fancy-button-gradient-100: #5691f3;
+  --fancy-button-inner-shadow-top: rgba(233, 209, 255, 0.2);
+  --fancy-button-inner-shadow-top-lg: rgba(9, 12, 60, 0.1);
+  --fancy-button-inner-shadow-bottom: rgba(137, 222, 246, 0.3);
+  --fancy-button-shine-top: #e9d1ff;
+  --fancy-button-shine-bottom: #adfff9;
+  font-weight: 500;
+  font-size: 15px;
+  line-height: 21px;
+  text-shadow: 0px 0.5px 0.5px rgba(0, 0, 0, 0.2);
+  padding: 0;
+  margin: 0;
+  appearance: none;
+  border: none;
+  outline: none;
+  overflow: hidden;
+  position: relative;
+  cursor: pointer;
+  z-index: 1;
+  border-radius: 25px;
+  color: #fff;
+  background-image: linear-gradient(
+    to bottom,
+    var(--fancy-button-gradient-0) 0%,
+    var(--fancy-button-gradient-50) 50%,
+    var(--fancy-button-gradient-100) 100%
+  );
+  box-shadow:
+    0px 4px 12px rgba(9, 12, 60, 0.15),
+    0px 2px 8px rgba(9, 12, 60, 0.15),
+    0px 1px 3px var(--fancy-button-inner-shadow-top-lg),
+    inset 0px 1px 1px var(--fancy-button-inner-shadow-top),
+    inset 0px -1px 3px var(--fancy-button-inner-shadow-bottom);
+}
+
+.btn:before,
+.btn:after {
+  content: "";
+  position: absolute;
+  border-radius: inherit;
+  will-change: transform;
+}
+
+.btn:before {
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: var(--fancy-button-shine-top);
+  width: 96px;
+  height: 6px;
+  top: -3px;
+  opacity: 0.6;
+  filter: blur(6px);
+  transition: opacity 0.25s;
+}
+
+.btn:after {
+  inset: 0;
+  background-size: cover;
+  z-index: 2;
+  opacity: 0.3;
+  mix-blend-mode: overlay;
+  pointer-events: none;
+}
+
+.btn span {
+  display: block;
+  padding: 12px 24px;
+  border-radius: inherit;
+  overflow: hidden;
+  position: relative;
+  background-image: linear-gradient(
+    to bottom,
+    var(--fancy-button-shine-top),
+    transparent 8px
+  );
+  background-position: 0 -6px;
+  background-repeat: no-repeat;
+  z-index: 1;
+}
+
+.btn span:before,
+.btn span:after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background-color: var(--fancy-button-shine-bottom);
+  transition:
+    opacity 0.25s,
+    transform 0.25s;
+  will-change: transform;
+}
+
+.btn span:before {
+  width: 92px;
+  height: 8px;
+  bottom: -4px;
+  opacity: 0.75;
+  filter: blur(6px);
+}
+
+.btn span:after {
+  width: 112px;
+  height: 1px;
+  bottom: 0;
+  opacity: 0.9;
+  filter: blur(1px);
+}
+
+.btn:hover span:before {
+  opacity: 0.8;
+}
+
+.btn:hover span:before {
+  transform: translateX(-50%) scale(1.25);
+}
+
+.btn:hover span:after {
+  opacity: 1;
+}
+/* From Uiverse.io by kennyotsu */ 
+.card {
+  /* color used to softly clip top and bottom of the .words container */
+  --bg-color: #212121;
+  background-color: var(--bg-color);
+  padding: 1rem 2rem;
+  border-radius: 1.25rem;
+}
+.loader {
+  color: rgb(124, 124, 124);
+  font-family: "Poppins", sans-serif;
+  font-weight: 500;
+  font-size: 25px;
+  -webkit-box-sizing: content-box;
+  box-sizing: content-box;
+  height: 40px;
+  padding: 10px 10px;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  border-radius: 8px;
+}
+
+.words {
+  overflow: hidden;
+  position: relative;
+}
+.words::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    var(--bg-color) 10%,
+    transparent 30%,
+    transparent 70%,
+    var(--bg-color) 90%
+  );
+  z-index: 20;
+}
+
+.word {
+  display: block;
+  height: 100%;
+  padding-left: 6px;
+  color: #956afa;
+  animation: spin_4991 4s infinite;
+}
+
+@keyframes spin_4991 {
+  10% {
+    -webkit-transform: translateY(-102%);
+    transform: translateY(-102%);
+  }
+
+  25% {
+    -webkit-transform: translateY(-100%);
+    transform: translateY(-100%);
+  }
+
+  35% {
+    -webkit-transform: translateY(-202%);
+    transform: translateY(-202%);
+  }
+
+  50% {
+    -webkit-transform: translateY(-200%);
+    transform: translateY(-200%);
+  }
+
+  60% {
+    -webkit-transform: translateY(-302%);
+    transform: translateY(-302%);
+  }
+
+  75% {
+    -webkit-transform: translateY(-300%);
+    transform: translateY(-300%);
+  }
+
+  85% {
+    -webkit-transform: translateY(-402%);
+    transform: translateY(-402%);
+  }
+
+  100% {
+    -webkit-transform: translateY(-400%);
+    transform: translateY(-400%);
+  }
+}
+a {
+  display: flex;
+  align-items: center;
+  font-family: inherit;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 17px;
+  padding: 0.8em 1.3em 0.8em 0.9em;
+  color: white;
+  background: #ad5389;
+  background: linear-gradient(to right, #0f0c29, #302b63, #24243e);
+  border: none;
+  letter-spacing: 0.05em;
+  border-radius: 16px;
+}
+
+a svg {
+  margin-right: 3px;
+  transform: rotate(30deg);
+  transition: transform 0.5s cubic-bezier(0.76, 0, 0.24, 1);
+}
+
+a span {
+  transition: transform 0.5s cubic-bezier(0.76, 0, 0.24, 1);
+}
+
+a:hover svg {
+  transform: translateX(5px) rotate(90deg);
+}
+
+a:hover span {
+  transform: translateX(7px);
+}
+.input {
+  font-family: "SF Pro";
+  max-width: 190px;
+  padding: 0.875rem;
+  font-size: 1rem;
+  border: 1.5px solid #000;
+  border-radius: 0.5rem;
+  box-shadow: 2.5px 3px 0 #000;
+  outline: none;
+  transition: ease 0.25s;
+}
+
+.input:focus {
+  box-shadow: 5.5px 7px 0 black;
+}
+.e-card {
+  margin: 100px auto;
+  background: transparent;
+  box-shadow: 0px 8px 28px -9px rgba(0,0,0,0.45);
+  position: relative;
+  width: 240px;
+  height: 330px;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.wave {
+  position: absolute;
+  width: 540px;
+  height: 700px;
+  opacity: 0.6;
+  left: 0;
+  top: 0;
+  margin-left: -50%;
+  margin-top: -70%;
+  background: linear-gradient(744deg,#af40ff,#5b42f3 60%,#00ddeb);
+}
+
+.icon {
+  width: 3em;
+  margin-top: -1em;
+  padding-bottom: 1em;
+}
+
+.infotop {
+  text-align: center;
+  font-size: 20px;
+  position: absolute;
+  top: 0.5em;
+  left: 0;
+  right: 0;
+  color: rgb(255, 255, 255);
+  font-weight: 600;
+}
+
+.name {
+  font-size: 14px;
+  font-weight: 100;
+  position: relative;
+  color: white;
+}
+
+.wave:nth-child(2),
+.wave:nth-child(3) {
+  top: 210px;
+}
+
+.playing .wave {
+  border-radius: 40%;
+  animation: wave 3000ms infinite linear;
+}
+
+.wave {
+  border-radius: 40%;
+  animation: wave 55s infinite linear;
+}
+
+.playing .wave:nth-child(2) {
+  animation-duration: 4000ms;
+}
+
+.wave:nth-child(2) {
+  animation-duration: 50s;
+}
+
+.playing .wave:nth-child(3) {
+  animation-duration: 5000ms;
+}
+
+.wave:nth-child(3) {
+  animation-duration: 45s;
+}
+
+@keyframes wave {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+button {
+  --green: #1BFD9C;
+  font-size: 15px;
+  padding: 0.7em 2.7em;
+  letter-spacing: 0.06em;
+  position: relative;
+  font-family: inherit;
+  border-radius: 0.6em;
+  overflow: hidden;
+  transition: all 0.3s;
+  line-height: 1.4em;
+  border: 2px solid var(--green);
+  background: linear-gradient(to right, rgba(27, 253, 156, 0.1) 1%, transparent 40%,transparent 60% , rgba(27, 253, 156, 0.1) 100%);
+  color: var(--green);
+  box-shadow: inset 0 0 10px rgba(27, 253, 156, 0.4), 0 0 9px 3px rgba(27, 253, 156, 0.1);
+}
+
+button:hover {
+  color: #82ffc9;
+  box-shadow: inset 0 0 10px rgba(27, 253, 156, 0.6), 0 0 9px 3px rgba(27, 253, 156, 0.2);
+}
+
+button:before {
+  content: "";
+  position: absolute;
+  left: -4em;
+  width: 4em;
+  height: 100%;
+  top: 0;
+  transition: transform .4s ease-in-out;
+  background: linear-gradient(to right, transparent 1%, rgba(27, 253, 156, 0.1) 40%,rgba(27, 253, 156, 0.1) 60% , transparent 100%);
+}
+
+button:hover:before {
+  transform: translateX(15em);
+}
+button a {
+ color: white;
+ text-decoration: none;
+}
     </style>
   </head>
 
@@ -265,31 +658,17 @@
           <li class="nav-item">
             <a
               class="nav-link"
-              href="https://www.dawnstoryrevelation.com/about.html"
-              >About
-              <span class="popup">Learn more about Dawntasy</span>
+              href="https://www.dawnstoryrevelation.com/events.html"
+              >Events
+              <span class="popup">Learn more about Dawntasy Events</span>
             </a>
           </li>
           <li class="nav-item">
             <a
               class="nav-link"
-              href="https://www.dawnstoryrevelation.com/stories.html"
-              >Stories
-              <span class="popup">Explore the stories</span>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a
-              class="nav-link"
-              href="https://www.dawnstoryrevelation.com/lore.html"
-              >Lore
-              <span class="popup">Dive into the lore</span>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link verify-button" href="signup.html"
-              >Verify
-              <span class="popup">Join our community</span>
+              href="https://www.dawnstoryrevelation.com/newsletter.html"
+              >Newsletter
+              <span class="popup">Explore the newsletter</span>
             </a>
           </li>
         </ul>
@@ -300,92 +679,95 @@
       <h1>Dawntasy Saga (Dawnstory Revelation)</h1>
       <p>Welcome to the world of Dawntasy!</p>
     </header>
-    <div class="container fade-in-element">
-      <h2 class="section-title fade-in-element">
-        Welcome to the world of Dawntasy!
-      </h2>
-      <p class="intro-text">
-        Dawntasy (or Fantasy and the World Work Dictionary & Thesaurus With
-        Companion Story) is an unpublished saga revolving around fantasy and
-        dystopian elements. Delve into the Dawntasy world in an era in which
-        survival is not guaranteed, and happiness is scarce. The outlook of the
-        health of the future world does not prove to be promising, and as a band
-        of desperate mutineers cling onto the threads of dear life, they realise
-        that not just them are in danger, the whole world is, the whole
-        multiverse. The dictionary & thesaurus roots out on ideas about the
-        life, creation and existence, and how this may relate to fantasy.
-      </p>
-      <p class="intro-text">A tale of adventure and courage...</p>
-      <img
-        src="https://www.dawnstoryrevelation.com/images/B680E346-F606-40AD-B88C-CC38CA184D9B.webp"
-        alt="Gaze World"
-        class="img-fluid"
-      />
-
-      <div class="highlight fade-in-element">
-        <h3>About the World of Dawntasy</h3>
-        <p>
-          The world of Dawntasy is split into two realms: the Rift Realm and the
-          Dawnstory Realm. The Rift Realm is a dangerous place filled with magic
-          and fantasy, while the Dawnstory Realm is a typical fantasy world.
-          Both realms are surrounded by celestial stars and constellations,
-          making the world of Gaze a unique and fantastical place.
-        </p>
-      </div>
-
-      <div class="highlight fade-in-element">
-        <h3>Featured Story: His Promise (S1B1)</h3>
-        <p>
-          The realm of Dawnstory is governed by a tyrannous, nefarious
-          organisation known only as LTR. When all hell breaks loose, the Time
-          Rebellion League is formed with only one obligation, taking down the
-          organisation and its devious leader, while Yaya the bearman struggles
-          to find peace within himself after his beloved master is slain by
-          enemy forces. However, he begins to realise that all is not lost, and
-          that backing down was the worst thing he could have done.
-        </p>
-        <img
-          src="https://www.dawnstoryrevelation.com/images/5FEF0ACE-C55F-4745-BCC5-F39B7B47C8D6.jpeg"
-          alt="Featured Story"
-          class="img-fluid"
-        />
-      </div>
-
-      <div class="highlight fade-in-element">
-        <h3>Quotes</h3>
-        <p>
-          "You must carry on. The fight...is not over." - Aegis Wick, Chapter 2
-          S1B1
-        </p>
-        <p>
-          "Even if you are beaten, never give up. Even if all your allies are
-          killed, never falter. Remember the reason you’re fighting. So hold
-          that hope in your heart and never let go. That is the true key to
-          victory." - Aegis Wick, Chapter 2 S1B1
-        </p>
-      </div>
-
-      <div class="highlight fade-in-element">
-        <h3>Explore Three Unique Realms!</h3>
-        <p class="intro-text">
-          The DSR World Circle is split between three realms: The Eternal Rift
-          Realm, the Fall Point Realm and The Ephemeral Dawnstory Realm.
-        </p>
-        <p class="intro-text">
-          The Rift Realm...a home to danger, mystery and excitement...awaken a
-          sense of transcendence.
-        </p>
-        <p class="intro-text">
-          The Dawnstory Realm...an ordinary world yet imbued with
-          fantasy...until it all falls down.
-        </p>
-        <p class="intro-text">
-          The Fall Point Realm...where reality is mere imagination and light and
-          dark are synonyms.
-        </p>
-      </div>
-    </div>
+    
     <div
+      style="
+      text-align: center;
+        padding: 20px;
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        margin: 20px auto;
+        width: 47%;
+      "
+    >
+      <h3
+        style="
+          font-family: 'Georgia', serif;
+          color: #ff8c42;
+          margin-bottom: 15px;
+        "
+      >
+        Subscribe to my newsletter for a free copy of my book!
+      </h3> 
+     <input placeholder="Email address" class="input" id="email" name="text" type="email" />
+
+      <br />
+      <br>
+      <button id="button" class="btn">
+  <span>Subscribe</span>
+      </button>
+    </div>
+    <div class="e-card playing">
+  <div class="image"></div>
+  
+  <div class="wave"></div>
+  <div class="wave"></div>
+  <div class="wave"></div>
+  
+
+      <div class="infotop">
+
+
+  <path fill="currentColor" d="M19.4133 4.89862L14.5863 2.17544C12.9911 1.27485 11.0089 1.27485 9.41368 2.17544L4.58674
+  4.89862C2.99153 5.7992 2 7.47596 2 9.2763V14.7235C2 16.5238 2.99153 18.2014 4.58674 19.1012L9.41368
+  21.8252C10.2079 22.2734 11.105 22.5 12.0046 22.5C12.6952 22.5 13.3874 22.3657 14.0349 22.0954C14.2204
+  22.018 14.4059 21.9273 14.5872 21.8252L19.4141 19.1012C19.9765 18.7831 20.4655 18.3728 20.8651
+  17.8825C21.597 16.9894 22 15.8671 22 14.7243V9.27713C22 7.47678 21.0085 5.7992 19.4133 4.89862ZM4.10784
+  14.7235V9.2763C4.10784 8.20928 4.6955 7.21559 5.64066 6.68166L10.4676 3.95848C10.9398 3.69152 11.4701
+  3.55804 11.9996 3.55804C12.5291 3.55804 13.0594 3.69152 13.5324 3.95848L18.3593 6.68166C19.3045 7.21476
+  19.8922 8.20928 19.8922 9.2763V9.75997C19.1426 9.60836 18.377 9.53091 17.6022 9.53091C14.7929 9.53091
+  12.1041 10.5501 10.0309 12.3999C8.36735 13.8847 7.21142 15.8012 6.68783 17.9081L5.63981 17.3165C4.69466
+  16.7834 4.10699 15.7897 4.10699 14.7235H4.10784ZM10.4676 20.0413L8.60933 18.9924C8.94996 17.0479 9.94402
+  15.2665 11.4515 13.921C13.1353 12.4181 15.3198 11.5908 17.6022 11.5908C18.3804 11.5908 19.1477 11.6864
+  19.8922 11.8742V14.7235C19.8922 15.2278 19.7589 15.7254 19.5119 16.1662C18.7615 15.3596 17.6806 14.8528
+   16.4783 14.8528C14.2136 14.8528 12.3781 16.6466 12.3781 18.8598C12.3781 19.3937 12.4861 19.9021 12.68
+   20.3676C11.9347 20.5316 11.1396 20.4203 10.4684 20.0413H10.4676Z"></path></svg><br>      
+LOOKING FOR ARC READERS! CLAIM YOUR FREE COPY TODAY!
+<br>
+<button> <a href="https://dl.bookfunnel.com/3g9e744e58">Click here</a>
+</button>
+<br>
+Get the free book in exchange for a honest review on Amazon.
+  </div>
+</div>
+    
+     <div
+      style="
+        text-align: ;
+        padding: 20px;
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        margin: 20px auto;
+        width: 47%;
+      "
+    >
+    <div class="card">
+  <div class="loader">
+    <p>Dawntasy is...</p>
+    <div class="words">
+      <span class="word">deep</span>
+      <span class="word">breathtaking</span>
+      <span class="word">eyewidening</span>
+      <span class="word">action-packed</span>
+    </div>
+  </div>
+</div>
+
+    </div>
+
+     <div
       style="
         text-align: center;
         padding: 20px;
@@ -403,37 +785,26 @@
           margin-bottom: 15px;
         "
       >
-        Subscribe to my newsletter!
+  Check out my new book on Amazon for a breathtaking adventure!
       </h3>
-      <input
-        id="email"
-        type="email"
-        placeholder="Enter your email"
-        style="
-          width: 80%;
-          padding: 10px;
-          font-size: 1rem;
-          border: 1px solid #ddd;
-          border-radius: 5px;
-          margin-bottom: 15px;
-        "
-      />
-      <br />
-      <button
-        id="button"
-        style="
-          background-color: #ff8c42;
-          color: white;
-          padding: 10px 20px;
-          font-size: 1rem;
-          border: none;
-          border-radius: 5px;
-          cursor: pointer;
-          transition: background 0.3s;
-        "
-      >
-        Subscribe!
-      </button>
+
+      <a href="https://www.amazon.com.au/Dawntasy-Circular-Dawn-astonishing-breathtaking-ebook/dp/B0DT74DLY5/ref=sr_1_1?crid=2SDUMMNHT9EF9&dib=eyJ2IjoiMSJ9.qPUmoYURM9z3ScZd9gJyvUKbD00jht9DnOsjjSOSnmo.j0KDLyJ6scCqgHDH7Sg0ewzVqn3k5NYRaV8X2qT0-SA&dib_tag=se&keywords=dawntasy&qid=1737101097&s=digital-text&sprefix=dawntasy+y%2Cdigital-text%2C228&sr=1-1">
+  <svg
+    height="24"
+    width="24"
+    viewBox="0 0 24 24"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path d="M0 0h24v24H0z" fill="none"></path>
+    <path
+      d="M5 13c0-5.088 2.903-9.436 7-11.182C16.097 3.564 19 7.912 19 13c0 .823-.076 1.626-.22 2.403l1.94 1.832a.5.5 0 0 1 .095.603l-2.495 4.575a.5.5 0 0 1-.793.114l-2.234-2.234a1 1 0 0 0-.707-.293H9.414a1 1 0 0 0-.707.293l-2.234 2.234a.5.5 0 0 1-.793-.114l-2.495-4.575a.5.5 0 0 1 .095-.603l1.94-1.832C5.077 14.626 5 13.823 5 13zm1.476 6.696l.817-.817A3 3 0 0 1 9.414 18h5.172a3 3 0 0 1 2.121.879l.817.817.982-1.8-1.1-1.04a2 2 0 0 1-.593-1.82c.124-.664.187-1.345.187-2.036 0-3.87-1.995-7.3-5-8.96C8.995 5.7 7 9.13 7 13c0 .691.063 1.372.187 2.037a2 2 0 0 1-.593 1.82l-1.1 1.039.982 1.8zM12 13a2 2 0 1 1 0-4 2 2 0 0 1 0 4z"
+      fill="currentColor"
+    ></path>
+  </svg>
+  <span>Buy the book here!</span>
+</a>
+
+         
     </div>
 
     <footer>
@@ -449,8 +820,6 @@
     <script>
       gsap.registerPlugin(ScrollTrigger);
       let button = document.getElementById("button");
-      console.log('')
-      button.style.color = 'green'
       let email = document.getElementById("email");
       button.addEventListener("click", () => {
         button.textContent = 'Submitted'
