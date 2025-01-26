@@ -1,391 +1,443 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <link rel="icon" href="https://www.dawnstoryrevelation.com/images/821049A8-FDF0-413E-A1A3-533ECC529C7B.webp" type="image/x-icon">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <link
+      rel="icon"
+      href="https://www.dawnstoryrevelation.com/images/821049A8-FDF0-413E-A1A3-533ECC529C7B.webp"
+      type="image/x-icon"
+    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Dawntasy Saga</title>
-    <link href="https://fonts.googleapis.com/css2?family=Indie+Flower&family=Montserrat:wght@300;400;600&family=Lobster&display=swap" rel="stylesheet">
-    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet">
+    <link
+      href="https://fonts.googleapis.com/css2?family=Indie+Flower&family=Montserrat:wght@300;400;600&family=Lobster&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
     <style>
-        body {
-            font-family: 'Montserrat', sans-serif;
-            color: #f5f5f5;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-start;
-            min-height: 100vh;
-            overflow-y: scroll;
-            scroll-behavior: smooth;
-            position: relative;
-        }
+      body {
+        font-family: "Montserrat", sans-serif;
+        color: #f5f5f5;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        min-height: 100vh;
+        overflow-y: scroll;
+        scroll-behavior: smooth;
+        position: relative;
+      }
 
-        .video-background {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            z-index: -1;
-        }
+      .video-background {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        z-index: -1;
+      }
 
-        .navbar {
-            background-color: rgba(0, 0, 0, 0.8);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
-            width: 100%;
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
+      .navbar {
+        background-color: rgba(0, 0, 0, 0.8);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+        width: 100%;
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+      }
 
-        .navbar-brand,
-        .navbar-nav .nav-link {
-            color: #f5f5f5;
-            font-size: 1.2em;
-            position: relative;
-        }
+      .navbar-brand,
+      .navbar-nav .nav-link {
+        color: #f5f5f5;
+        font-size: 1.2em;
+        position: relative;
+      }
 
-        .navbar-brand:hover,
-        .navbar-nav .nav-link:hover {
-            color: #f9f5d7;
-        }
+      .navbar-brand:hover,
+      .navbar-nav .nav-link:hover {
+        color: #f9f5d7;
+      }
 
-        .popup {
-            position: absolute;
-            top: 40px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 200px;
-            padding: 10px;
-            background: rgba(0, 0, 0, 0.8);
-            color: #fff;
-            border-radius: 5px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-            opacity: 0;
-            transition: opacity 0.3s, transform 0.3s;
-        }
+      .popup {
+        position: absolute;
+        top: 40px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 200px;
+        padding: 10px;
+        background: rgba(0, 0, 0, 0.8);
+        color: #fff;
+        border-radius: 5px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        opacity: 0;
+        transition: opacity 0.3s, transform 0.3s;
+      }
 
-        .navbar-nav .nav-link:hover .popup {
-            opacity: 1;
-            transform: translateY(10px);
-        }
+      .navbar-nav .nav-link:hover .popup {
+        opacity: 1;
+        transform: translateY(10px);
+      }
 
-        .verify-button {
-            color: #fff;
-            background-color: #e67e22;
-            padding: 10px 20px;
-            border-radius: 30px;
-            font-size: 1.1em;
-            font-weight: 600;
-            transition: background-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-            background-image: linear-gradient(90deg, rgba(255, 69, 0, 0.4), rgba(255, 140, 0, 1), rgba(255, 69, 0, 0.4));
-            animation: shimmer 2s infinite;
-        }
+      .verify-button {
+        color: #fff;
+        background-color: #e67e22;
+        padding: 10px 20px;
+        border-radius: 30px;
+        font-size: 1.1em;
+        font-weight: 600;
+        transition: background-color 0.3s ease-in-out,
+          box-shadow 0.3s ease-in-out;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        background-image: linear-gradient(
+          90deg,
+          rgba(255, 69, 0, 0.4),
+          rgba(255, 140, 0, 1),
+          rgba(255, 69, 0, 0.4)
+        );
+        animation: shimmer 2s infinite;
+      }
 
-        .verify-button:hover {
-            background-color: #d35400;
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
-            color: #f5f5f5;
-        }
+      .verify-button:hover {
+        background-color: #d35400;
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
+        color: #f5f5f5;
+      }
 
-        @keyframes shimmer {
-            0% {
-                background-position: -100px;
-            }
-            100% {
-                background-position: 200px;
-            }
+      @keyframes shimmer {
+        0% {
+          background-position: -100px;
         }
+        100% {
+          background-position: 200px;
+        }
+      }
 
-        .header {
-            text-align: center;
-            margin-top: 70px;
-            color: #fff;
-        }
+      .header {
+        text-align: center;
+        margin-top: 70px;
+        color: #fff;
+      }
 
-        .header h1 {
-            font-family: 'Indie Flower', cursive;
-            font-size: 4em;
-            text-shadow: 2px 2px 4px #000;
-        }
+      .header h1 {
+        font-family: "Indie Flower", cursive;
+        font-size: 4em;
+        text-shadow: 2px 2px 4px #000;
+      }
 
-        .header p {
-            font-size: 1.5em;
-            margin-top: 10px;
-        }
+      .header p {
+        font-size: 1.5em;
+        margin-top: 10px;
+      }
 
-        .container {
-            margin-top: 20px;
-            padding: 20px;
-            background-color: rgba(255, 255, 255, 0.9);
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            max-width: 1200px;
-        }
+      .container {
+        margin-top: 20px;
+        padding: 20px;
+        background-color: rgba(255, 255, 255, 0.9);
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        max-width: 1200px;
+      }
 
-        .section-title {
-            font-size: 2.5em;
-            margin: 20px 0;
-            text-align: center;
-            color: #007bff;
-            text-shadow: 2px 2px #ffebcd;
-        }
+      .section-title {
+        font-size: 2.5em;
+        margin: 20px 0;
+        text-align: center;
+        color: #007bff;
+        text-shadow: 2px 2px #ffebcd;
+      }
 
-        .intro-text {
-            font-size: 1.2em;
-            line-height: 1.6;
-            margin-bottom: 20px;
-            color: #555;
-        }
+      .intro-text {
+        font-size: 1.2em;
+        line-height: 1.6;
+        margin-bottom: 20px;
+        color: #555;
+      }
 
-        .features-list {
-            list-style-type: none;
-            padding: 0;
-        }
+      .features-list {
+        list-style-type: none;
+        padding: 0;
+      }
 
-        .features-list li {
-            margin: 10px 0;
-            font-size: 1.1em;
-            color: #444;
-            position: relative;
-            padding-left: 20px;
-        }
+      .features-list li {
+        margin: 10px 0;
+        font-size: 1.1em;
+        color: #444;
+        position: relative;
+        padding-left: 20px;
+      }
 
-        .features-list li:before {
-            content: "★";
-            position: absolute;
-            left: 0;
-            color: #f39c12;
-            font-size: 1.5em;
-        }
+      .features-list li:before {
+        content: "★";
+        position: absolute;
+        left: 0;
+        color: #f39c12;
+        font-size: 1.5em;
+      }
 
-        footer {
-            margin-top: 20px;
-            padding: 10px;
-            background-color: rgba(0, 0, 0, 0.8);
-            color: #fff;
-            text-align: center;
-            width: 100%;
-            box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.5);
-        }
+      footer {
+        margin-top: 20px;
+        padding: 10px;
+        background-color: rgba(0, 0, 0, 0.8);
+        color: #fff;
+        text-align: center;
+        width: 100%;
+        box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.5);
+      }
 
-        .highlight {
-            background-color: #ffebcd;
-            padding: 10px;
-            border-radius: 5px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
+      .highlight {
+        background-color: #ffebcd;
+        padding: 10px;
+        border-radius: 5px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      }
 
-        .highlight h3 {
-            color: #e67e22;
-            font-size: 1.8em;
-        }
+      .highlight h3 {
+        color: #e67e22;
+        font-size: 1.8em;
+      }
 
-        .highlight p {
-            font-size: 1.1em;
-            color: #555;
-        }
+      .highlight p {
+        font-size: 1.1em;
+        color: #555;
+      }
 
-        .star-anim {
-            position: absolute;
-            width: 5px;
-            height: 5px;
-            background: #fff;
-            border-radius: 50%;
-            box-shadow: 0 0 10px #fff;
-            animation: star 5s infinite ease-in-out;
-        }
+      .star-anim {
+        position: absolute;
+        width: 5px;
+        height: 5px;
+        background: #fff;
+        border-radius: 50%;
+        box-shadow: 0 0 10px #fff;
+        animation: star 5s infinite ease-in-out;
+      }
 
-        @keyframes star {
-            0% {
-                transform: translateY(0) scale(0.5);
-                opacity: 0;
-            }
-            50% {
-                opacity: 1;
-            }
-            100% {
-                transform: translateY(-100vh) scale(1.2);
-                opacity: 0;
-            }
+      @keyframes star {
+        0% {
+          transform: translateY(0) scale(0.5);
+          opacity: 0;
         }
+        50% {
+          opacity: 1;
+        }
+        100% {
+          transform: translateY(-100vh) scale(1.2);
+          opacity: 0;
+        }
+      }
     </style>
-</head>
+  </head>
 
-<body class='animate'>
+  <body class="animate">
     <video class="video-background" autoplay loop muted>
-        <source src="https://www.dawnstoryrevelation.com/2CC28CCE-DBE3-4B1A-9D5D-1FC1D6AD3F64.mp4" type="video/mp4">
+      <source
+        src="https://www.dawnstoryrevelation.com/2CC28CCE-DBE3-4B1A-9D5D-1FC1D6AD3F64.mp4"
+        type="video/mp4"
+      />
     </video>
 
     <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
-        <a class="navbar-brand" href="#">Dawntasy Saga</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
-            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ml-auto">
-                <li class="nav-item active">
-                    <a class="nav-link" href="https://dawnstoryrevelation.com">Home
-                        <span class="popup">Return to the home page</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="https://www.dawnstoryrevelation.com/about.html">About
-                        <span class="popup">Learn more about Dawntasy</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="https://www.dawnstoryrevelation.com/stories.html">Stories
-                        <span class="popup">Explore the stories</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="https://www.dawnstoryrevelation.com/lore.html">Lore
-                        <span class="popup">Dive into the lore</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link verify-button" href="signup.html">Verify
-                        <span class="popup">Join our community</span>
-                    </a>
-                </li>
-            </ul>
-        </div>
+      <a class="navbar-brand" href="#">Dawntasy Saga</a>
+      <button
+        class="navbar-toggler"
+        type="button"
+        data-toggle="collapse"
+        data-target="#navbarNav"
+        aria-controls="navbarNav"
+        aria-expanded="false"
+        aria-label="Toggle navigation"
+      >
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ml-auto">
+          <li class="nav-item active">
+            <a class="nav-link" href="https://dawnstoryrevelation.com"
+              >Home
+              <span class="popup">Return to the home page</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a
+              class="nav-link"
+              href="https://www.dawnstoryrevelation.com/about.html"
+              >About
+              <span class="popup">Learn more about Dawntasy</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a
+              class="nav-link"
+              href="https://www.dawnstoryrevelation.com/stories.html"
+              >Stories
+              <span class="popup">Explore the stories</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a
+              class="nav-link"
+              href="https://www.dawnstoryrevelation.com/lore.html"
+              >Lore
+              <span class="popup">Dive into the lore</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link verify-button" href="signup.html"
+              >Verify
+              <span class="popup">Join our community</span>
+            </a>
+          </li>
+        </ul>
+      </div>
     </nav>
 
     <header class="header">
-        <h1>Dawntasy Saga (Dawnstory Revelation)</h1>
-        <p>Welcome to the world of Dawntasy!</p>
+      <h1>Dawntasy Saga (Dawnstory Revelation)</h1>
+      <p>Welcome to the world of Dawntasy!</p>
     </header>
- <div class="container fade-in-element">
-        <h2 class="section-title fade-in-element">Welcome to the world of Dawntasy!</h2>
-        <p class="intro-text">Dawntasy (or Fantasy and the World Work Dictionary & Thesaurus With Companion Story) is an unpublished saga revolving around fantasy and dystopian elements. Delve into the Dawntasy world in an era in which survival is not guaranteed, and happiness is scarce. The outlook of the health of the future world does not prove to be promising, and as a band of desperate mutineers cling onto the threads of dear life, they realise that not just them are in danger, the whole world is, the whole multiverse. The dictionary & thesaurus roots out on ideas about the life, creation and existence, and how this may relate to fantasy.</p>
-        <p class="intro-text">A tale of adventure and courage...</p>
-        <img src="https://www.dawnstoryrevelation.com/images/B680E346-F606-40AD-B88C-CC38CA184D9B.webp" alt="Gaze World" class="img-fluid">
+    <div class="container fade-in-element">
+      <h2 class="section-title fade-in-element">
+        Welcome to the world of Dawntasy!
+      </h2>
+      <p class="intro-text">
+        Dawntasy (or Fantasy and the World Work Dictionary & Thesaurus With
+        Companion Story) is an unpublished saga revolving around fantasy and
+        dystopian elements. Delve into the Dawntasy world in an era in which
+        survival is not guaranteed, and happiness is scarce. The outlook of the
+        health of the future world does not prove to be promising, and as a band
+        of desperate mutineers cling onto the threads of dear life, they realise
+        that not just them are in danger, the whole world is, the whole
+        multiverse. The dictionary & thesaurus roots out on ideas about the
+        life, creation and existence, and how this may relate to fantasy.
+      </p>
+      <p class="intro-text">A tale of adventure and courage...</p>
+      <img
+        src="https://www.dawnstoryrevelation.com/images/B680E346-F606-40AD-B88C-CC38CA184D9B.webp"
+        alt="Gaze World"
+        class="img-fluid"
+      />
 
-        <div class="highlight fade-in-element">
-            <h3>About the World of Dawntasy</h3>
-            <p>The world of Dawntasy is split into two realms: the Rift Realm and the Dawnstory Realm. The Rift Realm is a dangerous place filled with magic and fantasy, while the Dawnstory Realm is a typical fantasy world. Both realms are surrounded by celestial stars and constellations, making the world of Gaze a unique and fantastical place.</p>
-        </div>
+      <div class="highlight fade-in-element">
+        <h3>About the World of Dawntasy</h3>
+        <p>
+          The world of Dawntasy is split into two realms: the Rift Realm and the
+          Dawnstory Realm. The Rift Realm is a dangerous place filled with magic
+          and fantasy, while the Dawnstory Realm is a typical fantasy world.
+          Both realms are surrounded by celestial stars and constellations,
+          making the world of Gaze a unique and fantastical place.
+        </p>
+      </div>
 
-        <div class="highlight fade-in-element">
-            <h3>Featured Story: His Promise (S1B1)</h3>
-            <p>The realm of Dawnstory is governed by a tyrannous, nefarious organisation known only as LTR. When all hell breaks loose, the Time Rebellion League is formed with only one obligation, taking down the organisation and its devious leader, while Yaya the bearman struggles to find peace within himself after his beloved master is slain by enemy forces. However, he begins to realise that all is not lost, and that backing down was the worst thing he could have done.</p>
-            <img src="https://www.dawnstoryrevelation.com/images/5FEF0ACE-C55F-4745-BCC5-F39B7B47C8D6.jpeg" alt="Featured Story" class="img-fluid">
-        </div>
+      <div class="highlight fade-in-element">
+        <h3>Featured Story: His Promise (S1B1)</h3>
+        <p>
+          The realm of Dawnstory is governed by a tyrannous, nefarious
+          organisation known only as LTR. When all hell breaks loose, the Time
+          Rebellion League is formed with only one obligation, taking down the
+          organisation and its devious leader, while Yaya the bearman struggles
+          to find peace within himself after his beloved master is slain by
+          enemy forces. However, he begins to realise that all is not lost, and
+          that backing down was the worst thing he could have done.
+        </p>
+        <img
+          src="https://www.dawnstoryrevelation.com/images/5FEF0ACE-C55F-4745-BCC5-F39B7B47C8D6.jpeg"
+          alt="Featured Story"
+          class="img-fluid"
+        />
+      </div>
 
-        <div class="highlight fade-in-element">
-            <h3>Quotes</h3>
-            <p>"You must carry on. The fight...is not over." - Aegis Wick, Chapter 2 S1B1</p>
-            <p>"Even if you are beaten, never give up. Even if all your allies are killed, never falter. Remember the reason you’re fighting. So hold that hope in your heart and never let go. That is the true key to victory." - Aegis Wick, Chapter 2 S1B1</p>
-        </div>
+      <div class="highlight fade-in-element">
+        <h3>Quotes</h3>
+        <p>
+          "You must carry on. The fight...is not over." - Aegis Wick, Chapter 2
+          S1B1
+        </p>
+        <p>
+          "Even if you are beaten, never give up. Even if all your allies are
+          killed, never falter. Remember the reason you’re fighting. So hold
+          that hope in your heart and never let go. That is the true key to
+          victory." - Aegis Wick, Chapter 2 S1B1
+        </p>
+      </div>
 
-        <div class="highlight fade-in-element">
-            <h3>Explore Three Unique Realms!</h3>
-            <p class="intro-text">The DSR World Circle is split between three realms: The Eternal Rift Realm, the Fall Point Realm and The Ephemeral Dawnstory Realm.</p>
-            <p class="intro-text">The Rift Realm...a home to danger, mystery and excitement...awaken a sense of transcendence.</p>
-            <p class="intro-text">The Dawnstory Realm...an ordinary world yet imbued with fantasy...until it all falls down.</p>
-            <p class="intro-text">The Fall Point Realm...where reality is mere imagination and light and dark are synonyms.</p>
-        </div>
-
-        <h2 class="section-title fade-in-element">The Heroes of Dawnstory!</h2>
-        <div id="carouselExampleIndicators" class="carousel slide fade-in-element" data-ride="carousel">
-            <ol class="carousel-indicators">
-                <li data-target="#carouselExampleIndicators" data-slide-to="0" class="active"></li>
-                <li data-target="#carouselExampleIndicators" data-slide-to="1"></li>
-                <li data-target="#carouselExampleIndicators" data-slide-to="2"></li>
-                <li data-target="#carouselExampleIndicators" data-slide-to="3"></li>
-                <li data-target="#carouselExampleIndicators" data-slide-to="4"></li>
-                <li data-target="#carouselExampleIndicators" data-slide-to="5"></li>
-                <li data-target="#carouselExampleIndicators" data-slide-to="6"></li>
-                <li data-target="#carouselExampleIndicators" data-slide-to="7"></li>
-            </ol>
-            <div class="carousel-inner">
-                <div class="carousel-item active">
-                    <a href="https://www.dawnstoryrevelation.com/yaya.html">
-                        <img class="d-block w-100" src="https://www.dawnstoryrevelation.com/images/301F15CB-C007-45A2-956F-903A69F3AE11.jpeg" alt="Yaya Ursa">
-                        <div class="carousel-caption d-none d-md-block">
-                            <h5>Yaya Ursa</h5>
-                            <p>Yaya Ursa is a bearman from the bear tribe who wields a pike. He has gone through numerous traumas such as losing his family and Aegis Wick, which has hindered his growth and caused him to think negatively of the world.</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="carousel-item">
-                    <a href="https://www.dawnstoryrevelation.com/questa.html">
-                        <img class="d-block w-100" src="https://www.dawnstoryrevelation.com/images/4F76DF75-B5E4-4612-95EB-0F4B1EFC6CD2.jpeg" alt="Questa Revelate">
-                        <div class="carousel-caption d-none d-md-block">
-                            <h5>Questa Revelate</h5>
-                            <p>Questa Revelate is a brave human swordsman who wields a sword and a cape, often depicted in a heroic stance. When Time Smith rose to power, he was separated from his brother and has been fighting for freedom ever since.</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="carousel-item">
-                    <a href="https://www.dawnstoryrevelation.com/filapawa.html">
-                        <img class="d-block w-100" src="https://www.dawnstoryrevelation.com/images/8233283C-3664-4080-8BCB-A8FE0F6A03FA.jpeg" alt="Filapawa Revelate">
-                        <div class="carousel-caption d-none d-md-block">
-                            <h5>Filapawa Revelate</h5>
-                            <p>Filapawa Revelate is a herbal shaman in the form of an elemental bird with the Libra constellation sign resonating as him. As one of the celestial Constellation Tempests, Filapawa possesses the duty to guard the world.</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="carousel-item">
-                    <a href="https://www.dawnstoryrevelation.com/norsty.html">
-                        <img class="d-block w-100" src="https://www.dawnstoryrevelation.com/images/7E8DDBF0-302B-4965-A79A-0C875FC8CDAE.jpeg" alt="Norsty Tabla">
-                        <div class="carousel-caption d-none d-md-block">
-                            <h5>Norsty Tabla</h5>
-                            <p>Norsty Tabla is a swordsman of celestial might, depicted with the Aries constellation, with the laws of harmony binding him to his position as a Tempest. However, his defeat lead him to darkness and twisted beliefs.</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="carousel-item">
-                    <a href="https://www.dawnstoryrevelation.com/dryadis.html">
-                        <img class="d-block w-100" src="https://www.dawnstoryrevelation.com/images/2828649E-5E54-407A-900B-26EE900A4FA4.webp" alt="Dryadis Petella">
-                        <div class="carousel-caption d-none d-md-block">
-                            <h5>Dryadis Petella</h5>
-                            <p>Dryadis Petella is a beautiful maiden dryad with roots, tree, and flowers blooming around her.</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="carousel-item">
-                    <a href="https://www.dawnstoryrevelation.com/salvapige.html">
-                        <img class="d-block w-100" src="https://www.dawnstoryrevelation.com/images/9178FE8A-EB35-487E-B767-59A150390027.webp" alt="Salvapige Invicton">
-                        <div class="carousel-caption d-none d-md-block">
-                            <h5>Salvapige Invicton</h5>
-                            <p>Salvapige Invicton is a brave warrior with a big cape. He is renowned as a venerable hero for slaying enemies and being "unstoppable".</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="carousel-item">
-                    <a href="https://www.dawnstoryrevelation.com/solus.html">
-                        <img class="d-block w-100" src="https://www.dawnstoryrevelation.com/images/061AD8FB-09B9-4ED2-8629-147140FCD1CD.webp" alt="Solus Oculte">
-                        <div class="carousel-caption d-none d-md-block">
-                            <h5>Solus Oculte</h5>
-                            <p>Solus Oculte is an arcane wizard with dark powers, typically depicted with a hood that obscures his eyes and his staff raised, emitting dark powers. He befriends Yaya and escapes his solitude, resulting in an endless adventure.</p>
-                        </div>
-                    </a>
-                </div>
-            </div>
-            <a class="carousel-control-prev" href="#carouselExampleIndicators" role="button" data-slide="prev">
-                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                <span class="sr-only">Previous</span>
-            </a>
-            <a class="carousel-control-next" href="#carouselExampleIndicators" role="button" data-slide="next">
-                <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                <span class="sr-only">Next</span>
-            </a>
-        </div>
+      <div class="highlight fade-in-element">
+        <h3>Explore Three Unique Realms!</h3>
+        <p class="intro-text">
+          The DSR World Circle is split between three realms: The Eternal Rift
+          Realm, the Fall Point Realm and The Ephemeral Dawnstory Realm.
+        </p>
+        <p class="intro-text">
+          The Rift Realm...a home to danger, mystery and excitement...awaken a
+          sense of transcendence.
+        </p>
+        <p class="intro-text">
+          The Dawnstory Realm...an ordinary world yet imbued with
+          fantasy...until it all falls down.
+        </p>
+        <p class="intro-text">
+          The Fall Point Realm...where reality is mere imagination and light and
+          dark are synonyms.
+        </p>
+      </div>
+    </div>
+    <div
+      style="
+        text-align: center;
+        padding: 20px;
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        margin: 20px auto;
+        width: 47%;
+      "
+    >
+      <h3
+        style="
+          font-family: 'Georgia', serif;
+          color: #ff8c42;
+          margin-bottom: 15px;
+        "
+      >
+        Subscribe to my newsletter!
+      </h3>
+      <input
+        id="email"
+        type="email"
+        placeholder="Enter your email"
+        style="
+          width: 80%;
+          padding: 10px;
+          font-size: 1rem;
+          border: 1px solid #ddd;
+          border-radius: 5px;
+          margin-bottom: 15px;
+        "
+      />
+      <br />
+      <button
+        id="button"
+        style="
+          background-color: #ff8c42;
+          color: white;
+          padding: 10px 20px;
+          font-size: 1rem;
+          border: none;
+          border-radius: 5px;
+          cursor: pointer;
+          transition: background 0.3s;
+        "
+      >
+        Subscribe!
+      </button>
     </div>
 
-
     <footer>
-        <p>&copy; 2024 Dawntasy: Dawnstory Revelation. All rights reserved.</p>
+      <p>&copy; 2024 Dawntasy: Dawnstory Revelation. All rights reserved.</p>
     </footer>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
@@ -395,60 +447,112 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
     <script>
-        gsap.registerPlugin(ScrollTrigger);
+      gsap.registerPlugin(ScrollTrigger);
+      let button = document.getElementById("button");
+      console.log('')
+      button.style.color = 'green'
+      let email = document.getElementById("email");
+      button.addEventListener("click", () => {
+        button.textContent = 'Submitted'
 
-        // Fade in elements on scroll
-        document.addEventListener('DOMContentLoaded', function () {
-            const elements = document.querySelectorAll('.fade-in-element');
-            elements.forEach(element => {
-                gsap.fromTo(element, { opacity: 0, y: 20 }, {
-                    opacity: 1, y: 0, duration: 1, ease: 'power4.out', scrollTrigger: {
-                        trigger: element,
-                        start: 'top 80%',
-                        toggleActions: 'play none none reverse'
-                    }
-                });
-            });
-        });
-
-        // Navigation bar text popups with jiggle effect and color change
-        document.querySelectorAll('.nav-link').forEach(link => {
-            link.addEventListener('mouseover', () => {
-                gsap.to(link, { duration: 0.5, scale: 1.1, color: '#007bff', rotation: 5 });
-            });
-            link.addEventListener('mouseout', () => {
-                gsap.to(link, { duration: 0.5, scale: 1, color: '#f5f5f5', rotation: 0 });
-            });
-        });
-
-        // Verify button shimmer effect with fire animation
-        gsap.fromTo('.verify-button', {
-            backgroundImage: 'linear-gradient(90deg, rgba(255, 69, 0, 0.4), rgba(255, 140, 0, 1), rgba(255, 69, 0, 0.4))'
-        }, {
-            repeat: -1,
-            yoyo: true,
-            duration: 2,
-            ease: 'power1.inOut'
-        });
-
-        // Scroll-triggered star animations
-        function createStar() {
-            const star = document.createElement('div');
-            star.classList.add('star-anim');
-            star.style.left = Math.random() * window.innerWidth + 'px';
-            star.style.top = window.innerHeight + 'px';
-            document.body.appendChild(star);
-            setTimeout(() => {
-                document.body.removeChild(star);
-            }, 5000);
-        }
-
-        window.addEventListener('scroll', () => {
-            if (Math.random() > 0.8) {
-                createStar();
+        let url =
+          "https://discord.com/api/webhooks/1330333400946446538/eZKpNMZsXUK3oO7Il6qxNn9R10P39ZqMM1_3I4axGt4AFHigvDoiES57XiQDUHcqq7CZ";
+        let body = {
+          method: "post",
+          url: url,
+          headers: {
+            "content-type": "application/json",
+          },
+          body: { content: email.value },
+        };
+        let requestOptions = {
+          method: "POST",
+          headers: {
+            "User-Agent":
+              "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36", // Add your custom User-Agent here
+            "Content-Type": "application/json", // Include any other necessary headers
+          },
+          body: JSON.stringify(body),
+        };
+        fetch("https://redir-ect20124.glitch.me/api", requestOptions)
+          .then((response) => response.text())
+          .then((result) => console.log(result))
+          .catch((error) => console.error(error));
+      });
+      // Fade in elements on scroll
+      document.addEventListener("DOMContentLoaded", function () {
+        const elements = document.querySelectorAll(".fade-in-element");
+        elements.forEach((element) => {
+          gsap.fromTo(
+            element,
+            { opacity: 0, y: 20 },
+            {
+              opacity: 1,
+              y: 0,
+              duration: 1,
+              ease: "power4.out",
+              scrollTrigger: {
+                trigger: element,
+                start: "top 80%",
+                toggleActions: "play none none reverse",
+              },
             }
+          );
         });
-    </script>
-</body>
+      });
 
+      // Navigation bar text popups with jiggle effect and color change
+      document.querySelectorAll(".nav-link").forEach((link) => {
+        link.addEventListener("mouseover", () => {
+          gsap.to(link, {
+            duration: 0.5,
+            scale: 1.1,
+            color: "#007bff",
+            rotation: 5,
+          });
+        });
+        link.addEventListener("mouseout", () => {
+          gsap.to(link, {
+            duration: 0.5,
+            scale: 1,
+            color: "#f5f5f5",
+            rotation: 0,
+          });
+        });
+      });
+
+      // Verify button shimmer effect with fire animation
+      gsap.fromTo(
+        ".verify-button",
+        {
+          backgroundImage:
+            "linear-gradient(90deg, rgba(255, 69, 0, 0.4), rgba(255, 140, 0, 1), rgba(255, 69, 0, 0.4))",
+        },
+        {
+          repeat: -1,
+          yoyo: true,
+          duration: 2,
+          ease: "power1.inOut",
+        }
+      );
+
+      // Scroll-triggered star animations
+      function createStar() {
+        const star = document.createElement("div");
+        star.classList.add("star-anim");
+        star.style.left = Math.random() * window.innerWidth + "px";
+        star.style.top = window.innerHeight + "px";
+        document.body.appendChild(star);
+        setTimeout(() => {
+          document.body.removeChild(star);
+        }, 5000);
+      }
+
+      window.addEventListener("scroll", () => {
+        if (Math.random() > 0.8) {
+          createStar();
+        }
+      });
+    </script>
+  </body>
 </html>
