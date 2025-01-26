@@ -674,8 +674,10 @@ button a {
         </ul>
       </div>
     </nav>
-
-    <header class="header">
+<body>
+  <div id="smooth-wrapper">
+    <div id="smooth-content">
+     <header class="header">
       <h1>Dawntasy Saga (Dawnstory Revelation)</h1>
       <p>Welcome to the world of Dawntasy!</p>
     </header>
@@ -806,6 +808,9 @@ Get the free book in exchange for a honest review on Amazon.
 
          
     </div>
+    </div>
+  </div>
+</body>
 
     <footer>
       <p>&copy; 2024 Dawntasy: Dawnstory Revelation. All rights reserved.</p>
@@ -951,6 +956,18 @@ scroller.effects(".box", {lag: 0.5, speed: 1});
   });
 
 console.log(st.animation); // tween
+      gsap.registerPlugin(ScrollTrigger, ScrollSmoother);
+      <div data-speed="0.5"></div> <!-- half-speed of scroll -->
+<div data-speed="2"></div> <!-- double-speed of scroll -->
+<div data-speed="1"></div> <!-- normal speed of scroll -->
+<div data-speed="auto"></div> <!-- auto-calculated based on how far it can move inside its container -->
+      <div data-speed="clamp(0.5)"></div> <!-- clamped half-speed -->
+      let scroller = ScrollSmoother.create({...});
+scroller.effects(".box", {speed: 0.5, lag: 0.1});
+      <div data-lag="0.5"></div> <!-- takes 0.5 seconds to "catch up" -->
+<div data-lag="0.8"></div> <!-- takes 0.8 seconds to "catch up" -->
+      let scroller = ScrollSmoother.create({...});
+scroller.effects(".box", {lag: 0.5, speed: 1});
     </script>
   </body>
 </html>
