@@ -389,12 +389,6 @@ position: fixed;
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(
-    var(--bg-color) 10%,
-    transparent 30%,
-    transparent 70%,
-    var(--bg-color) 90%
-  );
   z-index: 20;
 }
 
@@ -623,16 +617,84 @@ button a {
  color: white;
  text-decoration: none;
 }
+      
+      /* From Uiverse.io by gharsh11032000 */ 
+.card {
+  position: relative;
+  background-color: #000;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 12px;
+  gap: 12px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  left: -5px;
+  margin: auto;
+  width: 200px;
+  height: 264px;
+  border-radius: 10px;
+  background: linear-gradient(-45deg, #e81cff 0%, #40c9ff 100% );
+  z-index: -10;
+  pointer-events: none;
+  transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.card::after {
+  content: "";
+  z-index: -1;
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(-45deg, #fc00ff 0%, #00dbde 100% );
+  transform: translate3d(0, 0, 0) scale(0.95);
+  filter: blur(20px);
+}
+
+.heading {
+  font-size: 20px;
+  text-transform: capitalize;
+  font-weight: 700;
+  color: white;
+}
+
+.card p:not(.heading) {
+  font-size: 14px;
+}
+
+.card p:last-child {
+  color: #e81cff;
+  font-weight: 600;
+}
+
+.card:hover::after {
+  filter: blur(30px);
+}
+
+.card:hover::before {
+  transform: rotate(-90deg) scaleX(1.34) scaleY(0.77);
+}
+      #about {
+        width: 400px;
+        height: 400px
+      }
+body {
+  background-image: url('https://cdn.glitch.global/011dd023-ea1f-4c61-a6b7-149b049e4922/The%20Dream%20(Legendary).WEBP?v=1738045211782');
+    background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-size: cover;
+}
+      
+      
     </style>
   </head>
 
   <body class="animate">
-    <video class="video-background" autoplay loop muted>
-      <source
-        src="The Dream (Legendary).WEBP"
-        type="video/mp4"
-      />
-    </video>
 
     <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
       <a class="navbar-brand" href="#">Dawntasy Saga</a>
@@ -659,8 +721,8 @@ button a {
             <a
               class="nav-link"
               href="https://www.dawnstoryrevelation.com/events.html"
-              >Events
-              <span class="popup">Learn more about Dawntasy Events</span>
+              >Contact
+              <span class="popup">Learn more about me</span>
             </a>
           </li>
           <li class="nav-item">
@@ -674,12 +736,10 @@ button a {
         </ul>
       </div>
     </nav>
-<body>
-  <div id="smooth-wrapper">
-    <div id="smooth-content">
-     <header class="header">
-      <h1>Dawntasy Saga</h1>
-      <p>The darkest secrets...are meant to remain secrets. The secret was left untouched for centuries, until...</p>
+
+    <header class="header">
+      <h1>Dawntasy Saga (Dawnstory Revelation)</h1>
+      <p>Welcome to the world of Dawntasy!</p>
     </header>
     
     <div
@@ -743,6 +803,17 @@ LOOKING FOR ARC READERS! CLAIM YOUR FREE COPY TODAY!
 Get the free book in exchange for a honest review on Amazon.
   </div>
 </div>
+  
+  <!-- From Uiverse.io by gharsh11032000 --> 
+<div id='about' class="card">
+  <p class="heading">
+  who am i
+  </p>
+  <p>
+I am a passionate 13 year old author who wants to share my writing voice with the world. Please support me by buying my first book, Dawntasy: Yay's Promise, on Goodreads or Amazon, leaving a review and sharing it with others. Many thanks!
+  </p>
+  <p>
+</p></div>
     
      <div
       style="
@@ -808,9 +879,6 @@ Get the free book in exchange for a honest review on Amazon.
 
          
     </div>
-    </div>
-  </div>
-</body>
 
     <footer>
       <p>&copy; 2024 Dawntasy: Dawnstory Revelation. All rights reserved.</p>
@@ -927,213 +995,6 @@ Get the free book in exchange for a honest review on Amazon.
           createStar();
         }
       });
-      // create the scrollSmoother before your scrollTriggers
-ScrollSmoother.create({
-  smooth: 1, // how long (in seconds) it takes to "catch up" to the native scroll position
-  effects: true, // looks for data-speed and data-lag attributes on elements
-  smoothTouch: 0.1, // much shorter smoothing time on touch devices (default is NO smoothing on touch devices)
-});
-      <div data-speed="0.5"></div>
-<!-- half-speed of scroll -->
-<div data-speed="2"></div>
-<!-- double-speed of scroll -->
-<div data-speed="1"></div>
-<!-- normal speed of scroll -->
-<div data-speed="auto"></div>
-<!-- auto-calculated based on how far it can move inside its container -->
-        <div data-lag="0.5"></div>
-<!-- takes 0.5 seconds to "catch up" -->
-<div data-lag="0.8"></div>
-<!-- takes 0.8 seconds to "catch up" -->
-        let scroller = ScrollSmoother.create({...});
-scroller.effects(".box", {lag: 0.5, speed: 1});
-      let tween = gsap.to(".class", { x: 100 }),
-  st = ScrollTrigger.create({
-    trigger: ".trigger",
-    start: "top center",
-    end: "+=500",
-    animation: tween,
-  });
-
-console.log(st.animation); // tween
-      gsap.registerPlugin(ScrollTrigger, ScrollSmoother);
-      <div data-speed="0.5"></div> <!-- half-speed of scroll -->
-<div data-speed="2"></div> <!-- double-speed of scroll -->
-<div data-speed="1"></div> <!-- normal speed of scroll -->
-<div data-speed="auto"></div> <!-- auto-calculated based on how far it can move inside its container -->
-      <div data-speed="clamp(0.5)"></div> <!-- clamped half-speed -->
-      let scroller = ScrollSmoother.create({...});
-scroller.effects(".box", {speed: 0.5, lag: 0.1});
-      <div data-lag="0.5"></div> <!-- takes 0.5 seconds to "catch up" -->
-<div data-lag="0.8"></div> <!-- takes 0.8 seconds to "catch up" -->
-      let scroller = ScrollSmoother.create({...});
-scroller.effects(".box", {lag: 0.5, speed: 1});
-      import gsap from "gsap";
-import ScrollTrigger from "gsap/ScrollTrigger";
-import ScrollSmoother from "gsap/ScrollSmoother";
-gsap.registerPlugin(ScrollTrigger, ScrollSmoother);
-
-// Initialize Scroll Smoother
-const smoother = ScrollSmoother.create({
-  wrapper: "#smooth-wrapper",
-  content: "#smooth-content",
-  smooth: 2, // Adjust smoothness
-  effects: true
-});
-
-// GSAP Animations and Hover Effects
-function initAnimations() {
-  // Hero Section Animation
-  gsap.from(".hero-title", {
-    y: 100,
-    opacity: 0,
-    duration: 1.5,
-    ease: "power4.out",
-    scrollTrigger: {
-      trigger: ".hero-title",
-      start: "top 80%"
-    }
-  });
-
-  gsap.from(".hero-subtitle", {
-    y: 50,
-    opacity: 0,
-    duration: 1,
-    delay: 0.3,
-    ease: "power4.out",
-    scrollTrigger: {
-      trigger: ".hero-subtitle",
-      start: "top 80%"
-    }
-  });
-
-  // Card Hover Effects
-  const cards = document.querySelectorAll(".card");
-  cards.forEach((card) => {
-    card.addEventListener("mouseenter", () => {
-      gsap.to(card, {
-        scale: 1.05,
-        duration: 0.3,
-        ease: "power3.out"
-      });
-    });
-
-    card.addEventListener("mouseleave", () => {
-      gsap.to(card, {
-        scale: 1,
-        duration: 0.3,
-        ease: "power3.out"
-      });
-    });
-  });
-
-  // Staggered Animations for Grid Items
-  gsap.from(".grid-item", {
-    y: 50,
-    opacity: 0,
-    duration: 1,
-    stagger: 0.2,
-    ease: "power3.out",
-    scrollTrigger: {
-      trigger: ".grid",
-      start: "top 90%"
-    }
-  });
-}
-
-// Unique Feature: Floating Action Button with Smooth Scroll to Top
-function createFloatingActionButton() {
-  const fab = document.createElement("div");
-  fab.classList.add("floating-action-button");
-  fab.innerHTML = "⬆️";
-  document.body.appendChild(fab);
-
-  fab.addEventListener("click", () => {
-    smoother.scrollTo(0, true);
-  });
-
-  gsap.to(fab, {
-    y: 0,
-    opacity: 1,
-    duration: 0.5,
-    scrollTrigger: {
-      trigger: "#smooth-content",
-      start: "top top",
-      end: "bottom bottom",
-      toggleActions: "play none none reverse"
-    }
-  });
-}
-
-// Call Functions
-initAnimations();
-createFloatingActionButton();
-
-// CSS Styles for Professional Look
-const style = document.createElement("style");
-style.textContent = `
-  body {
-    margin: 0;
-    font-family: 'Arial', sans-serif;
-    background: #f4f4f4;
-    color: #333;
-  }
-
-  #smooth-wrapper {
-    overflow: hidden;
-  }
-
-  .hero-title {
-    font-size: 3rem;
-    text-align: center;
-    margin-top: 50px;
-  }
-
-  .hero-subtitle {
-    font-size: 1.5rem;
-    text-align: center;
-    margin-top: 10px;
-  }
-
-  .card {
-    background: #fff;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    border-radius: 10px;
-    transition: transform 0.3s ease;
-    padding: 20px;
-    margin: 15px;
-  }
-
-  .grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 20px;
-    padding: 20px;
-  }
-
-  .floating-action-button {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    background: #007bff;
-    color: #fff;
-    padding: 15px;
-    border-radius: 50%;
-    cursor: pointer;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
-    opacity: 0;
-    transform: translateY(50px);
-    z-index: 1000;
-  }
-
-  .floating-action-button:hover {
-    background: #0056b3;
-  }
-`;
-
-// Append styles to document head
-document.head.appendChild(style);
-
     </script>
   </body>
 </html>
