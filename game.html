@@ -1,145 +1,176 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Dawntasy: Yay's Promise</title>
-    <style>
-        body {
-            background-color: #1a1a1a;
-            color: #ffffff;
-            font-family: 'Courier New', monospace;
-            padding: 20px;
-            max-width: 800px;
-            margin: 0 auto;
-        }
+import time
+import sys
+from colorama import Fore, Style, init
 
-        #game-container {
-            border: 1px solid #444;
-            padding: 20px;
-            border-radius: 5px;
-            background-color: #2a2a2a;
-        }
+init(autoreset=True)
 
-        .chapter-title {
-            color: #00ffff;
-            font-size: 1.2em;
-            margin: 15px 0;
-        }
+# Game State Tracking
+player_name = "Yay"
+inventory = []
+allies = []
+trust_levels = {"Solus": 0, "Adage": 0, "Thappnon": 0}
+rift_knowledge = False
+city_burned = False
 
-        .choice-btn {
-            background-color: #333;
-            color: #ffff00;
-            border: 1px solid #555;
-            padding: 10px;
-            margin: 5px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
+def typewriter(text):
+    for char in text:
+        sys.stdout.write(char)
+        sys.stdout.flush()
+        time.sleep(0.03)
+    print()
 
-        .choice-btn:hover {
-            background-color: #444;
-            border-color: #777;
-        }
+def chapter1():
+    typewriter(f"\n{Fore.CYAN}CHAPTER 1: Unknown Town{Style.RESET_ALL}")
+    typewriter(f"\nYou stand in the ruins of Unknown Town, your paws trembling. A LTR guard appears!")
+    choice = input(f"\n{Fore.YELLOW}1) Fight\n2) Try to reason\n3) Run{Style.RESET_ALL}\n> ")
+    
+    if choice == "1":
+        if "pike" in inventory:
+            typewriter(f"\n{Fore.GREEN}You defeat the guard with your pike!{Style.RESET_ALL}")
+            return chapter2()
+        else:
+            typewriter(f"\n{Fore.RED}You're disarmed! The guard captures you.{Style.RESET_ALL}")
+            return game_over("capture")
+    elif choice == "2":
+        typewriter(f"\n{Fore.YELLOW}The guard laughs: 'Rebels don't negotiate!'{Style.RESET_ALL}")
+        return chapter1()
+    elif choice == "3":
+        typewriter(f"\n{Fore.BLUE}You escape but twist your ankle! -1 future option{Style.RESET_ALL}")
+        return chapter2(limping=True)
+    else:
+        typewriter(f"\nInvalid choice! The guard strikes...")
+        return game_over("indecision")
 
-        .typewriter {
-            border-right: 2px solid white;
-            white-space: nowrap;
-            overflow: hidden;
-            animation: typing 3.5s steps(40, end),
-                       blink-caret 0.75s step-end infinite;
-        }
+def chapter2(limping=False):
+    typewriter(f"\n{Fore.CYAN}CHAPTER 2: The Final Stand{Style.RESET_ALL}")
+    typewriter("\nMyther appears wounded! LTR guards surround you both.")
+    
+    if limping:
+        typewriter(f"\n{Fore.RED}Your injury limits movement!{Style.RESET_ALL}")
+        options = ["1) Protect Myther", "2) Retreat"]
+    else:
+        options = ["1) Fight together", "2) Create distraction", "3) Use environment"]
+    
+    choice = input(f"\n{Fore.YELLOW}{' '.join(options)}{Style.RESET_ALL}\n> ")
+    
+    if choice == "1" and not limping:
+        typewriter(f"\n{Fore.GREEN}You defeat the guards but Myther collapses!{Style.RESET_ALL}")
+        allies.append("Myther's Guidance")
+        return chapter3()
+    elif choice == "2" or (choice == "1" and limping):
+        typewriter(f"\n{Fore.RED}Retreat leaves Myther vulnerable!{Style.RESET_ALL}")
+        return game_over("abandonment")
+    elif choice == "3":
+        typewriter(f"\n{Fore.GREEN}You collapse a wall on the guards!{Style.RESET_ALL}")
+        inventory.append("demwhisperer_leaf")
+        return chapter3()
+    else:
+        return game_over("ambush")
 
-        @keyframes typing {
-            from { width: 0 }
-            to { width: 100% }
-        }
+def chapter3():
+    typewriter(f"\n{Fore.CYAN}CHAPTER 3: The Lone Hermit{Style.RESET_ALL}")
+    typewriter("\nSolus refuses to help. How do you persuade him?")
+    
+    persuasion = [
+        "1) Appeal to justice",
+        "2) Mention Myther",
+        "3) Show Demwhisperer leaf" if "demwhisperer_leaf" in inventory else ""
+    ]
+    
+    choice = input(f"\n{Fore.YELLOW}{' '.join([x for x in persuasion if x])}{Style.RESET_ALL}\n> ")
+    
+    if choice == "1":
+        trust_levels["Solus"] += 1
+        typewriter(f"\n{Fore.BLUE}Solus nods grimly{Style.RESET_ALL}")
+    elif choice == "2":
+        trust_levels["Solus"] += 2
+        typewriter(f"\n{Fore.GREEN}Solus' eyes soften{Style.RESET_ALL}")
+    elif choice == "3" and "demwhisperer_leaf" in inventory:
+        trust_levels["Solus"] += 3
+        typewriter(f"\n{Fore.GREEN}The leaf glows! Solus agrees{Style.RESET_ALL}")
+    else:
+        typewriter(f"\n{Fore.RED}Solus remains unconvinced{Style.RESET_ALL}")
+        return game_over("alone")
+    
+    allies.append("Solus")
+    return chapter4()
 
-        @keyframes blink-caret {
-            from, to { border-color: transparent }
-            50% { border-color: white }
-        }
+def chapter4():
+    typewriter(f"\n{Fore.CYAN}CHAPTER 4: Mission Chimera{Style.RESET_ALL}")
+    typewriter("\nSara reveals herself as Chimera! Thappnon's men are surrounded.")
+    
+    if "Solus" in allies and trust_levels["Solus"] >= 3:
+        typewriter(f"\n{Fore.GREEN}Solus creates magical barrier!{Style.RESET_ALL}")
+        options = ["1) Fight Sara", "2) Protect Thappnon", "3) Disarm trap"]
+    else:
+        typewriter(f"\n{Fore.RED}Guards outnumber you 3:1!{Style.RESET_ALL}")
+        options = ["1) Last stand", "2) Sacrifice play"]
+    
+    choice = input(f"\n{Fore.YELLOW}{' '.join(options)}{Style.RESET_ALL}\n> ")
+    
+    if "3" in choice:
+        typewriter(f"\n{Fore.GREEN}You expose Chimera's plot!{Style.RESET_ALL}")
+        allies.append("Thappnon")
+        return chapter5()
+    elif "Solus" in allies and choice == "2":
+        typewriter(f"\n{Fore.BLUE}Thappnon survives but Solus falls!{Style.RESET_ALL}")
+        allies.remove("Solus")
+        return chapter5()
+    else:
+        return game_over("chimera")
 
-        #game-over {
-            color: #ff0000;
-            font-size: 1.5em;
-            display: none;
-        }
-    </style>
-</head>
-<body>
-    <div id="game-container">
-        <h1>🌟 Dawntasy: Yay's Promise 🌟</h1>
-        <div id="game-content"></div>
-        <div id="choices"></div>
-        <div id="game-over"></div>
-    </div>
+def chapter5():
+    typewriter(f"\n{Fore.CYAN}CHAPTER 5: The Rift Revealed{Style.RESET_ALL}")
+    typewriter("\nTime Smith stands before the glowing rift. What's your move?")
+    
+    endings = []
+    if rift_knowledge:
+        endings.append("4) Reveal truth")
+    if city_burned:
+        endings.append("5) Atone through sacrifice")
+    
+    options = [
+        "1) Attack directly",
+        "2) Reason with him",
+        "3) Destroy machine"
+    ] + endings
+    
+    choice = input(f"\n{Fore.YELLOW}{' '.join(options)}{Style.RESET_ALL}\n> ")
+    
+    if choice == "4" and rift_knowledge:
+        true_ending()
+    elif choice == "5" and city_burned:
+        redemption_ending()
+    elif choice == "3":
+        typewriter(f"\n{Fore.GREEN}The rift destabilizes!{Style.RESET_ALL}")
+        return neutral_ending()
+    else:
+        return game_over("rift")
 
-    <script>
-        const gameState = {
-            chapter: 1,
-            inventory: [],
-            allies: [],
-            trust: { Solus: 0, Adage: 0, Thappnon: 0 },
-            riftKnowledge: false,
-            cityBurned: false
-        };
+def true_ending():
+    typewriter(f"\n{Fore.GREEN}You and Time Smith unite against The Rift!{Style.RESET_ALL}")
+    typewriter(f"{Fore.CYAN}TRUE ENDING: Dawntasy's Promise{Style.RESET_ALL}")
+    sys.exit()
 
-        const chapters = {
-            1: {
-                title: "Unknown Town",
-                text: "You stand in the ruins of Unknown Town, your paws trembling. A LTR guard appears!",
-                choices: [
-                    { text: "Fight", next: checkFight },
-                    { text: "Try to reason", next: () => handleChoice(1) },
-                    { text: "Run", next: () => handleChoice(1, true) }
-                ]
-            },
-            // Add other chapters following similar structure
-        };
+def redemption_ending():
+    typewriter(f"\n{Fore.BLUE}You sacrifice yourself to seal The Rift{Style.RESET_ALL}")
+    typewriter(f"{Fore.CYAN}ENDING: Burnt Offering{Style.RESET_ALL}")
+    sys.exit()
 
-        function updateGameText(text) {
-            const contentDiv = document.getElementById('game-content');
-            contentDiv.innerHTML = `<div class="typewriter">${text}</div>`;
-        }
+def neutral_ending():
+    typewriter(f"\n{Fore.YELLOW}The rift closes but Time Smith escapes{Style.RESET_ALL}")
+    typewriter(f"{Fore.CYAN}ENDING: Stalemate{Style.RESET_ALL}")
+    sys.exit()
 
-        function showChoices(choices) {
-            const choicesDiv = document.getElementById('choices');
-            choicesDiv.innerHTML = '';
-            choices.forEach((choice, index) => {
-                const btn = document.createElement('button');
-                btn.className = 'choice-btn';
-                btn.textContent = `${index + 1}) ${choice.text}`;
-                btn.onclick = choice.next;
-                choicesDiv.appendChild(btn);
-            });
-        }
+def game_over(reason):
+    deaths = {
+        "capture": "You rot in LTR cells",
+        "ambush": "Arrows find their mark",
+        "rift": "Reality unravels around you"
+    }
+    typewriter(f"\n{Fore.RED}GAME OVER: {deaths.get(reason, 'All fades to darkness')}{Style.RESET_ALL}")
+    sys.exit()
 
-        function checkFight() {
-            if (gameState.inventory.includes('pike')) {
-                updateGameText("You defeat the guard with your pike!");
-                loadChapter(2);
-            } else {
-                gameOver("You're disarmed! The guard captures you.");
-            }
-        }
-
-        function handleChoice(chapter, specialCondition) {
-            // Add logic for handling choices
-        }
-
-        function gameOver(reason) {
-            document.getElementById('game-over').style.display = 'block';
-            document.getElementById('game-over').textContent = `GAME OVER: ${reason}`;
-        }
-
-        function loadChapter(num) {
-            gameState.chapter = num;
-            const chapter = chapters[num];
-            updateGameText(chapter.text);
-            showChoices(chapter.choices);
-        }
-
-        // Start game
-        loadChapter(1);
-    </script>
-</body>
-</html>
+if __name__ == "__main__":
+    typewriter(f"{Fore.MAGENTA}\n🌟 DAWNTASY: Yay's Promise 🌟{Style.RESET_ALL}")
+    chapter1()
