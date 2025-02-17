@@ -2,13 +2,54 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+
+    <!-- Favicon -->
     <link
       rel="icon"
       href="https://www.dawnstoryrevelation.com/images/821049A8-FDF0-413E-A1A3-533ECC529C7B.webp"
       type="image/x-icon"
     />
+
+    <!-- Responsive Meta -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Dawntasy Saga</title>
+
+    <!-- =========================
+         UPDATED TITLE & SEO TAGS
+         ========================= -->
+    <title>Dawntasy Saga – Epic YA Plot Twist Fantasy by a 13-Year-Old Author</title>
+    <meta
+      name="description"
+      content="Discover Dawntasy Saga, an epic YA fantasy full of plot twists and breathtaking adventures. Join our newsletter for a free copy and explore the dawn of a new realm!"
+    />
+    <meta
+      name="keywords"
+      content="Dawntasy, coming of age fantasy, indie fantasy novel, teen adventure, dark fantasy, enchanting tale, immersive fantasy, mystical realm, magical adventure, high fantasy saga, epic quest, spellbinding narrative, fantastical world, literary fantasy, character-driven fantasy, imaginative story, innovative fantasy, otherworldly, enchanted kingdom, heroic fantasy, courageous adventure, visionary fantasy, twist ending, unpredictable fantasy, modern fantasy, supernatural adventure, mythic legend, epic storytelling, bold fantasy, dreamlike fantasy, realm of magic, intricate fantasy, young adult literature, youth fantasy, immersive adventure, dramatic fantasy, surreal fantasy, enigmatic narrative, riveting fantasy, creative fantasy, boundary-pushing fantasy, mind-bending fantasy, suspenseful fantasy, captivating saga, heroic journey, mysterious world, timeless fantasy, legendary tale, plot twist fantasy, fantasy plot twist, YA fantasy, epic fantasy, 13 year old author, new fantasy novel, breathtaking adventure, high fantasy"
+    />
+
+    <!-- =========================
+         STRUCTURED DATA (JSON-LD)
+         Helps with Knowledge Panel
+         ========================= -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Book",
+      "name": "Dawntasy: Time’s True Name",
+      "author": {
+        "@type": "Person",
+        "name": "Dr. Sigma"
+      },
+      "description": "An epic YA fantasy novel with plot twists, breathtaking adventures, and imaginative storytelling by a 13-year-old indie author.",
+      "image": "https://www.dawnstoryrevelation.com/images/821049A8-FDF0-413E-A1A3-533ECC529C7B.webp",
+      "url": "https://dawntasy.com",
+      "publisher": {
+        "@type": "Organization",
+        "name": "Dawntasy Empire"
+      }
+    }
+    </script>
+
+    <!-- Fonts & Bootstrap -->
     <link
       href="https://fonts.googleapis.com/css2?family=Indie+Flower&family=Montserrat:wght@300;400;600&family=Lobster&display=swap"
       rel="stylesheet"
@@ -17,6 +58,7 @@
       href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
       rel="stylesheet"
     />
+
     <style>
       body {
         font-family: "Montserrat", sans-serif;
@@ -31,6 +73,10 @@
         overflow-y: scroll;
         scroll-behavior: smooth;
         position: relative;
+        background-image: url('https://cdn.glitch.global/011dd023-ea1f-4c61-a6b7-149b049e4922/The%20Dream%20(Legendary).WEBP?v=1738045211782');
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        background-size: cover;
       }
 
       .video-background {
@@ -124,6 +170,13 @@
         color: #fff;
       }
 
+      /* Slight hover effect on the main title */
+      .header h1:hover {
+        color: #ffe;
+        transform: scale(1.03);
+        transition: transform 0.3s ease, color 0.3s ease;
+      }
+
       .header h1 {
         font-family: "Indie Flower", cursive;
         font-size: 4em;
@@ -181,11 +234,11 @@
       }
 
       footer {
-position: fixed;
-  left: 0;
-  bottom: 0;
-  width: 100%;
-  text-align: center;
+        position: fixed;
+        left: 0;
+        bottom: 0;
+        width: 100%;
+        text-align: center;
         padding: 10px;
         background-color: rgba(0, 0, 0, 0.8);
         color: #fff;
@@ -234,468 +287,398 @@ position: fixed;
           opacity: 0;
         }
       }
+
       .btn {
-  --fancy-button-gradient-0: #8d49fd;
-  --fancy-button-gradient-50: #7f56f3;
-  --fancy-button-gradient-100: #5691f3;
-  --fancy-button-inner-shadow-top: rgba(233, 209, 255, 0.2);
-  --fancy-button-inner-shadow-top-lg: rgba(9, 12, 60, 0.1);
-  --fancy-button-inner-shadow-bottom: rgba(137, 222, 246, 0.3);
-  --fancy-button-shine-top: #e9d1ff;
-  --fancy-button-shine-bottom: #adfff9;
-  font-weight: 500;
-  font-size: 15px;
-  line-height: 21px;
-  text-shadow: 0px 0.5px 0.5px rgba(0, 0, 0, 0.2);
-  padding: 0;
-  margin: 0;
-  appearance: none;
-  border: none;
-  outline: none;
-  overflow: hidden;
-  position: relative;
-  cursor: pointer;
-  z-index: 1;
-  border-radius: 25px;
-  color: #fff;
-  background-image: linear-gradient(
-    to bottom,
-    var(--fancy-button-gradient-0) 0%,
-    var(--fancy-button-gradient-50) 50%,
-    var(--fancy-button-gradient-100) 100%
-  );
-  box-shadow:
-    0px 4px 12px rgba(9, 12, 60, 0.15),
-    0px 2px 8px rgba(9, 12, 60, 0.15),
-    0px 1px 3px var(--fancy-button-inner-shadow-top-lg),
-    inset 0px 1px 1px var(--fancy-button-inner-shadow-top),
-    inset 0px -1px 3px var(--fancy-button-inner-shadow-bottom);
-}
+        --fancy-button-gradient-0: #8d49fd;
+        --fancy-button-gradient-50: #7f56f3;
+        --fancy-button-gradient-100: #5691f3;
+        --fancy-button-inner-shadow-top: rgba(233, 209, 255, 0.2);
+        --fancy-button-inner-shadow-top-lg: rgba(9, 12, 60, 0.1);
+        --fancy-button-inner-shadow-bottom: rgba(137, 222, 246, 0.3);
+        --fancy-button-shine-top: #e9d1ff;
+        --fancy-button-shine-bottom: #adfff9;
+        font-weight: 500;
+        font-size: 15px;
+        line-height: 21px;
+        text-shadow: 0px 0.5px 0.5px rgba(0, 0, 0, 0.2);
+        padding: 0;
+        margin: 0;
+        appearance: none;
+        border: none;
+        outline: none;
+        overflow: hidden;
+        position: relative;
+        cursor: pointer;
+        z-index: 1;
+        border-radius: 25px;
+        color: #fff;
+        background-image: linear-gradient(
+          to bottom,
+          var(--fancy-button-gradient-0) 0%,
+          var(--fancy-button-gradient-50) 50%,
+          var(--fancy-button-gradient-100) 100%
+        );
+        box-shadow: 0px 4px 12px rgba(9, 12, 60, 0.15),
+          0px 2px 8px rgba(9, 12, 60, 0.15),
+          0px 1px 3px var(--fancy-button-inner-shadow-top-lg),
+          inset 0px 1px 1px var(--fancy-button-inner-shadow-top),
+          inset 0px -1px 3px var(--fancy-button-inner-shadow-bottom);
+      }
 
-.btn:before,
-.btn:after {
-  content: "";
-  position: absolute;
-  border-radius: inherit;
-  will-change: transform;
-}
+      .btn:before,
+      .btn:after {
+        content: "";
+        position: absolute;
+        border-radius: inherit;
+        will-change: transform;
+      }
 
-.btn:before {
-  left: 50%;
-  transform: translateX(-50%);
-  background-color: var(--fancy-button-shine-top);
-  width: 96px;
-  height: 6px;
-  top: -3px;
-  opacity: 0.6;
-  filter: blur(6px);
-  transition: opacity 0.25s;
-}
+      .btn:before {
+        left: 50%;
+        transform: translateX(-50%);
+        background-color: var(--fancy-button-shine-top);
+        width: 96px;
+        height: 6px;
+        top: -3px;
+        opacity: 0.6;
+        filter: blur(6px);
+        transition: opacity 0.25s;
+      }
 
-.btn:after {
-  inset: 0;
-  background-size: cover;
-  z-index: 2;
-  opacity: 0.3;
-  mix-blend-mode: overlay;
-  pointer-events: none;
-}
+      .btn:after {
+        inset: 0;
+        background-size: cover;
+        z-index: 2;
+        opacity: 0.3;
+        mix-blend-mode: overlay;
+        pointer-events: none;
+      }
 
-.btn span {
-  display: block;
-  padding: 12px 24px;
-  border-radius: inherit;
-  overflow: hidden;
-  position: relative;
-  background-image: linear-gradient(
-    to bottom,
-    var(--fancy-button-shine-top),
-    transparent 8px
-  );
-  background-position: 0 -6px;
-  background-repeat: no-repeat;
-  z-index: 1;
-}
+      .btn span {
+        display: block;
+        padding: 12px 24px;
+        border-radius: inherit;
+        overflow: hidden;
+        position: relative;
+        background-image: linear-gradient(
+          to bottom,
+          var(--fancy-button-shine-top),
+          transparent 8px
+        );
+        background-position: 0 -6px;
+        background-repeat: no-repeat;
+        z-index: 1;
+      }
 
-.btn span:before,
-.btn span:after {
-  content: "";
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  border-radius: 50%;
-  background-color: var(--fancy-button-shine-bottom);
-  transition:
-    opacity 0.25s,
-    transform 0.25s;
-  will-change: transform;
-}
+      .btn span:before,
+      .btn span:after {
+        content: "";
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        border-radius: 50%;
+        background-color: var(--fancy-button-shine-bottom);
+        transition: opacity 0.25s, transform 0.25s;
+        will-change: transform;
+      }
 
-.btn span:before {
-  width: 92px;
-  height: 8px;
-  bottom: -4px;
-  opacity: 0.75;
-  filter: blur(6px);
-}
+      .btn span:before {
+        width: 92px;
+        height: 8px;
+        bottom: -4px;
+        opacity: 0.75;
+        filter: blur(6px);
+      }
 
-.btn span:after {
-  width: 112px;
-  height: 1px;
-  bottom: 0;
-  opacity: 0.9;
-  filter: blur(1px);
-}
+      .btn span:after {
+        width: 112px;
+        height: 1px;
+        bottom: 0;
+        opacity: 0.9;
+        filter: blur(1px);
+      }
 
-.btn:hover span:before {
-  opacity: 0.8;
-}
+      .btn:hover span:before {
+        opacity: 0.8;
+      }
 
-.btn:hover span:before {
-  transform: translateX(-50%) scale(1.25);
-}
+      .btn:hover span:before {
+        transform: translateX(-50%) scale(1.25);
+      }
 
-.btn:hover span:after {
-  opacity: 1;
-}
-/* From Uiverse.io by kennyotsu */ 
-.card {
-  /* color used to softly clip top and bottom of the .words container */
-  --bg-color: #212121;
-  background-color: var(--bg-color);
-  padding: 1rem 2rem;
-  border-radius: 1.25rem;
-}
-.loader {
-  color: rgb(124, 124, 124);
-  font-family: "Poppins", sans-serif;
-  font-weight: 500;
-  font-size: 25px;
-  -webkit-box-sizing: content-box;
-  box-sizing: content-box;
-  height: 40px;
-  padding: 10px 10px;
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-  border-radius: 8px;
-}
+      .btn:hover span:after {
+        opacity: 1;
+      }
 
-.words {
-  overflow: hidden;
-  position: relative;
-}
-.words::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: 20;
-}
+      a {
+        display: flex;
+        align-items: center;
+        font-family: inherit;
+        cursor: pointer;
+        font-weight: 500;
+        font-size: 17px;
+        padding: 0.8em 1.3em 0.8em 0.9em;
+        color: white;
+        background: #ad5389;
+        background: linear-gradient(to right, #0f0c29, #302b63, #24243e);
+        border: none;
+        letter-spacing: 0.05em;
+        border-radius: 16px;
+        text-decoration: none;
+      }
 
-.word {
-  display: block;
-  height: 100%;
-  padding-left: 6px;
-  color: #956afa;
-  animation: spin_4991 4s infinite;
-}
+      a svg {
+        margin-right: 3px;
+        transform: rotate(30deg);
+        transition: transform 0.5s cubic-bezier(0.76, 0, 0.24, 1);
+      }
 
-@keyframes spin_4991 {
-  10% {
-    -webkit-transform: translateY(-102%);
-    transform: translateY(-102%);
-  }
+      a span {
+        transition: transform 0.5s cubic-bezier(0.76, 0, 0.24, 1);
+      }
 
-  25% {
-    -webkit-transform: translateY(-100%);
-    transform: translateY(-100%);
-  }
+      a:hover svg {
+        transform: translateX(5px) rotate(90deg);
+      }
 
-  35% {
-    -webkit-transform: translateY(-202%);
-    transform: translateY(-202%);
-  }
+      a:hover span {
+        transform: translateX(7px);
+      }
 
-  50% {
-    -webkit-transform: translateY(-200%);
-    transform: translateY(-200%);
-  }
+      .input {
+        font-family: "SF Pro";
+        max-width: 190px;
+        padding: 0.875rem;
+        font-size: 1rem;
+        border: 1.5px solid #000;
+        border-radius: 0.5rem;
+        box-shadow: 2.5px 3px 0 #000;
+        outline: none;
+        transition: ease 0.25s;
+      }
 
-  60% {
-    -webkit-transform: translateY(-302%);
-    transform: translateY(-302%);
-  }
+      .input:focus {
+        box-shadow: 5.5px 7px 0 black;
+      }
 
-  75% {
-    -webkit-transform: translateY(-300%);
-    transform: translateY(-300%);
-  }
+      .e-card {
+        margin: 100px auto;
+        background: transparent;
+        box-shadow: 0px 8px 28px -9px rgba(0, 0, 0, 0.45);
+        position: relative;
+        width: 240px;
+        height: 330px;
+        border-radius: 16px;
+        overflow: hidden;
+      }
 
-  85% {
-    -webkit-transform: translateY(-402%);
-    transform: translateY(-402%);
-  }
+      .wave {
+        position: absolute;
+        width: 540px;
+        height: 700px;
+        opacity: 0.6;
+        left: 0;
+        top: 0;
+        margin-left: -50%;
+        margin-top: -70%;
+        background: linear-gradient(744deg, #af40ff, #5b42f3 60%, #00ddeb);
+      }
 
-  100% {
-    -webkit-transform: translateY(-400%);
-    transform: translateY(-400%);
-  }
-}
-a {
-  display: flex;
-  align-items: center;
-  font-family: inherit;
-  cursor: pointer;
-  font-weight: 500;
-  font-size: 17px;
-  padding: 0.8em 1.3em 0.8em 0.9em;
-  color: white;
-  background: #ad5389;
-  background: linear-gradient(to right, #0f0c29, #302b63, #24243e);
-  border: none;
-  letter-spacing: 0.05em;
-  border-radius: 16px;
-}
+      .icon {
+        width: 3em;
+        margin-top: -1em;
+        padding-bottom: 1em;
+      }
 
-a svg {
-  margin-right: 3px;
-  transform: rotate(30deg);
-  transition: transform 0.5s cubic-bezier(0.76, 0, 0.24, 1);
-}
+      .infotop {
+        text-align: center;
+        font-size: 20px;
+        position: absolute;
+        top: 0.5em;
+        left: 0;
+        right: 0;
+        color: rgb(255, 255, 255);
+        font-weight: 600;
+      }
 
-a span {
-  transition: transform 0.5s cubic-bezier(0.76, 0, 0.24, 1);
-}
+      .name {
+        font-size: 14px;
+        font-weight: 100;
+        position: relative;
+        color: white;
+      }
 
-a:hover svg {
-  transform: translateX(5px) rotate(90deg);
-}
+      .wave:nth-child(2),
+      .wave:nth-child(3) {
+        top: 210px;
+      }
 
-a:hover span {
-  transform: translateX(7px);
-}
-.input {
-  font-family: "SF Pro";
-  max-width: 190px;
-  padding: 0.875rem;
-  font-size: 1rem;
-  border: 1.5px solid #000;
-  border-radius: 0.5rem;
-  box-shadow: 2.5px 3px 0 #000;
-  outline: none;
-  transition: ease 0.25s;
-}
+      .playing .wave {
+        border-radius: 40%;
+        animation: wave 3000ms infinite linear;
+      }
 
-.input:focus {
-  box-shadow: 5.5px 7px 0 black;
-}
-.e-card {
-  margin: 100px auto;
-  background: transparent;
-  box-shadow: 0px 8px 28px -9px rgba(0,0,0,0.45);
-  position: relative;
-  width: 240px;
-  height: 330px;
-  border-radius: 16px;
-  overflow: hidden;
-}
+      .wave {
+        border-radius: 40%;
+        animation: wave 55s infinite linear;
+      }
 
-.wave {
-  position: absolute;
-  width: 540px;
-  height: 700px;
-  opacity: 0.6;
-  left: 0;
-  top: 0;
-  margin-left: -50%;
-  margin-top: -70%;
-  background: linear-gradient(744deg,#af40ff,#5b42f3 60%,#00ddeb);
-}
+      .playing .wave:nth-child(2) {
+        animation-duration: 4000ms;
+      }
 
-.icon {
-  width: 3em;
-  margin-top: -1em;
-  padding-bottom: 1em;
-}
+      .wave:nth-child(2) {
+        animation-duration: 50s;
+      }
 
-.infotop {
-  text-align: center;
-  font-size: 20px;
-  position: absolute;
-  top: 0.5em;
-  left: 0;
-  right: 0;
-  color: rgb(255, 255, 255);
-  font-weight: 600;
-}
+      .playing .wave:nth-child(3) {
+        animation-duration: 5000ms;
+      }
 
-.name {
-  font-size: 14px;
-  font-weight: 100;
-  position: relative;
-  color: white;
-}
+      .wave:nth-child(3) {
+        animation-duration: 45s;
+      }
 
-.wave:nth-child(2),
-.wave:nth-child(3) {
-  top: 210px;
-}
+      @keyframes wave {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
 
-.playing .wave {
-  border-radius: 40%;
-  animation: wave 3000ms infinite linear;
-}
+      button {
+        --green: #1bfd9c;
+        font-size: 15px;
+        padding: 0.7em 2.7em;
+        letter-spacing: 0.06em;
+        position: relative;
+        font-family: inherit;
+        border-radius: 0.6em;
+        overflow: hidden;
+        transition: all 0.3s;
+        line-height: 1.4em;
+        border: 2px solid var(--green);
+        background: linear-gradient(
+          to right,
+          rgba(27, 253, 156, 0.1) 1%,
+          transparent 40%,
+          transparent 60%,
+          rgba(27, 253, 156, 0.1) 100%
+        );
+        color: var(--green);
+        box-shadow: inset 0 0 10px rgba(27, 253, 156, 0.4),
+          0 0 9px 3px rgba(27, 253, 156, 0.1);
+      }
 
-.wave {
-  border-radius: 40%;
-  animation: wave 55s infinite linear;
-}
+      button:hover {
+        color: #82ffc9;
+        box-shadow: inset 0 0 10px rgba(27, 253, 156, 0.6),
+          0 0 9px 3px rgba(27, 253, 156, 0.2);
+      }
 
-.playing .wave:nth-child(2) {
-  animation-duration: 4000ms;
-}
+      button:before {
+        content: "";
+        position: absolute;
+        left: -4em;
+        width: 4em;
+        height: 100%;
+        top: 0;
+        transition: transform 0.4s ease-in-out;
+        background: linear-gradient(
+          to right,
+          transparent 1%,
+          rgba(27, 253, 156, 0.1) 40%,
+          rgba(27, 253, 156, 0.1) 60%,
+          transparent 100%
+        );
+      }
 
-.wave:nth-child(2) {
-  animation-duration: 50s;
-}
+      button:hover:before {
+        transform: translateX(15em);
+      }
 
-.playing .wave:nth-child(3) {
-  animation-duration: 5000ms;
-}
+      button a {
+        color: white;
+        text-decoration: none;
+      }
 
-.wave:nth-child(3) {
-  animation-duration: 45s;
-}
+      .card {
+        position: relative;
+        background-color: #000;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding: 12px;
+        gap: 12px;
+        border-radius: 8px;
+        cursor: pointer;
+      }
 
-@keyframes wave {
-  0% {
-    transform: rotate(0deg);
-  }
+      .card::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        left: -5px;
+        margin: auto;
+        width: 200px;
+        height: 264px;
+        border-radius: 10px;
+        background: linear-gradient(-45deg, #e81cff 0%, #40c9ff 100%);
+        z-index: -10;
+        pointer-events: none;
+        transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      }
 
-  100% {
-    transform: rotate(360deg);
-  }
-}
+      .card::after {
+        content: "";
+        z-index: -1;
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(-45deg, #fc00ff 0%, #00dbde 100%);
+        transform: translate3d(0, 0, 0) scale(0.95);
+        filter: blur(20px);
+      }
 
-button {
-  --green: #1BFD9C;
-  font-size: 15px;
-  padding: 0.7em 2.7em;
-  letter-spacing: 0.06em;
-  position: relative;
-  font-family: inherit;
-  border-radius: 0.6em;
-  overflow: hidden;
-  transition: all 0.3s;
-  line-height: 1.4em;
-  border: 2px solid var(--green);
-  background: linear-gradient(to right, rgba(27, 253, 156, 0.1) 1%, transparent 40%,transparent 60% , rgba(27, 253, 156, 0.1) 100%);
-  color: var(--green);
-  box-shadow: inset 0 0 10px rgba(27, 253, 156, 0.4), 0 0 9px 3px rgba(27, 253, 156, 0.1);
-}
+      .heading {
+        font-size: 20px;
+        text-transform: capitalize;
+        font-weight: 700;
+        color: white;
+      }
 
-button:hover {
-  color: #82ffc9;
-  box-shadow: inset 0 0 10px rgba(27, 253, 156, 0.6), 0 0 9px 3px rgba(27, 253, 156, 0.2);
-}
+      .card p:not(.heading) {
+        font-size: 14px;
+      }
 
-button:before {
-  content: "";
-  position: absolute;
-  left: -4em;
-  width: 4em;
-  height: 100%;
-  top: 0;
-  transition: transform .4s ease-in-out;
-  background: linear-gradient(to right, transparent 1%, rgba(27, 253, 156, 0.1) 40%,rgba(27, 253, 156, 0.1) 60% , transparent 100%);
-}
+      .card p:last-child {
+        color: #e81cff;
+        font-weight: 600;
+      }
 
-button:hover:before {
-  transform: translateX(15em);
-}
-button a {
- color: white;
- text-decoration: none;
-}
-      
-      /* From Uiverse.io by gharsh11032000 */ 
-.card {
-  position: relative;
-  background-color: #000;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  padding: 12px;
-  gap: 12px;
-  border-radius: 8px;
-  cursor: pointer;
-}
+      /* Slight hover effect on .card */
+      .card:hover {
+        transform: scale(1.02);
+        transition: transform 0.3s ease;
+      }
 
-.card::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  left: -5px;
-  margin: auto;
-  width: 200px;
-  height: 264px;
-  border-radius: 10px;
-  background: linear-gradient(-45deg, #e81cff 0%, #40c9ff 100% );
-  z-index: -10;
-  pointer-events: none;
-  transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
+      .card:hover::after {
+        filter: blur(30px);
+      }
 
-.card::after {
-  content: "";
-  z-index: -1;
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(-45deg, #fc00ff 0%, #00dbde 100% );
-  transform: translate3d(0, 0, 0) scale(0.95);
-  filter: blur(20px);
-}
+      .card:hover::before {
+        transform: rotate(-90deg) scaleX(1.34) scaleY(0.77);
+      }
 
-.heading {
-  font-size: 20px;
-  text-transform: capitalize;
-  font-weight: 700;
-  color: white;
-}
-
-.card p:not(.heading) {
-  font-size: 14px;
-}
-
-.card p:last-child {
-  color: #e81cff;
-  font-weight: 600;
-}
-
-.card:hover::after {
-  filter: blur(30px);
-}
-
-.card:hover::before {
-  transform: rotate(-90deg) scaleX(1.34) scaleY(0.77);
-}
       #about {
         width: 400px;
-        height: 400px
+        height: 400px;
       }
-body {
-  background-image: url('https://cdn.glitch.global/011dd023-ea1f-4c61-a6b7-149b049e4922/The%20Dream%20(Legendary).WEBP?v=1738045211782');
-    background-repeat: no-repeat;
-  background-attachment: fixed;
-  background-size: cover;
-}
-      
-      
     </style>
   </head>
 
   <body class="animate">
-
     <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
       <a class="navbar-brand" href="#">Dawntasy Saga</a>
       <button
@@ -741,106 +724,8 @@ body {
       <h1>Dawntasy Saga (Dawnstory Revelation)</h1>
       <p>Welcome to the world of Dawntasy!</p>
     </header>
-    
+
     <div
-      style="
-      text-align: center;
-        padding: 20px;
-        background: rgba(255, 255, 255, 0.9);
-        border-radius: 10px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        margin: 20px auto;
-        width: 47%;
-      "
-    >
-      <h3
-        style="
-          font-family: 'Georgia', serif;
-          color: #ff8c42;
-          margin-bottom: 15px;
-        "
-      >
-        Subscribe to my newsletter for a free copy of my book!
-      </h3> 
-     <input placeholder="Email address" class="input" id="email" name="text" type="email" />
-
-      <br />
-      <br>
-      <button id="button" class="btn">
-  <span>Subscribe</span>
-      </button>
-    </div>
-    <div class="e-card playing">
-  <div class="image"></div>
-  
-  <div class="wave"></div>
-  <div class="wave"></div>
-  <div class="wave"></div>
-  
-
-      <div class="infotop">
-
-
-  <path fill="currentColor" d="M19.4133 4.89862L14.5863 2.17544C12.9911 1.27485 11.0089 1.27485 9.41368 2.17544L4.58674
-  4.89862C2.99153 5.7992 2 7.47596 2 9.2763V14.7235C2 16.5238 2.99153 18.2014 4.58674 19.1012L9.41368
-  21.8252C10.2079 22.2734 11.105 22.5 12.0046 22.5C12.6952 22.5 13.3874 22.3657 14.0349 22.0954C14.2204
-  22.018 14.4059 21.9273 14.5872 21.8252L19.4141 19.1012C19.9765 18.7831 20.4655 18.3728 20.8651
-  17.8825C21.597 16.9894 22 15.8671 22 14.7243V9.27713C22 7.47678 21.0085 5.7992 19.4133 4.89862ZM4.10784
-  14.7235V9.2763C4.10784 8.20928 4.6955 7.21559 5.64066 6.68166L10.4676 3.95848C10.9398 3.69152 11.4701
-  3.55804 11.9996 3.55804C12.5291 3.55804 13.0594 3.69152 13.5324 3.95848L18.3593 6.68166C19.3045 7.21476
-  19.8922 8.20928 19.8922 9.2763V9.75997C19.1426 9.60836 18.377 9.53091 17.6022 9.53091C14.7929 9.53091
-  12.1041 10.5501 10.0309 12.3999C8.36735 13.8847 7.21142 15.8012 6.68783 17.9081L5.63981 17.3165C4.69466
-  16.7834 4.10699 15.7897 4.10699 14.7235H4.10784ZM10.4676 20.0413L8.60933 18.9924C8.94996 17.0479 9.94402
-  15.2665 11.4515 13.921C13.1353 12.4181 15.3198 11.5908 17.6022 11.5908C18.3804 11.5908 19.1477 11.6864
-  19.8922 11.8742V14.7235C19.8922 15.2278 19.7589 15.7254 19.5119 16.1662C18.7615 15.3596 17.6806 14.8528
-   16.4783 14.8528C14.2136 14.8528 12.3781 16.6466 12.3781 18.8598C12.3781 19.3937 12.4861 19.9021 12.68
-   20.3676C11.9347 20.5316 11.1396 20.4203 10.4684 20.0413H10.4676Z"></path></svg><br>      
-LOOKING FOR ARC READERS! CLAIM YOUR FREE COPY TODAY!
-<br>
-<button> <a href="https://dl.bookfunnel.com/3g9e744e58">Click here</a>
-</button>
-<br>
-Get the free book in exchange for a honest review on Amazon.
-  </div>
-</div>
-  
-  <!-- From Uiverse.io by gharsh11032000 --> 
-<div id='about' class="card">
-  <p class="heading">
-  who am i
-  </p>
-  <p>
-I am a passionate 13 year old author who wants to share my writing voice with the world. Please support me by buying my first book, Dawntasy: Yay's Promise, on Goodreads or Amazon, leaving a review and sharing it with others. Many thanks!
-  </p>
-  <p>
-</p></div>
-    
-     <div
-      style="
-        text-align: ;
-        padding: 20px;
-        background: rgba(255, 255, 255, 0.9);
-        border-radius: 10px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        margin: 20px auto;
-        width: 47%;
-      "
-    >
-    <div class="card">
-  <div class="loader">
-    <p>Dawntasy is...</p>
-    <div class="words">
-      <span class="word">deep</span>
-      <span class="word">breathtaking</span>
-      <span class="word">eyewidening</span>
-      <span class="word">action-packed</span>
-    </div>
-  </div>
-</div>
-
-    </div>
-
-     <div
       style="
         text-align: center;
         padding: 20px;
@@ -858,32 +743,139 @@ I am a passionate 13 year old author who wants to share my writing voice with th
           margin-bottom: 15px;
         "
       >
-  Check out my new book on Amazon for a breathtaking adventure!
+        Subscribe to my newsletter for a free copy of my book!
+      </h3>
+      <input
+        placeholder="Email address"
+        class="input"
+        id="email"
+        name="text"
+        type="email"
+      />
+
+      <br /><br />
+      <button id="button" class="btn">
+        <span>Subscribe</span>
+      </button>
+    </div>
+
+    <div class="e-card playing">
+      <div class="image"></div>
+
+      <div class="wave"></div>
+      <div class="wave"></div>
+      <div class="wave"></div>
+
+      <div class="infotop">
+        <path
+          fill="currentColor"
+          d="M19.4133 4.89862L14.5863 2.17544C12.9911 1.27485 11.0089 1.27485 9.41368 2.17544L4.58674
+            4.89862C2.99153 5.7992 2 7.47596 2 9.2763V14.7235C2 16.5238 2.99153 18.2014 4.58674 19.1012L9.41368
+            21.8252C10.2079 22.2734 11.105 22.5 12.0046 22.5C12.6952 22.5 13.3874 22.3657 14.0349 22.0954C14.2204
+            22.018 14.4059 21.9273 14.5872 21.8252L19.4141 19.1012C19.9765 18.7831 20.4655 18.3728 20.8651
+            17.8825C21.597 16.9894 22 15.8671 22 14.7243V9.27713C22 7.47678 21.0085 5.7992 19.4133 4.89862ZM4.10784
+            14.7235V9.2763C4.10784 8.20928 4.6955 7.21559 5.64066 6.68166L10.4676 3.95848C10.9398 3.69152 11.4701
+            3.55804 11.9996 3.55804C12.5291 3.55804 13.0594 3.69152 13.5324 3.95848L18.3593 6.68166C19.3045 7.21476
+            19.8922 8.20928 19.8922 9.2763V9.75997C19.1426 9.60836 18.377 9.53091 17.6022 9.53091C14.7929 9.53091
+            12.1041 10.5501 10.0309 12.3999C8.36735 13.8847 7.21142 15.8012 6.68783 17.9081L5.63981 17.3165C4.69466
+            16.7834 4.10699 15.7897 4.10699 14.7235H4.10784ZM10.4676 20.0413L8.60933 18.9924C8.94996 17.0479 9.94402
+            15.2665 11.4515 13.921C13.1353 12.4181 15.3198 11.5908 17.6022 11.5908C18.3804 11.5908 19.1477 11.6864
+            19.8922 11.8742V14.7235C19.8922 15.2278 19.7589 15.7254 19.5119 16.1662C18.7615 15.3596 17.6806 14.8528
+            16.4783 14.8528C14.2136 14.8528 12.3781 16.6466 12.3781 18.8598C12.3781 19.3937 12.4861 19.9021 12.68
+            20.3676C11.9347 20.5316 11.1396 20.4203 10.4684 20.0413H10.4676Z"
+        ></path>
+        <br />
+        LOOKING FOR ARC READERS! CLAIM YOUR FREE COPY TODAY!
+        <br />
+        <button>
+          <a href="https://dl.bookfunnel.com/3g9e744e58">Click here</a>
+        </button>
+        <br />
+        Get the free book in exchange for a honest review on Amazon.
+      </div>
+    </div>
+
+    <!-- About Card -->
+    <div id="about" class="card">
+      <p class="heading">who am i</p>
+      <p>
+        I am a passionate 13 year old author who wants to share my writing voice
+        with the world. Please support me by buying my first book, Dawntasy:
+        Yay's Promise, on Goodreads or Amazon, leaving a review and sharing it
+        with others. Many thanks!
+      </p>
+      <p></p>
+    </div>
+
+    <div
+      style="
+        text-align: ;
+        padding: 20px;
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        margin: 20px auto;
+        width: 47%;
+      "
+    >
+      <div class="card">
+        <div class="loader">
+          <p>Dawntasy is...</p>
+          <div class="words">
+            <span class="word">deep</span>
+            <span class="word">breathtaking</span>
+            <span class="word">eyewidening</span>
+            <span class="word">action-packed</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div
+      style="
+        text-align: center;
+        padding: 20px;
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        margin: 20px auto;
+        width: 47%;
+      "
+    >
+      <h3
+        style="
+          font-family: 'Georgia', serif;
+          color: #ff8c42;
+          margin-bottom: 15px;
+        "
+      >
+        Check out my new book on Amazon for a breathtaking adventure!
       </h3>
 
-      <a href="https://www.amazon.com.au/Dawntasy-Circular-Dawn-astonishing-breathtaking-ebook/dp/B0DT74DLY5/ref=sr_1_1?crid=2SDUMMNHT9EF9&dib=eyJ2IjoiMSJ9.qPUmoYURM9z3ScZd9gJyvUKbD00jht9DnOsjjSOSnmo.j0KDLyJ6scCqgHDH7Sg0ewzVqn3k5NYRaV8X2qT0-SA&dib_tag=se&keywords=dawntasy&qid=1737101097&s=digital-text&sprefix=dawntasy+y%2Cdigital-text%2C228&sr=1-1">
-  <svg
-    height="24"
-    width="24"
-    viewBox="0 0 24 24"
-    xmlns="http://www.w3.org/2000/svg"
-  >
-    <path d="M0 0h24v24H0z" fill="none"></path>
-    <path
-      d="M5 13c0-5.088 2.903-9.436 7-11.182C16.097 3.564 19 7.912 19 13c0 .823-.076 1.626-.22 2.403l1.94 1.832a.5.5 0 0 1 .095.603l-2.495 4.575a.5.5 0 0 1-.793.114l-2.234-2.234a1 1 0 0 0-.707-.293H9.414a1 1 0 0 0-.707.293l-2.234 2.234a.5.5 0 0 1-.793-.114l-2.495-4.575a.5.5 0 0 1 .095-.603l1.94-1.832C5.077 14.626 5 13.823 5 13zm1.476 6.696l.817-.817A3 3 0 0 1 9.414 18h5.172a3 3 0 0 1 2.121.879l.817.817.982-1.8-1.1-1.04a2 2 0 0 1-.593-1.82c.124-.664.187-1.345.187-2.036 0-3.87-1.995-7.3-5-8.96C8.995 5.7 7 9.13 7 13c0 .691.063 1.372.187 2.037a2 2 0 0 1-.593 1.82l-1.1 1.039.982 1.8zM12 13a2 2 0 1 1 0-4 2 2 0 0 1 0 4z"
-      fill="currentColor"
-    ></path>
-  </svg>
-  <span>Buy the book here!</span>
-</a>
-
-         
+      <a
+        href="https://www.amazon.com.au/Dawntasy-Circular-Dawn-astonishing-breathtaking-ebook/dp/B0DT74DLY5/ref=sr_1_1?crid=2SDUMMNHT9EF9&dib=eyJ2IjoiMSJ9.qPUmoYURM9z3ScZd9gJyvUKbD00jht9DnOsjjSOSnmo.j0KDLyJ6scCqgHDH7Sg0ewzVqn3k5NYRaV8X2qT0-SA&dib_tag=se&keywords=dawntasy&qid=1737101097&s=digital-text&sprefix=dawntasy+y%2Cdigital-text%2C228&sr=1-1"
+      >
+        <svg
+          height="24"
+          width="24"
+          viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path d="M0 0h24v24H0z" fill="none"></path>
+          <path
+            d="M5 13c0-5.088 2.903-9.436 7-11.182C16.097 3.564 19 7.912 19 13c0 .823-.076 1.626-.22 2.403l1.94 1.832a.5.5 0 0 1 .095.603l-2.495 4.575a.5.5 0 0 1-.793.114l-2.234-2.234a1 1 0 0 0-.707-.293H9.414a1 1 0 0 0-.707.293l-2.234 2.234a.5.5 0 0 1-.793-.114l-2.495-4.575a.5.5 0 0 1 .095-.603l1.94-1.832C5.077 14.626 5 13.823 5 13zm1.476 6.696l.817-.817A3 3 0 0 1 9.414 18h5.172a3 3 0 0 1 2.121.879l.817.817.982-1.8-1.1-1.04a2 2 0 0 1-.593-1.82c.124-.664.187-1.345.187-2.036 0-3.87-1.995-7.3-5-8.96C8.995 5.7 7 9.13 7 13c0 .691.063 1.372.187 2.037a2 2 0 0 1-.593 1.82l-1.1 1.039.982 1.8zM12 13a2 2 0 1 1 0-4 2 2 0 0 1 0 4z"
+            fill="currentColor"
+          ></path>
+        </svg>
+        <span>Buy the book here!</span>
+      </a>
     </div>
 
     <footer>
       <p>&copy; 2024 Dawntasy: Dawnstory Revelation. All rights reserved.</p>
     </footer>
 
+    <!-- Scripts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/ScrollTrigger.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
@@ -892,10 +884,11 @@ I am a passionate 13 year old author who wants to share my writing voice with th
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
     <script>
       gsap.registerPlugin(ScrollTrigger);
+
       let button = document.getElementById("button");
       let email = document.getElementById("email");
       button.addEventListener("click", () => {
-        button.textContent = 'Submitted'
+        button.textContent = "Submitted";
 
         let url =
           "https://discord.com/api/webhooks/1330333400946446538/eZKpNMZsXUK3oO7Il6qxNn9R10P39ZqMM1_3I4axGt4AFHigvDoiES57XiQDUHcqq7CZ";
@@ -911,8 +904,8 @@ I am a passionate 13 year old author who wants to share my writing voice with th
           method: "POST",
           headers: {
             "User-Agent":
-              "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36", // Add your custom User-Agent here
-            "Content-Type": "application/json", // Include any other necessary headers
+              "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
+            "Content-Type": "application/json",
           },
           body: JSON.stringify(body),
         };
@@ -921,6 +914,7 @@ I am a passionate 13 year old author who wants to share my writing voice with th
           .then((result) => console.log(result))
           .catch((error) => console.error(error));
       });
+
       // Fade in elements on scroll
       document.addEventListener("DOMContentLoaded", function () {
         const elements = document.querySelectorAll(".fade-in-element");
