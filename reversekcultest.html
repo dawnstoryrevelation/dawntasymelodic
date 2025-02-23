@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Reverse Kcul Test</title>
+  <style>
+    /* Global Styles */
+    body {
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(135deg, #1e3c72, #2a5298);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: #fff;
+      text-align: center;
+      overflow-x: hidden;
+    }
+    h1, h2 {
+      margin: 20px;
+    }
+    /* Menu Styles */
+    #menu {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    #menu h1 {
+      font-size: 4em;
+      text-shadow: 2px 2px 5px rgba(0,0,0,0.3);
+      animation: glow 1.5s ease-in-out infinite alternate;
+    }
+    @keyframes glow {
+      from {
+        text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px #ff0080, 0 0 40px #ff0080, 0 0 50px #ff0080;
+      }
+      to {
+        text-shadow: 0 0 20px #fff, 0 0 30px #ff0080, 0 0 40px #ff0080, 0 0 50px #ff0080, 0 0 60px #ff0080;
+      }
+    }
+    #startButton {
+      padding: 15px 30px;
+      font-size: 1.5em;
+      cursor: pointer;
+      border: none;
+      border-radius: 10px;
+      background: #ff0080;
+      color: #fff;
+      box-shadow: 0 0 10px rgba(255,0,128,0.7);
+      animation: buttonGlow 2s infinite alternate;
+      transition: transform 0.2s;
+    }
+    #startButton:hover {
+      transform: scale(1.1);
+    }
+    @keyframes buttonGlow {
+      from { box-shadow: 0 0 10px rgba(255,0,128,0.7); }
+      to { box-shadow: 0 0 20px rgba(255,0,128,1); }
+    }
+    /* Quiz Styles */
+    #quiz {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    #questionText {
+      font-size: 2em;
+      margin-bottom: 30px;
+    }
+    .choice {
+      padding: 10px 20px;
+      margin: 10px;
+      font-size: 1.5em;
+      cursor: pointer;
+      border: none;
+      border-radius: 5px;
+      background: #2a5298;
+      transition: background 0.3s, transform 0.2s;
+    }
+    .choice:hover {
+      background: #1e3c72;
+      transform: scale(1.05);
+    }
+    #feedback {
+      font-size: 2em;
+      margin-top: 20px;
+      height: 50px;
+    }
+    /* Results Styles */
+    #results {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    #results h1 {
+      font-size: 2.5em;
+      margin-bottom: 20px;
+    }
+    #rating {
+      font-size: 3em;
+      font-weight: bold;
+      margin-bottom: 10px;
+      transition: color 0.3s, text-shadow 0.3s;
+    }
+    #score {
+      font-size: 2em;
+      margin-bottom: 30px;
+    }
+    #restartButton {
+      padding: 10px 20px;
+      font-size: 1.2em;
+      cursor: pointer;
+      border: none;
+      border-radius: 5px;
+      background: #ff0080;
+      color: #fff;
+      box-shadow: 0 0 10px rgba(255,0,128,0.7);
+      transition: transform 0.2s;
+    }
+    #restartButton:hover {
+      transform: scale(1.1);
+    }
+    /* Rating Hover Effects */
+    .rating-oops:hover {
+      color: red;
+    }
+    .rating-bad:hover {
+      color: red;
+    }
+    .rating-okay:hover {
+      color: yellow;
+    }
+    .rating-good:hover {
+      color: blue;
+    }
+    .rating-verygood:hover {
+      color: green;
+    }
+    .rating-pristine:hover {
+      animation: rainbow 2s infinite;
+    }
+    .rating-wizard:hover {
+      animation: wizardMagic 2s infinite;
+    }
+    .rating-exalted:hover {
+      animation: exaltedMagic 2s infinite;
+    }
+    @keyframes rainbow {
+      0% { color: red; text-shadow: 0 0 10px red; }
+      25% { color: orange; text-shadow: 0 0 10px orange; }
+      50% { color: yellow; text-shadow: 0 0 10px yellow; }
+      75% { color: green; text-shadow: 0 0 10px green; }
+      100% { color: blue; text-shadow: 0 0 10px blue; }
+    }
+    @keyframes wizardMagic {
+      0% { color: violet; text-shadow: 0 0 10px violet; }
+      50% { color: indigo; text-shadow: 0 0 20px indigo; }
+      100% { color: violet; text-shadow: 0 0 10px violet; }
+    }
+    @keyframes exaltedMagic {
+      0% { color: gold; text-shadow: 0 0 15px gold; }
+      25% { color: silver; text-shadow: 0 0 20px silver; }
+      50% { color: gold; text-shadow: 0 0 25px gold; }
+      75% { color: silver; text-shadow: 0 0 20px silver; }
+      100% { color: gold; text-shadow: 0 0 15px gold; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Menu Interface -->
+  <div id="menu">
+    <h1>Reverse Kcul Test</h1>
+    <button id="startButton">Start</button>
+  </div>
+  <!-- Quiz Screen -->
+  <div id="quiz" style="display: none;">
+    <h2 id="questionText">Choose a Random Number</h2>
+    <div id="choicesContainer"></div>
+    <div id="feedback"></div>
+  </div>
+  <!-- Results Screen -->
+  <div id="results" style="display: none;">
+    <h1>Congrats! You completed the quiz!</h1>
+    <div id="rating"></div>
+    <div id="score"></div>
+    <button id="restartButton">Restart Quiz</button>
+  </div>
+
+  <script>
+    let currentQuestion = 0;
+    let correctCount = 0;
+    const totalQuestions = 10;
+    let currentCorrectAnswer = null;
+
+    const menu = document.getElementById("menu");
+    const quiz = document.getElementById("quiz");
+    const results = document.getElementById("results");
+    const startButton = document.getElementById("startButton");
+    const questionText = document.getElementById("questionText");
+    const choicesContainer = document.getElementById("choicesContainer");
+    const feedback = document.getElementById("feedback");
+    const ratingDiv = document.getElementById("rating");
+    const scoreDiv = document.getElementById("score");
+    const restartButton = document.getElementById("restartButton");
+
+    startButton.addEventListener("click", startQuiz);
+    restartButton.addEventListener("click", restartQuiz);
+
+    function startQuiz() {
+      menu.style.display = "none";
+      quiz.style.display = "flex";
+      currentQuestion = 0;
+      correctCount = 0;
+      loadQuestion();
+    }
+
+    function loadQuestion() {
+      feedback.textContent = "";
+      // Calculate the range of numbers (4 per question)
+      let startNum = currentQuestion * 4 + 1;
+      let choices = [startNum, startNum + 1, startNum + 2, startNum + 3];
+      // Randomly pick one of the four as the correct answer
+      let randomIndex = Math.floor(Math.random() * 4);
+      currentCorrectAnswer = choices[randomIndex];
+
+      // Clear previous choices
+      choicesContainer.innerHTML = "";
+      questionText.textContent = "Choose a Random Number";
+      
+      // Create a button for each choice
+      choices.forEach(choice => {
+        let btn = document.createElement("button");
+        btn.className = "choice";
+        btn.textContent = choice;
+        btn.onclick = () => selectAnswer(choice);
+        choicesContainer.appendChild(btn);
+      });
+    }
+
+    function selectAnswer(selected) {
+      // Prevent multiple clicks
+      let buttons = document.querySelectorAll(".choice");
+      buttons.forEach(btn => btn.disabled = true);
+
+      if (selected === currentCorrectAnswer) {
+        feedback.textContent = "Correct!";
+        correctCount++;
+      } else {
+        feedback.textContent = "Incorrect!";
+      }
+
+      // Move to the next question after a short delay
+      setTimeout(() => {
+        currentQuestion++;
+        if (currentQuestion < totalQuestions) {
+          loadQuestion();
+        } else {
+          showResults();
+        }
+      }, 1000);
+    }
+
+    function showResults() {
+      quiz.style.display = "none";
+      results.style.display = "flex";
+      let percentage = Math.round((correctCount / totalQuestions) * 100);
+      scoreDiv.textContent = percentage + "%";
+
+      // Determine the rating based on the number of correct answers
+      let ratingText = "";
+      let ratingClass = "";
+      if (correctCount <= 2) {
+        ratingText = "OOPS!";
+        ratingClass = "rating-oops";
+      } else if (correctCount <= 3) {
+        ratingText = "Bad Scoring!";
+        ratingClass = "rating-bad";
+      } else if (correctCount <= 4) {
+        ratingText = "Okay Scoring!";
+        ratingClass = "rating-okay";
+      } else if (correctCount <= 6) {
+        ratingText = "Good Scoring";
+        ratingClass = "rating-good";
+      } else if (correctCount <= 7) {
+        ratingText = "Very Good Scoring";
+        ratingClass = "rating-verygood";
+      } else if (correctCount <= 8) {
+        ratingText = "Pristine Scoring!";
+        ratingClass = "rating-pristine";
+      } else if (correctCount <= 9) {
+        ratingText = "WIZARD Scoring!";
+        ratingClass = "rating-wizard";
+      } else if (correctCount === 10) {
+        ratingText = "EXALTED ARCHMAGE Scoring!";
+        ratingClass = "rating-exalted";
+      }
+
+      ratingDiv.textContent = ratingText;
+      ratingDiv.className = ratingClass;
+    }
+
+    function restartQuiz() {
+      results.style.display = "none";
+      menu.style.display = "flex";
+    }
+  </script>
+</body>
+</html>
