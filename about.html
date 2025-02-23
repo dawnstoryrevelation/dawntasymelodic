@@ -1,275 +1,296 @@
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
 
-<head>
-    <meta charset="UTF-8">
-    <link rel="icon" href="https://www.dawnstoryrevelation.com/images/821049A8-FDF0-413E-A1A3-533ECC529C7B.webp" type="image/x-icon">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>About Me</title>
-    <link href="https://fonts.googleapis.com/css2?family=Indie+Flower&family=Merriweather:wght@400;700&family=Lobster&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
-    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Favicon -->
+    <link
+      rel="icon"
+      href="https://www.dawnstoryrevelation.com/images/821049A8-FDF0-413E-A1A3-533ECC529C7B.webp"
+      type="image/x-icon"
+    />
+
+    <!-- Responsive Meta -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- SEO Meta Tags -->
+    <title>Dawntasy Saga – About Jasper Jiang, Dawntasy: Time's True Name &amp; Dawntasy Melodic</title>
+    <meta
+      name="description"
+      content="Learn about Jasper Jiang, a 13-year-old indie author and musical artist behind Dawntasy: Time's True Name and Dawntasy Melodic. Discover epic YA fantasy adventures and enchanting soundtracks in the Dawntasy Saga."
+    />
+    <meta
+      name="keywords"
+      content="Dawntasy, Dawntasy Saga, Dawntasy: Time's True Name, YA Fantasy, epic fantasy, indie fantasy, fantasy books, Jasper Jiang, Dawntasy Melodic, musical artist, creative voice, plot twist fantasy"
+    />
+
+    <!-- Structured Data (JSON-LD) -->
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Book",
+      "name": "Dawntasy: Time's True Name",
+      "author": {
+        "@type": "Person",
+        "name": "Jasper Jiang"
+      },
+      "description": "Dawntasy: Time's True Name is an epic YA fantasy novel filled with breathtaking adventures, plot twists, and imaginative storytelling by 13-year-old indie author Jasper Jiang.",
+      "image": "https://www.dawnstoryrevelation.com/images/821049A8-FDF0-413E-A1A3-533ECC529C7B.webp",
+      "url": "https://www.dawntasy.com",
+      "publisher": {
+        "@type": "Organization",
+        "name": "Dawntasy Empire"
+      }
+    },
+    {
+      "@type": "Person",
+      "name": "Jasper Jiang",
+      "jobTitle": "Author & Musical Artist",
+      "url": "https://www.dawntasy.com",
+      "sameAs": [
+        "https://www.youtube.com/channel/UCR1JunFMfjD5YrIJI1MU_EQ",
+        "https://twitter.com/dawntasymelodic",
+        "https://www.instagram.com/dawntasymelodic",
+        "https://www.facebook.com/dawntasy"
+      ]
+    },
+    {
+      "@type": "MusicGroup",
+      "name": "Dawntasy Melodic",
+      "genre": "Fantasy Music, Epic Soundtracks",
+      "url": "https://www.dawntasy.com",
+      "sameAs": [
+        "https://www.youtube.com/channel/UCR1JunFMfjD5YrIJI1MU_EQ",
+        "https://music.amazon.com/artists/B0DXBZL7F5/dawntasy-melodic"
+      ]
+    }
+  ]
+}
+    </script>
+
+    <!-- Fonts & Bootstrap -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Indie+Flower&family=Montserrat:wght@300;400;600&family=Lobster&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+
     <style>
-        body {
-            font-family: 'Montserrat', sans-serif;
-            color: #f5f5f5;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-start;
-            min-height: 100vh;
-            overflow-y: scroll;
-            scroll-behavior: smooth;
-            position: relative;
-        }
-
-        .video-background {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            z-index: -1;
-        }
-
-        .navbar {
-            background-color: rgba(0, 0, 0, 0.8);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
-            width: 100%;
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
-
-        .navbar-brand,
-        .navbar-nav .nav-link {
-            color: #f5f5f5;
-            font-size: 1.2em;
-            position: relative;
-        }
-
-        .navbar-brand:hover,
-        .navbar-nav .nav-link:hover {
-            color: #f9f5d7;
-        }
-
-        .header {
-            text-align: center;
-            margin-top: 70px;
-            color: #fff;
-        }
-
-        .header h1 {
-            font-family: 'Indie Flower', cursive;
-            font-size: 4em;
-            text-shadow: 2px 2px 4px #000;
-        }
-
-        .header p {
-            font-size: 1.5em;
-            margin-top: 10px;
-        }
-
-        .container {
-            margin-top: 20px;
-            padding: 20px;
-            background-color: rgba(255, 255, 255, 0.9);
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            max-width: 1200px;
-        }
-
-        .section-title {
-            font-size: 2.5em;
-            margin: 20px 0;
-            text-align: center;
-            color: #007bff;
-            text-shadow: 2px 2px #ffebcd;
-        }
-
-        .intro-text {
-            font-size: 1.2em;
-            line-height: 1.6;
-            margin-bottom: 20px;
-            color: #555;
-        }
-
-        .fade-in-element {
-            opacity: 0;
-            transform: translateY(20px);
-            transition: opacity 1s ease-out, transform 1s ease-out;
-        }
-
-        .fade-in-element.visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        .animated-button {
-            display: inline-block;
-            padding: 10px 20px;
-            font-size: 1.2em;
-            color: #fff;
-            background-color: #007bff;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            text-decoration: none;
-            transition: background-color 0.3s, transform 0.3s;
-        }
-
-        .animated-button:hover {
-            background-color: #0056b3;
-            transform: translateY(-3px);
-        }
-
-        .highlight {
-            background-color: #ffebcd;
-            padding: 10px;
-            border-radius: 5px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        .highlight h3 {
-            color: #e67e22;
-            font-size: 1.8em;
-        }
-
-        .highlight p {
-            font-size: 1.1em;
-            color: #555;
-        }
-
-        .carousel-caption h5 {
-            color: #f39c12;
-            font-size: 1.5em;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
-        }
-
-        .carousel-caption p {
-            color: #e3110e;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
-        }
+      body {
+        font-family: "Montserrat", sans-serif;
+        color: #f5f5f5;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        min-height: 100vh;
+        background-image: url('https://cdn.glitch.global/011dd023-ea1f-4c61-a6b7-149b049e4922/The%20Dream%20(Legendary).WEBP?v=1738045211782');
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        background-size: cover;
+      }
+      .navbar {
+        background-color: rgba(0, 0, 0, 0.8);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+        width: 100%;
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+      }
+      .navbar-brand,
+      .navbar-nav .nav-link {
+        color: #f5f5f5;
+        font-size: 1.2em;
+      }
+      .navbar-brand:hover,
+      .navbar-nav .nav-link:hover {
+        color: #f9f5d7;
+      }
+      .header {
+        text-align: center;
+        margin-top: 70px;
+        color: #fff;
+      }
+      .header h1 {
+        font-family: "Indie Flower", cursive;
+        font-size: 4em;
+        text-shadow: 2px 2px 4px #000;
+      }
+      .header p {
+        font-size: 1.5em;
+        margin-top: 10px;
+      }
+      .container {
+        margin: 20px auto;
+        padding: 20px;
+        background-color: rgba(255, 255, 255, 0.9);
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        max-width: 1200px;
+        color: #333;
+      }
+      .section-title {
+        font-size: 2.5em;
+        margin: 20px 0;
+        text-align: center;
+        color: #007bff;
+        text-shadow: 2px 2px #ffebcd;
+      }
+      .about-text {
+        font-size: 1.2em;
+        line-height: 1.6;
+        margin-bottom: 20px;
+      }
+      .social-links a {
+        margin: 0 10px;
+        color: #007bff;
+        text-decoration: none;
+        font-weight: 600;
+      }
+      .social-links a:hover {
+        text-decoration: underline;
+      }
+      footer {
+        position: fixed;
+        left: 0;
+        bottom: 0;
+        width: 100%;
+        text-align: center;
+        padding: 10px;
+        background-color: rgba(0, 0, 0, 0.8);
+        color: #fff;
+        box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.5);
+      }
+      .video-container {
+        position: relative;
+        padding-bottom: 56.25%;
+        height: 0;
+        overflow: hidden;
+        margin: 20px 0;
+      }
+      .video-container iframe {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+      }
     </style>
-</head>
-
-<body class='animate'>
-    <video class="video-background" autoplay loop muted>
-        <source src="https://www.dawnstoryrevelation.com/2CC28CCE-DBE3-4B1A-9D5D-1FC1D6AD3F64.mp4" type="video/mp4">
-    </video>
-
+  </head>
+  <body>
     <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
-        <a class="navbar-brand" href="#">About Me</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ml-auto">
-                <li class="nav-item active">
-                    <a class="nav-link" href="https://dawnstoryrevelation.github.io/dawnstoryrevelation/">Home</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="https://dawnstoryrevelation.github.io/dawnstoryrevelation/about.html">About</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="https://dawnstoryrevelation.github.io/dawnstoryrevelation/stories.html">Stories</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="https://dawnstoryrevelation.github.io/dawnstoryrevelation/lore.html">Lore</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="https://dawnstoryrevelation.github.io/dawnstoryrevelation/contact.html">Contact</a>
-                </li>
-            </ul>
-        </div>
+      <a class="navbar-brand" href="https://www.dawntasy.com">Dawntasy Saga</a>
+      <button
+        class="navbar-toggler"
+        type="button"
+        data-toggle="collapse"
+        data-target="#navbarNav"
+        aria-controls="navbarNav"
+        aria-expanded="false"
+        aria-label="Toggle navigation"
+      >
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ml-auto">
+          <li class="nav-item">
+            <a class="nav-link" href="https://www.dawntasy.com">Home</a>
+          </li>
+          <li class="nav-item active">
+            <a class="nav-link" href="https://www.dawntasy.com/about.html">About</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="https://www.dawntasy.com/newsletter.html">Newsletter</a>
+          </li>
+        </ul>
+      </div>
     </nav>
 
     <header class="header">
-        <h1>About Me</h1>
-        <p>Welcome to the world of Gaze!</p>
+      <h1>About Dawntasy Saga</h1>
+      <p>Discover the epic world of Dawntasy – where fantasy books meet musical magic.</p>
     </header>
 
-    <div class="container fade-in-element">
-        <h2 class="section-title fade-in-element">About Me</h2>
-        <p class="intro-text">I am an inspired young kid with the hopes of publishing my book series, Dawntasy: Dawnstory Revelation, in the future when I am an adult. My journey delving into the Dawntasy Saga began ever since I was 6, and with a keen and imaginative mind I would often drift off into my own worlds where anything was possible and adventures spark from everywhere. 5 years into the series, various iterations have been made since its commencement to hone in on the saga and refine any parts that required further development on. Thank you to everyone who has supported me on this journey; I wouldn't have made it this far without everyone!</p>
+    <div class="container">
+      <!-- About the Author Section -->
+      <section id="about-author">
+        <h2 class="section-title">Who Am I?</h2>
+        <p class="about-text">
+          Hi! I'm Jasper Jiang – a passionate 13-year-old indie author and musical artist known as <strong>Dawntasy Melodic</strong>. Through my book <strong>Dawntasy: Time's True Name</strong>, I share my creative voice and invite you on an epic YA fantasy journey filled with breathtaking adventures, mind-blowing plot twists, and a realm where truth and magic collide. As the heart behind the entire <strong>Dawntasy</strong> franchise, I blend imaginative storytelling with enchanting soundtracks to create a universe that resonates with fans of fantasy books and epic sagas.
+        </p>
+      </section>
 
-        <h2 class="section-title fade-in-element">Dawntasy</h2>
-        <p class="intro-text">Dawntasy is my upcoming book series that features the adventures of 7 unique characters, Yaya, Questa, Solus, Filapawa, Salvapige, Dryadis, and Norsty. If you are looking for an immersive book with numerous layers of story and plot discoveries, check out Dawntasy (Dawnstory Revelation)!</p>
-        <img src="https://www.dawnstoryrevelation.com/F958CA78-2039-4820-99A5-970B321B482A.jpeg" alt="Dawntasy" class="img-fluid scroll-image" style="max-width: 80%; height: auto;">
-        
-        <h2 class="section-title fade-in-element">Characters and World-building</h2>
-        <p class="intro-text">At the heart of Dawntasy are its characters and world-building. From the brave Questa to the mysterious Solus, I make sure each character brings their own unique story and perspective to the saga. The world of Wintro is filled with excitement, creating a rich tapestry for readers to explore.</p>
+      <!-- About the Book & Music Section -->
+      <section id="about-book-music">
+        <h2 class="section-title">Dawntasy: Time's True Name &amp; Dawntasy Melodic</h2>
+        <p class="about-text">
+          <strong>Dawntasy: Time's True Name</strong> is the cornerstone of the <strong>Dawntasy Saga</strong>—an epic YA fantasy novel that challenges the boundaries of truth and magic. And if you’re into immersive soundscapes, my musical persona <strong>Dawntasy Melodic</strong> brings the Dawntasy universe to life with epic soundtracks and mesmerizing beats.
+        </p>
+        <div class="video-container">
+          <iframe
+            src="https://www.youtube.com/embed/JIWSDZtTu1s"
+            frameborder="0"
+            allowfullscreen
+          ></iframe>
+        </div>
+        <p class="about-text" style="text-align: center;">
+          <a href="https://www.amazon.com/Dawntasy-Circular-Dawn-astonishing-breathtaking-ebook/dp/B0DT74DLY5" target="_blank" style="color: #e67e22; font-weight: bold;">
+            Buy Dawntasy: Time's True Name on Amazon
+          </a>
+        </p>
+      </section>
 
-        <h2 class="section-title fade-in-element">Mission and Vision</h2>
-        <p class="intro-text">My mission with the Dawntasy saga is to spark interest and spread joy and ecstasy within such a technology-reliant world. I believe that stories have the power to move hearts and change the way people feel, and I hope that Dawnstory will resonate with readers on a deep and meaningful level.</p>
+      <!-- Social Media Section -->
+      <section id="follow-me">
+        <h2 class="section-title">Follow Me &amp; Get More Dawntasy</h2>
+        <p class="about-text">
+          Stay connected and dive deeper into the Dawntasy universe. Follow me on social media for updates, behind-the-scenes peeks, new music releases, and more epic fantasy adventures.
+        </p>
+        <div class="social-links" style="text-align: center;">
+          <a href="https://www.youtube.com/channel/UCR1JunFMfjD5YrIJI1MU_EQ" target="_blank">YouTube</a>
+          <a href="https://twitter.com/dawntasymelodic" target="_blank">Twitter</a>
+          <a href="https://www.instagram.com/dawntasymelodic" target="_blank">Instagram</a>
+          <a href="https://www.facebook.com/dawntasy" target="_blank">Facebook</a>
+        </div>
+      </section>
 
-        <h2 class="section-title fade-in-element">Get in Touch</h2>
-        <p class="intro-text">Connect with me on YouTube or Discord to stay updated on news and announcements related to Dawntasy.</p>
-
-        <h2 class="section-title fade-in-element">Explore Dawntasy</h2>
-        <p class="intro-text">Ready to dive into the world of Gaze? Check out this for a little preview of the first book!</p>
-        <a href="https://docs.google.com/document/d/1GyT8Q_L2b3_fzAwsNVQkIRZe-NQIyRnNbEtlEkimsUU/edit" class="animated-button">His Promise</a>
-
-        <h2 class="section-title fade-in-element">Filapawa - The Official Dawntasy YouTube Channel</h2>
-        <p class="intro-text">Welcome to Filapawa, the official YouTube channel dedicated to all things in Dawntasy: Dawnstory Revelation! Here, we dive deep into the captivating world of Gaze, offering fans an immersive experience like no other. Our mission at Filapawa is to provide you with exclusive insights, behind-the-scenes content, and engaging discussions that bring the world of Gaze to life.</p>
-        <p class="intro-text">Join us as we explore the rich tapestry of characters, lore, and settings that make up the Dawntasy: Dawnstory Revelation saga. From in-depth character profiles that delve into the motivations and backstories of your favorite heroes and villains to detailed explorations of the world-building that brings the land of Gaze to vivid life, there's always something new to discover on Filapawa.</p>
-        <p class="intro-text">But Filapawa is more than just a channel – it's a community. Connect with fellow fans as we share theories, discuss our favorite moments, and celebrate the world together. Our interactive experiences, including live streams, Q&A sessions, and community events, offer you the chance to engage directly with the author and fellow fans, making Filapawa a place where your voice truly matters.</p>
-        <p class="intro-text">Don't miss out on the latest updates and exclusive content from Filapawa! Subscribe to our channel and hit the notification bell to stay informed about new uploads, live streams, and community events. Join us as we embark on an epic journey through the world of Dawnstory – we can't wait to share it with you!</p>
-        <a href="https://www.youtube.com/@DawntasyRevelate/videos" class="animated-button">Go To YouTube Channel</a>
-
-        <h2 class="section-title fade-in-element">Arya</h2>
-        <p class="intro-text">Arya has been in the field of writing for a very long time and has constantly supported me in my literature during the years of our friendship. He has contributed a great deal to Dawntasy, acting as an editor for any grammatical errors or plot holes and writing massive chapters with precise fluency. A big word of gratitude to Arya Amit who has done so much for me!</p> 
-
-        <h2 class="section-title fade-in-element">Jackson</h2>
-        <p class="intro-text">Jackson is a highly skilled artist and sketcher who demonstrates a natural penchant toward drawing. He takes gusto into every drawing that he makes and has helped me so much...thank you Jackson!</p> 
-
-        <h2 class="section-title fade-in-element">Jai</h2>
-        <p class="intro-text">Jai helps me with every element and every fundamental idea that contributes to Dawntasy. From the moment he helped me with Dawnstory, I knew that Jai would lead the light to help me. Thank you Jai!</p> 
-
-        <h2 class="section-title fade-in-element">Our Motto</h2>    
-        <p class="intro-text">"Dawnstoria bling tes a bromage pemm balea lite fadia, benevegean adver brust sinc mae gloam, preste res tabla questa bpte. Besti mayes!" - Original Dawntasy "Yoodal" Vernacular</p>
-        <p class="intro-text">The reality we live in is unreal, unfair and ambivalent, but at the end of the day, bravery and commitment is what makes reality real, fair and just. - Translated to English</p>
-        <p class="intro-text">Support Dawntasy!</p>
-
-        <img src="https://www.dawnstoryrevelation.com/images/Sun%20and%20Moon%20Destino.jpeg" alt="Sun and Moon Destino" class="scroll-image" style="max-width: 80%; height: auto;">
+      <!-- Music Section -->
+      <section id="more-music">
+        <h2 class="section-title">Listen to Dawntasy Melodic</h2>
+        <p class="about-text">
+          Experience the enchanting soundtracks of <strong>Dawntasy Melodic</strong> on Amazon Music and YouTube. Let the epic beats and magical melodies transport you to the heart of the Dawntasy Saga.
+        </p>
+        <div class="video-container">
+          <iframe
+            src="https://www.youtube.com/embed/7rHEeZpOBzM"
+            frameborder="0"
+            allowfullscreen
+          ></iframe>
+        </div>
+        <p class="about-text" style="text-align: center;">
+          <a href="https://music.amazon.com/artists/B0DXBZL7F5/dawntasy-melodic" target="_blank" style="color: #e67e22; font-weight: bold;">
+            Stream Dawntasy Melodic on Amazon Music
+          </a>
+        </p>
+      </section>
     </div>
 
     <footer>
-        <p>&copy; 2024 Dawntasy: Dawnstory Revelation. All rights reserved.</p>
+      <p>&copy; 2025 Dawntasy. All rights reserved.</p>
     </footer>
 
+    <!-- Scripts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/ScrollTrigger.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
-    <script>
-        gsap.registerPlugin(ScrollTrigger);
-
-        // Fade in elements on scroll
-        document.addEventListener('DOMContentLoaded', function () {
-            const elements = document.querySelectorAll('.fade-in-element');
-            elements.forEach(element => {
-                gsap.fromTo(element, { opacity: 0, y: 20 }, {
-                    opacity: 1, y: 0, duration: 1, ease: 'power4.out', scrollTrigger: {
-                        trigger: element,
-                        start: 'top 80%',
-                        toggleActions: 'play none none reverse'
-                    }
-                });
-            });
-        });
-
-        // Navigation bar hover effects
-        document.querySelectorAll('.nav-link').forEach(link => {
-            link.addEventListener('mouseover', () => {
-                gsap.to(link, { duration: 0.5, scale: 1.1, color: '#f9f5d7' });
-            });
-            link.addEventListener('mouseout', () => {
-                gsap.to(link, { duration: 0.5, scale: 1, color: '#f5f5f5' });
-            });
-        });
-    </script>
-</body>
-
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+  </body>
 </html>
