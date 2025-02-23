@@ -2,7 +2,7 @@ This repository contains the website for Dawntasy Melodic, the musical project o
 
 **About Dawntasy Melodic:**
 
-Dawntasy Melodic is my musical persona, creating enchanting soundtracks that complement my book series, "Dawntasy: Time's True Name." My music blends [Mention your genre, e.g., ambient, electronic, cinematic] elements to create immersive soundscapes that bring the Dawntasy universe to life.
+Dawntasy Melodic is my musical persona, creating enchanting soundtracks that complement my book series, "Dawntasy: Time's True Name." My music blends alternative and electronic music with epic cinematic music to create immersive soundscapes that bring the Dawntasy universe to life.
 
 **Official Music Profiles:**
 
@@ -13,7 +13,3 @@ Dawntasy Melodic is my musical persona, creating enchanting soundtracks that com
 **About the Website:**
 
 This website serves as the official online presence for Dawntasy Melodic. It provides information about my music, links to my official profiles, and details about the Dawntasy Saga.
-
-**Note:**
-
-
