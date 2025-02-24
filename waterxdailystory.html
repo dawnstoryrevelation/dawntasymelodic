@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Water X Daily Story</title>
+  <style>
+    /* Global Styles */
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(ellipse at center, #0b3d91, #000);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: #fff;
+      overflow-x: hidden;
+    }
+    h1, h2, h3, p {
+      margin: 0.5em;
+      text-align: center;
+    }
+    /* Main Container */
+    #menu {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      position: relative;
+      z-index: 1;
+    }
+    /* Wishing Pool */
+    #wishingPool {
+      width: 300px;
+      height: 300px;
+      background: rgba(10, 150, 230, 0.3);
+      border: 5px solid rgba(10, 150, 230, 0.8);
+      border-radius: 50%;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 0 20px rgba(10, 150, 230, 0.8);
+      animation: poolGlow 3s ease-in-out infinite;
+      margin-bottom: 20px;
+    }
+    @keyframes poolGlow {
+      0% { box-shadow: 0 0 20px rgba(10, 150, 230, 0.8); }
+      50% { box-shadow: 0 0 40px rgba(10, 150, 230, 1); }
+      100% { box-shadow: 0 0 20px rgba(10, 150, 230, 0.8); }
+    }
+    /* Constellation (floating animation) */
+    .constellation {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      background: #fff;
+      border-radius: 50%;
+      opacity: 0.8;
+      animation: orbit 6s linear infinite;
+    }
+    @keyframes orbit {
+      from { transform: rotate(0deg) translateX(120px) rotate(0deg); }
+      to { transform: rotate(360deg) translateX(120px) rotate(-360deg); }
+    }
+    /* Buttons */
+    .btn {
+      padding: 15px 30px;
+      margin: 10px;
+      font-size: 1.2em;
+      border: none;
+      border-radius: 30px;
+      background: linear-gradient(45deg, #0af, #0cf);
+      color: #fff;
+      cursor: pointer;
+      transition: transform 0.3s, box-shadow 0.3s;
+      box-shadow: 0 0 10px rgba(10, 150, 230, 0.7);
+      position: relative;
+      overflow: hidden;
+    }
+    .btn:hover {
+      transform: scale(1.1);
+      box-shadow: 0 0 20px rgba(10, 150, 230, 1);
+    }
+    /* Shimmer effect for buttons */
+    .btn:before {
+      content: "";
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(45deg, rgba(255,255,255,0.1), rgba(255,255,255,0) 70%);
+      transform: rotate(25deg);
+      transition: all 0.5s;
+    }
+    .btn:hover:before {
+      left: 100%;
+    }
+    /* Note text */
+    #note {
+      font-size: 0.9em;
+      margin-top: 10px;
+      color: #aaa;
+    }
+    /* Blessing Animation Overlay */
+    #animationOverlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.85);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.5s;
+    }
+    #animationOverlay.active { opacity: 1; pointer-events: auto; }
+    .draw-animation {
+      position: relative;
+      width: 300px;
+      height: 300px;
+    }
+    .draw-animation .burst {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, transparent 70%);
+      border-radius: 50%;
+      animation: burst 1s ease-out forwards;
+    }
+    @keyframes burst {
+      0% { transform: scale(0.1); opacity: 1; }
+      100% { transform: scale(2); opacity: 0; }
+    }
+    /* Charm Reveal */
+    #charmDisplay {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0);
+      opacity: 0;
+      transition: transform 0.5s ease-out, opacity 0.5s ease-out;
+    }
+    #charmDisplay.active {
+      transform: translate(-50%, -50%) scale(1);
+      opacity: 1;
+    }
+    .charm {
+      font-size: 1.5em;
+      padding: 20px;
+      border: 3px solid #fff;
+      border-radius: 10px;
+      text-align: center;
+      background: rgba(0,0,0,0.7);
+      position: relative;
+      animation: charmReveal 1s ease-out;
+    }
+    @keyframes charmReveal {
+      0% { transform: scale(0.5); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    .view-more {
+      display: inline-block;
+      margin-top: 10px;
+      font-size: 0.8em;
+      color: #0af;
+      cursor: pointer;
+      text-decoration: underline;
+    }
+    /* Modal Popup */
+    #modal {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.85);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 20;
+    }
+    #modal.active { display: flex; }
+    .modal-content {
+      background: #111;
+      padding: 20px;
+      border-radius: 10px;
+      width: 80%;
+      max-width: 500px;
+      text-align: center;
+      animation: modalIn 0.5s ease-out;
+    }
+    @keyframes modalIn {
+      from { transform: scale(0.5); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+    .modal-close {
+      margin-top: 20px;
+      padding: 10px 20px;
+      border: none;
+      background: #0af;
+      color: #fff;
+      cursor: pointer;
+      border-radius: 5px;
+      transition: background 0.3s;
+    }
+    .modal-close:hover { background: #08c; }
+    /* Inventory Modal */
+    #inventoryBtn {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 5px;
+      background: #0af;
+      color: #fff;
+      cursor: pointer;
+      z-index: 15;
+      transition: transform 0.3s;
+    }
+    #inventoryBtn:hover { transform: scale(1.1); }
+    #inventoryModal {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.9);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 20;
+      overflow-y: auto;
+    }
+    #inventoryModal.active { display: flex; }
+    .inventory-content {
+      background: #222;
+      padding: 20px;
+      border-radius: 10px;
+      width: 90%;
+      max-width: 600px;
+      text-align: center;
+    }
+    .inventory-item {
+      border-bottom: 1px solid #444;
+      padding: 10px 0;
+    }
+  </style>
+</head>
+<body>
+  <!-- Inventory Button -->
+  <button id="inventoryBtn">Inventory</button>
+  
+  <!-- Main Menu -->
+  <div id="menu">
+    <h1>Water X Daily Story</h1>
+    <div id="wishingPool">
+      <!-- Floating constellations -->
+      <div class="constellation" style="top:10%; left:20%; animation-duration: 5s;"></div>
+      <div class="constellation" style="top:60%; left:70%; animation-duration: 7s;"></div>
+      <div class="constellation" style="top:40%; left:40%; animation-duration: 6s;"></div>
+      <!-- You can add more for extra sparkle -->
+    </div>
+    <button class="btn" id="blessingBtn">Receive a Blessing</button>
+    <button class="btn" id="blessingX10Btn">Receive a Blessing x 10</button>
+    <p id="note">NOTE: 10 BLESSINGS PER DAY FOR OPTIMAL RESULTS.</p>
+    <!-- Charm display (animated reveal) -->
+    <div id="charmDisplay"></div>
+  </div>
+
+  <!-- Animation Overlay (for draw effects) -->
+  <div id="animationOverlay">
+    <div class="draw-animation">
+      <div class="burst"></div>
+    </div>
+  </div>
+
+  <!-- Modal Popup for Charm Info -->
+  <div id="modal">
+    <div class="modal-content">
+      <h2 id="modalTitle"></h2>
+      <p id="modalInfo"></p>
+      <button class="modal-close" id="modalCloseBtn">Close</button>
+    </div>
+  </div>
+
+  <!-- Inventory Modal -->
+  <div id="inventoryModal">
+    <div class="inventory-content">
+      <h2>Your Collected Charms</h2>
+      <div id="inventoryList"></div>
+      <button class="modal-close" id="inventoryCloseBtn">Close</button>
+    </div>
+  </div>
+
+  <script>
+    /* --- Data Setup --- */
+    // Define our charms with rarity, chance (in percent), info, and a CSS class for potential styling
+    const charms = [
+      { name: "Midcharm", rarity: "Common", chance: 60, info: "You're doing great. Water X has provided you with normal essence.", cssClass: "charm-midcharm" },
+      { name: "Elevate", rarity: "Common", chance: 35, info: "Your energy is rising—Water X elevates your spirit with a burst of green brilliance.", cssClass: "charm-elevate" },
+      { name: "Blue Raven", rarity: "Uncommon", chance: 4, info: "A mystical blue raven soars with the secrets of the cosmos.", cssClass: "charm-blue-raven" },
+      { name: "Celestial Whisper", rarity: "Rare", chance: 0.4, info: "The stars whisper secrets—listen closely to their celestial tune.", cssClass: "charm-celestial-whisper" },
+      { name: "Ethereal Echo", rarity: "Rare", chance: 0.2, info: "A cosmic echo reverberates—this charm carries the voice of the universe.", cssClass: "charm-ethereal-echo" },
+      { name: "Ocean and Sky Parade", rarity: "Rare", chance: 0.15, info: "Witness the parade of nature’s splendor as ocean meets sky in a cosmic dance.", cssClass: "charm-ocean-sky-parade" },
+      { name: "Berries on A Bramble Bush", rarity: "Rare", chance: 0.15, info: "A rare bounty from nature’s hidden corners—cherish the sweetness of this blessing.", cssClass: "charm-berries-bramble" },
+      { name: "Hidden Gem", rarity: "Epic", chance: 0.1, info: "You've discovered a real treasure. Luck's on your side.", cssClass: "charm-hidden-gem" },
+      { name: "The Archmage", rarity: "Miracle", chance: 0.01, info: "NOW YOU HAVE BECOME A TRUE ARCHMAGUS. NOTHING CAN STOP YOU.", cssClass: "charm-archmage" },
+      { name: "Ascended from Plainly Medium", rarity: "Miracle", chance: 0.005, info: "Ascend beyond the mundane—the cosmos has elevated your essence.", cssClass: "charm-ascended" },
+      { name: "THE HYPER ARCHMAGE", rarity: "Transcendental", chance: 0.001, info: "Ascend beyond mortal realms—the ultimate blessing has been bestowed upon you.", cssClass: "charm-hyper-archmage" },
+      { name: "Day Plan", rarity: "Transcendental", chance: 0.000001, info: "The blueprint of destiny—this charm outlines the perfect day plan for the chosen.", cssClass: "charm-day-plan" },
+      { name: "A Hat on the Grass", rarity: "Transcendental", chance: 0.005, info: "A whimsical token—sometimes, the simplest things hold the deepest magic.", cssClass: "charm-hat-grass" },
+      { name: "The Desk", rarity: "Transcendental", chance: 0.005, info: "A portal to wisdom—this desk holds the secrets of ages past.", cssClass: "charm-desk" }
+    ];
+
+    // Calculate total weight
+    const totalWeight = charms.reduce((sum, charm) => sum + charm.chance, 0);
+
+    // Inventory to store drawn charms (for the session)
+    let inventory = [];
+
+    // Daily limit (simulate using localStorage)
+    const MAX_BLESSINGS = 10;
+    let blessingsToday = 0;
+    const dailyKey = "waterXBlessings";
+
+    // Check localStorage for daily blessings
+    function checkDailyLimit() {
+      const data = JSON.parse(localStorage.getItem(dailyKey));
+      const today = new Date().toDateString();
+      if (data && data.date === today) {
+        blessingsToday = data.count;
+      } else {
+        blessingsToday = 0;
+        localStorage.setItem(dailyKey, JSON.stringify({ date: today, count: 0 }));
+      }
+      updateButtons();
+    }
+    // Update localStorage with new count
+    function updateDailyCount(increment) {
+      blessingsToday += increment;
+      const today = new Date().toDateString();
+      localStorage.setItem(dailyKey, JSON.stringify({ date: today, count: blessingsToday }));
+      updateButtons();
+    }
+    // Enable/disable blessing buttons based on limit
+    function updateButtons() {
+      if (blessingsToday >= MAX_BLESSINGS) {
+        document.getElementById("blessingBtn").disabled = true;
+        document.getElementById("blessingX10Btn").disabled = true;
+      } else {
+        document.getElementById("blessingBtn").disabled = false;
+        document.getElementById("blessingX10Btn").disabled = false;
+      }
+    }
+
+    // Randomly draw a charm based on weighted probabilities
+    function drawCharm() {
+      let rand = Math.random() * totalWeight;
+      for (let charm of charms) {
+        if (rand < charm.chance) return charm;
+        rand -= charm.chance;
+      }
+      // Fallback (shouldn't happen)
+      return charms[0];
+    }
+
+    // Display draw animation then show charm
+    function performDraw(draws = 1) {
+      if (blessingsToday >= MAX_BLESSINGS) {
+        alert("Daily limit reached! Come back tomorrow for more blessings.");
+        return;
+      }
+      // For multiple draws, run sequentially with a slight delay
+      let drawCount = Math.min(draws, MAX_BLESSINGS - blessingsToday);
+      const performSingleDraw = (i) => {
+        if (i >= drawCount) return;
+        // Start animation overlay
+        const overlay = document.getElementById("animationOverlay");
+        overlay.classList.add("active");
+        // Hide any previous charm display
+        const charmDisplay = document.getElementById("charmDisplay");
+        charmDisplay.classList.remove("active");
+        // After animation delay, reveal charm
+        setTimeout(() => {
+          overlay.classList.remove("active");
+          const charm = drawCharm();
+          showCharm(charm);
+          inventory.push(charm);
+          updateInventoryUI();
+          updateDailyCount(1);
+          // Next draw after a short delay
+          setTimeout(() => {
+            performSingleDraw(i + 1);
+          }, 800);
+        }, 1200);
+      };
+      performSingleDraw(0);
+    }
+
+    // Show charm on screen with animation and "view more" option
+    function showCharm(charm) {
+      const charmDisplay = document.getElementById("charmDisplay");
+      charmDisplay.innerHTML = `
+        <div class="charm ${charm.cssClass}">
+          <strong>${charm.name}</strong><br>
+          <em>${charm.rarity}</em>
+          <div class="view-more" data-charm='${JSON.stringify(charm)}'>View More</div>
+        </div>
+      `;
+      charmDisplay.classList.add("active");
+    }
+
+    // Modal popup handling
+    function openModal(charm) {
+      document.getElementById("modalTitle").innerText = charm.name;
+      document.getElementById("modalInfo").innerText = charm.info;
+      document.getElementById("modal").classList.add("active");
+    }
+    function closeModal() {
+      document.getElementById("modal").classList.remove("active");
+    }
+
+    // Inventory UI update
+    function updateInventoryUI() {
+      const invList = document.getElementById("inventoryList");
+      invList.innerHTML = "";
+      if (inventory.length === 0) {
+        invList.innerHTML = "<p>No charms collected yet.</p>";
+      } else {
+        inventory.forEach((charm, index) => {
+          const item = document.createElement("div");
+          item.className = "inventory-item";
+          item.innerHTML = `<strong>${charm.name}</strong> (${charm.rarity})`;
+          invList.appendChild(item);
+        });
+      }
+    }
+
+    // Event Listeners
+    document.getElementById("blessingBtn").addEventListener("click", () => {
+      performDraw(1);
+    });
+    document.getElementById("blessingX10Btn").addEventListener("click", () => {
+      performDraw(10);
+    });
+    document.getElementById("modalCloseBtn").addEventListener("click", closeModal);
+    // Open modal when "view more" is clicked on a charm
+    document.getElementById("charmDisplay").addEventListener("click", (e) => {
+      if (e.target.classList.contains("view-more")) {
+        const charm = JSON.parse(e.target.getAttribute("data-charm"));
+        openModal(charm);
+      }
+    });
+    // Inventory modal toggling
+    document.getElementById("inventoryBtn").addEventListener("click", () => {
+      document.getElementById("inventoryModal").classList.add("active");
+      updateInventoryUI();
+    });
+    document.getElementById("inventoryCloseBtn").addEventListener("click", () => {
+      document.getElementById("inventoryModal").classList.remove("active");
+    });
+
+    // Initialize daily limit on page load
+    window.onload = () => {
+      checkDailyLimit();
+    };
+  </script>
+</body>
+</html>
