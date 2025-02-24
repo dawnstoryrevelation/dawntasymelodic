@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Hyper Archmage SEO Tool</title>
+  <style>
+    /* Global Styles */
+    body {
+      margin: 0;
+      padding: 0;
+      background: #1e1e1e;
+      font-family: 'Segoe UI', sans-serif;
+      color: #eee;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .container {
+      width: 90%;
+      max-width: 800px;
+      background: #2b2b2b;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.5);
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #00ccff;
+      text-shadow: 0 0 10px #00ccff;
+    }
+    textarea {
+      width: 100%;
+      height: 150px;
+      padding: 10px;
+      font-size: 1em;
+      border-radius: 5px;
+      border: none;
+      resize: vertical;
+      margin-bottom: 20px;
+      background: #1e1e1e;
+      color: #eee;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 1em;
+      background: linear-gradient(45deg, #00ccff, #0066ff);
+      border: none;
+      border-radius: 5px;
+      color: #fff;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      display: block;
+      margin: 0 auto 20px;
+    }
+    button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 15px rgba(0,204,255,0.7);
+    }
+    #results {
+      background: #1e1e1e;
+      padding: 15px;
+      border-radius: 5px;
+      font-size: 0.95em;
+      line-height: 1.5;
+      max-height: 400px;
+      overflow-y: auto;
+      color: #ccc;
+    }
+    .metric {
+      margin: 10px 0;
+    }
+    .recommendation {
+      margin: 10px 0;
+      padding: 10px;
+      background: #333;
+      border-radius: 5px;
+      color: #fff;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Hyper Archmage SEO Tool</h1>
+    <textarea id="htmlInput" placeholder="Paste your HTML code here..."></textarea>
+    <button id="analyzeBtn">Analyze SEO</button>
+    <div id="results"></div>
+  </div>
+
+  <script>
+    // Utility function to safely get element content
+    function getMetaContent(doc, name) {
+      const meta = doc.querySelector(`meta[name="${name}"]`);
+      return meta ? meta.getAttribute("content") : "Not Found";
+    }
+
+    // Calculate word count from text (excluding extra whitespace)
+    function getWordCount(text) {
+      return text.trim().split(/\s+/).filter(Boolean).length;
+    }
+
+    document.getElementById("analyzeBtn").addEventListener("click", () => {
+      const htmlContent = document.getElementById("htmlInput").value;
+      if (!htmlContent.trim()) {
+        alert("Please paste some HTML code first!");
+        return;
+      }
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(htmlContent, "text/html");
+      
+      // Extract key SEO elements
+      const title = doc.title || "Not Found";
+      const metaDescription = getMetaContent(doc, "description");
+      const metaKeywords = getMetaContent(doc, "keywords");
+      
+      // Headings analysis
+      const h1s = doc.querySelectorAll("h1").length;
+      const h2s = doc.querySelectorAll("h2").length;
+      const h3s = doc.querySelectorAll("h3").length;
+      
+      // Body text word count (strip scripts/styles)
+      let bodyText = doc.body ? doc.body.textContent : "";
+      const wordCount = getWordCount(bodyText);
+
+      // Build results HTML
+      let resultsHTML = `
+        <div class="metric"><strong>Title:</strong> ${title}</div>
+        <div class="metric"><strong>Meta Description:</strong> ${metaDescription}</div>
+        <div class="metric"><strong>Meta Keywords:</strong> ${metaKeywords}</div>
+        <div class="metric"><strong>H1 Tags:</strong> ${h1s}</div>
+        <div class="metric"><strong>H2 Tags:</strong> ${h2s}</div>
+        <div class="metric"><strong>H3 Tags:</strong> ${h3s}</div>
+        <div class="metric"><strong>Word Count:</strong> ${wordCount}</div>
+      `;
+
+      // Generate simple recommendations
+      let recommendations = "";
+      if(title.length < 10 || title.length > 70) {
+        recommendations += `<div class="recommendation">Title length should be between 10-70 characters. Current: ${title.length}</div>`;
+      }
+      if(metaDescription.length < 50 || metaDescription.length > 160) {
+        recommendations += `<div class="recommendation">Meta description should be between 50-160 characters. Current: ${metaDescription.length}</div>`;
+      }
+      if(wordCount < 300) {
+        recommendations += `<div class="recommendation">Content is a bit thin; consider adding more relevant text (minimum 300 words recommended).</div>`;
+      }
+      if(h1s === 0) {
+        recommendations += `<div class="recommendation">Consider adding at least one H1 tag to improve SEO structure.</div>`;
+      }
+      if(!metaKeywords || metaKeywords === "Not Found") {
+        recommendations += `<div class="recommendation">Adding meta keywords might help (although not as critical as before).</div>`;
+      }
+      if(!recommendations) {
+        recommendations = `<div class="recommendation">Your SEO looks pretty solid! Keep up the good work!</div>`;
+      }
+      
+      resultsHTML += `<h2>Recommendations:</h2>` + recommendations;
+      document.getElementById("results").innerHTML = resultsHTML;
+    });
+  </script>
+</body>
+</html>
