@@ -168,9 +168,48 @@
       75% { color: silver; text-shadow: 0 0 20px silver; }
       100% { color: gold; text-shadow: 0 0 15px gold; }
     }
+    /* Wonder Mode Toggle */
+    #wonderModeToggle {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: linear-gradient(45deg, #00ccff, #0066ff);
+      padding: 10px 15px;
+      border-radius: 8px;
+      color: #fff;
+      font-weight: bold;
+      cursor: pointer;
+      z-index: 1000;
+      transition: transform 0.3s;
+    }
+    #wonderModeToggle:hover {
+      transform: scale(1.1);
+    }
+    /* Tooltip for Wonder Mode */
+    #wonderModeToggle::after {
+      content: "PLAY ADMIN FOR THE TEST, GET ALL QUESTIONS RIGHT";
+      position: absolute;
+      top: 110%;
+      right: 0;
+      background: rgba(0,0,0,0.8);
+      color: #fff;
+      padding: 5px 10px;
+      border-radius: 5px;
+      font-size: 0.8em;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+      white-space: nowrap;
+    }
+    #wonderModeToggle:hover::after {
+      opacity: 1;
+    }
   </style>
 </head>
 <body>
+  <!-- Wonder Mode Toggle Button -->
+  <div id="wonderModeToggle">Wonder Mode</div>
+  
   <!-- Menu Interface -->
   <div id="menu">
     <h1>Reverse Kcul Test</h1>
@@ -195,6 +234,7 @@
     let correctCount = 0;
     const totalQuestions = 10;
     let currentCorrectAnswer = null;
+    let wonderMode = false; // Flag for Wonder Mode
 
     const menu = document.getElementById("menu");
     const quiz = document.getElementById("quiz");
@@ -206,9 +246,21 @@
     const ratingDiv = document.getElementById("rating");
     const scoreDiv = document.getElementById("score");
     const restartButton = document.getElementById("restartButton");
+    const wonderModeToggle = document.getElementById("wonderModeToggle");
 
     startButton.addEventListener("click", startQuiz);
     restartButton.addEventListener("click", restartQuiz);
+
+    wonderModeToggle.addEventListener("click", toggleWonderMode);
+
+    function toggleWonderMode() {
+      wonderMode = !wonderMode;
+      if(wonderMode) {
+        wonderModeToggle.textContent = "Back to Normal Mode";
+      } else {
+        wonderModeToggle.textContent = "Wonder Mode";
+      }
+    }
 
     function startQuiz() {
       menu.style.display = "none";
@@ -239,6 +291,14 @@
         btn.onclick = () => selectAnswer(choice);
         choicesContainer.appendChild(btn);
       });
+      
+      // If in Wonder Mode, auto-select an answer after a short delay
+      if(wonderMode) {
+        setTimeout(() => {
+          // Automatically select a choice (always "correct" in Wonder Mode)
+          selectAnswer(currentCorrectAnswer);
+        }, 800);
+      }
     }
 
     function selectAnswer(selected) {
@@ -246,7 +306,8 @@
       let buttons = document.querySelectorAll(".choice");
       buttons.forEach(btn => btn.disabled = true);
 
-      if (selected === currentCorrectAnswer) {
+      // In Wonder Mode, always count as correct
+      if(wonderMode || selected === currentCorrectAnswer) {
         feedback.textContent = "Correct!";
         correctCount++;
       } else {
