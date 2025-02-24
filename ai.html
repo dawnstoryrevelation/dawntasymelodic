@@ -1,199 +1,193 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="utf-8">
-  <title>Mini AI XOR Demo</title>
+  <meta charset="UTF-8">
+  <title>ChatStory AI</title>
   <style>
+    /* Reset */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      background: #222;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
       color: #fff;
-      font-family: sans-serif;
+    }
+    .chat-container {
+      width: 90%;
+      max-width: 800px;
+      background: rgba(0, 0, 0, 0.8);
+      border-radius: 15px;
+      overflow: hidden;
+      box-shadow: 0 0 20px rgba(0,0,0,0.5);
       display: flex;
       flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      margin: 0;
     }
-    h1 {
-      margin-bottom: 20px;
+    .header {
+      background: #111;
+      padding: 15px;
       text-align: center;
+      font-size: 1.8em;
+      font-weight: bold;
+      border-bottom: 1px solid #333;
     }
-    #log {
-      width: 80%;
-      max-width: 600px;
-      background: #333;
+    .chat-window {
+      flex: 1;
       padding: 20px;
-      border-radius: 8px;
       overflow-y: auto;
-      max-height: 300px;
-      font-family: monospace;
+      max-height: 500px;
+    }
+    .message {
+      margin: 10px 0;
+      padding: 10px 15px;
+      border-radius: 10px;
+      max-width: 70%;
+      line-height: 1.4;
+      word-wrap: break-word;
+    }
+    .user-message {
+      background: #0a84ff;
+      align-self: flex-end;
+    }
+    .ai-message {
+      background: #444;
+      align-self: flex-start;
+    }
+    .input-area {
+      display: flex;
+      border-top: 1px solid #333;
+      background: #111;
+      padding: 10px;
+    }
+    .input-area input {
+      flex: 1;
+      padding: 10px;
+      font-size: 1em;
+      border: none;
+      border-radius: 5px;
+      margin-right: 10px;
+    }
+    .input-area button {
+      padding: 10px 20px;
+      font-size: 1em;
+      background: #0a84ff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .input-area button:hover {
+      background: #006fdd;
+    }
+    /* Extra Controls */
+    .extra-controls {
+      display: flex;
+      justify-content: space-around;
+      padding: 10px;
+      background: #222;
+      border-top: 1px solid #333;
+    }
+    .extra-controls button {
+      padding: 8px 15px;
+      font-size: 0.9em;
+      background: #e91e63;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .extra-controls button:hover {
+      background: #c2185b;
     }
   </style>
 </head>
 <body>
-  <h1>Mini AI: XOR Neural Network</h1>
-  <div id="log"></div>
+  <div class="chat-container">
+    <div class="header">ChatStory AI</div>
+    <div class="chat-window" id="chatWindow">
+      <!-- Chat messages will appear here -->
+      <div class="ai-message message">Hello! I am ChatStory AI – ask me anything, request a web search, or even an image generation!</div>
+    </div>
+    <div class="extra-controls">
+      <button id="searchBtn">Web Search</button>
+      <button id="imageBtn">Generate Image</button>
+    </div>
+    <div class="input-area">
+      <input type="text" id="userInput" placeholder="Type your message here..." autofocus>
+      <button id="sendBtn">Send</button>
+    </div>
+  </div>
 
   <script>
-    /************************************************************
-     * 1. Simple Utility Functions
-     ************************************************************/
-    // Activation function: Sigmoid
-    function sigmoid(x) {
-      return 1 / (1 + Math.exp(-x));
-    }
-    // Derivative of sigmoid
-    function dsigmoid(y) {
-      return y * (1 - y);
-    }
+    const chatWindow = document.getElementById('chatWindow');
+    const userInput = document.getElementById('userInput');
+    const sendBtn = document.getElementById('sendBtn');
+    const searchBtn = document.getElementById('searchBtn');
+    const imageBtn = document.getElementById('imageBtn');
 
-    // Log to the on-page #log div
-    function logMessage(msg) {
-      const logDiv = document.getElementById('log');
-      logDiv.textContent += msg + "\n";
+    // Utility to append a message
+    function appendMessage(text, type = 'ai') {
+      const msgDiv = document.createElement('div');
+      msgDiv.className = `${type}-message message`;
+      msgDiv.innerText = text;
+      chatWindow.appendChild(msgDiv);
+      chatWindow.scrollTop = chatWindow.scrollHeight;
     }
 
-    /************************************************************
-     * 2. Define a small 2-layer neural network
-     ************************************************************/
-    class NeuralNetwork {
-      constructor(inputNodes, hiddenNodes, outputNodes, learningRate = 0.1) {
-        this.inputNodes = inputNodes;
-        this.hiddenNodes = hiddenNodes;
-        this.outputNodes = outputNodes;
-        this.learningRate = learningRate;
-
-        // Initialize weights with random values
-        // wIH: Weights from Input to Hidden
-        this.wIH = Array.from({ length: this.hiddenNodes }, () =>
-          Array.from({ length: this.inputNodes }, () => Math.random() * 2 - 1)
-        );
-        // wHO: Weights from Hidden to Output
-        this.wHO = Array.from({ length: this.outputNodes }, () =>
-          Array.from({ length: this.hiddenNodes }, () => Math.random() * 2 - 1)
-        );
-
-        // Initialize biases
-        // bH: Bias for Hidden
-        this.bH = Array.from({ length: this.hiddenNodes }, () => Math.random() * 2 - 1);
-        // bO: Bias for Output
-        this.bO = Array.from({ length: this.outputNodes }, () => Math.random() * 2 - 1);
+    // Simulated advanced AI response (dummy logic)
+    function generateResponse(input) {
+      // Advanced logic placeholder: in a real system, you'd integrate a powerful AI model here.
+      // For now, we simulate with some fun responses.
+      if (input.toLowerCase().includes("search")) {
+        return "Searching the web... [Simulated Result: The cosmos is infinite!]";
       }
-
-      // Forward pass
-      predict(inputs) {
-        // Hidden layer
-        const hidden = this.wIH.map((row, i) => {
-          // Weighted sum
-          let sum = row.reduce((acc, w, j) => acc + w * inputs[j], 0);
-          sum += this.bH[i]; // add bias
-          // Activation
-          return sigmoid(sum);
-        });
-
-        // Output layer
-        const outputs = this.wHO.map((row, i) => {
-          let sum = row.reduce((acc, w, j) => acc + w * hidden[j], 0);
-          sum += this.bO[i]; // add bias
-          return sigmoid(sum);
-        });
-
-        return outputs;
+      if (input.toLowerCase().includes("image")) {
+        return "Generating an image... [Simulated Result: Imagine a breathtaking nebula!]";
       }
-
-      // Train with one data point
-      train(inputs, targets) {
-        // ----- Forward Pass -----
-        // 1. Hidden
-        const hidden = this.wIH.map((row, i) => {
-          let sum = row.reduce((acc, w, j) => acc + w * inputs[j], 0);
-          sum += this.bH[i];
-          return sigmoid(sum);
-        });
-        // 2. Output
-        const outputs = this.wHO.map((row, i) => {
-          let sum = row.reduce((acc, w, j) => acc + w * hidden[j], 0);
-          sum += this.bO[i];
-          return sigmoid(sum);
-        });
-
-        // ----- Backward Pass (Calculate Errors) -----
-        // Output errors (target - actual)
-        const outputErrors = outputs.map((o, i) => targets[i] - o);
-
-        // Hidden -> Output weight update
-        // Δw = learningRate * error * dSigmoid(output) * hiddenNeuron
-        for (let i = 0; i < this.outputNodes; i++) {
-          const error = outputErrors[i];
-          const gradient = dsigmoid(outputs[i]) * error * this.learningRate;
-          // Update bias for output layer
-          this.bO[i] += gradient;
-          // Update each weight in wHO
-          for (let j = 0; j < this.hiddenNodes; j++) {
-            const delta = gradient * hidden[j];
-            this.wHO[i][j] += delta;
-          }
-        }
-
-        // Calculate hidden layer errors
-        // hiddenError = sum( wHO[i][h] * outputErrors[i] )
-        const hiddenErrors = this.wIH.map(() => 0);
-        for (let i = 0; i < this.outputNodes; i++) {
-          for (let h = 0; h < this.hiddenNodes; h++) {
-            hiddenErrors[h] += this.wHO[i][h] * outputErrors[i];
-          }
-        }
-
-        // Input -> Hidden weight update
-        for (let h = 0; h < this.hiddenNodes; h++) {
-          const error = hiddenErrors[h];
-          const gradient = dsigmoid(hidden[h]) * error * this.learningRate;
-          // Update bias for hidden layer
-          this.bH[h] += gradient;
-          // Update each weight in wIH
-          for (let inp = 0; inp < this.inputNodes; inp++) {
-            const delta = gradient * inputs[inp];
-            this.wIH[h][inp] += delta;
-          }
-        }
+      // Advanced reasoning simulation
+      if (input.toLowerCase().includes("math") || input.toLowerCase().includes("solve")) {
+        return "Let me crunch some numbers... [Simulated Result: 42 is the answer to everything!]";
       }
+      // Default generic response
+      return "That's interesting. Tell me more or ask me to search the web, generate an image, or solve a problem!";
     }
 
-    /************************************************************
-     * 3. Train the network on XOR data
-     ************************************************************/
-    const nn = new NeuralNetwork(2, 2, 1, 0.2);
-
-    // XOR dataset
-    const trainingData = [
-      { inputs: [0, 0], targets: [0] },
-      { inputs: [0, 1], targets: [1] },
-      { inputs: [1, 0], targets: [1] },
-      { inputs: [1, 1], targets: [0] }
-    ];
-
-    // We'll do a few thousand epochs for a stable learning
-    const epochs = 4000;
-
-    for (let i = 0; i < epochs; i++) {
-      // Shuffle training data each epoch
-      trainingData.sort(() => Math.random() - 0.5);
-      // Train on each example
-      for (let data of trainingData) {
-        nn.train(data.inputs, data.targets);
-      }
+    // Send message and simulate response
+    function sendMessage() {
+      const text = userInput.value.trim();
+      if (!text) return;
+      appendMessage(text, 'user');
+      userInput.value = "";
+      // Simulate a delay before response
+      setTimeout(() => {
+        const response = generateResponse(text);
+        appendMessage(response, 'ai');
+      }, 800);
     }
 
-    logMessage("Training complete after " + epochs + " epochs!");
-    logMessage("Let's test the network on the XOR inputs:");
+    sendBtn.addEventListener('click', sendMessage);
+    userInput.addEventListener('keypress', (e) => {
+      if (e.key === "Enter") {
+        sendMessage();
+      }
+    });
 
-    // Test it
-    trainingData.forEach(td => {
-      const prediction = nn.predict(td.inputs);
-      logMessage(
-        `Input: ${td.inputs} -> Output: ${prediction[0].toFixed(3)} (Target: ${td.targets[0]})`
-      );
+    // Extra control: Simulated Web Search
+    searchBtn.addEventListener('click', () => {
+      appendMessage("Initiating web search... Please wait.", 'ai');
+      setTimeout(() => {
+        appendMessage("Simulated Search Result: 'ChatStory AI is a fusion of art, science, and cosmic intelligence!'", 'ai');
+      }, 1500);
+    });
+
+    // Extra control: Simulated Image Generation
+    imageBtn.addEventListener('click', () => {
+      appendMessage("Generating image... Hold on to your hat!", 'ai');
+      setTimeout(() => {
+        appendMessage("Simulated Image Result: Imagine an awe-inspiring cosmic landscape with swirling nebulae and radiant stars!", 'ai');
+      }, 1500);
     });
   </script>
 </body>
