@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Dawntasy: Chronicles of Time</title>
+  <style>
+    /* Reset & Global */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, sans-serif;
+      background: #111;
+      color: #fff;
+      overflow-x: hidden;
+    }
+    h1, h2, h3, p {
+      margin: 10px 0;
+    }
+    button {
+      cursor: pointer;
+      border: none;
+      border-radius: 5px;
+      padding: 10px 15px;
+      background: linear-gradient(45deg, #ff0080, #ffaf00);
+      color: #fff;
+      font-weight: bold;
+      transition: transform 0.3s, box-shadow 0.3s;
+      margin: 5px;
+    }
+    button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 10px rgba(255,255,255,0.4);
+    }
+    a {
+      color: #ffaf00;
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+
+    /* Simple container for transitions */
+    .screen {
+      display: none;
+      padding: 20px;
+      animation: fadeIn 0.6s ease forwards;
+      min-height: 100vh;
+    }
+    .active {
+      display: block;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Menu Styles */
+    #menuScreen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: url('The Dawnstory.WEBP') no-repeat center center/cover;
+      text-align: center;
+    }
+    #menuScreen h1 {
+      font-size: 3em;
+      margin-bottom: 20px;
+      text-shadow: 0 0 10px rgba(255,255,255,0.7);
+      animation: glowTitle 2s infinite alternate;
+    }
+    @keyframes glowTitle {
+      from { text-shadow: 0 0 10px #ff0080; }
+      to { text-shadow: 0 0 20px #ffaf00; }
+    }
+
+    /* World Map Screen */
+    #mapScreen {
+      background: url('https://raw.githubusercontent.com/dawnstoryrevelation/dawntasymelodic/refs/heads/main/The%20Dream%20(Legendary).WEBP') no-repeat center center/cover;
+      background-size: cover;
+    }
+    #mapLocations {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-top: 30px;
+    }
+    .locationCard {
+      width: 200px;
+      background: rgba(0,0,0,0.7);
+      margin: 10px;
+      padding: 15px;
+      border-radius: 10px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.3s;
+    }
+    .locationCard:hover {
+      transform: scale(1.05);
+    }
+    .locationCard img {
+      width: 100%;
+      border-radius: 10px;
+    }
+
+    /* Inventory Screen */
+    #inventoryScreen {
+      background: #222;
+    }
+    #inventoryList {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .itemCard {
+      width: 150px;
+      background: #333;
+      margin: 10px;
+      padding: 10px;
+      border-radius: 5px;
+      text-align: center;
+      transition: transform 0.3s;
+    }
+    .itemCard:hover {
+      transform: scale(1.05);
+    }
+    .itemCard img {
+      width: 80px;
+      height: 80px;
+      object-fit: cover;
+      border-radius: 5px;
+    }
+
+    /* Battle Screen */
+    #battleScreen {
+      background: linear-gradient(45deg, #450046, #000);
+      text-align: center;
+    }
+    #battleLog {
+      max-height: 300px;
+      overflow-y: auto;
+      background: rgba(255,255,255,0.1);
+      padding: 10px;
+      margin: 10px auto;
+      width: 80%;
+      border-radius: 5px;
+    }
+
+    /* Shop Screen */
+    #shopScreen {
+      background: #333;
+    }
+    #shopItems {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .shopItem {
+      width: 150px;
+      background: #444;
+      margin: 10px;
+      padding: 10px;
+      border-radius: 5px;
+      text-align: center;
+      transition: transform 0.3s;
+    }
+    .shopItem:hover {
+      transform: scale(1.05);
+    }
+
+    /* Quests Screen */
+    #questsScreen {
+      background: #111;
+    }
+    #questList {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-top: 20px;
+    }
+    .questCard {
+      width: 200px;
+      background: #222;
+      margin: 10px;
+      padding: 15px;
+      border-radius: 5px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.3s;
+    }
+    .questCard:hover {
+      transform: scale(1.05);
+    }
+
+    /* Utility Classes */
+    .btnRow {
+      margin-top: 20px;
+      text-align: center;
+    }
+    .gold {
+      color: #ffaf00;
+      font-weight: bold;
+    }
+    .healthBar {
+      height: 20px;
+      background: #222;
+      border: 1px solid #555;
+      border-radius: 10px;
+      overflow: hidden;
+      width: 200px;
+      margin: 0 auto 10px;
+    }
+    .healthFill {
+      height: 100%;
+      background: linear-gradient(45deg, #ff0033, #ffaf00);
+      transition: width 0.3s;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- MENU SCREEN -->
+  <div id="menuScreen" class="screen active">
+    <h1>Dawntasy: Chronicles of Time</h1>
+    <button id="startGameBtn">Enter the Realm</button>
+    <button id="loadGameBtn">Load Game</button>
+  </div>
+
+  <!-- MAP SCREEN -->
+  <div id="mapScreen" class="screen">
+    <h2>Welcome, <span id="playerName"></span>!</h2>
+    <p>Gold: <span id="playerGold" class="gold">0</span> | Items Collected: <span id="itemCount">0</span></p>
+    <div class="btnRow">
+      <button onclick="goToScreen('inventoryScreen')">Inventory</button>
+      <button onclick="goToScreen('shopScreen')">Shop</button>
+      <button onclick="goToScreen('questsScreen')">Quests</button>
+      <button onclick="startBattle()">Battle</button>
+      <button onclick="saveProgress()">Save Progress</button>
+    </div>
+    <h3>Explore the Land of Dawntasy</h3>
+    <div id="mapLocations">
+      <!-- Dynamically generated location cards -->
+    </div>
+  </div>
+
+  <!-- INVENTORY SCREEN -->
+  <div id="inventoryScreen" class="screen">
+    <h2>Your Inventory</h2>
+    <p>These are the items you've collected on your journey.</p>
+    <div id="inventoryList"></div>
+    <div class="btnRow">
+      <button onclick="goToScreen('mapScreen')">Back to Map</button>
+    </div>
+  </div>
+
+  <!-- BATTLE SCREEN -->
+  <div id="battleScreen" class="screen">
+    <h2>Battle Arena</h2>
+    <div class="healthBar">
+      <div class="healthFill" id="playerHealthFill"></div>
+    </div>
+    <p>Enemy: <span id="enemyName"></span></p>
+    <div class="healthBar">
+      <div class="healthFill" id="enemyHealthFill"></div>
+    </div>
+    <div id="battleLog"></div>
+    <div class="btnRow">
+      <button onclick="battleAction('attack')">Attack</button>
+      <button onclick="battleAction('defend')">Defend</button>
+      <button onclick="battleAction('flee')">Flee</button>
+    </div>
+  </div>
+
+  <!-- SHOP SCREEN -->
+  <div id="shopScreen" class="screen">
+    <h2>The Dawntasy Bazaar</h2>
+    <p>Buy items to aid your quest!</p>
+    <div id="shopItems"></div>
+    <div class="btnRow">
+      <button onclick="goToScreen('mapScreen')">Back to Map</button>
+    </div>
+  </div>
+
+  <!-- QUESTS SCREEN -->
+  <div id="questsScreen" class="screen">
+    <h2>Available Quests</h2>
+    <p>Embark on epic adventures to earn gold and rare items!</p>
+    <div id="questList"></div>
+    <div class="btnRow">
+      <button onclick="goToScreen('mapScreen')">Back to Map</button>
+    </div>
+  </div>
+
+  <script>
+    /************************************************************
+     * GLOBAL DATA & INITIAL SETUP
+     ************************************************************/
+    let player = {
+      name: "Hero",
+      gold: 0,
+      health: 100,
+      maxHealth: 100,
+      inventory: [],
+      progress: {
+        locationsDiscovered: [],
+        questsCompleted: []
+      }
+    };
+
+    // We'll have a big array of items, shops, locations, quests, etc.
+    const itemsDatabase = [
+      { id: 1, name: "Bear Village Charm", image: "https://via.placeholder.com/80x80/555/fff?text=Bear+Charm", description: "A charm from Bear Village, rumored to hold protective magic."},
+      { id: 2, name: "Time Smith’s Token", image: "https://via.placeholder.com/80x80/900/fff?text=Time+Token", description: "A mysterious token that resonates with hidden power."},
+      { id: 3, name: "Myther’s Spear Fragment", image: "https://via.placeholder.com/80x80/333/fff?text=Spear+Frag", description: "A broken piece of Myther’s legendary spear."},
+      // Add many more items for that “huge content” vibe...
+    ];
+
+    const shopItems = [
+      { id: 11, name: "Basic Healing Potion", price: 20, image: "https://via.placeholder.com/80x80/700/fff?text=Heal+Potion", effect: "restore10" },
+      { id: 12, name: "Arcane Elixir", price: 50, image: "https://via.placeholder.com/80x80/770/fff?text=Arcane+Elixir", effect: "restore25" },
+      { id: 13, name: "Rune of Fortitude", price: 100, image: "https://via.placeholder.com/80x80/990/fff?text=Rune", effect: "maxHealthUp" },
+      // ...Add more items
+    ];
+
+    const quests = [
+      { id: 101, name: "Scout Unknown Town", rewardGold: 50, rewardItem: 1, description: "Explore the desolate Unknown Town and report any suspicious activity." },
+      { id: 102, name: "Gather Herbs from Bear Village", rewardGold: 70, rewardItem: 2, description: "Collect rare herbs rumored to be found near the ruins of Bear Village." },
+      { id: 103, name: "Confront LTR Scout", rewardGold: 120, rewardItem: 3, description: "Defeat an LTR soldier rumored to be patrolling the outskirts." },
+      // Add more quests
+    ];
+
+    const locations = [
+      { id: 201, name: "Bear Village Ruins", image: "https://via.placeholder.com/200x120/660/fff?text=Bear+Village", desc: "Once a thriving community, now in ruins after LTR’s invasion."},
+      { id: 202, name: "Sepdet Outpost", image: "https://via.placeholder.com/200x120/222/fff?text=Sepdet", desc: "A hidden rebel base once used by Myther and his allies."},
+      { id: 203, name: "Isllandio City", image: "https://via.placeholder.com/200x120/880/fff?text=Isllandio+City", desc: "The grand capital, partially under Time Smith’s control."},
+      // Add more
+    ];
+
+    let currentEnemy = null;
+
+    // Once we load the page, generate the UI
+    window.onload = () => {
+      generateMapLocations();
+      generateShopItems();
+      generateQuestList();
+    };
+
+    /************************************************************
+     * SCREEN NAVIGATION
+     ************************************************************/
+    function goToScreen(screenId) {
+      // Hide all .screen
+      const screens = document.querySelectorAll('.screen');
+      screens.forEach(s => s.classList.remove('active'));
+
+      // Show the requested screen
+      document.getElementById(screenId).classList.add('active');
+      if(screenId === 'inventoryScreen') {
+        renderInventory();
+      }
+    }
+
+    /************************************************************
+     * MENU & GAME START / LOAD
+     ************************************************************/
+    const startGameBtn = document.getElementById('startGameBtn');
+    const loadGameBtn = document.getElementById('loadGameBtn');
+
+    startGameBtn.addEventListener('click', () => {
+      // Reset or start fresh
+      player.name = prompt("Enter your hero name:", "Yaee") || "Yaee";
+      document.getElementById("playerName").textContent = player.name;
+      player.gold = 50;
+      player.health = 100;
+      player.maxHealth = 100;
+      player.inventory = [];
+      player.progress = {
+        locationsDiscovered: [],
+        questsCompleted: []
+      };
+      updateHUD();
+      goToScreen('mapScreen');
+    });
+
+    loadGameBtn.addEventListener('click', () => {
+      loadProgress();
+      document.getElementById("playerName").textContent = player.name;
+      updateHUD();
+      goToScreen('mapScreen');
+    });
+
+    /************************************************************
+     * MAP / LOCATIONS
+     ************************************************************/
+    function generateMapLocations() {
+      const mapContainer = document.getElementById("mapLocations");
+      mapContainer.innerHTML = "";
+      locations.forEach(loc => {
+        const card = document.createElement("div");
+        card.className = "locationCard";
+        card.innerHTML = `
+          <img src="${loc.image}" alt="${loc.name}" />
+          <h4>${loc.name}</h4>
+          <p>${loc.desc}</p>
+        `;
+        mapContainer.appendChild(card);
+      });
+    }
+
+    /************************************************************
+     * INVENTORY
+     ************************************************************/
+    function renderInventory() {
+      const inventoryList = document.getElementById("inventoryList");
+      inventoryList.innerHTML = "";
+      if(player.inventory.length === 0) {
+        inventoryList.innerHTML = "<p>You have no items.</p>";
+        return;
+      }
+      player.inventory.forEach(itemId => {
+        const item = itemsDatabase.find(i => i.id === itemId) || shopItems.find(s => s.id === itemId);
+        if(item) {
+          const div = document.createElement("div");
+          div.className = "itemCard";
+          div.innerHTML = `
+            <img src="${item.image}" alt="${item.name}" />
+            <h4>${item.name}</h4>
+            <p>${item.description || ''}</p>
+          `;
+          inventoryList.appendChild(div);
+        }
+      });
+    }
+
+    /************************************************************
+     * BATTLE SYSTEM
+     ************************************************************/
+    function startBattle() {
+      // Setup a random enemy
+      const enemies = [
+        { name: "LTR Scout", health: 50, maxHealth: 50 },
+        { name: "Sepdet Raider", health: 70, maxHealth: 70 },
+        { name: "Time Smith's Acolyte", health: 100, maxHealth: 100 }
+      ];
+      currentEnemy = enemies[Math.floor(Math.random() * enemies.length)];
+      document.getElementById("enemyName").textContent = currentEnemy.name;
+      updateBattleBars();
+      document.getElementById("battleLog").innerHTML = "";
+      goToScreen('battleScreen');
+    }
+
+    function battleAction(action) {
+      const log = document.getElementById("battleLog");
+      if(action === 'attack') {
+        // Player attacks
+        const dmg = Math.floor(Math.random() * 10) + 5; // 5-14
+        currentEnemy.health -= dmg;
+        log.innerHTML += `<p>You attack and deal ${dmg} damage!</p>`;
+        if(currentEnemy.health <= 0) {
+          currentEnemy.health = 0;
+          log.innerHTML += `<p>You defeated ${currentEnemy.name}!</p>`;
+          // Win gold
+          const goldReward = Math.floor(Math.random() * 30) + 20;
+          player.gold += goldReward;
+          log.innerHTML += `<p>You loot ${goldReward} gold!</p>`;
+          updateHUD();
+          return;
+        }
+        // Enemy attacks
+        const enemyDmg = Math.floor(Math.random() * 10) + 3; // 3-12
+        player.health -= enemyDmg;
+        log.innerHTML += `<p>${currentEnemy.name} strikes back for ${enemyDmg} damage!</p>`;
+        if(player.health <= 0) {
+          player.health = 0;
+          log.innerHTML += `<p>You have been defeated... 😢</p>`;
+        }
+      } else if(action === 'defend') {
+        log.innerHTML += `<p>You brace yourself!</p>`;
+        // Enemy deals half damage
+        const enemyDmg = Math.floor(Math.random() * 5) + 1; // 1-5
+        player.health -= enemyDmg;
+        log.innerHTML += `<p>${currentEnemy.name} hits you for ${enemyDmg} damage!</p>`;
+        if(player.health <= 0) {
+          player.health = 0;
+          log.innerHTML += `<p>You have been defeated... 😢</p>`;
+        }
+      } else if(action === 'flee') {
+        log.innerHTML += `<p>You flee from the battle!</p>`;
+        // End the fight
+      }
+      updateBattleBars();
+    }
+
+    function updateBattleBars() {
+      // Player
+      const playerBar = document.getElementById("playerHealthFill");
+      const playerPercent = (player.health / player.maxHealth) * 100;
+      playerBar.style.width = playerPercent + "%";
+
+      // Enemy
+      const enemyBar = document.getElementById("enemyHealthFill");
+      if(currentEnemy) {
+        const enemyPercent = (currentEnemy.health / currentEnemy.maxHealth) * 100;
+        enemyBar.style.width = enemyPercent + "%";
+      } else {
+        enemyBar.style.width = "0%";
+      }
+    }
+
+    /************************************************************
+     * SHOP
+     ************************************************************/
+    function generateShopItems() {
+      const shopDiv = document.getElementById("shopItems");
+      shopDiv.innerHTML = "";
+      shopItems.forEach(item => {
+        const div = document.createElement("div");
+        div.className = "shopItem";
+        div.innerHTML = `
+          <img src="${item.image}" alt="${item.name}" style="width:80px;height:80px;" />
+          <h4>${item.name}</h4>
+          <p>Price: <span class="gold">${item.price}</span></p>
+          <button onclick="buyItem(${item.id})">Buy</button>
+        `;
+        shopDiv.appendChild(div);
+      });
+    }
+
+    function buyItem(itemId) {
+      const item = shopItems.find(i => i.id === itemId);
+      if(!item) return;
+      if(player.gold >= item.price) {
+        player.gold -= item.price;
+        // Add item to inventory
+        player.inventory.push(item.id);
+        alert(`You purchased ${item.name}!`);
+        // Apply effect if any
+        if(item.effect === "restore10") {
+          player.health = Math.min(player.maxHealth, player.health + 10);
+        } else if(item.effect === "restore25") {
+          player.health = Math.min(player.maxHealth, player.health + 25);
+        } else if(item.effect === "maxHealthUp") {
+          player.maxHealth += 20;
+          player.health = player.maxHealth;
+        }
+        updateHUD();
+      } else {
+        alert("Not enough gold!");
+      }
+    }
+
+    /************************************************************
+     * QUESTS
+     ************************************************************/
+    function generateQuestList() {
+      const questDiv = document.getElementById("questList");
+      questDiv.innerHTML = "";
+      quests.forEach(q => {
+        const card = document.createElement("div");
+        card.className = "questCard";
+        card.innerHTML = `
+          <h4>${q.name}</h4>
+          <p>${q.description}</p>
+          <p>Reward: <span class="gold">${q.rewardGold} gold</span> + item</p>
+          <button onclick="acceptQuest(${q.id})">Accept</button>
+        `;
+        questDiv.appendChild(card);
+      });
+    }
+
+    function acceptQuest(questId) {
+      const q = quests.find(qq => qq.id === questId);
+      if(!q) return;
+      if(player.progress.questsCompleted.includes(q.id)) {
+        alert("You already completed this quest!");
+        return;
+      }
+      // Simulate quest completion after a prompt
+      const proceed = confirm(`Go on quest: ${q.name}? (This will auto-complete for demo)`);
+      if(proceed) {
+        player.gold += q.rewardGold;
+        player.inventory.push(q.rewardItem);
+        player.progress.questsCompleted.push(q.id);
+        alert(`Quest complete! You earned ${q.rewardGold} gold and received a new item!`);
+        updateHUD();
+      }
+    }
+
+    /************************************************************
+     * HUD & PROGRESS
+     ************************************************************/
+    function updateHUD() {
+      document.getElementById("playerGold").textContent = player.gold;
+      document.getElementById("itemCount").textContent = player.inventory.length;
+      updateBattleBars();
+    }
+
+    function saveProgress() {
+      localStorage.setItem("dawntasySave", JSON.stringify(player));
+      alert("Progress Saved!");
+    }
+
+    function loadProgress() {
+      const data = localStorage.getItem("dawntasySave");
+      if(data) {
+        player = JSON.parse(data);
+        alert("Game Loaded Successfully!");
+      } else {
+        alert("No save data found.");
+      }
+    }
+
+  </script>
+</body>
+</html>
