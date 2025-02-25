@@ -3,6 +3,21 @@
 <head>
   <meta charset="UTF-8">
   <title>Search the Dawntasy Database</title>
+  <!-- Schema Markup for SEO -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "Dawntasy Database",
+    "url": "https://www.example.com/dawntasy-database",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "https://www.example.com/dawntasy-database?q={search_term_string}",
+      "query-input": "required name=search_term_string"
+    },
+    "description": "Explore the complete Dawntasy Database featuring every detail of the Dawntasy saga including characters, motifs like the Plain and Pale Clock, events, locations, chapters, and secret themes. Discover Dawntasy lore, character profiles, hidden motifs, and much more."
+  }
+  </script>
   <style>
     /* GLOBAL STYLES */
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -57,19 +72,19 @@
       right: 10px;
       top: 50%;
       transform: translateY(-50%);
-      background: none;
+      background: linear-gradient(45deg, #00ccff, #ffaf00);
       border: none;
-      cursor: pointer;
+      color: #fff;
+      padding: 10px 15px;
+      border-radius: 50px;
+      font-weight: bold;
+      transition: transform 0.3s, box-shadow 0.3s;
     }
-    #searchBtn img {
-      width: 40px;
-      height: 40px;
-      animation: spin 3s linear infinite;
+    #searchBtn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 10px rgba(255,255,255,0.5);
     }
-    @keyframes spin {
-      from { transform: translateY(-50%) rotate(0deg); }
-      to { transform: translateY(-50%) rotate(360deg); }
-    }
+
     /* SEARCHING SCREEN */
     #searchingScreen {
       display: none;
@@ -102,6 +117,7 @@
       from { transform: rotate(0deg) translateX(80px) rotate(0deg); }
       to { transform: rotate(360deg) translateX(80px) rotate(-360deg); }
     }
+
     /* RESULTS SCREEN */
     #resultsScreen {
       display: none;
@@ -145,7 +161,7 @@
     <p>What would you like to discover about Dawntasy?</p>
     <div id="searchBar">
       <input type="text" id="searchInput" placeholder="Enter a keyword...">
-      <button id="searchBtn"><img src="https://via.placeholder.com/40?text=%F0%9F%94%8D" alt="Search"></button>
+      <button id="searchBtn">Search</button>
     </div>
   </div>
 
@@ -153,7 +169,6 @@
   <div id="searchingScreen">
     <h2>Searching...</h2>
     <div class="cosmic">
-      <!-- Several orbiting stars -->
       <div class="star" style="top:10%; left:50%; animation-duration:4s;"></div>
       <div class="star" style="top:70%; left:30%; animation-duration:6s;"></div>
       <div class="star" style="top:40%; left:80%; animation-duration:5s;"></div>
@@ -171,90 +186,153 @@
 
   <script>
     /************************************************************
-     * DAWNTASY DATABASE DATA
+     * EXPANDED DAWNTASY DATABASE DATA (Over 30 entries)
      ************************************************************/
-    // Each entry has a title, keywords (an array of strings), and content.
     const dawntasyDB = [
       {
         title: "The Plain and Pale Clock",
-        keywords: ["clock", "plain and pale clock", "time", "motif", "symbol", "fragile time", "plain clock"],
-        content: "The Plain and Pale Clock is a recurring motif symbolizing the relentless march of time and the fragility of existence in Dawntasy. It haunts key moments and underscores the inevitable decay of all things."
+        keywords: ["clock", "plain clock", "pale clock", "time", "motif", "symbol", "plain and pale clock", "fragile time"],
+        content: "The Plain and Pale Clock is a central motif in Dawntasy, symbolizing the relentless passage of time and the fragility of life. This clock appears at crucial moments to remind characters of fate and destiny."
       },
       {
         title: "Time's True Name",
-        keywords: ["time's true name", "prologue", "prophecy", "secret", "dawn", "destiny", "time"],
-        content: "Time's True Name is the enigmatic prologue that sets the stage for the Dawntasy saga—a tale of hidden truths, impending change, and the blurred lines between reality and destiny."
+        keywords: ["time's true name", "prologue", "prophecy", "secret", "destiny", "time", "dawn"],
+        content: "Time's True Name is the prologue of Dawntasy, setting the stage with prophecies, secrets, and the promise of change. It foreshadows the epic struggles and hidden truths that unfold throughout the saga."
       },
       {
         title: "Yaee, the Vengeful Bear",
-        keywords: ["yaee", "bear", "vengeance", "rebel", "main character", "hero", "revenge", "bear village", "character profile"],
-        content: "Yaee is the passionate, vengeful bear whose heart burns for revenge after the destruction of Bear Village. His journey is filled with loss, raw emotion, and a relentless drive to overthrow tyranny."
+        keywords: ["yaee", "bear", "vengeful", "rebel", "hero", "revenge", "bear village", "character"],
+        content: "Yaee is the passionate, tormented bear whose desire for revenge drives the narrative. His tragic past in Bear Village fuels his relentless quest against tyranny."
       },
       {
         title: "Solus, the Lone Hermit",
-        keywords: ["solus", "hermit", "mentor", "wise", "lone hermit", "guide", "character profile"],
-        content: "Solus is the reclusive hermit whose wisdom and cryptic counsel guide Yaee through the shadows of Dawntasy. Once a respected sergeant, his fall from grace adds a layer of somber insight to the saga."
+        keywords: ["solus", "hermit", "mentor", "wise", "guide", "character", "lone hermit"],
+        content: "Solus, a wise and enigmatic hermit, provides cryptic counsel and guidance. His story is marked by loss and hidden power, offering subtle hints about the true nature of Dawntasy."
       },
       {
         title: "Time Smith and the TRL",
-        keywords: ["time smith", "trl", "antagonist", "villain", "tyrant", "revelation", "complex villain", "savior", "character profile"],
-        content: "Time Smith, the enigmatic leader of the LTR, is shrouded in mystery. Initially seen as the tyrant, his eventual revelation turns the narrative on its head, suggesting a redemptive, almost savior-like role."
+        keywords: ["time smith", "trl", "antagonist", "villain", "tyrant", "complex villain", "revelation", "character"],
+        content: "Time Smith, initially perceived as a ruthless tyrant leading the TRL, undergoes a startling revelation that challenges the boundaries between villain and savior."
       },
       {
         title: "The Invasion of Sepdet",
-        keywords: ["sepdet", "invasion", "battle", "LTR", "rebellion", "conflict", "war", "epic battle"],
-        content: "The Invasion of Sepdet is a fierce and chaotic battle where the forces of rebellion clash with the overwhelming might of LTR. This brutal conflict marks a turning point in the struggle for freedom."
+        keywords: ["sepdet", "invasion", "battle", "LTR", "rebellion", "war", "conflict", "epic battle"],
+        content: "The invasion of Sepdet is a brutal, chaotic battle scene where the forces of rebellion clash with overwhelming enemy power, marking a turning point in the struggle for freedom."
       },
       {
         title: "The Rift",
-        keywords: ["rift", "prophecy", "apocalypse", "destiny", "end of time", "cataclysm"],
-        content: "The Rift is a mysterious, apocalyptic event prophesied throughout Dawntasy—a moment when fate, time, and destiny converge, threatening to unravel the very fabric of existence."
+        keywords: ["rift", "prophecy", "apocalypse", "destiny", "end", "cataclysm"],
+        content: "The Rift represents an apocalyptic event where fate and destiny converge. It is shrouded in mystery and foreshadows the collapse of the old order in Dawntasy."
       },
       {
         title: "Unknown Town",
-        keywords: ["unknown town", "ruins", "desolation", "ghost town", "lost town", "abandoned"],
-        content: "Unknown Town stands as a haunting reminder of what once was—a desolate, crumbling city where the echoes of a forgotten past mingle with the chilling winds of tyranny."
+        keywords: ["unknown town", "ruins", "desolation", "ghost town", "lost", "abandoned"],
+        content: "Unknown Town is a desolate, crumbling city that stands as a grim reminder of past glory and the devastating effects of tyranny in Dawntasy."
       },
       {
         title: "Bear Village",
         keywords: ["bear village", "home", "family", "nostalgia", "loss", "origin", "village", "memory"],
-        content: "Bear Village is the heart and soul of Dawntasy—a place of warmth, family, and cherished memories. Its destruction marks the catalyst for Yaee's burning quest for vengeance."
+        content: "Bear Village is the cherished homeland of Yaee—a place of warmth and family, whose destruction ignites his fierce quest for vengeance."
       },
       {
         title: "The Rebellion and Its Trials",
         keywords: ["rebellion", "time rebellion league", "TRL", "resistance", "uprising", "struggle", "freedom"],
-        content: "The rebellion against Time Smith and the oppressive TRL is a testament to the resilience of those who dare to fight for freedom, even when the odds are stacked against them."
+        content: "The rebellion against Time Smith and the TRL is a story of hope and sacrifice. It embodies the unyielding spirit of those who dare to defy oppressive power."
       },
       {
         title: "Time Smith's Revelation",
-        keywords: ["time smith revelation", "twist", "truth", "antagonist twist", "redemption", "character arc", "revelation"],
-        content: "In a shocking twist, Time Smith reveals his true intentions—challenging the perception of villainy and exposing the dark truths behind the rebellion. This revelation redefines the conflict and reshapes destinies."
+        keywords: ["time smith revelation", "twist", "truth", "antagonist", "redemption", "character arc", "revelation"],
+        content: "A dramatic turning point where Time Smith unveils his true purpose—blurring the lines between villainy and salvation, and reshaping the destiny of Dawntasy."
       },
       {
         title: "Character Profile: Yaee",
-        keywords: ["yaee profile", "character yaee", "main hero", "vigilante", "bear", "rebellion", "vengeful"],
-        content: "A deep dive into Yaee's character—his tragic past, fierce determination, and the inner turmoil that fuels his relentless quest for justice and revenge against the forces that shattered his world."
+        keywords: ["yaee profile", "character", "hero", "vengeful bear", "protagonist", "rebellion"],
+        content: "An in-depth look at Yaee, the vengeful bear whose tragic past in Bear Village and burning desire for retribution define his journey through the turbulent world of Dawntasy."
       },
       {
         title: "Character Profile: Solus",
-        keywords: ["solus profile", "character solus", "hermit", "mentor", "wise", "guide"],
-        content: "Solus, the wise and mysterious hermit, offers cryptic guidance and a glimpse into a world of hidden magic and lost honor. His story is one of fallen greatness and reluctant redemption."
+        keywords: ["solus profile", "character", "hermit", "mentor", "wise", "guide"],
+        content: "A detailed profile of Solus, the solitary hermit whose cryptic wisdom and scarred past offer subtle guidance to Yaee in his quest against darkness."
       },
       {
         title: "Character Profile: Time Smith",
-        keywords: ["time smith profile", "character time smith", "antagonist", "complex villain", "tyrant", "revelation"],
-        content: "Time Smith is a layered, multifaceted figure whose journey challenges conventional notions of good and evil. His enigmatic presence and eventual twist leave an indelible mark on the Dawntasy saga."
+        keywords: ["time smith profile", "character", "antagonist", "villain", "complex", "tyrant", "revelation"],
+        content: "A comprehensive look at Time Smith, whose evolution from ruthless tyrant to a morally ambiguous savior challenges the very notions of good and evil in Dawntasy."
       },
       {
         title: "Secret Themes & Motifs",
         keywords: ["themes", "motifs", "secrets", "hidden symbols", "plain and pale clock", "fire", "water", "betrayal", "redemption"],
-        content: "Dawntasy is rich with secret themes and recurring motifs—from the haunting Plain and Pale Clock symbolizing the passage of time, to the duality of fire and water representing destruction and renewal."
+        content: "Dawntasy is imbued with recurring themes and motifs—the haunting Plain and Pale Clock, the duality of fire and water, and subtle clues of betrayal and redemption that echo throughout the saga."
+      },
+      {
+        title: "Chapter Summaries",
+        keywords: ["chapter summaries", "chapters", "overview", "storyline", "plot"],
+        content: "The saga unfolds in chapters ranging from the eerie Prologue to the epic revelations in How Time Smith Got His Name, each brimming with lore, hidden clues, and secret motifs."
+      },
+      {
+        title: "Secret Backstories",
+        keywords: ["backstories", "secret history", "origin", "Dawntasy lore"],
+        content: "Hidden within the narrative are intricate backstories of key characters and events—stories of love, loss, and betrayal that enrich the overall tapestry of Dawntasy."
+      },
+      {
+        title: "Mystical Artifacts",
+        keywords: ["artifacts", "relics", "mystical", "magic", "Dawntasy items"],
+        content: "Throughout Dawntasy, mystical artifacts—such as enchanted charms, ancient weapons, and secret tokens—play a crucial role in shaping destinies and unlocking hidden powers."
+      },
+      {
+        title: "The Fall of Old Kingdoms",
+        keywords: ["fall", "old kingdoms", "destruction", "ruins", "history", "Dawntasy lore"],
+        content: "Ancient kingdoms and empires crumble under the weight of tyranny and time. Their ruins serve as a constant reminder of lost grandeur and the cyclical nature of history in Dawntasy."
+      },
+      {
+        title: "Prophecies and Omens",
+        keywords: ["prophecies", "omens", "foretell", "destiny", "future", "warnings"],
+        content: "From cryptic prophecies to ominous signs in nature, the Dawntasy saga is filled with forewarnings of impending change, guiding the heroes and haunting the villains."
+      },
+      {
+        title: "The Rise of the Rebellion",
+        keywords: ["rise", "rebellion", "uprising", "revolution", "Dawntasy resistance"],
+        content: "The formation and rise of the rebellion against oppressive forces are chronicled in stirring accounts of unity, sacrifice, and the relentless pursuit of freedom."
+      },
+      {
+        title: "Epic Battles and Sieges",
+        keywords: ["battles", "sieges", "warfare", "conflict", "Dawntasy battles", "epic fight"],
+        content: "The saga is punctuated by grand battles and brutal sieges where armies clash, heroes fall, and the fate of entire worlds hangs in the balance."
+      },
+      {
+        title: "The Legacy of Dawntasy",
+        keywords: ["legacy", "heritage", "Dawntasy", "influence", "history"],
+        content: "Beyond the immediate conflicts, Dawntasy’s legacy is one of enduring influence—a world where the echoes of past glories and tragedies continue to shape the present and future."
+      },
+      {
+        title: "Mystic Places and Hidden Sanctuaries",
+        keywords: ["mystic places", "sanctuaries", "hidden", "refuges", "Dawntasy locations"],
+        content: "Scattered across the realm are secret sanctuaries and mystical locations that offer refuge, healing, and sometimes, the key to unraveling the greatest mysteries of Dawntasy."
+      },
+      {
+        title: "Forbidden Magics",
+        keywords: ["forbidden magic", "necromancy", "dark arts", "magic", "Dawntasy magic"],
+        content: "The dark and forbidden magics in Dawntasy—once wielded by those desperate enough to challenge fate—carry a heavy price, serving as both a temptation and a curse."
+      },
+      {
+        title: "The Fall and Rise of Empires",
+        keywords: ["empires", "rise and fall", "dynasties", "history", "Dawntasy empires"],
+        content: "Empires in Dawntasy have risen, fallen, and risen again, each cycle marked by war, betrayal, and the relentless march of destiny."
+      },
+      {
+        title: "Philosophical Underpinnings",
+        keywords: ["philosophy", "existence", "life and death", "Dawntasy thought", "meaning"],
+        content: "Beneath the surface of epic battles and mystical quests lies a profound philosophical exploration of life, death, destiny, and the nature of reality in Dawntasy."
+      },
+      {
+        title: "The Hidden Order",
+        keywords: ["hidden order", "secret societies", "conspiracy", "Dawntasy factions"],
+        content: "Amidst the chaos, secret societies operate in the shadows, pulling strings and shaping events from behind the scenes. Their true goals remain shrouded in mystery."
       }
-      // Add further entries as needed for an even more exhaustive database...
     ];
 
     /************************************************************
-     * SEARCH FUNCTIONALITY WITH EXTENSIVE KEYWORD MATCHING
+     * SEARCH FUNCTIONALITY WITH RANKING
      ************************************************************/
     const menuDiv = document.getElementById("menu");
     const searchingDiv = document.getElementById("searchingScreen");
@@ -268,8 +346,23 @@
       return str.toLowerCase().replace(/[^\w\s]/g, "");
     }
 
+    // Calculate relevance score based on keyword matches, title, and content.
+    function relevanceScore(entry, query) {
+      let score = 0;
+      const normQuery = normalize(query);
+      const normTitle = normalize(entry.title);
+      const normContent = normalize(entry.content);
+      
+      if (normTitle.includes(normQuery)) score += 5;
+      if (normContent.includes(normQuery)) score += 3;
+      entry.keywords.forEach(kw => {
+        if (normalize(kw).includes(normQuery)) score += 2;
+      });
+      return score;
+    }
+
     searchBtn.addEventListener("click", () => {
-      const query = normalize(searchInput.value.trim());
+      const query = searchInput.value.trim();
       if (!query) return;
       // Hide menu, show searching screen
       menuDiv.style.display = "none";
@@ -282,18 +375,15 @@
     });
 
     function performSearch(query) {
-      const results = dawntasyDB.filter(entry => {
-        // Normalize title and content
-        const normTitle = normalize(entry.title);
-        const normContent = normalize(entry.content);
-        // Check if query is in title or content
-        if (normTitle.includes(query) || normContent.includes(query)) return true;
-        // Check each keyword
-        for (let kw of entry.keywords) {
-          if (normalize(kw).includes(query)) return true;
-        }
-        return false;
-      });
+      const normQuery = normalize(query);
+      // Compute relevance for each entry
+      const results = dawntasyDB.map(entry => {
+        return { entry, score: relevanceScore(entry, normQuery) };
+      }).filter(item => item.score > 0);
+      
+      // Sort descending by relevance score
+      results.sort((a, b) => b.score - a.score);
+
       // Hide searching screen, show results screen
       searchingDiv.style.display = "none";
       resultsDiv.style.display = "block";
@@ -302,10 +392,12 @@
       if (results.length === 0) {
         resultsContainer.innerHTML = "<p>No results found for your query.</p>";
       } else {
-        results.forEach(entry => {
+        results.forEach(item => {
           const div = document.createElement("div");
           div.className = "resultEntry";
-          div.innerHTML = `<h3>${entry.title}</h3><p>${entry.content}</p>`;
+          div.innerHTML = `<h3>${item.entry.title}</h3>
+                           <p>${item.entry.content}</p>
+                           <p><em>Relevance Score: ${item.score}</em></p>`;
           resultsContainer.appendChild(div);
         });
       }
