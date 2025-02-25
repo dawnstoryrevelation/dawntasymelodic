@@ -15,7 +15,7 @@
       "target": "https://www.example.com/dawntasy-database?q={search_term_string}",
       "query-input": "required name=search_term_string"
     },
-    "description": "Explore the complete Dawntasy Database featuring every detail of the Dawntasy saga including characters, motifs like the Plain and Pale Clock, events, locations, chapters, and secret themes. Discover Dawntasy lore, character profiles, hidden motifs, and much more."
+    "description": "Explore the complete Dawntasy Database featuring every detail of the Dawntasy saga including characters, motifs like the Plain and Pale Clock, events, locations, chapters, secret themes, and more."
   }
   </script>
   <style>
@@ -28,14 +28,13 @@
       overflow-x: hidden;
       padding: 20px;
     }
-    h1, h2, p {
-      text-align: center;
-      margin-bottom: 20px;
-    }
+    h1, h2, p { text-align: center; margin-bottom: 20px; }
+    
     /* MAIN MENU */
     #menu {
       text-align: center;
       padding: 40px;
+      position: relative;
     }
     #menu h1 {
       font-size: 3em;
@@ -52,6 +51,23 @@
       font-size: 1.2em;
       margin-bottom: 30px;
     }
+    /* Bouncing ball animation in the menu */
+    #bouncingBall {
+      width: 30px;
+      height: 30px;
+      background: #ffaf00;
+      border-radius: 50%;
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: 10px;
+      animation: bounce 2s infinite ease-in-out;
+    }
+    @keyframes bounce {
+      0%, 100% { transform: translateX(-50%) translateY(0); }
+      50% { transform: translateX(-50%) translateY(-20px); }
+    }
+    /* SEARCH BAR */
     #searchBar {
       position: relative;
       max-width: 600px;
@@ -84,7 +100,7 @@
       transform: scale(1.05);
       box-shadow: 0 0 10px rgba(255,255,255,0.5);
     }
-
+    
     /* SEARCHING SCREEN */
     #searchingScreen {
       display: none;
@@ -117,7 +133,7 @@
       from { transform: rotate(0deg) translateX(80px) rotate(0deg); }
       to { transform: rotate(360deg) translateX(80px) rotate(-360deg); }
     }
-
+    
     /* RESULTS SCREEN */
     #resultsScreen {
       display: none;
@@ -135,6 +151,7 @@
       text-align: left;
     }
     .resultEntry:last-child { border-bottom: none; }
+    
     /* TRANSITION BUTTON */
     button {
       cursor: pointer;
@@ -163,6 +180,7 @@
       <input type="text" id="searchInput" placeholder="Enter a keyword...">
       <button id="searchBtn">Search</button>
     </div>
+    <div id="bouncingBall"></div>
   </div>
 
   <!-- SEARCHING SCREEN -->
@@ -186,18 +204,18 @@
 
   <script>
     /************************************************************
-     * EXPANDED DAWNTASY DATABASE DATA (Over 30 entries)
+     * DAWNTASY DATABASE DATA (Example entries; your full database includes many more)
      ************************************************************/
     const dawntasyDB = [
       {
         title: "The Plain and Pale Clock",
         keywords: ["clock", "plain clock", "pale clock", "time", "motif", "symbol", "plain and pale clock", "fragile time"],
-        content: "The Plain and Pale Clock is a central motif in Dawntasy, symbolizing the relentless passage of time and the fragility of life. This clock appears at crucial moments to remind characters of fate and destiny."
+        content: "The Plain and Pale Clock is a central motif in Dawntasy, symbolizing the relentless passage of time and the fragility of life. It appears at crucial moments to remind characters of fate and destiny."
       },
       {
         title: "Time's True Name",
         keywords: ["time's true name", "prologue", "prophecy", "secret", "destiny", "time", "dawn"],
-        content: "Time's True Name is the prologue of Dawntasy, setting the stage with prophecies, secrets, and the promise of change. It foreshadows the epic struggles and hidden truths that unfold throughout the saga."
+        content: "Time's True Name is the prologue of Dawntasy, setting the stage with prophecies, secrets, and the promise of change. It foreshadows epic struggles and hidden truths."
       },
       {
         title: "Yaee, the Vengeful Bear",
@@ -207,385 +225,342 @@
       {
         title: "Solus, the Lone Hermit",
         keywords: ["solus", "hermit", "mentor", "wise", "guide", "character", "lone hermit"],
-        content: "Solus, a wise and enigmatic hermit, provides cryptic counsel and guidance. His story is marked by loss and hidden power, offering subtle hints about the true nature of Dawntasy."
+        content: "Solus is a wise, enigmatic hermit who provides cryptic guidance. His past is marred by loss and hidden power, adding depth to the Dawntasy saga."
       },
       {
         title: "Time Smith and the TRL",
         keywords: ["time smith", "trl", "antagonist", "villain", "tyrant", "complex villain", "revelation", "character"],
-        content: "Time Smith, initially perceived as a ruthless tyrant leading the TRL, undergoes a startling revelation that challenges the boundaries between villain and savior."
+        content: "Time Smith, once seen as a ruthless tyrant of the TRL, later reveals complex motives that blur the lines between villain and savior."
       },
       {
         title: "The Invasion of Sepdet",
         keywords: ["sepdet", "invasion", "battle", "LTR", "rebellion", "war", "conflict", "epic battle"],
-        content: "The invasion of Sepdet is a brutal, chaotic battle scene where the forces of rebellion clash with overwhelming enemy power, marking a turning point in the struggle for freedom."
+        content: "The Invasion of Sepdet is a chaotic battle where the forces of rebellion clash with overwhelming enemy power, marking a turning point in the fight for freedom."
       },
       {
         title: "The Rift",
         keywords: ["rift", "prophecy", "apocalypse", "destiny", "end", "cataclysm"],
-        content: "The Rift represents an apocalyptic event where fate and destiny converge. It is shrouded in mystery and foreshadows the collapse of the old order in Dawntasy."
+        content: "The Rift is an apocalyptic event prophesied throughout Dawntasy—a moment when fate, time, and destiny converge to threaten the old order."
       },
       {
         title: "Unknown Town",
         keywords: ["unknown town", "ruins", "desolation", "ghost town", "lost", "abandoned"],
-        content: "Unknown Town is a desolate, crumbling city that stands as a grim reminder of past glory and the devastating effects of tyranny in Dawntasy."
+        content: "Unknown Town is a desolate, crumbling city that stands as a grim reminder of past glory and the effects of tyranny in Dawntasy."
       },
       {
         title: "Bear Village",
         keywords: ["bear village", "home", "family", "nostalgia", "loss", "origin", "village", "memory"],
-        content: "Bear Village is the cherished homeland of Yaee—a place of warmth and family, whose destruction ignites his fierce quest for vengeance."
+        content: "Bear Village is the cherished homeland of Yaee—a place of warmth and family whose destruction sparks his quest for vengeance."
       },
       {
         title: "The Rebellion and Its Trials",
         keywords: ["rebellion", "time rebellion league", "TRL", "resistance", "uprising", "struggle", "freedom"],
-        content: "The rebellion against Time Smith and the TRL is a story of hope and sacrifice. It embodies the unyielding spirit of those who dare to defy oppressive power."
+        content: "The rebellion against Time Smith and the TRL is a story of hope and sacrifice, embodying the spirit of defiance against oppressive power."
       },
       {
         title: "Time Smith's Revelation",
         keywords: ["time smith revelation", "twist", "truth", "antagonist", "redemption", "character arc", "revelation"],
-        content: "A dramatic turning point where Time Smith unveils his true purpose—blurring the lines between villainy and salvation, and reshaping the destiny of Dawntasy."
+        content: "A dramatic twist where Time Smith unveils his true purpose, challenging the nature of villainy and reshaping the destiny of Dawntasy."
       },
       {
         title: "Character Profile: Yaee",
         keywords: ["yaee profile", "character", "hero", "vengeful bear", "protagonist", "rebellion"],
-        content: "An in-depth look at Yaee, the vengeful bear whose tragic past in Bear Village and burning desire for retribution define his journey through the turbulent world of Dawntasy."
+        content: "An in-depth profile of Yaee—the vengeful bear whose tragic past and burning desire for retribution drive his journey through Dawntasy."
       },
       {
         title: "Character Profile: Solus",
         keywords: ["solus profile", "character", "hermit", "mentor", "wise", "guide"],
-        content: "A detailed profile of Solus, the solitary hermit whose cryptic wisdom and scarred past offer subtle guidance to Yaee in his quest against darkness."
+        content: "A detailed profile of Solus, the solitary hermit whose cryptic wisdom and scarred past offer guidance to Yaee."
       },
       {
         title: "Character Profile: Time Smith",
         keywords: ["time smith profile", "character", "antagonist", "villain", "complex", "tyrant", "revelation"],
-        content: "A comprehensive look at Time Smith, whose evolution from ruthless tyrant to a morally ambiguous savior challenges the very notions of good and evil in Dawntasy."
+        content: "A comprehensive look at Time Smith, whose journey from ruthless tyrant to morally ambiguous figure challenges traditional notions of good and evil."
       },
       {
         title: "Secret Themes & Motifs",
         keywords: ["themes", "motifs", "secrets", "hidden symbols", "plain and pale clock", "fire", "water", "betrayal", "redemption"],
-        content: "Dawntasy is imbued with recurring themes and motifs—the haunting Plain and Pale Clock, the duality of fire and water, and subtle clues of betrayal and redemption that echo throughout the saga."
+        content: "Dawntasy is filled with recurring themes and motifs—from the haunting Plain and Pale Clock to the duality of fire and water, echoing throughout the saga."
       },
       {
         title: "Chapter Summaries",
         keywords: ["chapter summaries", "chapters", "overview", "storyline", "plot"],
-        content: "The saga unfolds in chapters ranging from the eerie Prologue to the epic revelations in How Time Smith Got His Name, each brimming with lore, hidden clues, and secret motifs."
+        content: "A concise overview of each chapter in the Dawntasy saga, capturing key events, hidden clues, and the evolving narrative."
       },
       {
         title: "Secret Backstories",
-        keywords: ["backstories", "secret history", "origin", "Dawntasy lore"],
-        content: "Hidden within the narrative are intricate backstories of key characters and events—stories of love, loss, and betrayal that enrich the overall tapestry of Dawntasy."
+        keywords: ["backstories", "secrets", "hidden history", "origins", "dawntasy lore"],
+        content: "Intricate backstories of key characters and events that reveal layers of intrigue, personal tragedy, and long-forgotten secrets."
       },
       {
         title: "Mystical Artifacts",
-        keywords: ["artifacts", "relics", "mystical", "magic", "Dawntasy items"],
-        content: "Throughout Dawntasy, mystical artifacts—such as enchanted charms, ancient weapons, and secret tokens—play a crucial role in shaping destinies and unlocking hidden powers."
+        keywords: ["artifacts", "relics", "mystical", "magic", "items", "dawntasy"],
+        content: "A catalog of mystical artifacts within Dawntasy—from enchanted charms to ancient weapons, each carrying powerful legends and hidden abilities."
       },
       {
         title: "The Fall of Old Kingdoms",
-        keywords: ["fall", "old kingdoms", "destruction", "ruins", "history", "Dawntasy lore"],
-        content: "Ancient kingdoms and empires crumble under the weight of tyranny and time. Their ruins serve as a constant reminder of lost grandeur and the cyclical nature of history in Dawntasy."
+        keywords: ["fall", "old kingdoms", "collapse", "destruction", "ruins", "dawntasy lore"],
+        content: "Stories of ancient kingdoms that rose and fell under tyranny, leaving behind ruins that echo the cyclical nature of power in Dawntasy."
       },
       {
         title: "Prophecies and Omens",
         keywords: ["prophecies", "omens", "foretell", "destiny", "future", "warnings"],
-        content: "From cryptic prophecies to ominous signs in nature, the Dawntasy saga is filled with forewarnings of impending change, guiding the heroes and haunting the villains."
+        content: "An analysis of the prophecies and omens that foretell the fate of Dawntasy, guiding the heroes and haunting the villains."
       },
       {
         title: "The Rise of the Rebellion",
-        keywords: ["rise", "rebellion", "uprising", "revolution", "Dawntasy resistance"],
-        content: "The formation and rise of the rebellion against oppressive forces are chronicled in stirring accounts of unity, sacrifice, and the relentless pursuit of freedom."
+        keywords: ["rebellion", "uprising", "revolution", "resistance", "dawntasy"],
+        content: "A chronicle of the uprising against tyranny in Dawntasy, showcasing the formation and growth of the rebellion."
       },
       {
         title: "Epic Battles and Sieges",
-        keywords: ["battles", "sieges", "warfare", "conflict", "Dawntasy battles", "epic fight"],
-        content: "The saga is punctuated by grand battles and brutal sieges where armies clash, heroes fall, and the fate of entire worlds hangs in the balance."
+        keywords: ["battles", "sieges", "warfare", "conflict", "epic fight"],
+        content: "Grand, brutal battles and sieges where armies clash and the fate of worlds hangs in the balance."
       },
       {
         title: "The Legacy of Dawntasy",
-        keywords: ["legacy", "heritage", "Dawntasy", "influence", "history"],
-        content: "Beyond the immediate conflicts, Dawntasy’s legacy is one of enduring influence—a world where the echoes of past glories and tragedies continue to shape the present and future."
+        keywords: ["legacy", "heritage", "influence", "dawntasy", "history"],
+        content: "An analysis of the enduring legacy of Dawntasy, where the echoes of past glories continue to shape the present and future."
       },
       {
         title: "Mystic Places and Hidden Sanctuaries",
-        keywords: ["mystic places", "sanctuaries", "hidden", "refuges", "Dawntasy locations"],
-        content: "Scattered across the realm are secret sanctuaries and mystical locations that offer refuge, healing, and sometimes, the key to unraveling the greatest mysteries of Dawntasy."
+        keywords: ["mystic places", "sanctuaries", "refuges", "hidden", "locations"],
+        content: "Descriptions of secret sanctuaries and mystical locales scattered throughout Dawntasy, offering refuge and clues to its greatest mysteries."
       },
       {
         title: "Forbidden Magics",
-        keywords: ["forbidden magic", "necromancy", "dark arts", "magic", "Dawntasy magic"],
-        content: "The dark and forbidden magics in Dawntasy—once wielded by those desperate enough to challenge fate—carry a heavy price, serving as both a temptation and a curse."
+        keywords: ["forbidden magic", "necromancy", "dark arts", "magic", "dawntasy magic"],
+        content: "An exploration of the dark and forbidden magics in Dawntasy—powerful yet dangerous forces that come at a heavy cost."
       },
       {
         title: "The Fall and Rise of Empires",
-        keywords: ["empires", "rise and fall", "dynasties", "history", "Dawntasy empires"],
-        content: "Empires in Dawntasy have risen, fallen, and risen again, each cycle marked by war, betrayal, and the relentless march of destiny."
+        keywords: ["empires", "rise and fall", "dynasties", "history", "dawntasy empires"],
+        content: "Empires in Dawntasy have risen and fallen in cycles, each marked by betrayal, warfare, and the relentless march of destiny."
       },
       {
         title: "Philosophical Underpinnings",
-        keywords: ["philosophy", "existence", "life and death", "Dawntasy thought", "meaning"],
-        content: "Beneath the surface of epic battles and mystical quests lies a profound philosophical exploration of life, death, destiny, and the nature of reality in Dawntasy."
+        keywords: ["philosophy", "existence", "life and death", "dawntasy thought", "meaning"],
+        content: "A philosophical exploration of the deep existential questions raised by the events and characters of Dawntasy."
       },
       {
         title: "The Hidden Order",
-        keywords: ["hidden order", "secret societies", "conspiracy", "Dawntasy factions"],
-        content: "Amidst the chaos, secret societies operate in the shadows, pulling strings and shaping events from behind the scenes. Their true goals remain shrouded in mystery."
+        keywords: ["hidden order", "secret societies", "conspiracy", "factions", "dawntasy"],
+        content: "An exposé of the secret societies that operate behind the scenes in Dawntasy, pulling strings and shaping events in mysterious ways."
       },
       {
-        const additionalEntries = [
-  {
-    title: "Dawntasy: The Saga",
-    keywords: ["dawntasy", "saga", "epic", "universe", "fantasy", "series"],
-    content: "An overarching narrative capturing the entire epic of Dawntasy—a saga of heroes, betrayals, and destiny that weaves together countless storylines and profound themes."
-  },
-  {
-    title: "The Origin of Dawntasy",
-    keywords: ["origin", "genesis", "beginning", "creation", "history", "dawntasy"],
-    content: "A deep exploration into the ancient origins of Dawntasy, detailing the primordial myths, early legends, and seminal events that gave birth to this fantastical realm."
-  },
-  {
-    title: "Dawntasy Universe: Overview",
-    keywords: ["universe", "overview", "world", "setting", "dawntasy", "lore"],
-    content: "A comprehensive overview of the Dawntasy universe, mapping its diverse realms, the interplay of mystical forces, and the intricate balance between light and darkness."
-  },
-  {
-    title: "The Rise of Dawntasy Empires",
-    keywords: ["rise", "empires", "power", "dynasties", "dawntasy", "history"],
-    content: "An account of how mighty empires rose within Dawntasy, showcasing the grandeur, ambition, and intricate politics that fueled the early expansion of its kingdoms."
-  },
-  {
-    title: "The Fall of Old Kingdoms in Dawntasy",
-    keywords: ["fall", "old kingdoms", "collapse", "destruction", "ruins", "dawntasy"],
-    content: "A sobering narrative on the downfall of ancient kingdoms—stories of betrayal, war, and decay that transformed vibrant realms into haunting ruins."
-  },
-  {
-    title: "Dawntasy Melodic - The Dawntasy Musical Artist",
-    keywords: ["dawntasy melodic", "musical artist", "music", "soundtracks", "dawntasy", "artist"],
-    content: "An in-depth look at Dawntasy Melodic, the musical force behind the saga. Explore the origins, influences, and creative genius that blend fantasy with symphonic majesty."
-  },
-  {
-    title: "What's Next in Dawntasy?",
-    keywords: ["what's next", "future", "next chapter", "updates", "dawntasy"],
-    content: "An exploration of upcoming storylines, potential plot twists, and the evolving destiny of the Dawntasy universe—an enticing glimpse into the future of the saga."
-  },
-  {
-    title: "Future Updates in Dawntasy",
-    keywords: ["future updates", "roadmap", "upcoming", "expansion", "dawntasy"],
-    content: "A roadmap for the Dawntasy saga detailing future releases, updates, and expansions that promise to enrich the lore and broaden the universe for fans."
-  },
-  {
-    title: "Behind the Scenes of Dawntasy",
-    keywords: ["behind the scenes", "production", "creation", "making of", "dawntasy"],
-    content: "A candid look at the creative process behind Dawntasy, featuring insights from the author, concept art, and the evolution of key story elements."
-  },
-  {
-    title: "The Inspiration for Dawntasy",
-    keywords: ["inspiration", "influences", "mythology", "literature", "dawntasy"],
-    content: "Discover the diverse sources of inspiration that shaped Dawntasy—from classic mythologies and epic literature to modern storytelling and personal experiences."
-  },
-  {
-    title: "Dawntasy Chronology",
-    keywords: ["chronology", "timeline", "history", "events", "dawntasy"],
-    content: "A detailed timeline chronicling the major events in the Dawntasy saga—from ancient beginnings to the present conflict, mapping the ebb and flow of its epic history."
-  },
-  {
-    title: "Prophecies and Omens in Dawntasy",
-    keywords: ["prophecies", "omens", "foreshadowing", "destiny", "warnings", "dawntasy"],
-    content: "An analysis of the mystical prophecies and subtle omens that permeate Dawntasy, guiding the fate of its characters and foreshadowing epic turning points."
-  },
-  {
-    title: "Secret Backstories of Dawntasy",
-    keywords: ["backstories", "secrets", "hidden history", "origins", "dawntasy lore"],
-    content: "Explore the hidden backstories of key characters and events in Dawntasy, revealing layers of intrigue, personal tragedy, and long-forgotten secrets."
-  },
-  {
-    title: "Mystical Artifacts of Dawntasy",
-    keywords: ["artifacts", "relics", "mystical", "magic", "items", "dawntasy"],
-    content: "An extensive catalog of the mystical artifacts scattered throughout Dawntasy—from enchanted charms to ancient weapons, each carrying powerful legends and hidden abilities."
-  },
-  {
-    title: "The Rebellions in Dawntasy: A Comprehensive Guide",
-    keywords: ["rebellions", "uprising", "guide", "resistance", "dawntasy", "TRL"],
-    content: "A thorough guide to the rebellions that have shaped Dawntasy—a chronicle of heroic uprisings, tragic sacrifices, and the enduring fight for freedom against oppressive forces."
-  },
-  {
-    title: "Dawntasy's Political Intrigue",
-    keywords: ["political intrigue", "politics", "power", "corruption", "dawntasy"],
-    content: "An exploration of the complex political machinations within Dawntasy, where power, betrayal, and shifting alliances create a web of intrigue that drives the saga forward."
-  },
-  {
-    title: "The Role of Destiny in Dawntasy",
-    keywords: ["destiny", "fate", "prophesy", "dawntasy", "inevitability"],
-    content: "A philosophical examination of destiny within the Dawntasy universe, where fate, prophecy, and free will collide to shape the characters' journeys and the course of history."
-  },
-  {
-    title: "Dawntasy: The Future of the Saga",
-    keywords: ["future", "saga", "next chapters", "evolution", "dawntasy"],
-    content: "A forward-looking view of the Dawntasy saga, speculating on future plot developments, character arcs, and the evolving legacy of this epic fantasy universe."
-  },
-  {
-    title: "Fan Theories and Hidden Meanings in Dawntasy",
-    keywords: ["fan theories", "hidden meanings", "Easter eggs", "secrets", "dawntasy"],
-    content: "A collection of the most compelling fan theories and interpretations of hidden meanings within Dawntasy, revealing secret connections and subtle clues embedded throughout the narrative."
-  },
-  {
-    title: "Dawntasy: Reviews and Critical Acclaim",
-    keywords: ["reviews", "critics", "acclaim", "dawntasy", "literature", "fantasy"],
-    content: "An overview of the critical reception of Dawntasy, highlighting reviews, accolades, and the impact it has made on the fantasy literary community."
-  },
-  {
-    title: "Awards and Recognitions for Dawntasy",
-    keywords: ["awards", "recognitions", "honors", "accolades", "dawntasy"],
-    content: "A detailed record of the awards, nominations, and recognitions that Dawntasy has received, cementing its status as a groundbreaking work in epic fantasy."
-  },
-  {
-    title: "Behind the Music: Dawntasy Melodic",
-    keywords: ["behind the music", "dawntasy melodic", "music", "soundtracks", "inspiration"],
-    content: "A deep dive into Dawntasy Melodic, exploring the creation of its mesmerizing soundtracks, the influences behind its music, and its role in enhancing the epic narrative."
-  },
-  {
-    title: "The Creative Process Behind Dawntasy",
-    keywords: ["creative process", "writing", "inspiration", "dawntasy", "author insights"],
-    content: "An inside look at the creative process that brought Dawntasy to life—from the spark of inspiration to the intricate world-building and character development."
-  },
-  {
-    title: "Interviews with the Author of Dawntasy",
-    keywords: ["interviews", "author", "Jasper Jiang", "dawntasy", "behind the scenes"],
-    content: "A compilation of interviews with Jasper Jiang, offering insights into his creative mind, the challenges of writing Dawntasy, and the vision behind this epic saga."
-  },
-  {
-    title: "The Legacy of Dawntasy",
-    keywords: ["legacy", "heritage", "impact", "dawntasy", "influence"],
-    content: "An analysis of the enduring legacy of Dawntasy, examining how its themes, characters, and narrative innovations continue to influence fantasy literature and culture."
-  },
-  {
-    title: "Impact of Dawntasy on Fantasy Literature",
-    keywords: ["impact", "fantasy literature", "influence", "dawntasy", "trendsetter"],
-    content: "A study of how Dawntasy has redefined the fantasy genre, influencing contemporary works and inspiring a new generation of writers and artists."
-  },
-  {
-    title: "Dawntasy: Character Dynamics Explained",
-    keywords: ["character dynamics", "relationships", "interaction", "dawntasy", "profiles"],
-    content: "An exploration of the complex relationships and character interactions within Dawntasy, revealing how personal conflicts and alliances drive the narrative forward."
-  },
-  {
-    title: "The World Map of Dawntasy",
-    keywords: ["world map", "geography", "locations", "dawntasy", "cartography"],
-    content: "A detailed guide to the geography of Dawntasy, featuring maps, descriptions of key locations, and the spatial relationships between the realms of this vast universe."
-  },
-  {
-    title: "Chronology of Events in Dawntasy",
-    keywords: ["chronology", "timeline", "events", "history", "dawntasy"],
-    content: "A chronological record of major events in Dawntasy, from its ancient origins to the present-day struggles—a timeline that captures the ebb and flow of its epic history."
-  },
-  {
-    title: "Easter Eggs and Hidden Clues in Dawntasy",
-    keywords: ["easter eggs", "hidden clues", "secrets", "dawntasy", "hidden meanings"],
-    content: "A fun and detailed look at the many Easter eggs, hidden references, and subtle clues scattered throughout the Dawntasy saga that reward the most attentive readers."
-  },
-  {
-    title: "Themes of Sacrifice and Redemption in Dawntasy",
-    keywords: ["sacrifice", "redemption", "themes", "dawntasy", "tragedy", "hope"],
-    content: "An in-depth discussion of the recurring themes of sacrifice and redemption in Dawntasy, exploring how characters confront loss and find hope amid overwhelming darkness."
-  },
-  {
-    title: "The Evolution of the Dawntasy Narrative",
-    keywords: ["evolution", "narrative", "storytelling", "dawntasy", "development"],
-    content: "A study of how the narrative of Dawntasy has evolved over time, incorporating twists, layered storytelling, and innovative narrative techniques that keep readers engaged."
-  },
-  {
-    title: "Magic and Technology in Dawntasy",
-    keywords: ["magic", "technology", "innovation", "dawntasy", "contrast", "fusion"],
-    content: "An exploration of the unique blend of magic and technology in Dawntasy, where ancient mysticism meets futuristic innovation to shape the destiny of its world."
-  },
-  {
-    title: "A Study of Character Motivations in Dawntasy",
-    keywords: ["character motivations", "psychology", "drive", "dawntasy", "analysis"],
-    content: "An analytical look at what drives the characters of Dawntasy—their desires, fears, and the complex interplay of personal and political ambitions that fuel their actions."
-  },
-  {
-    title: "Symbolism of Fire and Water in Dawntasy",
-    keywords: ["symbolism", "fire", "water", "elements", "dawntasy", "duality"],
-    content: "A detailed examination of the elemental symbolism in Dawntasy, where fire represents destruction and passion, while water symbolizes renewal and adaptability."
-  },
-  {
-    title: "Philosophy of Time in Dawntasy",
-    keywords: ["philosophy", "time", "existence", "dawntasy", "theory", "reflection"],
-    content: "A philosophical exploration of time as a central concept in Dawntasy—its fluidity, its inevitable march, and the existential questions it raises for both characters and readers."
-  },
-  {
-    title: "Good vs Evil: The Dawntasy Dilemma",
-    keywords: ["good", "evil", "dilemma", "moral ambiguity", "dawntasy", "conflict"],
-    content: "An exploration of the complex moral landscape in Dawntasy, where traditional notions of good and evil are challenged, and every character must navigate a web of ethical dilemmas."
-  },
-  {
-    title: "Behind the Prophecies of Dawntasy",
-    keywords: ["prophecies", "hidden", "truth", "foreshadowing", "dawntasy"],
-    content: "An investigative look into the prophecies that shape the Dawntasy saga—uncovering their origins, meanings, and the way they influence the fate of the characters."
-  },
-  {
-    title: "The Meaning of The Rift in Dawntasy",
-    keywords: ["rift", "meaning", "apocalypse", "destiny", "dawntasy", "interpretation"],
-    content: "A deep dive into the enigmatic event known as The Rift—a cataclysmic moment that challenges the very fabric of existence and sets the stage for the ultimate showdown."
-  },
-  {
-    title: "The Concept of Destiny in Dawntasy",
-    keywords: ["destiny", "fate", "prophecy", "dawntasy", "future", "inevitability"],
-    content: "An exploration of destiny as a recurring theme in Dawntasy, analyzing how fate shapes the lives of its characters and drives the overarching narrative."
-  },
-  {
-    title: "Cultural Impact of Dawntasy",
-    keywords: ["cultural impact", "influence", "legacy", "dawntasy", "society"],
-    content: "A discussion on how Dawntasy has influenced culture, inspiring fans and creators alike with its rich storytelling, innovative world-building, and unforgettable characters."
-  },
-  {
-    title: "Dawntasy FAQ: Common Questions Answered",
-    keywords: ["FAQ", "common questions", "dawntasy", "inquiries", "answers"],
-    content: "A comprehensive FAQ that addresses frequently asked questions about Dawntasy, covering topics from its lore and characters to its narrative structure and future plans."
-  },
-  {
-    title: "Dawntasy FAQ: Character Arcs Explored",
-    keywords: ["FAQ", "character arcs", "dawntasy", "profiles", "evolution"],
-    content: "A detailed FAQ focusing on the evolution of key characters in Dawntasy—examining their motivations, transformations, and the hidden layers of their development."
-  },
-  {
-    title: "Dawntasy FAQ: Plot Twists Uncovered",
-    keywords: ["FAQ", "plot twists", "surprises", "dawntasy", "narrative"],
-    content: "A deep dive into the unexpected twists and turns of the Dawntasy saga, revealing the intricacies of its plot and the subtle clues that hint at its shocking revelations."
-  },
-  {
-    title: "Dawntasy FAQ: Symbolism Explained",
-    keywords: ["FAQ", "symbolism", "motifs", "dawntasy", "hidden meanings"],
-    content: "An FAQ dedicated to explaining the rich symbolism woven throughout Dawntasy—from recurring motifs like the Plain and Pale Clock to elemental imagery and metaphoric language."
-  },
-  {
-    title: "The Art of Storytelling in Dawntasy",
-    keywords: ["storytelling", "narrative", "art", "dawntasy", "techniques"],
-    content: "A study of the narrative techniques and artistic storytelling that make Dawntasy a captivating epic, highlighting its use of layered plots, secret clues, and evocative imagery."
-  },
-  {
-    title: "Mythological Inspirations in Dawntasy",
-    keywords: ["mythology", "inspirations", "legends", "dawntasy", "classics"],
-    content: "An exploration of the mythological influences behind Dawntasy, drawing parallels between ancient legends and the innovative narrative that defines this modern epic."
-  },
-  {
-    title: "The Rebellions: Trials and Triumphs in Dawntasy",
-    keywords: ["rebellions", "trials", "triumphs", "resistance", "dawntasy"],
-    content: "A detailed account of the various rebellions within Dawntasy, examining the struggles, sacrifices, and eventual victories that have shaped its tumultuous history."
-  },
-  {
-    title: "Political and Social Themes in Dawntasy",
-    keywords: ["political", "social themes", "intrigue", "dawntasy", "society"],
-    content: "An analysis of the political and social commentary embedded in Dawntasy, revealing how power, corruption, and resistance interplay within its richly constructed world."
-  },
-  {
-    title: "Final Thoughts and Future Prospects of Dawntasy",
-    keywords: ["final thoughts", "future prospects", "conclusion", "dawntasy", "legacy"],
-    content: "A reflective piece that summarizes the legacy of Dawntasy while exploring future directions and the lasting impact of its epic narrative on readers and the fantasy genre."
-  }
-];
-
+        title: "Dawntasy: The Saga",
+        keywords: ["dawntasy", "saga", "epic", "universe", "fantasy", "series"],
+        content: "An overarching narrative that captures the entire epic of Dawntasy—a saga of heroes, betrayals, and destiny woven together in an intricate tapestry."
+      },
+      {
+        title: "The Origin of Dawntasy",
+        keywords: ["origin", "genesis", "beginning", "creation", "history", "dawntasy"],
+        content: "A deep exploration into the ancient origins of Dawntasy, detailing the primordial myths and seminal events that gave birth to this fantastical realm."
+      },
+      {
+        title: "Dawntasy Universe: Overview",
+        keywords: ["universe", "overview", "world", "setting", "dawntasy", "lore"],
+        content: "A comprehensive overview of the Dawntasy universe, mapping its diverse realms, mystical forces, and the balance between light and darkness."
+      },
+      {
+        title: "The Rise of Dawntasy Empires",
+        keywords: ["rise", "empires", "power", "dynasties", "dawntasy", "history"],
+        content: "An account of how mighty empires arose in Dawntasy, marked by ambition, political intrigue, and a thirst for power."
+      },
+      {
+        title: "The Fall of Old Kingdoms in Dawntasy",
+        keywords: ["fall", "old kingdoms", "collapse", "destruction", "ruins", "dawntasy"],
+        content: "A sobering narrative of ancient kingdoms that fell under tyranny, leaving behind haunting ruins that speak of lost grandeur."
+      },
+      {
+        title: "What's Next in Dawntasy?",
+        keywords: ["what's next", "future", "upcoming", "next chapter", "dawntasy"],
+        content: "An enticing preview of future storylines, plot twists, and evolving destinies that promise to expand the Dawntasy saga even further."
+      },
+      {
+        title: "Future Updates in Dawntasy",
+        keywords: ["future updates", "roadmap", "expansion", "dawntasy", "upcoming"],
+        content: "A roadmap outlining future updates and expansions for Dawntasy, promising new adventures, characters, and epic events."
+      },
+      {
+        title: "Behind the Scenes of Dawntasy",
+        keywords: ["behind the scenes", "making of", "production", "dawntasy", "creation"],
+        content: "An insider’s look at the creative process behind Dawntasy, featuring concept art, author insights, and the evolution of key story elements."
+      },
+      {
+        title: "The Inspiration for Dawntasy",
+        keywords: ["inspiration", "influences", "mythology", "literature", "dawntasy"],
+        content: "An exploration of the diverse inspirations—from ancient myths to modern storytelling—that shaped the world of Dawntasy."
+      },
+      {
+        title: "Dawntasy Chronology",
+        keywords: ["chronology", "timeline", "history", "events", "dawntasy"],
+        content: "A detailed timeline chronicling the major events in Dawntasy, from its ancient beginnings to the ongoing struggles of its heroes."
+      },
+      {
+        title: "Fan Theories and Hidden Meanings in Dawntasy",
+        keywords: ["fan theories", "hidden meanings", "easter eggs", "dawntasy", "secrets"],
+        content: "A collection of intriguing fan theories and hidden clues scattered throughout Dawntasy, rewarding the most attentive readers with secret insights."
+      },
+      {
+        title: "Dawntasy: Reviews and Critical Acclaim",
+        keywords: ["reviews", "critical acclaim", "fantasy literature", "dawntasy", "feedback"],
+        content: "An overview of how Dawntasy has been received by critics and readers alike, highlighting its impact on the fantasy genre."
+      },
+      {
+        title: "Awards and Recognitions for Dawntasy",
+        keywords: ["awards", "recognitions", "accolades", "honors", "dawntasy"],
+        content: "A record of the prestigious awards and honors Dawntasy has garnered, underscoring its status as a groundbreaking epic."
+      },
+      {
+        title: "Behind the Music: Dawntasy Melodic",
+        keywords: ["dawntasy melodic", "music", "soundtracks", "musical artist", "dawntasy"],
+        content: "A deep dive into Dawntasy Melodic, the musical artist whose enchanting soundtracks enhance the epic narrative and evoke powerful emotions."
+      },
+      {
+        title: "The Creative Process Behind Dawntasy",
+        keywords: ["creative process", "inspiration", "author insights", "dawntasy", "making of"],
+        content: "An exploration of the writing and creative process that brought Dawntasy to life, revealing the dedication and vision behind its epic storytelling."
+      },
+      {
+        title: "Interviews with the Author of Dawntasy",
+        keywords: ["interviews", "author", "Jasper Jiang", "behind the scenes", "dawntasy"],
+        content: "A compilation of insightful interviews with Jasper Jiang, offering a behind-the-scenes look at the creation and evolution of Dawntasy."
+      },
+      {
+        title: "The Legacy of Dawntasy",
+        keywords: ["legacy", "heritage", "influence", "impact", "dawntasy"],
+        content: "A reflective piece on the enduring legacy of Dawntasy—its influence on fans, literature, and the evolution of fantasy storytelling."
+      },
+      {
+        title: "Impact of Dawntasy on Fantasy Literature",
+        keywords: ["impact", "fantasy literature", "influence", "trendsetter", "dawntasy"],
+        content: "An analysis of how Dawntasy has redefined the fantasy genre, inspiring a new generation of writers and artists with its innovative narrative and rich world-building."
+      },
+      {
+        title: "Dawntasy: Character Dynamics Explained",
+        keywords: ["character dynamics", "relationships", "interaction", "profiles", "dawntasy"],
+        content: "An in-depth look at the intricate relationships and dynamics among the characters of Dawntasy, revealing the hidden forces that drive their actions and alliances."
+      },
+      {
+        title: "The World Map of Dawntasy",
+        keywords: ["world map", "geography", "locations", "cartography", "dawntasy"],
+        content: "A comprehensive guide to the geography of Dawntasy, featuring maps, descriptions of key locations, and the spatial relationships between its diverse realms."
+      },
+      {
+        title: "Chronology of Events in Dawntasy",
+        keywords: ["chronology", "timeline", "events", "history", "dawntasy"],
+        content: "A meticulously detailed timeline of major events that have shaped the Dawntasy saga from its ancient origins to the present-day struggles."
+      },
+      {
+        title: "Easter Eggs and Hidden Clues in Dawntasy",
+        keywords: ["easter eggs", "hidden clues", "secrets", "dawntasy", "hidden meanings"],
+        content: "A guide to the many Easter eggs and hidden clues embedded throughout the Dawntasy saga, rewarding the most observant fans with secret insights."
+      },
+      {
+        title: "Themes of Sacrifice and Redemption in Dawntasy",
+        keywords: ["sacrifice", "redemption", "themes", "tragedy", "hope", "dawntasy"],
+        content: "An exploration of the recurring themes of sacrifice and redemption, and how these powerful motifs shape the destinies of Dawntasy's characters."
+      },
+      {
+        title: "The Evolution of the Dawntasy Narrative",
+        keywords: ["evolution", "narrative", "storytelling", "development", "dawntasy"],
+        content: "A study of how the narrative of Dawntasy has evolved, incorporating intricate plot twists, layered storytelling, and innovative techniques that captivate readers."
+      },
+      {
+        title: "Magic and Technology in Dawntasy",
+        keywords: ["magic", "technology", "innovation", "contrast", "fusion", "dawntasy"],
+        content: "An exploration of the unique blend of magic and technology in Dawntasy, where ancient mysticism merges with futuristic innovation to shape the destiny of the realm."
+      },
+      {
+        title: "A Study of Character Motivations in Dawntasy",
+        keywords: ["character motivations", "psychology", "drive", "analysis", "dawntasy"],
+        content: "A deep dive into the motivations behind Dawntasy's characters, examining their desires, fears, and the complex interplay of personal ambition and destiny."
+      },
+      {
+        title: "Symbolism of Fire and Water in Dawntasy",
+        keywords: ["symbolism", "fire", "water", "elements", "duality", "dawntasy"],
+        content: "An analysis of the elemental symbolism in Dawntasy, where fire represents passion and destruction, and water symbolizes renewal and adaptability."
+      },
+      {
+        title: "Philosophy of Time in Dawntasy",
+        keywords: ["philosophy", "time", "existence", "theory", "reflection", "dawntasy"],
+        content: "A philosophical exploration of time as a central theme in Dawntasy, questioning the nature of existence and the inevitable march of destiny."
+      },
+      {
+        title: "Good vs Evil: The Dawntasy Dilemma",
+        keywords: ["good vs evil", "dilemma", "moral ambiguity", "conflict", "dawntasy"],
+        content: "An exploration of the blurred lines between good and evil in Dawntasy, where moral ambiguity challenges conventional roles and forces characters into complex ethical battles."
+      },
+      {
+        title: "Behind the Prophecies of Dawntasy",
+        keywords: ["prophecies", "hidden truths", "foreshadowing", "dawntasy"],
+        content: "An investigative look into the prophecies that drive the Dawntasy saga, revealing hidden truths and subtle clues that influence the fate of its characters."
+      },
+      {
+        title: "The Meaning of The Rift in Dawntasy",
+        keywords: ["rift", "meaning", "apocalypse", "destiny", "interpretation", "dawntasy"],
+        content: "A deep dive into the enigmatic event known as The Rift, a cataclysmic moment that challenges the fabric of existence and reshapes the future of Dawntasy."
+      },
+      {
+        title: "The Concept of Destiny in Dawntasy",
+        keywords: ["destiny", "fate", "prophecy", "inevitability", "dawntasy"],
+        content: "An exploration of destiny as a recurring theme in Dawntasy, examining how fate and free will collide to determine the paths of its characters."
+      },
+      {
+        title: "Cultural Impact of Dawntasy",
+        keywords: ["cultural impact", "legacy", "influence", "society", "dawntasy"],
+        content: "An analysis of how Dawntasy has influenced modern fantasy literature and culture, inspiring fans and creators with its rich storytelling and innovative world-building."
+      },
+      {
+        title: "Dawntasy FAQ: Common Questions Answered",
+        keywords: ["FAQ", "common questions", "inquiries", "answers", "dawntasy"],
+        content: "A comprehensive FAQ addressing the most frequently asked questions about Dawntasy—covering lore, characters, themes, and future plans."
+      },
+      {
+        title: "Dawntasy FAQ: Character Arcs Explored",
+        keywords: ["FAQ", "character arcs", "profiles", "evolution", "dawntasy"],
+        content: "An FAQ focused on the evolution and development of Dawntasy's key characters, examining their personal journeys and transformations."
+      },
+      {
+        title: "Dawntasy FAQ: Plot Twists Uncovered",
+        keywords: ["FAQ", "plot twists", "surprises", "narrative", "dawntasy"],
+        content: "An FAQ that delves into the most shocking plot twists of Dawntasy, revealing the hidden layers and secret clues that foreshadow these revelations."
+      },
+      {
+        title: "Dawntasy FAQ: Symbolism Explained",
+        keywords: ["FAQ", "symbolism", "motifs", "hidden meanings", "dawntasy"],
+        content: "An FAQ dedicated to breaking down the rich symbolism and recurring motifs within Dawntasy, including the iconic Plain and Pale Clock and the dual elements of fire and water."
+      },
+      {
+        title: "The Art of Storytelling in Dawntasy",
+        keywords: ["storytelling", "narrative techniques", "art", "dawntasy"],
+        content: "A study of the narrative techniques and artistic storytelling that make Dawntasy a captivating epic, with layered plots and evocative imagery that engage readers on multiple levels."
+      },
+      {
+        title: "Mythological Inspirations in Dawntasy",
+        keywords: ["mythology", "inspiration", "legends", "influences", "dawntasy"],
+        content: "An exploration of the mythological and literary influences that shaped Dawntasy, drawing parallels between ancient legends and the innovative narrative of the saga."
+      },
+      {
+        title: "The Rebellions: Trials and Triumphs in Dawntasy",
+        keywords: ["rebellions", "trials", "triumphs", "uprising", "resistance", "dawntasy"],
+        content: "A detailed account of the various rebellions within Dawntasy, chronicling the heroic trials and hard-won triumphs that have defined its history."
+      },
+      {
+        title: "Political and Social Themes in Dawntasy",
+        keywords: ["political", "social themes", "intrigue", "power", "dawntasy"],
+        content: "An analysis of the political and social undercurrents in Dawntasy, revealing the interplay between power, corruption, and the human spirit in a divided world."
+      },
+      {
+        title: "Final Thoughts and Future Prospects of Dawntasy",
+        keywords: ["final thoughts", "future prospects", "conclusion", "legacy", "dawntasy"],
+        content: "A reflective piece that summarizes the legacy of Dawntasy while exploring future directions, promising more epic adventures and narrative evolutions."
+      }
     ];
     
-    ];
+    // Merge additional entries into main database
+    const dawntasyDatabase = dawntasyDB; // (Assuming dawntasyDB already contains these; if separate, you can concat arrays.)
 
     /************************************************************
      * SEARCH FUNCTIONALITY WITH RANKING
@@ -602,17 +577,20 @@
       return str.toLowerCase().replace(/[^\w\s]/g, "");
     }
 
-    // Calculate relevance score based on keyword matches, title, and content.
+    // Calculate relevance score: split query into words and add score if any word is present in title, content, or keywords.
     function relevanceScore(entry, query) {
       let score = 0;
       const normQuery = normalize(query);
+      const words = normQuery.split(/\s+/);
       const normTitle = normalize(entry.title);
       const normContent = normalize(entry.content);
       
-      if (normTitle.includes(normQuery)) score += 5;
-      if (normContent.includes(normQuery)) score += 3;
-      entry.keywords.forEach(kw => {
-        if (normalize(kw).includes(normQuery)) score += 2;
+      words.forEach(word => {
+        if (normTitle.includes(word)) score += 5;
+        if (normContent.includes(word)) score += 3;
+        entry.keywords.forEach(kw => {
+          if (normalize(kw).includes(word)) score += 2;
+        });
       });
       return score;
     }
@@ -633,7 +611,7 @@
     function performSearch(query) {
       const normQuery = normalize(query);
       // Compute relevance for each entry
-      const results = dawntasyDB.map(entry => {
+      const results = dawntasyDatabase.map(entry => {
         return { entry, score: relevanceScore(entry, normQuery) };
       }).filter(item => item.score > 0);
       
