@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Search the Dawntasy Database</title>
+  <style>
+    /* GLOBAL STYLES */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #121212;
+      color: #eee;
+      overflow-x: hidden;
+      padding: 20px;
+    }
+    h1, h2, p {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    /* MAIN MENU */
+    #menu {
+      text-align: center;
+      padding: 40px;
+    }
+    #menu h1 {
+      font-size: 3em;
+      margin-bottom: 10px;
+      color: #00ccff;
+      text-shadow: 0 0 10px #00ccff;
+      animation: glowTitle 2s infinite alternate;
+    }
+    @keyframes glowTitle {
+      from { text-shadow: 0 0 10px #00ccff; }
+      to { text-shadow: 0 0 20px #ffaf00; }
+    }
+    #menu p {
+      font-size: 1.2em;
+      margin-bottom: 30px;
+    }
+    #searchBar {
+      position: relative;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    #searchInput {
+      width: 100%;
+      padding: 15px;
+      font-size: 1.2em;
+      border: 2px solid #00ccff;
+      border-radius: 50px;
+      background: #1e1e1e;
+      color: #eee;
+      outline: none;
+    }
+    #searchBtn {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+    }
+    #searchBtn img {
+      width: 40px;
+      height: 40px;
+      animation: spin 3s linear infinite;
+    }
+    @keyframes spin {
+      from { transform: translateY(-50%) rotate(0deg); }
+      to { transform: translateY(-50%) rotate(360deg); }
+    }
+
+    /* SEARCHING SCREEN */
+    #searchingScreen {
+      display: none;
+      text-align: center;
+      padding: 50px;
+    }
+    #searchingScreen h2 {
+      font-size: 2em;
+      margin-bottom: 20px;
+    }
+    .cosmic {
+      position: relative;
+      width: 200px;
+      height: 200px;
+      margin: 0 auto;
+      border: 2px solid rgba(255,255,255,0.2);
+      border-radius: 50%;
+      overflow: hidden;
+    }
+    .cosmic .star {
+      position: absolute;
+      width: 6px;
+      height: 6px;
+      background: #fff;
+      border-radius: 50%;
+      opacity: 0.8;
+      animation: orbit 5s linear infinite;
+    }
+    @keyframes orbit {
+      from { transform: rotate(0deg) translateX(80px) rotate(0deg); }
+      to { transform: rotate(360deg) translateX(80px) rotate(-360deg); }
+    }
+
+    /* RESULTS SCREEN */
+    #resultsScreen {
+      display: none;
+      padding: 20px;
+      background: #1e1e1e;
+      border-radius: 10px;
+      max-width: 800px;
+      margin: 20px auto;
+      box-shadow: 0 0 20px rgba(0,0,0,0.5);
+    }
+    #resultsScreen h2 { margin-bottom: 20px; }
+    .resultEntry {
+      border-bottom: 1px solid #333;
+      padding: 10px 0;
+      text-align: left;
+    }
+    .resultEntry:last-child { border-bottom: none; }
+
+    /* TRANSITION BUTTON */
+    button {
+      cursor: pointer;
+      padding: 10px 20px;
+      font-size: 1em;
+      border: none;
+      border-radius: 5px;
+      background: linear-gradient(45deg, #00ccff, #ffaf00);
+      color: #fff;
+      margin-top: 20px;
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+    button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 10px rgba(255,255,255,0.5);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- MAIN MENU -->
+  <div id="menu">
+    <h1>Search the Dawntasy Database</h1>
+    <p>What would you like to discover about Dawntasy?</p>
+    <div id="searchBar">
+      <input type="text" id="searchInput" placeholder="Enter a keyword...">
+      <button id="searchBtn"><img src="https://via.placeholder.com/40?text=%F0%9F%94%8D" alt="Search"></button>
+    </div>
+  </div>
+
+  <!-- SEARCHING SCREEN -->
+  <div id="searchingScreen">
+    <h2>Searching...</h2>
+    <div class="cosmic">
+      <!-- Generate several stars -->
+      <div class="star" style="top:10%; left:50%; animation-duration:4s;"></div>
+      <div class="star" style="top:70%; left:30%; animation-duration:6s;"></div>
+      <div class="star" style="top:40%; left:80%; animation-duration:5s;"></div>
+      <div class="star" style="top:20%; left:20%; animation-duration:7s;"></div>
+      <div class="star" style="top:60%; left:60%; animation-duration:3s;"></div>
+    </div>
+  </div>
+
+  <!-- RESULTS SCREEN -->
+  <div id="resultsScreen">
+    <h2>Search Results</h2>
+    <div id="resultsContainer"></div>
+    <button onclick="goBack()">Back to Search</button>
+  </div>
+
+  <script>
+    /************************************************************
+     * DATA: DAWNTASY LORE DATABASE
+     ************************************************************/
+    // This database object holds extensive lore on Dawntasy.
+    const dawntasyDB = [
+      {
+        title: "The Plain and Pale Clock",
+        keywords: ["clock", "plain", "pale", "time", "motif"],
+        content: "The Plain and Pale Clock is a recurring motif symbolizing the passage of time and the fragility of existence in the Dawntasy universe. It represents both the relentless march of time and the inevitable decay of all things."
+      },
+      {
+        title: "Time's True Name",
+        keywords: ["time", "true", "name", "prologue", "prophecy"],
+        content: "Time's True Name is the prologue of the Dawntasy saga where the mysterious man atop the hill vows to guard a dangerous secret about the impending change—a secret intertwined with destiny, loss, and the eventual collapse of the old order."
+      },
+      {
+        title: "Yaee, the Vengeful Bear",
+        keywords: ["yaee", "bear", "vengeance", "rebel", "character"],
+        content: "Yaee is a central character—a bear driven by loss and vengeance after the destruction of Bear Village. His journey is fraught with inner turmoil, deep pain, and a burning desire to overthrow the tyrannical Time Smith."
+      },
+      {
+        title: "Solus, the Lone Hermit",
+        keywords: ["solus", "hermit", "wisdom", "mentor"],
+        content: "Solus is the wise hermit who lives on the fringes of society. Once a respected sergeant, he now offers cryptic wisdom and reluctant guidance to Yaee, symbolizing the faded glory of a once-proud past."
+      },
+      {
+        title: "Time Smith and the TRL",
+        keywords: ["time smith", "trl", "tyrant", "villain", "rebellion"],
+        content: "Time Smith, once assumed to be the villain, later reveals layers of complexity as his true role emerges. He leads the TRL—a brutal organization that enforces order through fear—yet in a twist, his actions hint at a deeper, perhaps redemptive purpose."
+      },
+      {
+        title: "The Invasion of Sepdet",
+        keywords: ["sepdet", "invasion", "battle", "LTR", "rebellion"],
+        content: "The invasion of Sepdet is a fierce battle scene where the rebels face overwhelming odds. It is a pivotal moment that highlights the brutal nature of war and the high stakes of the rebellion against Time Smith's forces."
+      },
+      {
+        title: "The Rift",
+        keywords: ["rift", "prophecy", "end", "destiny"],
+        content: "The Rift is a mysterious event foreshadowed throughout the saga. It is an apocalyptic moment when time, fate, and destiny converge—marking the ultimate challenge for the heroes of Dawntasy."
+      },
+      {
+        title: "Unknown Town",
+        keywords: ["unknown town", "ruins", "loss", "desolation"],
+        content: "Unknown Town, once a thriving community, now lies in ghostly ruins. It serves as a powerful backdrop to Yaee's quest for vengeance and a stark reminder of the cost of tyranny."
+      },
+      {
+        title: "Bear Village",
+        keywords: ["bear village", "home", "family", "loss"],
+        content: "Bear Village is where Yaee’s roots lie—a place of warmth, family, and happier times. Its destruction is a key turning point that fuels his resolve for revenge."
+      },
+      {
+        title: "The Rebellion and Its Trials",
+        keywords: ["rebellion", "TRL", "struggle", "loss", "hope"],
+        content: "The rebellion against Time Smith and LTR is central to Dawntasy's narrative. It is a story of hope, sacrifice, and the relentless fight for freedom—even when the odds are stacked against the few who dare to defy tyranny."
+      },
+      {
+        title: "Chapter Summaries",
+        keywords: ["chapters", "summaries", "overview"],
+        content: "Dawntasy is structured into numerous chapters: the haunting Prologue, the desolate Unknown Town, the fierce Final Stand, the nostalgic Once In a Bear Village, the turbulent Tiding, the reflective Lone Hermit, the brutal Invasion of Sepdet, the enigmatic Shifting Eyes, the apocalyptic Clarion Call, the strategic Plan, the mirrored Parallels, the epic Isllandio City, the covert Mission Chimera, the heartfelt Reconciliation, the daring Rescuing the Rebellion, and finally, the revelatory How Time Smith Got His Name."
+      },
+      {
+        title: "Secret Themes & Motifs",
+        keywords: ["motifs", "themes", "secrets", "Dawntasy"],
+        content: "Dawntasy is replete with secret themes and motifs: the Plain and Pale Clock representing the inevitability of time, the recurring imagery of fire and water symbolizing destruction and renewal, and the subtle hints of betrayal, redemption, and destiny that weave throughout the narrative."
+      }
+      // You can add many more entries covering characters, events, locations, backstories, etc.
+    ];
+
+    /************************************************************
+     * SEARCH FUNCTIONALITY
+     ************************************************************/
+    const menuDiv = document.getElementById("menu");
+    const searchingDiv = document.getElementById("searchingScreen");
+    const resultsDiv = document.getElementById("resultsScreen");
+    const resultsContainer = document.getElementById("resultsContainer");
+    const searchInput = document.getElementById("searchInput");
+    const searchBtn = document.getElementById("searchBtn");
+
+    // Event listener for search
+    searchBtn.addEventListener("click", () => {
+      const query = searchInput.value.trim().toLowerCase();
+      if (!query) return;
+      // Hide menu, show searching screen
+      menuDiv.style.display = "none";
+      resultsDiv.style.display = "none";
+      searchingDiv.style.display = "block";
+      // Simulate a search delay of 3 seconds
+      setTimeout(() => {
+        performSearch(query);
+      }, 3000);
+    });
+
+    function performSearch(query) {
+      // Basic search: match if query exists in keywords or title or content (case-insensitive)
+      const results = dawntasyDB.filter(entry => {
+        return entry.title.toLowerCase().includes(query) ||
+               entry.content.toLowerCase().includes(query) ||
+               entry.keywords.some(kw => kw.toLowerCase().includes(query));
+      });
+      // Hide searching screen, show results screen
+      searchingDiv.style.display = "none";
+      resultsDiv.style.display = "block";
+      // Render results
+      resultsContainer.innerHTML = "";
+      if (results.length === 0) {
+        resultsContainer.innerHTML = "<p>No results found for your query.</p>";
+      } else {
+        results.forEach(entry => {
+          const div = document.createElement("div");
+          div.className = "resultEntry";
+          div.innerHTML = `<h3>${entry.title}</h3><p>${entry.content}</p>`;
+          resultsContainer.appendChild(div);
+        });
+      }
+    }
+
+    function goBack() {
+      // Clear search input, show menu again
+      searchInput.value = "";
+      resultsDiv.style.display = "none";
+      menuDiv.style.display = "block";
+    }
+  </script>
+</body>
+</html>
