@@ -32,17 +32,11 @@
     {
       "@type": "Book",
       "name": "Dawntasy: Time's True Name",
-      "author": {
-        "@type": "Person",
-        "name": "Jasper Jiang"
-      },
+      "author": { "@type": "Person", "name": "Jasper Jiang" },
       "description": "Dawntasy: Time's True Name is an epic YA fantasy novel filled with breathtaking adventures, plot twists, and imaginative storytelling by 13-year-old indie author Jasper Jiang.",
       "image": "https://www.dawnstoryrevelation.com/images/821049A8-FDF0-413E-A1A3-533ECC529C7B.webp",
       "url": "https://www.dawntasy.com",
-      "publisher": {
-        "@type": "Organization",
-        "name": "Dawntasy Empire"
-      }
+      "publisher": { "@type": "Organization", "name": "Dawntasy Empire" }
     },
     {
       "@type": "Person",
@@ -113,10 +107,18 @@
       .navbar-nav .nav-link:hover {
         color: #f9f5d7;
       }
+      /* Updated Navbar: change "Newsletter" to "Blog" */
+      .navbar-nav li a.blog-link {
+        color: #f5f5f5;
+      }
+      .navbar-nav li a.blog-link:hover {
+        color: #f9f5d7;
+      }
       .header {
         text-align: center;
-        margin-top: 70px;
+        margin-top: 90px;
         color: #fff;
+        position: relative;
       }
       .header h1 {
         font-family: "Indie Flower", cursive;
@@ -126,6 +128,28 @@
       .header p {
         font-size: 1.5em;
         margin-top: 10px;
+      }
+      /* Constellation Animation in Header */
+      .constellation {
+        position: absolute;
+        bottom: -20px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 250px;
+        height: 250px;
+      }
+      .constellation .star {
+        position: absolute;
+        width: 6px;
+        height: 6px;
+        background: #fff;
+        border-radius: 50%;
+        opacity: 0.8;
+        animation: orbit 6s linear infinite;
+      }
+      @keyframes orbit {
+        from { transform: rotate(0deg) translateX(100px) rotate(0deg); }
+        to { transform: rotate(360deg) translateX(100px) rotate(-360deg); }
       }
       .container {
         margin: 20px auto;
@@ -141,7 +165,7 @@
         margin: 20px 0;
         text-align: center;
         color: #007bff;
-        text-shadow: 2px 2px #ffebcd;
+        text-shadow: 2px 2px 2px #ffebcd;
       }
       .about-text {
         font-size: 1.2em;
@@ -182,20 +206,27 @@
         width: 100%;
         height: 100%;
       }
+      .link-button {
+        display: inline-block;
+        background-color: #e67e22;
+        color: #fff;
+        padding: 12px 24px;
+        text-decoration: none;
+        border-radius: 25px;
+        font-weight: 600;
+        transition: background 0.3s;
+      }
+      .link-button:hover {
+        background-color: #d35400;
+      }
     </style>
   </head>
   <body>
+    <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
       <a class="navbar-brand" href="https://www.dawntasy.com">Dawntasy Saga</a>
-      <button
-        class="navbar-toggler"
-        type="button"
-        data-toggle="collapse"
-        data-target="#navbarNav"
-        aria-controls="navbarNav"
-        aria-expanded="false"
-        aria-label="Toggle navigation"
-      >
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" 
+        aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
       <div class="collapse navbar-collapse" id="navbarNav">
@@ -207,15 +238,23 @@
             <a class="nav-link" href="https://www.dawntasy.com/about.html">About</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="https://www.dawntasy.com/newsletter.html">Newsletter</a>
+            <a class="nav-link blog-link" href="blog.html">Blog</a>
           </li>
         </ul>
       </div>
     </nav>
 
+    <!-- Header with Constellation Animation -->
     <header class="header">
       <h1>About Dawntasy Saga</h1>
       <p>Discover the epic world of Dawntasy – where fantasy books meet musical magic.</p>
+      <div class="constellation">
+        <div class="star" style="top:10%; left:50%; animation-duration:4s;"></div>
+        <div class="star" style="top:70%; left:30%; animation-duration:6s;"></div>
+        <div class="star" style="top:40%; left:80%; animation-duration:5s;"></div>
+        <div class="star" style="top:20%; left:20%; animation-duration:7s;"></div>
+        <div class="star" style="top:60%; left:60%; animation-duration:3s;"></div>
+      </div>
     </header>
 
     <div class="container">
@@ -223,7 +262,7 @@
       <section id="about-author">
         <h2 class="section-title">Who Am I?</h2>
         <p class="about-text">
-          Hi! I'm Jasper Jiang – a passionate 13-year-old indie author and musical artist known as <strong>Dawntasy Melodic</strong>. Through my book <strong>Dawntasy: Time's True Name</strong>, I share my creative voice and invite you on an epic YA fantasy journey filled with breathtaking adventures, mind-blowing plot twists, and a realm where truth and magic collide. As the heart behind the entire <strong>Dawntasy</strong> franchise, I blend imaginative storytelling with enchanting soundtracks to create a universe that resonates with fans of fantasy books and epic sagas. Check out my latest single on my artist profile on Spotify: https://open.spotify.com/artist/3SdBXUlLLIp9VXT2OXavV3
+          Hi! I'm Jasper Jiang – a passionate 13-year-old indie author and musical artist known as <strong>Dawntasy Melodic</strong>. Through my book <strong>Dawntasy: Time's True Name</strong>, I share my creative voice and invite you on an epic YA fantasy journey filled with breathtaking adventures, mind-blowing plot twists, and a realm where truth and magic collide. Explore my world and dive into the mysteries of the <strong>Dawntasy</strong> universe.
         </p>
       </section>
 
@@ -231,17 +270,13 @@
       <section id="about-book-music">
         <h2 class="section-title">Dawntasy: Time's True Name &amp; Dawntasy Melodic</h2>
         <p class="about-text">
-          <strong>Dawntasy: Time's True Name</strong> is the cornerstone of the <strong>Dawntasy Saga</strong>—an epic YA fantasy novel that challenges the boundaries of truth and magic. And if you’re into immersive soundscapes, my musical persona <strong>Dawntasy Melodic</strong> brings the Dawntasy universe to life with epic soundtracks and mesmerizing beats.
+          <strong>Dawntasy: Time's True Name</strong> is the cornerstone of the Dawntasy Saga—an epic YA fantasy novel that challenges the boundaries of truth and magic. And if you’re into immersive soundscapes, my musical persona <strong>Dawntasy Melodic</strong> brings the universe to life with epic soundtracks and mesmerizing beats.
         </p>
         <div class="video-container">
-          <iframe
-            src="https://www.youtube.com/embed/JIWSDZtTu1s"
-            frameborder="0"
-            allowfullscreen
-          ></iframe>
+          <iframe src="https://www.youtube.com/embed/JIWSDZtTu1s" frameborder="0" allowfullscreen></iframe>
         </div>
         <p class="about-text" style="text-align: center;">
-          <a href="https://www.amazon.com/Dawntasy-Circular-Dawn-astonishing-breathtaking-ebook/dp/B0DT74DLY5" target="_blank" style="color: #e67e22; font-weight: bold;">
+          <a href="https://www.amazon.com/Dawntasy-Circular-Dawn-astonishing-breathtaking-ebook/dp/B0DT74DLY5" target="_blank" class="link-button">
             Buy Dawntasy: Time's True Name on Amazon
           </a>
         </p>
@@ -268,17 +303,26 @@
           Experience the enchanting soundtracks of <strong>Dawntasy Melodic</strong> on Amazon Music and YouTube. Let the epic beats and magical melodies transport you to the heart of the Dawntasy Saga.
         </p>
         <div class="video-container">
-          <iframe
-            src="https://www.youtube.com/embed/7rHEeZpOBzM"
-            frameborder="0"
-            allowfullscreen
-          ></iframe>
+          <iframe src="https://www.youtube.com/embed/7rHEeZpOBzM" frameborder="0" allowfullscreen></iframe>
         </div>
         <p class="about-text" style="text-align: center;">
-          <a href="https://music.amazon.com/artists/B0DXBZL7F5/dawntasy-melodic" target="_blank" style="color: #e67e22; font-weight: bold;">
+          <a href="https://music.amazon.com/artists/B0DXBZL7F5/dawntasy-melodic" target="_blank" class="link-button">
             Stream Dawntasy Melodic on Amazon Music
           </a>
         </p>
+      </section>
+
+      <!-- FAQ Section -->
+      <section id="faq">
+        <h2 class="section-title">Frequently Asked Questions</h2>
+        <dl>
+          <dt>What makes Dawntasy unique?</dt>
+          <dd class="about-text">Dawntasy blends epic YA fantasy storytelling with innovative plot twists, immersive musical experiences, and a fresh perspective from a young author.</dd>
+          <dt>How can I get a free copy?</dt>
+          <dd class="about-text">Subscribe to the newsletter (or blog for updates) and claim your free ARC copy in exchange for an honest review on Amazon.</dd>
+          <dt>Where can I follow Jasper Jiang?</dt>
+          <dd class="about-text">Connect with Jasper on Instagram, Twitter, Facebook, YouTube, and visit his official website at <a href="https://jasperjiangauthor.wordpress.com" target="_blank">jasperjiangauthor.wordpress.com</a>.</dd>
+        </dl>
       </section>
     </div>
 
