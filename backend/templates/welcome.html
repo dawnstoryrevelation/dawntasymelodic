@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Welcome to Dawntasy AI</title>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&family=Raleway:wght@300;400;700&display=swap" rel="stylesheet">
+  <!-- CSS (Flask version) -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  <style>
+    /* Additional inline CSS for the welcome sequence */
+    body, html {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(ellipse at center, #0f1225 0%, #000 100%);
+      overflow: hidden;
+      font-family: 'Montserrat', sans-serif;
+      color: #fff;
+      position: relative;
+    }
+    .screen {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: none;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      text-align: center;
+      opacity: 0;
+      transition: opacity 1s ease;
+      z-index: 2;
+    }
+    .screen.active {
+      display: flex;
+      opacity: 1;
+    }
+    h1 {
+      font-size: 48px;
+      margin-bottom: 20px;
+      animation: fadeIn 2s ease;
+    }
+    .typewriter {
+      font-size: 24px;
+      margin-bottom: 40px;
+      border-right: 2px solid #fff;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+    .btn {
+      padding: 15px 30px;
+      font-size: 20px;
+      background: linear-gradient(45deg, #6a3de8, #e83d8c);
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      color: #fff;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      box-shadow: 0 0 10px rgba(255,255,255,0.5);
+    }
+    .btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 20px rgba(255,255,255,0.8);
+    }
+    .loading-text {
+      font-size: 28px;
+      animation: blink 1s infinite;
+    }
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    /* Optional: Cursor-following particles effect could be added here or via particles.js */
+  </style>
+</head>
+<body>
+  <!-- Screen 1: Welcome Screen -->
+  <div id="screen-welcome" class="screen active">
+    <h1>Welcome to Dawntasy AI</h1>
+    <div id="subtitle" class="typewriter"></div>
+    <button id="btn-continue" class="btn">Continue</button>
+  </div>
+  
+  <!-- Screen 2: Username Input Screen -->
+  <div id="screen-username" class="screen">
+    <div id="username-title" class="typewriter"></div>
+    <input type="text" id="username" placeholder="Enter your username" required style="padding: 10px; font-size:18px; border: 2px solid rgba(255,255,255,0.5); border-radius:5px; background:transparent; color:#fff; outline:none; transition: border 0.3s, box-shadow 0.3s; margin-bottom:20px;">
+    <button id="btn-username" class="btn">Continue</button>
+  </div>
+  
+  <!-- Screen 3: Loading Screen -->
+  <div id="screen-loading" class="screen">
+    <div class="loading-text">Loading Dawntasy AI's magic!</div>
+  </div>
+  
+  <!-- Scripts -->
+  <script>
+    // Typewriter effect function
+    function typeWriter(element, text, speed, callback) {
+      let i = 0;
+      element.innerHTML = "";
+      function type() {
+        if (i < text.length) {
+          element.innerHTML += text.charAt(i);
+          i++;
+          setTimeout(type, speed);
+        } else if (callback) {
+          callback();
+        }
+      }
+      type();
+    }
+    
+    // Screen elements
+    const screenWelcome = document.getElementById('screen-welcome');
+    const screenUsername = document.getElementById('screen-username');
+    const screenLoading = document.getElementById('screen-loading');
+    
+    const subtitle = document.getElementById('subtitle');
+    const usernameTitle = document.getElementById('username-title');
+    const btnContinue = document.getElementById('btn-continue');
+    const btnUsername = document.getElementById('btn-username');
+    
+    // Start typewriter effect for welcome subtitle
+    typeWriter(subtitle, "Your Gateway to Infinite Knowledge & Discovery", 50);
+    
+    // Continue from welcome to username screen
+    btnContinue.addEventListener('click', function() {
+      screenWelcome.classList.remove('active');
+      setTimeout(() => {
+        screenUsername.classList.add('active');
+        typeWriter(usernameTitle, "What should we call you?", 50);
+      }, 1000);
+    });
+    
+    // Continue from username screen to loading screen, then redirect
+    btnUsername.addEventListener('click', function() {
+      const username = document.getElementById('username').value;
+      if(username.trim() === "") return; // do not proceed if empty
+      // Save username (simulate saving to database; replace with actual backend logic as needed)
+      localStorage.setItem('username', username);
+      screenUsername.classList.remove('active');
+      setTimeout(() => {
+        screenLoading.classList.add('active');
+        // After 5 seconds, transition to interface.html with a smooth fade
+        setTimeout(() => {
+          window.location.href = "interface.html";
+        }, 5000);
+      }, 1000);
+    });
+  </script>
+  <!-- Include external scripts if you have them (particles.js, etc.) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/particles.js/2.0.0/particles.min.js"></script>
+  <script src="particles.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
