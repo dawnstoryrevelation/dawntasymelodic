@@ -524,5 +524,17 @@
   const app = initializeApp(firebaseConfig);
   const analytics = getAnalytics(app);
 </script>
+    <script> // Assuming your Firebase app is already initialized and db is defined as: 
+      // const db = firebase.firestore(); 
+    // Query the "users" collection and log each document's data 
+    db.collection("users").get() 
+    .then((querySnapshot) =>
+    { querySnapshot.forEach((doc) => 
+    { console.log(`${doc.id} =>`, doc.data()); 
+    });
+  }) 
+  .catch((error) => { 
+    console.error("Error getting documents: ", error); }); 
+    </script>
   </body>
 </html>
