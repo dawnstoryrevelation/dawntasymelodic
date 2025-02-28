@@ -15,7 +15,30 @@ apiKey: "AIzaSyB8EaaBJ3tHZafzFhXn9qPI6W2NiVexHuk",
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-
-
-// Initialize Firebase Authentication and get a reference to the service
 const auth = getAuth(app);
+
+function handleSignUp() {
+    const fullName = document.getElementById("fullname").value;
+    const email = document.getElementById("signup-email").value;
+    const password = document.getElementById("signup-password").value;
+    const confirmPassword = document.getElementById("confirm-password").value;
+
+    if (password !== confirmPassword) {
+        alert("Passwords do not match.");
+        return;
+    }
+
+    createUserWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
+            const user = userCredential.user;
+            console.log("User signed up:", user);
+            alert("Sign up successful!");
+            // Optionally, redirect to a welcome page or update the UI
+        })
+        .catch((error) => {
+            const errorCode = error.code;
+            const errorMessage = error.message;
+            console.error("Sign-up error:", errorCode, errorMessage);
+            alert("Sign up failed: " + errorMessage);
+        });
+}
