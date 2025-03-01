@@ -1,11 +1,11 @@
-import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
-import { initializeApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
+// auth.js
 
-// TODO: Replace the following with your app's Firebase project configuration
-// See: https://firebase.google.com/docs/web/learn-more#config-object
+import { initializeApp } from "firebase/app";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
+
+// Your Firebase configuration (the API key here is public by design in Firebase)
 const firebaseConfig = {
-apiKey: "AIzaSyB8EaaBJ3tHZafzFhXn9qPI6W2NiVexHuk",
+    apiKey: "AIzaSyB8EaaBJ3tHZafzFhXn9qPI6W2NiVexHuk",
     authDomain: "dawntasyai.firebaseapp.com",
     projectId: "dawntasyai",
     storageBucket: "dawntasyai.firebasestorage.app",
@@ -18,7 +18,8 @@ apiKey: "AIzaSyB8EaaBJ3tHZafzFhXn9qPI6W2NiVexHuk",
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
-function handleSignUp() {
+// Sign-Up Function
+export function handleSignUp() {
     const fullName = document.getElementById("fullname").value;
     const email = document.getElementById("signup-email").value;
     const password = document.getElementById("signup-password").value;
@@ -44,16 +45,23 @@ function handleSignUp() {
         });
 }
 
-import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+// Sign-In Function
+export function handleSignIn() {
+    const email = document.getElementById("login-email").value;
+    const password = document.getElementById("login-password").value;
 
-const auth = getAuth();
-signInWithEmailAndPassword(auth, email, password)
-  .then((userCredential) => {
-    // Signed in 
-    const user = userCredential.user;
-    // ...
-  })
-  .catch((error) => {
-    const errorCode = error.code;
-    const errorMessage = error.message;
-  });
+    signInWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
+            const user = userCredential.user;
+            console.log("User signed in:", user);
+            alert("Sign in successful! Welcome back!");
+            // Redirect to your dashboard page (update as needed)
+            window.location.href = "dashboard.html";
+        })
+        .catch((error) => {
+            const errorCode = error.code;
+            const errorMessage = error.message;
+            console.error("Sign in error:", errorCode, errorMessage);
+            alert("Sign in failed: " + errorMessage);
+        });
+}
