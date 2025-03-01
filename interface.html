@@ -1,783 +1,45 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>DawntasyAI</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DawntasyAI - Dashboard</title>
+  <!-- Firebase SDKs -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.22.0/firebase-app.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.22.0/firebase-auth.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.22.0/firebase-firestore.min.js"></script>
+  <!-- Fonts & Icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&family=Raleway:wght@300;400;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+  <!-- Main Stylesheet -->
+  <link rel="stylesheet" href="styles.css" />
+  <!-- Load auth.js and chat.js as ES modules -->
+  <script type="module" src="auth.js"></script>
+  <script type="module" src="chat.js"></script>
+  <!-- Additional inline styles for extra animations -->
   <style>
-    :root {
-      --primary-color: #5e35b1;
-      --primary-light: #7e57c2;
-      --accent-color: #ff6e40;
-      --text-color: #f5f5f5;
-      --bg-dark: #121212;
-      --bg-medium: #1e1e2f;
-      --bg-light: #2d2d44;
-      --success-color: #00e676;
-      --warning-color: #ffab40;
-      --error-color: #ff5252;
-    }
-    
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
-    
-    body {
-      background-color: var(--bg-dark);
-      color: var(--text-color);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
-    
-    /* Header Styles */
-    header {
-      background-color: var(--bg-medium);
-      padding: 1rem 2rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-      position: relative;
-      box-shadow: 0 0 20px rgba(94, 53, 177, 0.3);
-    }
-    
-    .logo {
-      font-size: 1.8rem;
-      font-weight: 700;
-      letter-spacing: 1px;
-      position: relative;
-      background: linear-gradient(45deg, #7e57c2, #ff6e40);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      transition: all 0.3s ease;
-    }
-    
-    .logo::after {
-      content: '';
-      position: absolute;
-      bottom: -3px;
-      left: 0;
-      width: 100%;
-      height: 2px;
-      background: linear-gradient(90deg, transparent, var(--accent-color), transparent);
-      animation: shimmer 2s infinite;
-    }
-    
-    .logo:hover {
-      text-shadow: 0 0 10px rgba(126, 87, 194, 0.8), 0 0 20px rgba(126, 87, 194, 0.4);
-    }
-    
-    @keyframes shimmer {
-      0% {
-        transform: translateX(-100%);
-        opacity: 0;
-      }
-      50% {
-        opacity: 1;
-      }
-      100% {
-        transform: translateX(100%);
-        opacity: 0;
-      }
-    }
-    
-    .user-profile {
-      display: flex;
-      align-items: center;
-      cursor: pointer;
-      padding: 0.5rem 1rem;
-      border-radius: 50px;
-      background-color: var(--bg-light);
-      transition: all 0.3s ease;
-    }
-    
-    .user-profile:hover {
-      background-color: var(--primary-light);
-      box-shadow: 0 0 10px rgba(126, 87, 194, 0.6);
-    }
-    
-    .user-avatar {
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      background-color: var(--accent-color);
-      margin-right: 0.8rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: bold;
-    }
-    
-    .username {
-      font-weight: 500;
-    }
-    
-    /* Main Layout */
-    .dashboard {
-      display: flex;
-      flex: 1;
-      position: relative;
-    }
-    
-    /* Sidebar Styles */
-    .sidebar {
-      width: 250px;
-      background-color: var(--bg-medium);
-      border-right: 1px solid rgba(255, 255, 255, 0.1);
-      transition: all 0.3s ease;
-      overflow-y: auto;
-      box-shadow: 3px 0 10px rgba(0, 0, 0, 0.2);
-      z-index: 10;
-    }
-    
-    .sidebar.collapsed {
-      width: 70px;
-    }
-    
-    .sidebar-toggle {
-      position: absolute;
-      bottom: 20px;
-      right: -15px;
-      width: 30px;
-      height: 30px;
-      background-color: var(--primary-color);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-      z-index: 11;
-      transition: all 0.3s ease;
-    }
-    
-    .sidebar-toggle:hover {
-      background-color: var(--primary-light);
-      transform: scale(1.1);
-    }
-    
-    .nav-menu {
-      list-style: none;
-      padding: 1.5rem 0;
-    }
-    
-    .nav-item {
-      padding: 0.8rem 1.5rem;
-      margin-bottom: 0.5rem;
-      display: flex;
-      align-items: center;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      border-left: 3px solid transparent;
-    }
-    
-    .nav-item:hover {
-      background-color: var(--bg-light);
-      border-left: 3px solid var(--accent-color);
-    }
-    
-    .nav-item.active {
-      background-color: var(--bg-light);
-      border-left: 3px solid var(--primary-color);
-    }
-    
-    .nav-icon {
-      font-size: 1.2rem;
-      margin-right: 0.8rem;
-      color: var(--primary-light);
-      width: 24px;
-      height: 24px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    
-    .sidebar.collapsed .nav-text {
-      display: none;
-    }
-    
-    .sidebar.collapsed .nav-item {
-      display: flex;
-      justify-content: center;
-      padding: 0.8rem;
-    }
-    
-    .sidebar.collapsed .nav-icon {
-      margin-right: 0;
-    }
-    
-    .divider {
-      height: 1px;
-      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
-      margin: 0.5rem 1rem;
-    }
-    
-    /* Main Content Area */
-    .content {
-      flex: 1;
-      padding: 2rem;
-      overflow-y: auto;
-    }
-    
-    /* Welcome Section */
-    .welcome-section {
-      text-align: center;
-      margin: 3rem 0;
-    }
-    
-    .welcome-title {
-      font-size: 2.5rem;
-      font-weight: 700;
-      margin-bottom: 1rem;
-      background: linear-gradient(45deg, var(--primary-light), var(--accent-color));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-    
-    .welcome-subtitle {
-      font-size: 1.2rem;
-      color: rgba(255, 255, 255, 0.7);
-      max-width: 600px;
-      margin: 0 auto;
-    }
-    
-    .quick-actions {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 2rem;
-      margin-top: 3rem;
-    }
-    
-    .action-card {
-      background-color: var(--bg-light);
-      border-radius: 10px;
-      padding: 1.5rem;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      min-height: 180px;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      position: relative;
-      overflow: hidden;
-    }
-    
-    .action-card::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: radial-gradient(circle at center, rgba(126, 87, 194, 0.1) 0%, transparent 70%);
-      opacity: 0;
-      transition: opacity 0.3s ease;
-    }
-    
-    .action-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-    }
-    
-    .action-card:hover::before {
-      opacity: 1;
-    }
-    
-    .action-icon {
-      font-size: 2.5rem;
-      margin-bottom: 1rem;
-      color: var(--primary-light);
-    }
-    
-    .action-title {
-      font-size: 1.2rem;
-      font-weight: 600;
-      margin-bottom: 0.5rem;
-    }
-    
-    .action-description {
-      font-size: 0.9rem;
-      color: rgba(255, 255, 255, 0.7);
-    }
-    
-    /* Chat Section */
-    .chat-section {
-      display: none;
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-    }
-    
-    .chat-list {
-      background-color: var(--bg-light);
-      border-radius: 10px;
-      overflow: hidden;
-      margin-bottom: 2rem;
-    }
-    
-    .chat-item {
-      padding: 1rem 1.5rem;
-      display: flex;
-      align-items: center;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-    
-    .chat-item:hover {
-      background-color: rgba(126, 87, 194, 0.1);
-    }
-    
-    .chat-item.active {
-      background-color: rgba(126, 87, 194, 0.2);
-    }
-    
-    .chat-icon {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      background-color: var(--primary-color);
-      margin-right: 1rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    
-    .chat-title {
-      font-weight: 500;
-    }
-    
-    .chat-subtitle {
-      font-size: 0.8rem;
-      color: rgba(255, 255, 255, 0.5);
-    }
-    
-    .chat-conversation {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      background-color: var(--bg-medium);
-      border-radius: 10px;
-      overflow: hidden;
-    }
-    
-    .chat-header {
-      padding: 1rem 1.5rem;
-      display: flex;
-      align-items: center;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    }
-    
-    .chat-messages {
-      flex: 1;
-      padding: 1.5rem;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-    }
-    
-    .message {
-      max-width: 70%;
-      padding: 1rem;
-      border-radius: 10px;
-      position: relative;
-    }
-    
-    .message.user {
-      align-self: flex-end;
-      background-color: var(--primary-color);
-    }
-    
-    .message.ai {
-      align-self: flex-start;
-      background-color: var(--bg-light);
-    }
-    
-    .message-time {
-      font-size: 0.7rem;
-      color: rgba(255, 255, 255, 0.5);
-      position: absolute;
-      bottom: 0.3rem;
-      right: 0.5rem;
-    }
-    
-    .chat-input {
-      margin: 1rem;
-      border-radius: 25px;
-      background-color: var(--bg-light);
-      display: flex;
-      align-items: center;
-      padding: 0.5rem 1rem;
-    }
-    
-    .chat-input input {
-      flex: 1;
-      background: transparent;
-      border: none;
-      outline: none;
-      color: var(--text-color);
-      padding: 0.5rem;
-      font-size: 1rem;
-    }
-    
-    .send-button {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      background-color: var(--primary-color);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-    
-    .send-button:hover {
-      background-color: var(--primary-light);
-      transform: scale(1.05);
-    }
-    
-    /* Profile Section */
-    .profile-section {
-      display: none;
-      max-width: 800px;
-      margin: 0 auto;
-    }
-    
-    .profile-header {
-      display: flex;
-      align-items: center;
-      margin-bottom: 2rem;
-    }
-    
-    .profile-avatar {
-      width: 100px;
-      height: 100px;
-      border-radius: 50%;
-      background-color: var(--accent-color);
-      margin-right: 2rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 2.5rem;
-      font-weight: bold;
-    }
-    
-    .profile-info h2 {
-      font-size: 1.8rem;
-      margin-bottom: 0.5rem;
-    }
-    
-    .profile-info p {
-      color: rgba(255, 255, 255, 0.7);
-    }
-    
-    .profile-stats {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 1rem;
-      margin-bottom: 2rem;
-    }
-    
-    .stat-card {
-      background-color: var(--bg-light);
-      border-radius: 10px;
-      padding: 1.5rem;
-      text-align: center;
-    }
-    
-    .stat-value {
-      font-size: 1.8rem;
-      font-weight: 700;
-      margin-bottom: 0.5rem;
-      color: var(--primary-light);
-    }
-    
-    .stat-label {
-      font-size: 0.9rem;
-      color: rgba(255, 255, 255, 0.7);
-    }
-    
-    .profile-details {
-      background-color: var(--bg-light);
-      border-radius: 10px;
-      padding: 1.5rem;
-    }
-    
-    .details-group {
-      margin-bottom: 1.5rem;
-    }
-    
-    .details-group h3 {
-      font-size: 1.2rem;
-      margin-bottom: 1rem;
-      color: var(--primary-light);
-    }
-    
-    .details-item {
-      display: flex;
-      margin-bottom: 0.8rem;
-    }
-    
-    .details-label {
-      width: 150px;
-      font-weight: 500;
-    }
-    
-    .details-value {
-      flex: 1;
-      color: rgba(255, 255, 255, 0.8);
-    }
-    
-    .details-actions {
-      display: flex;
-      gap: 1rem;
-      margin-top: 2rem;
-    }
-    
-    .button {
-      padding: 0.8rem 1.5rem;
-      border-radius: 5px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-    
-    .button-primary {
-      background-color: var(--primary-color);
-      color: white;
-    }
-    
-    .button-primary:hover {
-      background-color: var(--primary-light);
-    }
-    
-    .button-secondary {
-      background-color: transparent;
-      border: 1px solid var(--primary-color);
-      color: var(--primary-light);
-    }
-    
-    .button-secondary:hover {
-      background-color: rgba(126, 87, 194, 0.1);
-    }
-    
-    /* Settings Section */
-    .settings-section {
-      display: none;
-      max-width: 800px;
-      margin: 0 auto;
-    }
-    
-    .settings-card {
-      background-color: var(--bg-light);
-      border-radius: 10px;
-      padding: 1.5rem;
-      margin-bottom: 2rem;
-    }
-    
-    .settings-card h2 {
-      font-size: 1.5rem;
-      margin-bottom: 1.5rem;
-      color: var(--primary-light);
-    }
-    
-    .settings-group {
-      margin-bottom: 1.5rem;
-    }
-    
-    .settings-group h3 {
-      font-size: 1.2rem;
-      margin-bottom: 1rem;
-      color: var(--text-color);
-    }
-    
-    .settings-item {
-      display: flex;
-      align-items: center;
-      margin-bottom: 1rem;
-    }
-    
-    .settings-label {
-      flex: 1;
-    }
-    
-    .toggle-switch {
-      position: relative;
-      display: inline-block;
-      width: 50px;
-      height: 24px;
-    }
-    
-    .toggle-switch input {
-      opacity: 0;
-      width: 0;
-      height: 0;
-    }
-    
-    .slider {
-      position: absolute;
-      cursor: pointer;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background-color: var(--bg-medium);
-      transition: 0.4s;
-      border-radius: 24px;
-    }
-    
-    .slider:before {
-      position: absolute;
-      content: "";
-      height: 16px;
-      width: 16px;
-      left: 4px;
-      bottom: 4px;
-      background-color: white;
-      transition: 0.4s;
-      border-radius: 50%;
-    }
-    
-    input:checked + .slider {
-      background-color: var(--primary-color);
-    }
-    
-    input:checked + .slider:before {
-      transform: translateX(26px);
-    }
-    
-    .color-theme {
-      display: flex;
-      gap: 1rem;
-      margin-top: 1rem;
-    }
-    
-    .theme-option {
-      width: 30px;
-      height: 30px;
-      border-radius: 50%;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-    
-    .theme-option:hover {
-      transform: scale(1.1);
-    }
-    
-    .theme-option.active {
-      border: 2px solid white;
-    }
-    
-    .theme-purple {
-      background: linear-gradient(45deg, #5e35b1, #7e57c2);
-    }
-    
-    .theme-blue {
-      background: linear-gradient(45deg, #1976d2, #64b5f6);
-    }
-    
-    .theme-green {
-      background: linear-gradient(45deg, #388e3c, #81c784);
-    }
-    
-    .theme-orange {
-      background: linear-gradient(45deg, #e64a19, #ff8a65);
-    }
-    
-    .settings-actions {
-      display: flex;
-      justify-content: flex-end;
-      gap: 1rem;
-      margin-top: 2rem;
-    }
-    
-    /* Loading Animation */
-    .loading {
-      display: inline-block;
-      position: relative;
-      width: 20px;
-      height: 20px;
-    }
-    
-    .loading div {
-      position: absolute;
-      width: 6px;
-      height: 6px;
-      background: white;
-      border-radius: 50%;
-      animation: loading 1.2s linear infinite;
-    }
-    
-    .loading div:nth-child(1) {
-      animation-delay: 0s;
-      top: 7px;
-      left: 0;
-    }
-    
-    .loading div:nth-child(2) {
-      animation-delay: -0.4s;
-      top: 0;
-      left: 7px;
-    }
-    
-    .loading div:nth-child(3) {
-      animation-delay: -0.8s;
-      top: 7px;
-      right: 0;
-    }
-    
-    @keyframes loading {
-      0%, 100% {
-        opacity: 0;
-      }
-      50% {
-        opacity: 1;
-      }
-    }
-    
-    /* Responsive Styles */
-    @media (max-width: 768px) {
-      .sidebar {
-        position: fixed;
-        left: -250px;
-      }
-      
-      .sidebar.open {
-        left: 0;
-      }
-      
-      .sidebar-toggle {
-        right: -15px;
-      }
-      
-      .profile-stats {
-        grid-template-columns: 1fr;
-      }
+    header { box-shadow: 0 0 20px rgba(0,0,0,0.5); }
+    .nav-item:hover { transform: translateX(5px); }
+    .content-section.active { animation: fadeIn 0.5s ease; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
     }
   </style>
 </head>
 <body>
+  <!-- Header Section -->
   <header>
     <div class="logo">DawntasyAI</div>
     <div class="user-profile" id="user-profile">
-      <div class="user-avatar">J</div>
-      <div class="username">JohnDoe</div>
+      <div class="user-avatar" id="user-avatar">U</div>
+      <div class="username" id="username-display">User</div>
     </div>
   </header>
   
+  <!-- Dashboard Layout -->
   <div class="dashboard">
+    <!-- Sidebar Navigation -->
     <aside class="sidebar" id="sidebar">
       <div class="sidebar-toggle" id="sidebar-toggle">
         <span>&lt;</span>
@@ -785,7 +47,7 @@
       <ul class="nav-menu">
         <li class="nav-item active" data-section="home">
           <div class="nav-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
               <polyline points="9 22 9 12 15 12 15 22"></polyline>
             </svg>
@@ -794,16 +56,15 @@
         </li>
         <li class="nav-item" data-section="chat">
           <div class="nav-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
             </svg>
           </div>
           <span class="nav-text">Chats</span>
         </li>
-        <div class="divider"></div>
         <li class="nav-item" data-section="profile">
           <div class="nav-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
               <circle cx="12" cy="7" r="4"></circle>
             </svg>
@@ -812,9 +73,9 @@
         </li>
         <li class="nav-item" data-section="settings">
           <div class="nav-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <circle cx="12" cy="12" r="3"></circle>
-              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
             </svg>
           </div>
           <span class="nav-text">Settings</span>
@@ -822,7 +83,7 @@
         <div class="divider"></div>
         <li class="nav-item" id="logout-btn">
           <div class="nav-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
               <polyline points="16 17 21 12 16 7"></polyline>
               <line x1="21" y1="12" x2="9" y2="12"></line>
@@ -833,18 +94,18 @@
       </ul>
     </aside>
     
-    <main class="content">
+    <!-- Main Content Area -->
+    <main class="content" id="main-content">
       <!-- Home Section -->
-      <section class="home-section" id="home-section">
+      <section id="home-section" class="content-section active">
         <div class="welcome-section">
           <h1 class="welcome-title">Start your day with DawntasyAI</h1>
           <p class="welcome-subtitle">Your personal AI assistant, ready to help with your questions, ideas, and tasks.</p>
         </div>
-        
         <div class="quick-actions">
           <div class="action-card" id="new-chat-action">
             <div class="action-icon">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <circle cx="12" cy="12" r="10"></circle>
                 <line x1="12" y1="8" x2="12" y2="16"></line>
                 <line x1="8" y1="12" x2="16" y2="12"></line>
@@ -853,7 +114,179 @@
             <h3 class="action-title">New Chat</h3>
             <p class="action-description">Start a fresh conversation</p>
           </div>
-          
-          <div class="action-card">
-            <div class="action-icon">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none
+          <!-- You can add more action cards here if desired -->
+        </div>
+      </section>
+      
+      <!-- Chat Section -->
+      <section id="chat-section" class="content-section">
+        <h2>Chats</h2>
+        <div class="chat-list">
+          <!-- Example chat item -->
+          <div class="chat-item active">
+            <div class="chat-icon">C</div>
+            <div class="chat-details">
+              <div class="chat-title">Chat with AI</div>
+              <div class="chat-subtitle">Last message preview...</div>
+            </div>
+          </div>
+          <!-- More chat items can be dynamically added -->
+        </div>
+        <div class="chat-conversation">
+          <div class="chat-header">
+            <h3>Conversation</h3>
+          </div>
+          <div class="chat-messages">
+            <!-- Example messages -->
+            <div class="message user">
+              <p>Hello, AI!</p>
+              <span class="message-time">10:00 AM</span>
+            </div>
+            <div class="message ai">
+              <p>Hi there, how can I help?</p>
+              <span class="message-time">10:01 AM</span>
+            </div>
+          </div>
+          <div class="chat-input">
+            <input type="text" id="chat-input-field" placeholder="Type your message..." />
+            <button class="send-button" onclick="writeTestChat()">
+              <i class="fas fa-paper-plane"></i>
+            </button>
+          </div>
+        </div>
+      </section>
+      
+      <!-- Profile Section -->
+      <section id="profile-section" class="content-section">
+        <h2>Your Profile</h2>
+        <div class="profile-section">
+          <div class="profile-header">
+            <div class="profile-avatar" id="profile-avatar">U</div>
+            <div class="profile-info">
+              <h2 id="profile-name">User Name</h2>
+              <p id="profile-email">user@example.com</p>
+            </div>
+          </div>
+          <div class="profile-stats">
+            <div class="stat-card">
+              <div class="stat-value" id="stat-chats">10</div>
+              <div class="stat-label">Chats</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value" id="stat-actions">5</div>
+              <div class="stat-label">Actions</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value" id="stat-points">250</div>
+              <div class="stat-label">Points</div>
+            </div>
+          </div>
+          <div class="profile-details">
+            <div class="details-group">
+              <h3>About Me</h3>
+              <p id="profile-bio">This is your cosmic bio. Share something stellar about yourself!</p>
+            </div>
+          </div>
+        </div>
+      </section>
+      
+      <!-- Settings Section -->
+      <section id="settings-section" class="content-section">
+        <h2>Settings</h2>
+        <div class="settings-section">
+          <div class="settings-card">
+            <h2>Account Settings</h2>
+            <div class="settings-group">
+              <h3>Notification</h3>
+              <div class="settings-item">
+                <span class="settings-label">Email Notifications</span>
+                <label class="toggle-switch">
+                  <input type="checkbox" id="toggle-email" />
+                  <span class="slider"></span>
+                </label>
+              </div>
+            </div>
+            <div class="settings-actions">
+              <button class="button button-primary">Save Changes</button>
+              <button class="button button-secondary">Reset</button>
+            </div>
+          </div>
+          <div class="settings-card">
+            <h2>Theme</h2>
+            <div class="color-theme">
+              <div class="theme-option theme-purple active" data-theme="purple"></div>
+              <div class="theme-option theme-blue" data-theme="blue"></div>
+              <div class="theme-option theme-green" data-theme="green"></div>
+              <div class="theme-option theme-orange" data-theme="orange"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+  
+  <!-- Firebase & Navigation Scripts -->
+  <script type="module">
+    // Import Firebase functions from auth.js
+    import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
+    import { app } from "./auth.js";  // Ensure app is exported in auth.js
+    const auth = getAuth(app);
+
+    // AUTH STATE OBSERVER: Protect interface.html by redirecting if no user is signed in
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        console.log("User is signed in:", user);
+        // Update UI with user info
+        document.getElementById('username-display').textContent = user.email;
+        document.getElementById('user-avatar').textContent = user.email.charAt(0).toUpperCase();
+      } else {
+        console.log("No user signed in, redirecting to signup.html");
+        window.location.href = "signup.html";
+      }
+    });
+
+    // LOGOUT BUTTON FUNCTIONALITY
+    const logoutBtn = document.getElementById('logout-btn');
+    logoutBtn.addEventListener('click', () => {
+      signOut(auth)
+        .then(() => {
+          console.log("User signed out.");
+          window.location.href = "signup.html";
+        })
+        .catch((error) => {
+          console.error("Error signing out:", error);
+        });
+    });
+
+    // SIDEBAR NAVIGATION TOGGLE
+    document.addEventListener("DOMContentLoaded", () => {
+      const navItems = document.querySelectorAll('.nav-item[data-section]');
+      const sections = document.querySelectorAll('.content-section');
+      navItems.forEach(item => {
+        item.addEventListener('click', () => {
+          console.log("Nav item clicked:", item.dataset.section);
+          // Remove active class from all nav items
+          navItems.forEach(nav => nav.classList.remove('active'));
+          // Add active class to clicked nav item
+          item.classList.add('active');
+          // Show corresponding section, hide others
+          const sectionToShow = item.dataset.section + "-section";
+          sections.forEach(sec => {
+            if(sec.id === sectionToShow){
+              sec.classList.add('active');
+            } else {
+              sec.classList.remove('active');
+            }
+          });
+        });
+      });
+    });
+  </script>
+  
+  <!-- External Scripts -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/particles.js/2.0.0/particles.min.js"></script>
+  <script src="https://apis.google.com/js/platform.js" async defer></script>
+  <script src="particles.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
