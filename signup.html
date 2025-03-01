@@ -7,8 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&family=Raleway:wght@300;400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <script type="module" src="auth.js"></script>
-</head>
+    <script type="module" src="auth.js"></script> </head>
 <body>
     <div id="particles-js"></div>
 
@@ -109,8 +108,52 @@
                 </button>
             </form>
 
-            <form id="login-form" class="form" method="POST" action="login.html">
-                </form>
+            <form id="login-form" class="form">
+                <div class="input-group">
+                    <div class="input-field">
+                        <input type="email" id="login-email" name="email" placeholder="" required>
+                        <label for="login-email">Email Address</label>
+                        <div class="field-icon">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <div class="field-glow"></div>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <div class="input-field">
+                        <input type="password" id="login-password" name="password" placeholder="" required>
+                        <label for="login-password">Password</label>
+                        <div class="field-icon">
+                            <i class="fas fa-lock"></i>
+                        </div>
+                        <div class="field-glow"></div>
+                        <button type="button" class="password-toggle">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="remember-forgot">
+                    <label class="checkbox-container">
+                        <input type="checkbox">
+                        <span class="checkmark"></span>
+                        Remember me
+                    </label>
+                    <a href="#" class="forgot-link">Forgot Password?</a>
+                </div>
+
+                <button type="button" onclick="handleSignIn()" class="cosmic-btn"> <span>Login</span>
+                    <div class="cosmic-btn-stars"></div>
+                </button>
+
+                <div class="divider"> <span>or login with</span>
+                </div>
+
+                <button type="button" id="google-login" class="social-btn google-btn">
+                    <i class="fab fa-google"></i> <span>Google</span>
+                </button>
+            </form>
         </div>
     </div>
 
