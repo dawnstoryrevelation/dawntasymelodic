@@ -83,3 +83,5 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 });
+window.handleSignUp = handleSignUp;
+window.handleSignIn = handleSignIn;
