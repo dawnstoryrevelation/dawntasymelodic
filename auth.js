@@ -30,6 +30,8 @@ export function handleSignUp() {
             const user = userCredential.user;
             console.log("User signed up:", user);
             alert("Sign up successful!");
+  // Redirect to welcome.html
+            window.location.href = "welcome.html"; 
         })
         .catch((error) => {
             console.error("Sign-up error:", error.code, error.message);
