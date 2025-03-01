@@ -69,3 +69,36 @@ onAuthStateChanged(auth, (user) => {
     // ...
   }
 });
+<script type="module">
+  import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
+  import { app } from "./auth.js"; // Make sure your 'app' is exported in auth.js
+
+  const auth = getAuth(app);
+
+  // Auth state observer: if user isn't signed in, redirect to signup.html
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      console.log("User is signed in:", user);
+      document.getElementById('user-info').textContent = `Welcome, ${user.email}!`;
+    } else {
+      console.log("No user signed in, redirecting to signup page.");
+      window.location.href = "signup.html";
+    }
+  });
+
+  // Logout functionality
+  const logoutBtn = document.getElementById('logout-btn');
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', () => {
+      signOut(auth)
+        .then(() => {
+          console.log("User signed out.");
+          window.location.href = "signup.html";
+        })
+        .catch((error) => {
+          console.error("Error signing out:", error);
+        });
+    });
+  }
+</script>
+
