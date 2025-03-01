@@ -10,10 +10,8 @@
     <script type="module" src="auth.js"></script> 
     <script src="script.js"></script>
     <style>
-        /* Existing styles */
         .tabs .tab-btn {
-            /* Existing tab button styles */
-            position: relative; /* Add this for the underline */
+            position: relative; 
         }
 
         .tabs .tab-btn.active::after {
@@ -23,8 +21,8 @@
             left: 0;
             width: 100%;
             height: 3px;
-            background-color: #8000FF; /* Purple color for the underline */
-            transition: transform 0.3s ease; /* Add transition effect */
+            background-color: #8000FF; 
+            transition: transform 0.3s ease; 
         }
     </style>
 </head>
@@ -95,7 +93,7 @@
                         </div>
                         <div class="field-glow"></div>
                         <button type="button" class="password-toggle">
-                            <i class="fas fa-eye"></i>
+                            <i class="fas fa-eye" id="signup-eye"></i>
                         </button>
                     </div>
                 </div>
@@ -109,7 +107,7 @@
                         </div>
                         <div class="field-glow"></div>
                         <button type="button" class="password-toggle">
-                            <i class="fas fa-eye"></i>
+                            <i class="fas fa-eye" id="signup-eye"></i>
                         </button>
                     </div>
                 </div>
@@ -149,7 +147,7 @@
                         </div>
                         <div class="field-glow"></div>
                         <button type="button" class="password-toggle">
-                            <i class="fas fa-eye"></i>
+                            <i class="fas fa-eye" id="login-eye"></i>
                         </button>
                     </div>
                 </div>
