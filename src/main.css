@@ -1,0 +1,59 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  .btn {
+    @apply px-4 py-2 rounded-md font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2;
+  }
+  
+  .btn-primary {
+    @apply bg-cosmic-accent text-white hover:bg-cosmic-glow focus:ring-cosmic-accent;
+  }
+  
+  .btn-secondary {
+    @apply bg-gray-200 text-gray-800 hover:bg-gray-300 focus:ring-gray-500 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600;
+  }
+  
+  .input {
+    @apply block w-full rounded-md border-gray-300 shadow-sm focus:border-cosmic-accent focus:ring focus:ring-cosmic-accent focus:ring-opacity-50 dark:bg-gray-800 dark:border-gray-700 dark:text-white;
+  }
+  
+  .card {
+    @apply bg-white dark:bg-cosmic-light rounded-lg shadow-md overflow-hidden;
+  }
+  
+  .cosmic-glow {
+    @apply transition-all duration-300;
+    text-shadow: 0 0 10px rgba(139, 92, 246, 0.7);
+  }
+  
+  .cosmic-glow:hover {
+    text-shadow: 0 0 15px rgba(139, 92, 246, 1);
+  }
+  
+  .sidebar-icon {
+    @apply relative flex items-center justify-center h-12 w-12 mt-2 mb-2 mx-auto shadow-lg
+    bg-gray-800 text-cosmic-glow hover:bg-cosmic-accent hover:text-white
+    rounded-3xl hover:rounded-xl transition-all duration-300 ease-linear
+    cursor-pointer;
+  }
+  
+  .sidebar-tooltip {
+    @apply absolute w-auto p-2 m-2 min-w-max left-14
+    rounded-md shadow-md text-white bg-gray-900
+    text-xs font-bold transition-all duration-100 scale-0 origin-left;
+  }
+  
+  .sidebar-icon:hover .sidebar-tooltip {
+    @apply scale-100;
+  }
+  
+  .message-ai {
+    @apply bg-gray-100 dark:bg-gray-800 p-4 rounded-lg mb-4 max-w-3xl;
+  }
+  
+  .message-user {
+    @apply bg-cosmic-accent bg-opacity-20 p-4 rounded-lg mb-4 ml-auto max-w-3xl;
+  }
+}
