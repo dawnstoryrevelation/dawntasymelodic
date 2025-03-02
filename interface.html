@@ -981,7 +981,7 @@
   <script type="module">
     // Import Firebase functions from auth.js
     import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
-    import { app } from "./auth.js";  // Ensure app is exported in auth.js
+    import { app } from "./auth0";  // Ensure app is exported in auth.js
     const auth = getAuth(app);
 
     // AUTH STATE OBSERVER: Protect interface.html by redirecting if no user is signed in

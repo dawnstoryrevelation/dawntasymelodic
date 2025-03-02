@@ -3,7 +3,7 @@ import type { Message } from '../stores/chat';
 
 const openai = new OpenAI({
   apiKey: import.meta.env.VITE_OPENAI_API_KEY,
-  dangerouslyAllowBrowser: true // Note: In production, API calls should be made from the server
+  dangerouslyAllowBrowser: false // Note: In production, API calls should be made from the server
 });
 
 export async function callOpenAI(prompt: string, previousMessages: Message[]): Promise<string> {
