@@ -14,7 +14,7 @@
 import { onMounted } from 'vue';
 import Header from './components/Header.vue';
 import Sidebar from './components/Sidebar.vue';
-import { useAuthStore } from './stores/auth';
+import { useAuthStore } from '../stores/auth';
 import { useRouter } from 'vue-router';
 
 const authStore = useAuthStore();
@@ -22,7 +22,7 @@ const router = useRouter();
 
 onMounted(async () => {
   await authStore.initAuth();
-  
+
   if (!authStore.isAuthenticated && router.currentRoute.value.meta.requiresAuth) {
     router.push('/login');
   }
