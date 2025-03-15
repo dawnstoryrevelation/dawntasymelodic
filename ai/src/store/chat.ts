@@ -1,7 +1,6 @@
-// src/store/chat.ts
+// src/store/chat.js
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
-import { db } from '../firebase/init';  // FIXED: Using proper Firebase import
 import { 
   collection, 
   addDoc, 
@@ -17,32 +16,23 @@ import {
   Timestamp,
   arrayUnion
 } from 'firebase/firestore';
+import { getFirestore } from 'firebase/firestore';
+import { getAuth } from 'firebase/auth';
 import { openaiService } from '../../server/api/openai';
 
-export interface Message {
-  id?: string;
-  content: string;
-  role: 'user' | 'assistant';
-  timestamp: Timestamp | Date;
-}
-
-export interface Chat {
-  id: string;
-  title: string;
-  createdAt: Timestamp | Date;
-  updatedAt: Timestamp | Date;
-  userId: string;
-  messages: Message[];
-}
-
 export const useChatStore = defineStore('chat', () => {
-  const chats = ref<Chat[]>([]);
-  const currentChat = ref<Chat | null>(null);
+  // State
+  const chats = ref([]);
+  const currentChat = ref(null);
   const isLoading = ref(false);
-  const error = ref<string | null>(null);
-  const currentUserId = ref<string | null>(null);
+  const error = ref(null);
+  const currentUserId = ref(null);
   
-  // 📌 **Sorted Chats by Most Recent**
+  // Get database reference
+  const db = getFirestore();
+  const auth = getAuth();
+  
+  // Computed properties
   const sortedChats = computed(() => {
     return [...chats.value].sort((a, b) => {
       const dateA = a.updatedAt instanceof Timestamp ? a.updatedAt.toDate() : new Date(a.updatedAt);
@@ -52,20 +42,32 @@ export const useChatStore = defineStore('chat', () => {
   });
 
   // Set current user ID (call this after auth is initialized)
-  function setUserId(userId: string | null) {
+  function setUserId(userId) {
     currentUserId.value = userId;
+    
+    // Try to get user from Auth if not provided
+    if (!userId && auth.currentUser) {
+      currentUserId.value = auth.currentUser.uid;
+    }
   }
   
-  // 🚀 **Fetch User's Chats from Firestore**
+  // Fetch user's chats from Firestore
   async function fetchChats() {
-    if (!currentUserId.value) return;
+    if (!currentUserId.value && auth.currentUser) {
+      currentUserId.value = auth.currentUser.uid;
+    }
+    
+    if (!currentUserId.value) {
+      error.value = 'User not authenticated';
+      return [];
+    }
     
     isLoading.value = true;
     error.value = null;
     
     try {
       const q = query(
-        collection(db(), 'chats'),  // FIXED: Using db() function
+        collection(db, 'chats'),
         where('userId', '==', currentUserId.value),
         orderBy('updatedAt', 'desc')
       );
@@ -74,86 +76,106 @@ export const useChatStore = defineStore('chat', () => {
       chats.value = querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
-      })) as Chat[];
+      }));
       
-    } catch (err: any) {
-      console.error('🔥 Error fetching chats:', err);
+      return chats.value;
+    } catch (err) {
+      console.error('Error fetching chats:', err);
       error.value = 'Failed to load chats. Please try again later.';
+      return [];
     } finally {
       isLoading.value = false;
     }
   }
   
-  // 🔄 **Fetch & Subscribe to Chat (Real-Time Updates)**
-  async function fetchChat(chatId: string) {
-    if (!currentUserId.value) return;
+  // Fetch & Subscribe to Chat (Real-Time Updates)
+  async function fetchChat(chatId) {
+    if (!currentUserId.value && auth.currentUser) {
+      currentUserId.value = auth.currentUser.uid;
+    }
+    
+    if (!currentUserId.value) {
+      error.value = 'User not authenticated';
+      return null;
+    }
     
     isLoading.value = true;
     error.value = null;
     
     try {
-      const docRef = doc(db(), 'chats', chatId);  // FIXED: Using db() function
+      const docRef = doc(db, 'chats', chatId);
       const docSnap = await getDoc(docRef);
       
       if (docSnap.exists() && docSnap.data().userId === currentUserId.value) {
         currentChat.value = {
           id: docSnap.id,
           ...docSnap.data()
-        } as Chat;
+        };
         
-        // ✅ Subscribe to real-time updates
+        // Subscribe to real-time updates
         subscribeToChat(chatId);
+        
+        return currentChat.value;
       } else {
-        error.value = '⚠️ Chat not found or access denied.';
+        error.value = 'Chat not found or access denied.';
         currentChat.value = null;
+        return null;
       }
-    } catch (err: any) {
-      console.error('🔥 Error fetching chat:', err);
+    } catch (err) {
+      console.error('Error fetching chat:', err);
       error.value = 'Failed to load the chat. Please try again later.';
+      return null;
     } finally {
       isLoading.value = false;
     }
   }
   
-  // 🔄 **Real-time Chat Sync**
-  let unsubscribe: (() => void) | null = null;
+  // Real-time Chat Sync
+  let unsubscribe = null;
   
-  function subscribeToChat(chatId: string) {
+  function subscribeToChat(chatId) {
     if (unsubscribe) {
       unsubscribe(); // Clean up previous listener
     }
     
-    const docRef = doc(db(), 'chats', chatId);  // FIXED: Using db() function
+    const docRef = doc(db, 'chats', chatId);
     unsubscribe = onSnapshot(docRef, (doc) => {
       if (doc.exists()) {
         currentChat.value = {
           id: doc.id,
           ...doc.data()
-        } as Chat;
+        };
       }
     });
   }
   
-  // 🆕 **Create a New Chat**
-  async function createChat(options?: { initialPrompt?: string }) {
-    if (!currentUserId.value) return null;
+  // Create a New Chat
+  async function createChat(options: { title?: string; initialPrompt?: string } = {}) {
+    if (!currentUserId.value && auth.currentUser) {
+      currentUserId.value = auth.currentUser.uid;
+    }
+    
+    if (!currentUserId.value) {
+      error.value = 'User not authenticated';
+      return null;
+    }
     
     isLoading.value = true;
     error.value = null;
     
     try {
       const newChat = {
-        title: options?.initialPrompt?.slice(0, 30) + '...' || 'New Conversation',
+        title: options.title || options.initialPrompt?.slice(0, 30) + '...' || 'New Conversation',
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
         userId: currentUserId.value,
         messages: []
       };
       
-      const docRef = await addDoc(collection(db(), 'chats'), newChat);  // FIXED: Using db() function
+      const docRef = await addDoc(collection(db, 'chats'), newChat);
       
-      // ✅ Add new chat to local state
-      const chatWithId = { id: docRef.id, ...newChat, messages: [] } as Chat;
+      // Add new chat to local state
+      const chatWithId = { id: docRef.id, ...newChat, messages: [] };
       chats.value.unshift(chatWithId);
       
       // If there's an initial prompt, send it right away
@@ -163,8 +185,8 @@ export const useChatStore = defineStore('chat', () => {
       }
       
       return docRef.id;
-    } catch (err: any) {
-      console.error('🔥 Error creating chat:', err);
+    } catch (err) {
+      console.error('Error creating chat:', err);
       error.value = 'Failed to create a new chat.';
       return null;
     } finally {
@@ -172,22 +194,30 @@ export const useChatStore = defineStore('chat', () => {
     }
   }
   
-  // 💬 **Send Message with AI Response Streaming**
-  async function sendMessage(content: string) {
-    if (!currentUserId.value || !currentChat.value) return;
+  // Send Message with AI Response
+  async function sendMessage(content) {
+    if (!currentUserId.value && auth.currentUser) {
+      currentUserId.value = auth.currentUser.uid;
+    }
+    
+    if (!currentUserId.value || !currentChat.value) {
+      error.value = 'User not authenticated or no active chat';
+      return null;
+    }
 
     isLoading.value = true;
     error.value = null;
 
     try {
-      const chatRef = doc(db(), 'chats', currentChat.value.id);  // FIXED: Using db() function
+      const chatRef = doc(db, 'chats', currentChat.value.id);
 
-      // ✅ Add user message instantly to Firestore
-      const userMessage: Message = {
+      // Add user message to Firestore
+      const userMessage = {
         content,
         role: 'user',
         timestamp: new Date()
       };
+      
       await updateDoc(chatRef, {
         messages: arrayUnion(userMessage),
         updatedAt: serverTimestamp()
@@ -199,26 +229,26 @@ export const useChatStore = defineStore('chat', () => {
       }
       currentChat.value.messages.push(userMessage);
 
-      // ✅ Get AI Response
-      const messages = currentChat.value.messages.map(msg => ({
-        role: msg.role,
-        content: msg.content
-      }));
+      // Get previous messages for context
+      const messageHistory = currentChat.value.messages
+        .slice(0, -1) // Exclude the message we just added
+        .map(msg => ({
+          role: msg.role,
+          content: msg.content
+        }));
 
-      // Use streaming for better UX
+      // Get AI Response
       let aiResponse = '';
+      
       await openaiService.streamCompletion(
         content,
-        messages.slice(0, -1),
+        messageHistory,
         {
-          mode: 'default',
-          temperature: 0.7,
-          maxTokens: 1000,
-          userPlan: 'free', // Default to free plan
-          onChunk: (chunk) => {
-            aiResponse += chunk;
+          systemPrompt: 'You are DawntasyAI, a helpful AI assistant from the Dawntasy universe.',
+          onChunk: (chunk, fullText) => {
+            aiResponse = fullText;
             
-            // If we're already displaying a partial response, update it
+            // Update the UI with the partial response
             const lastMessage = currentChat.value?.messages[currentChat.value.messages.length - 1];
             if (lastMessage && lastMessage.role === 'assistant') {
               lastMessage.content = aiResponse;
@@ -235,7 +265,7 @@ export const useChatStore = defineStore('chat', () => {
       );
 
       // Once complete, save the final AI response to Firestore
-      const aiMessage: Message = {
+      const aiMessage = {
         content: aiResponse,
         role: 'assistant',
         timestamp: new Date()
@@ -246,8 +276,8 @@ export const useChatStore = defineStore('chat', () => {
         updatedAt: serverTimestamp()
       });
 
-      // ✅ Auto-update chat title on first message
-      if (currentChat.value.messages.length <= 2) {
+      // Auto-update chat title on first message
+      if (currentChat.value.messages.length <= 3) {
         const title = content.length > 30 ? content.substring(0, 30) + '...' : content;
         await updateDoc(chatRef, { title });
         if (currentChat.value) {
@@ -255,8 +285,13 @@ export const useChatStore = defineStore('chat', () => {
         }
       }
 
-    } catch (err: any) {
-      console.error('🔥 Error sending message:', err);
+      return {
+        userMessage,
+        aiMessage
+      };
+
+    } catch (err) {
+      console.error('Error sending message:', err);
       error.value = 'Failed to send the message. Please try again later.';
       
       // Add error message to chat for better UX
@@ -267,6 +302,8 @@ export const useChatStore = defineStore('chat', () => {
           timestamp: new Date()
         });
       }
+      
+      return null;
     } finally {
       isLoading.value = false;
     }

@@ -1182,3 +1182,4 @@ export const openaiService = {
 export const useOpenAI = () => {
   return openaiService;
 };
+

@@ -14,16 +14,14 @@ import './assets/css/main.css';
 // Import icons - explicitly import to prevent tree-shaking
 import 'remixicon/fonts/remixicon.css';
 
-// Create Pinia store FIRST
-const pinia = createPinia();
-
-// Create app instance
+// Create app instance first
 const app = createApp(App);
 
-// Initialize Pinia store before anything else
+// Initialize Pinia store BEFORE anything else to avoid the "_s" error
+const pinia = createPinia();
 app.use(pinia);
 
-// Initialize router
+// Initialize router AFTER pinia
 app.use(router);
 
 // Register global directives
@@ -147,7 +145,6 @@ async function initApp() {
     }
   }
 }
-console.log("API Key:", import.meta.env.VITE_OPENAI_API_KEY);
 
 // Start the application
 initApp();
