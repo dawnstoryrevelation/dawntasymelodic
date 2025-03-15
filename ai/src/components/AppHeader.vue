@@ -1,6 +1,6 @@
 <template>
   <header class="cosmic-header" ref="headerElement">
-    <!-- Constellation Background -->
+    <!-- Constellation Background aaa -->
     <div class="constellation-bg" ref="constellationBg"></div>
     
     <!-- Animated Logo & Navigation -->

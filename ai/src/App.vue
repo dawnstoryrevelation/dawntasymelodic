@@ -34,8 +34,8 @@
 </template>
 
 <script setup>
-// Import components directly to ensure they're included
-import { ref, computed, onMounted } from 'vue';
+// Import components and Vue APIs, including defineAsyncComponent to fix the error
+import { ref, computed, onMounted, defineAsyncComponent } from 'vue';
 import { useRoute } from 'vue-router';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from './firebase/init';
