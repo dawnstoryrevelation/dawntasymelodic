@@ -231,7 +231,7 @@ function forgotPassword() {
 <style scoped>
 
 .login-container {
-  min-height: 100vh;
+  max-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -307,7 +307,6 @@ function forgotPassword() {
 
 /* Login content */
 .login-content {
-  max-height:100vh;
   position: relative;
   z-index: 1;
   width: 100%;
@@ -317,7 +316,6 @@ function forgotPassword() {
 
 /* Login card */
 .login-card {
-  max-height:100vh;
   background: rgba(15, 23, 42, 0.8);
   backdrop-filter: blur(10px);
   border-radius: 1rem;
@@ -388,7 +386,7 @@ function forgotPassword() {
 }
 
 .login-title {
-  font-size: 1.5rem;
+  font-size: 1rem;
   font-weight: 700;
   margin-bottom: 0.5rem;
   color: white;
