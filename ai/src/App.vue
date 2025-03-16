@@ -10,6 +10,7 @@
       <!-- App Header -->
 
       <!-- Sidebar -->
+    
       <AppSidebar 
         v-if="isAuthenticated && showSidebar" 
         :active-route="currentRoute"
@@ -99,7 +100,7 @@ onMounted(() => {
 
 <style>
 .dawntasy-app-container {
-  min-height: 100vh;
+  max-height: 100vh;
   background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #4c1d95 100%);
   /* Cosmic vibes—SPARKLE SPARKLE! ✨ */
 }
