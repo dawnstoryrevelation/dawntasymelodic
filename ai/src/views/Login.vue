@@ -3,15 +3,15 @@
     <!-- Cosmic background with animated particles -->
     <div class="cosmic-particles">
       <div v-for="n in 50" :key="`particle-${n}`" 
-           class="cosmic-particle"
-           :style="{
+          class="cosmic-particle"
+          :style="{
              '--size': `${Math.random() * 3 + 1}px`,
              '--x': `${Math.random() * 100}%`,
              '--y': `${Math.random() * 100}%`,
              '--duration': `${Math.random() * 40 + 20}s`,
              '--delay': `${Math.random() * -20}s`,
              '--opacity': Math.random() * 0.4 + 0.1
-           }"
+          }"
       ></div>
     </div>
     
@@ -229,6 +229,11 @@ function forgotPassword() {
 </script>
 
 <style scoped>
+
+body {
+  height:100%;
+}
+
 .login-container {
   min-height: 100vh;
   display: flex;
