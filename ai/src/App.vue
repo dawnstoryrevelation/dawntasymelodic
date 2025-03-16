@@ -74,7 +74,6 @@ const handleMouseMove = (event) => {
 
 // Initialize auth state
 onMounted(() => {
-  const unsubscribe = onAuthStateChanged(auth(), (user) => {
     isAuthenticated.value = !!user;
     
     if (user) {
