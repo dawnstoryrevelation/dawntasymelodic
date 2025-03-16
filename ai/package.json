@@ -7,11 +7,11 @@
   "scripts": {
     "dev": "vite",
     "cleanup": "node cleanup.js",
-    "build": "npm run cleanup && vite build",
+    "build": "npm run build && vite build",
     "preview": "vite preview",
     "lint": "eslint . --ext .vue,.js,.ts",
     "lint:fix": "eslint . --ext .vue,.js,.ts --fix",
-    "deploy": "npm run build && netlify deploy --prod"
+    "deploy": "firebase deploy && netlify deploy --prod"
   },
   "dependencies": {
     "@vue/runtime-dom": "^3.5.13",
