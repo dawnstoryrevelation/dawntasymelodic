@@ -1,9 +1,9 @@
 <template>
     <div class="message-container" :class="{ 
-    'user-message': isUser, 
-    'ai-message': !isUser,
-    'generating': isGenerating
-  }">
+      'user-message': isUser, 
+      'ai-message': !isUser,
+      'generating': isGenerating
+    }">
       <!-- Avatar (only shown for AI) -->
       <div v-if="!isUser" class="avatar-container">
         <div class="ai-avatar">
@@ -52,12 +52,14 @@
   </template>
   
   <script setup>
+  // Importing the COOLEST crew—marked’s got a new groove! 🕺
   import { ref, computed, onMounted } from 'vue';
   import { format } from 'date-fns';
-  import marked from 'marked';
-  import DOMPurify from 'dompurify';
-  import axios from 'axios';
+  import { marked } from 'marked'; // FIXED! Named export—BOOGIE DOWN, BRO! 🎶
+  import DOMPurify from 'dompurify'; // Freshly installed—SPARKLE SPARKLE! ✨
+  import axios from 'axios'; // Ready to chat with the cosmos! 🌌
   
+  // Props—gimme the JUICY bits! 🍇
   const props = defineProps({
     content: {
       type: String,
@@ -77,19 +79,18 @@
     }
   });
   
+  // Emits—shouting to the rooftops like a cosmic parrot! 🦜
   const emit = defineEmits(['regenerate', 'elaborate', 'copy', 'responseUpdated']);
   
   const messageContent = ref(null);
   const isGenerating = ref(false);
-  const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
+  const apiKey = import.meta.env.VITE_OPENAI_API_KEY; // Secret key—SHHH, don’t tell the aliens! 👽
   
-  // Format message content with markdown
+  // Format message content—markdown madness with a sanitize twist! 🎉
   const formattedContent = computed(() => {
-    // Parse markdown and sanitize HTML
-    const rawHtml = marked(props.content);
-    const sanitizedHtml = DOMPurify.sanitize(rawHtml);
+    const rawHtml = marked(props.content); // Markdown’s doing the funky chicken! 🐔💃
+    const sanitizedHtml = DOMPurify.sanitize(rawHtml); // DOMPurify’s the cleanup crew—SWEEP SWEEP! 🧹
     
-    // Detect and highlight Dawntasy keywords
     const keywords = [
       'Time Smith', 
       'The Rift', 
@@ -103,55 +104,44 @@
     let highlightedHtml = sanitizedHtml;
     keywords.forEach(keyword => {
       const regex = new RegExp(`\\b${keyword}\\b`, 'g');
-      highlightedHtml = highlightedHtml.replace(regex, `<span class="cosmic-keyword">${keyword}</span>`);
+      highlightedHtml = highlightedHtml.replace(regex, `<span class="cosmic-keyword">${keyword}</span>`); // Keywords glowing like disco lights! 🪩
     });
     
     return highlightedHtml;
   });
   
-  // Format timestamp
+  // Format timestamp—time’s ticking in style! ⏰
   const formattedTime = computed(() => {
     const date = new Date(props.timestamp);
-    return format(date, 'h:mm a');
+    return format(date, 'h:mm a'); // Clock’s strutting its stuff—FANCY! 💅
   });
   
-  // OpenAI API integration
+  // OpenAI API—calling the big brain in the sky! 🌠
   async function callOpenAI(prompt, systemMessage = null) {
     if (!apiKey) {
-      console.error('OpenAI API key is missing');
+      console.error('OpenAI API key is missing—WHERE’S MY TICKET TO THE STARS?! 🚀');
       return { error: 'API key is missing' };
     }
-  
-    isGenerating.value = true;
+    
+    isGenerating.value = true; // Spinning up like a cosmic top—WHEEEE! 🎡
     
     try {
-      // Prepare the messages for the API call
       const messages = [];
       
-      // Add system message if provided
       if (systemMessage) {
-        messages.push({
-          role: 'system',
-          content: systemMessage
-        });
+        messages.push({ role: 'system', content: systemMessage });
       } else {
-        // Default system message with DawntasyAI persona
         messages.push({
           role: 'system',
           content: `You are DawntasyAI, a cosmic AI assistant with deep knowledge of the Dawntasy universe. 
           This universe features concepts like Time Smith, The Rift, Bear Village, and the Plain and Pale Clock.
           Weave these elements naturally into your responses when relevant, but stay focused on answering the user's question.
-          Be thoughtful, precise, and occasionally mysterious.`
+          Be thoughtful, precise, and occasionally mysterious—like a space wizard with a funky hat! 🧙‍♂️👒`
         });
       }
       
-      // Add the user prompt
-      messages.push({
-        role: 'user',
-        content: prompt
-      });
+      messages.push({ role: 'user', content: prompt });
       
-      // Make the API call
       const response = await axios.post(
         'https://api.openai.com/v1/chat/completions',
         {
@@ -168,33 +158,27 @@
         }
       );
       
-      // Return the response
       return {
         content: response.data.choices[0].message.content,
         timestamp: new Date()
-      };
+      }; // Fresh AI vibes—SLURP SLURP! 🥤
     } catch (error) {
-      console.error('OpenAI API error:', error);
+      console.error('OpenAI API error—OOF, TRIPPED ON A STAR! ⭐', error);
       return { 
         error: error.response?.data?.error?.message || 'Error communicating with OpenAI',
         timestamp: new Date()
       };
     } finally {
-      isGenerating.value = false;
+      isGenerating.value = false; // Chillax mode—PHEW, BRO! 😌
     }
   }
   
-  // Interaction handlers
+  // Interaction handlers—BUTTON BASHING PARTY! 🎮
   async function regenerateResponse() {
     if (props.isUser || isGenerating.value) return;
     
-    // If this is an AI message, regenerate it
     try {
-      // Extract previous user message from parent component context
-      // This is a simplified approach; ideally the parent would provide this context
       const userMessage = "Please regenerate your previous response";
-      
-      // Call OpenAI API with request to regenerate
       const result = await callOpenAI(userMessage, 
         `You previously responded to a user. They asked you to regenerate your response.
         Create a new response that covers the same topic but with different wording and examples.
@@ -205,14 +189,13 @@
       if (result.error) {
         emit('regenerate', { error: result.error });
       } else {
-        // Emit the new response to parent
         emit('regenerate', { 
           content: result.content, 
           timestamp: result.timestamp 
-        });
+        }); // New hotness—BOOM SHAKA LAKA! 💥
       }
     } catch (err) {
-      console.error('Error regenerating response:', err);
+      console.error('Error regenerating response—CRASH LANDING! 🛸', err);
       emit('regenerate', { error: 'Failed to regenerate response' });
     }
   }
@@ -221,52 +204,49 @@
     if (props.isUser || isGenerating.value) return;
     
     try {
-      // Call OpenAI API with request to elaborate
       const result = await callOpenAI(
         "Please elaborate on your previous response with more depth and detail",
         `You previously responded to a user with this message: "${props.content}"
         The user would like you to elaborate on this response with more depth and detail.
         Provide a more comprehensive explanation, additional examples, or deeper insights.
         Include references to the Dawntasy universe concepts like Time Smith, The Rift, or the Plain and Pale Clock
-        where appropriate.`
+        where appropriate—go wild like a cosmic disco bear! 🐻🪩`
       );
       
       if (result.error) {
         emit('elaborate', { error: result.error });
       } else {
-        // Emit the elaborated response to parent
         emit('elaborate', { 
           content: result.content, 
           timestamp: result.timestamp 
-        });
+        }); // Extra juicy details—ZAP ZAP! ⚡
       }
     } catch (err) {
-      console.error('Error elaborating response:', err);
+      console.error('Error elaborating response—WHOOPSIE DOODLE! 🙈', err);
       emit('elaborate', { error: 'Failed to elaborate response' });
     }
   }
   
   function copyResponse() {
     if (navigator.clipboard && messageContent.value) {
-      // Get text content without HTML tags
       const textContent = messageContent.value.textContent || messageContent.value.innerText;
       navigator.clipboard.writeText(textContent)
         .then(() => {
-          // Show copy success animation
           const bubble = messageContent.value.closest('.message-bubble');
           if (bubble) {
             bubble.classList.add('copied');
-            setTimeout(() => bubble.classList.remove('copied'), 1500);
+            setTimeout(() => bubble.classList.remove('copied'), 1500); // Copy dance—WIGGLE WIGGLE, BRO! 💃
           }
         })
         .catch(err => {
-          console.error('Failed to copy: ', err);
+          console.error('Failed to copy—CLIPBOARD’S THROWING A FIT! 😢', err);
         });
     }
   }
   </script>
   
   <style scoped>
+  /* ALL THE GROOVY STYLES—TOO HIP TO QUIT! 😎 */
   /* Container styles */
   .message-container {
     display: flex;
@@ -286,7 +266,7 @@
   }
   
   .message-container.generating .ai-bubble {
-    opacity: 0.7;
+    opacity: 0.7; 
   }
   
   /* Avatar styles */
@@ -312,7 +292,7 @@
     height: 16px;
     border-radius: 50%;
     background: linear-gradient(135deg, #8b5cf6, #4f46e5);
-    box-shadow: 0 0 8px rgba(139, 92, 246, 0.5);
+    box-shadow: 0 0 8px rgba(139, 92, 246, 0.5); 
   }
   
   .avatar-orbit {
@@ -321,7 +301,7 @@
     height: 100%;
     border-radius: 50%;
     border: 1px dashed rgba(139, 92, 246, 0.4);
-    animation: orbit-rotation 10s linear infinite;
+    animation: orbit-rotation 10s linear infinite; 
   }
   
   .orbit-dot {
@@ -357,7 +337,7 @@
     border-radius: 12px 12px 0 12px;
     margin-left: auto;
     box-shadow: 0 2px 8px rgba(14, 165, 233, 0.3);
-    animation: slide-in-right 0.3s ease forwards;
+    animation: slide-in-right 0.3s ease forwards; 
   }
   
   .ai-bubble {
@@ -400,7 +380,7 @@
     padding: 2px 4px;
     border-radius: 4px;
     font-family: 'Roboto Mono', monospace;
-    font-size: 0.9em;
+    font-size: 0.9em; 
   }
   
   .message-text pre {
@@ -417,7 +397,7 @@
     color: #8b5cf6;
     font-weight: 500;
     text-shadow: 0 0 5px rgba(139, 92, 246, 0.5);
-    transition: all 0.3s ease;
+    transition: all 0.3s ease; 
   }
   
   .cosmic-keyword:hover {
@@ -471,7 +451,7 @@
     height: 4px;
     background: #e0e7ff;
     border-radius: 50%;
-    animation: typing-orbit 1.5s linear infinite;
+    animation: typing-orbit 1.5s linear infinite; 
   }
   
   @keyframes typing-orbit {
@@ -499,7 +479,7 @@
   
   .ai-bubble:hover .interaction-bar {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(0); 
   }
   
   .generating .interaction-bar {
@@ -549,7 +529,7 @@
     justify-content: center;
     font-weight: 500;
     border-radius: 12px;
-    animation: copy-fade 1.5s forwards;
+    animation: copy-fade 1.5s forwards; 
   }
   
   @keyframes copy-fade {
