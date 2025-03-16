@@ -230,11 +230,6 @@ function forgotPassword() {
 
 <style scoped>
 
-template {
-  height:100%;
-  background-color:blue;
-}
-
 .login-container {
   min-height: 100vh;
   display: flex;
@@ -312,6 +307,7 @@ template {
 
 /* Login content */
 .login-content {
+  max-height:100vh;
   position: relative;
   z-index: 1;
   width: 100%;
@@ -321,6 +317,7 @@ template {
 
 /* Login card */
 .login-card {
+  max-height:100vh;
   background: rgba(15, 23, 42, 0.8);
   backdrop-filter: blur(10px);
   border-radius: 1rem;
@@ -391,7 +388,7 @@ template {
 }
 
 .login-title {
-  font-size: 2rem;
+  font-size: 1.5rem;
   font-weight: 700;
   margin-bottom: 0.5rem;
   color: white;
