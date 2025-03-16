@@ -6,13 +6,13 @@
     <!-- Floating Meteors -->
     <div class="meteors-container">
       <div v-for="n in 5" :key="`meteor-${n}`" 
-           class="meteor"
-           :style="{
+          class="meteor"
+          :style="{
              '--delay': `${n * 3}s`,
              '--duration': `${Math.random() * 3 + 4}s`,
              '--top': `${Math.random() * 30}%`,
              '--left': `${Math.random() * 100}%`
-           }"
+          }"
       ></div>
     </div>
     
@@ -70,9 +70,9 @@
       <div class="features-grid" ref="featuresGrid">
         <!-- Feature Card 1 -->
         <div class="feature-card" 
-             ref="featureCard1"
-             @mouseenter="animateFeature"
-             @mouseleave="resetFeature"
+            ref="featureCard1"
+            @mouseenter="animateFeature"
+            @mouseleave="resetFeature"
         >
           <div class="feature-glow"></div>
           <div class="feature-icon">
@@ -91,9 +91,9 @@
         
         <!-- Feature Card 2 -->
         <div class="feature-card" 
-             ref="featureCard2"
-             @mouseenter="animateFeature"
-             @mouseleave="resetFeature"
+            ref="featureCard2"
+            @mouseenter="animateFeature"
+            @mouseleave="resetFeature"
         >
           <div class="feature-glow"></div>
           <div class="feature-icon">
@@ -110,9 +110,9 @@
         
         <!-- Feature Card 3 -->
         <div class="feature-card" 
-             ref="featureCard3"
-             @mouseenter="animateFeature"
-             @mouseleave="resetFeature"
+            ref="featureCard3"
+            @mouseenter="animateFeature"
+            @mouseleave="resetFeature"
         >
           <div class="feature-glow"></div>
           <div class="feature-icon">

@@ -3,15 +3,15 @@
       <!-- Cosmic Background Effects -->
       <div class="cosmic-particles">
         <div v-for="n in 50" :key="`particle-${n}`" 
-             class="cosmic-particle"
-             :style="{
+            class="cosmic-particle"
+            :style="{
                '--size': `${Math.random() * 4 + 1}px`,
                '--x': `${Math.random() * 100}%`,
                '--y': `${Math.random() * 100}%`,
                '--duration': `${Math.random() * 50 + 30}s`,
                '--delay': `${Math.random() * -30}s`,
                '--opacity': Math.random() * 0.5 + 0.2
-             }"
+            }"
         ></div>
       </div>
       

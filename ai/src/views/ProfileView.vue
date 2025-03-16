@@ -9,7 +9,7 @@
       
       <!-- Floating Magic Runes -->
       <div v-for="(rune, index) in 5" :key="`rune-${index}`" 
-           :class="`magic-rune rune-${index}`" :ref="`rune${index}`"></div>
+          :class="`magic-rune rune-${index}`" :ref="`rune${index}`"></div>
       
       <!-- Cosmic Portals -->
       <div class="cosmic-portal portal-left"></div>
@@ -68,7 +68,7 @@
           
           <div class="stats-grid">
             <div v-for="(stat, index) in userStats" :key="`stat-${index}`" 
-                 class="stat-card" :ref="`statCard${index}`">
+                class="stat-card" :ref="`statCard${index}`">
               <div class="stat-icon" :class="stat.icon"></div>
               <div class="stat-value" ref="statValues">{{ stat.value }}</div>
               <div class="stat-label">{{ stat.label }}</div>

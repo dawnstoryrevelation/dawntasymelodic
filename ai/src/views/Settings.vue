@@ -3,15 +3,15 @@
     <!-- Cosmic background -->
     <div class="cosmic-background">
       <div v-for="n in 30" :key="`particle-${n}`" 
-           class="cosmic-particle"
-           :style="{
+          class="cosmic-particle"
+          :style="{
              '--size': `${Math.random() * 3 + 1}px`,
              '--x': `${Math.random() * 100}%`,
              '--y': `${Math.random() * 100}%`,
              '--duration': `${Math.random() * 40 + 20}s`,
              '--delay': `${Math.random() * -20}s`,
              '--opacity': Math.random() * 0.4 + 0.1
-           }"
+          }"
       ></div>
     </div>
     
@@ -256,7 +256,7 @@ onMounted(() => {
 <style scoped>
 .settings-container {
   min-height: 100vh;
-  background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #4c1d95 100%);
+  background: linear-gradient(135deg, #0A0068 0%, #26007B 1e1b4b 50%, #42008D 100%);
   position: relative;
 }
 
