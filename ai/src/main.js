@@ -105,5 +105,42 @@ async function initApp() {
     }
   }
 }
+// Add this to your main.js or near the top of your application to check for environment variables
+
+// Environment variable check
+function checkEnvVariables() {
+  const requiredVars = [
+    'VITE_FIREBASE_API_KEY',
+    'VITE_FIREBASE_AUTH_DOMAIN',
+    'VITE_FIREBASE_PROJECT_ID',
+    'VITE_FIREBASE_STORAGE_BUCKET',
+    'VITE_FIREBASE_MESSAGING_SENDER_ID',
+    'VITE_FIREBASE_APP_ID',
+    'VITE_OPENAI_API_KEY'
+  ];
+  
+  const missingVars = [];
+  
+  for (const varName of requiredVars) {
+    if (!import.meta.env[varName]) {
+      missingVars.push(varName);
+    }
+  }
+  
+  if (missingVars.length > 0) {
+    console.warn('⚠️ Missing environment variables:', missingVars.join(', '));
+    
+    // For OpenAI API key specifically, log a more detailed message
+    if (missingVars.includes('VITE_OPENAI_API_KEY')) {
+      console.warn('⚠️ VITE_OPENAI_API_KEY is missing. This is required for API calls to OpenAI.');
+      console.info('ℹ️ The TestTheAI component will use user-provided API keys.');
+    }
+  } else {
+    console.log('✅ All environment variables are present');
+  }
+}
+
+// Run the check
+checkEnvVariables();
 
 initApp();

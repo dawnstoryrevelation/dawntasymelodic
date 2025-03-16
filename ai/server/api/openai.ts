@@ -969,7 +969,7 @@ const generateCompletion = async (
     try {
       const response = await axios.post<ChatResponse>(
         apiEndpoint,
-        request,
+        Request,
         {
           headers: {
             'Content-Type': 'application/json',
@@ -1181,5 +1181,38 @@ export const openaiService = {
 // For backward compatibility - fixed to not depend on Pinia store
 export const useOpenAI = () => {
   return openaiService;
+
 };
 
+// In src/server/api/openai.ts, update the API key handling:
+
+// Get API key - FIXED CRITICAL ISSUE
+if (!API_KEY || typeof API_KEY !== 'string' || API_KEY.trim() === '') {
+  throw new Error('OpenAI API key is missing or invalid');
+}
+
+const apiKey = API_KEY.trim();
+
+// Then update where the API key is used for headers:
+const headers = {
+  'Content-Type': 'application/json',
+  'Authorization': `Bearer ${apiKey}`
+};
+
+// And when making the API request:
+const isProduction = import.meta.env.MODE === 'production';
+const apiEndpoint = isProduction 
+  ? `/api/openai`  // UPDATED for subdomain
+  : API_URL;          // Use direct API in development
+
+(async () => {
+  const controller = new AbortController();
+  const response = await axios.post<ChatResponse>(
+    apiEndpoint,
+    Request,
+    {
+      headers,
+      signal: controller.signal
+    }
+  );
+})();

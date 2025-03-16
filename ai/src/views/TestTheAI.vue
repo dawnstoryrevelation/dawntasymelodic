@@ -166,94 +166,135 @@ export default {
       }
     };
 
-    // Send message to OpenAI API
-    const sendMessage = async (text) => {
-      const messageText = text || userInput.value.trim();
-      if (!messageText || isLoading.value) return;
-      
-      // Clear input
-      userInput.value = '';
-      
-      // Add user message to chat
+    // In the sendMessage function within TestTheAI.vue, modify the API call section:
+
+const sendMessage = async (text) => {
+  if (!hasApiKey.value) {
+    alert("Please enter your OpenAI API key first to use the preview.");
+    return;
+  }
+  
+  const messageText = text || userInput.value.trim();
+  if (!messageText) return;
+  
+  // Add user message to chat
+  messages.value.push({
+    role: 'user',
+    content: messageText,
+    timestamp: Date.now()
+  });
+  
+  // Clear input field
+  userInput.value = '';
+  if (inputField.value) inputField.value.style.height = 'auto';
+  
+  // Scroll to bottom
+  await scrollToBottom();
+  
+  // Start loading state
+  isLoading.value = true;
+  
+  try {
+    // Use OpenAI API directly from client (this is just for preview purposes)
+    const response = await axios.post('https://api.openai.com/v1/chat/completions', {
+      model: 'gpt-3.5-turbo',
+      messages: [
+        { role: 'system', content: getDawntasySystemPrompt() },
+        ...messages.value.map(msg => ({
+          role: msg.role,
+          content: msg.content
+        }))
+      ],
+      temperature: 0.7,
+      max_tokens: 1000,
+    }, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey.value.trim()}`  // Make sure to trim the API key
+      }
+    });
+    
+    // Add assistant's response
+    if (response.data && response.data.choices && response.data.choices[0] && response.data.choices[0].message) {
+      const aiContent = response.data.choices[0].message.content;
       messages.value.push({
-        role: 'user',
-        content: messageText,
+        role: 'assistant',
+        content: aiContent,
         timestamp: Date.now()
       });
-      
-      // Scroll to bottom
-      scrollToBottom();
-      
-      // Set loading state
-      isLoading.value = true;
-      
-      try {
-        // Make direct API call to OpenAI
-        const response = await axios.post(
-          'https://api.openai.com/v1/chat/completions',
-          {
-            model: 'gpt-3.5-turbo',
-            messages: [
-              {
-                role: 'system',
-                content: getDawntasySystemPrompt()
-              },
-              ...messages.value.map(msg => ({
-                role: msg.role,
-                content: msg.content
-              }))
-            ],
-            temperature: 0.7,
-            max_tokens: 1000
-          },
-          {
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${localStorage.getItem('dawntasy_api_key')}`
-            }
-          }
-        );
-        
-        // Add AI response to messages
-        if (response.data?.choices?.[0]?.message?.content) {
-          messages.value.push({
-            role: 'assistant',
-            content: response.data.choices[0].message.content,
-            timestamp: Date.now()
-          });
-        } else {
-          throw new Error('Invalid response from API');
-        }
-      } catch (error) {
-        console.error('API Error:', error);
-        
-        // Add error message
-        let errorMessage = "I'm having trouble connecting to OpenAI. ";
-        
-        if (error.response) {
-          if (error.response.status === 401) {
-            errorMessage += "Your API key might be invalid or expired. Please check and update your API key.";
-          } else if (error.response.data?.error?.message) {
-            errorMessage += error.response.data.error.message;
-          } else {
-            errorMessage += error.message || "An unknown error occurred.";
-          }
-        } else if (error.request) {
-          errorMessage += "No response was received from the API. Please check your internet connection.";
-        } else {
-          errorMessage += error.message || "An unknown error occurred.";
-        }
-        
-        messages.value.push({
-          role: 'assistant',
-          content: errorMessage,
-          timestamp: Date.now()
-        });
-      } finally {
-        isLoading.value = false;
-        scrollToBottom();
+    } else {
+      throw new Error("Invalid response from API");
+    }
+    
+  } catch (error) {
+    console.error('Error sending message:', error);
+    let errorMessage = "⚠️ *The Rift appears to be unstable at the moment.* I'm having trouble connecting to the cosmic streams.";
+    
+    if (error.response) {
+      if (error.response.status === 401) {
+        errorMessage += "\n\n**API Key Error**: Your API key appears to be invalid or expired. Please check and update your API key. Make sure you're entering a valid OpenAI API key that begins with 'sk-'.";
+      } else if (error.response.data && error.response.data.error) {
+        errorMessage += "\n\n**Error Details**: " + error.response.data.error.message;
+      } else {
+        errorMessage += "\n\n**Error**: " + error.message;
       }
-    };
+    } else {
+      errorMessage += "\n\nNetwork error or CORS issue. This could be because:";
+      errorMessage += "\n1. Your ad blocker might be preventing the API call";
+      errorMessage += "\n2. Your browser might be blocking the connection";
+      errorMessage += "\n3. The OpenAI API might be experiencing issues";
+      errorMessage += "\n\nTry disabling any content blockers or using a different browser.";
+    }
+    
+    messages.value.push({
+      role: 'assistant',
+      content: errorMessage,
+      timestamp: Date.now()
+    });
+  } finally {
+    isLoading.value = false;
+    await nextTick();
+    scrollToBottom();
+  }
+};
+
+// Also modify the saveApiKey function to ensure proper trimming and validation:
+const saveApiKey = () => {
+  const trimmedKey = apiKey.value.trim();
+  
+  if (trimmedKey.length > 0) {
+    // Basic validation - OpenAI keys typically start with "sk-"
+    if (!trimmedKey.startsWith('sk-')) {
+      alert("Warning: This doesn't look like a valid OpenAI API key. API keys typically start with 'sk-'. Please check your key.");
+    }
+    
+    localStorage.setItem('dawntasy_api_key', trimmedKey);
+    hasApiKey.value = true;
+  } else {
+    alert("Please enter a valid API key.");
+  }
+};
+
+// Update the onMounted hook to handle the API key more carefully:
+onMounted(() => {
+  const storedApiKey = localStorage.getItem('dawntasy_api_key');
+  if (storedApiKey && storedApiKey.trim() !== '') {
+    apiKey.value = storedApiKey.trim();
+    hasApiKey.value = true;
+  }
+  
+  // Focus input field
+  inputField.value?.focus();
+  
+  // Set up animations
+  document.querySelectorAll('.cosmic-particle').forEach(particle => {
+    particle.style.animationPlayState = 'running';
+  });
+  
+  document.querySelectorAll('.cosmic-ring').forEach(ring => {
+    ring.style.animationPlayState = 'running';
+  });
+});
 
     // System prompt based on selected mode
     const getDawntasySystemPrompt = () => {
