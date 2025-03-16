@@ -75,7 +75,6 @@
     <!-- Footer -->
     <div class="footer">
       <p>This is a preview environment. Your conversations are not saved.</p>
-      <p>Your API key is used only for this preview session.</p>
     </div>
   </div>
 </template>
@@ -146,9 +145,7 @@ const getDawntasySystemPrompt = () => {
   }
 };
 
-// No longer need the saveApiKey function
-
-// Send message to backend API
+// Send message directly to OpenAI API
 const sendMessage = async (text) => {
   const messageText = text || userInput.value.trim();
   if (!messageText) return;
@@ -171,9 +168,9 @@ const sendMessage = async (text) => {
   isLoading.value = true;
   
   try {
-    // Instead of using OpenAI API directly, use a simple relay API endpoint
-    // This endpoint will use the server's API key, not requiring the user to provide one
-    const response = await axios.post('/api/chat', {
+    // Direct call to OpenAI API
+    const response = await axios.post('https://api.openai.com/v1/chat/completions', {
+      model: 'gpt-3.5-turbo',
       messages: [
         { role: 'system', content: getDawntasySystemPrompt() },
         ...messages.value.map(msg => ({
@@ -182,12 +179,16 @@ const sendMessage = async (text) => {
         }))
       ],
       temperature: 0.7,
-      max_tokens: 1000,
-      model: 'gpt-3.5-turbo'
+      max_tokens: 1000
+    }, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${import.meta.env.VITE_OPENAI_API_KEY}`
+      }
     });
     
     // Add assistant's response
-    if (response.data && response.data.choices && response.data.choices[0] && response.data.choices[0].message) {
+    if (response.data?.choices?.[0]?.message) {
       const aiContent = response.data.choices[0].message.content;
       messages.value.push({
         role: 'assistant',
@@ -197,24 +198,14 @@ const sendMessage = async (text) => {
     } else {
       throw new Error("Invalid response from API");
     }
-    
   } catch (error) {
     console.error('Error sending message:', error);
     let errorMessage = "⚠️ *The Rift appears to be unstable at the moment.* I'm having trouble connecting to the cosmic streams.";
     
     if (error.response) {
-      if (error.response.status === 401) {
-        errorMessage += "\n\n**API Key Error**: The application's API key appears to be invalid. Please contact support.";
-      } else if (error.response.data && error.response.data.error) {
-        errorMessage += "\n\n**Error Details**: " + error.response.data.error.message;
-      } else {
-        errorMessage += "\n\n**Error**: " + error.message;
-      }
+      errorMessage += "\n\n**Error Details**: " + (error.response.data?.error?.message || error.message);
     } else {
-      errorMessage += "\n\nNetwork error or connection issue. This could be because:";
-      errorMessage += "\n1. Your ad blocker might be preventing the API call";
-      errorMessage += "\n2. The server might be experiencing issues";
-      errorMessage += "\n\nPlease try again in a moment.";
+      errorMessage += "\n\n**Connection Error**: Unable to reach the AI service. Please try again later.";
     }
     
     messages.value.push({
@@ -278,8 +269,6 @@ onMounted(() => {
 .description {
   color: rgba(255, 255, 255, 0.7);
 }
-
-/* Removed API key section styles */
 
 .btn {
   background: linear-gradient(to right, #8b5cf6, #6d28d9);
