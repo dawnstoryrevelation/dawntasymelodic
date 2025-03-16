@@ -3,15 +3,15 @@
     <!-- COSMIC BACKGROUND WITH ANIMATED PARTICLES -->
     <div class="particle-container">
       <div v-for="n in 50" :key="`particle-${n}`" 
-           class="cosmic-particle"
-           :style="{
+          class="cosmic-particle"
+          :style="{
              '--size': `${Math.random() * 4 + 1}px`,
              '--x': `${Math.random() * 100}%`,
              '--y': `${Math.random() * 100}%`,
              '--duration': `${Math.random() * 50 + 30}s`,
              '--delay': `${Math.random() * -30}s`,
              '--opacity': Math.random() * 0.5 + 0.2
-           }"
+          }"
       ></div>
     </div>
     
@@ -136,14 +136,14 @@
           <div class="input-energy-field" :class="{ 'active': userInput.length > 0 }">
             <div class="energy-particles">
               <div v-for="n in 20" :key="`energy-particle-${n}`" 
-                   class="energy-particle"
-                   :style="{
+                  class="energy-particle"
+                  :style="{
                      '--size': `${Math.random() * 3 + 1}px`,
                      '--x': `${Math.random() * 100}%`,
                      '--y': `${Math.random() * 100}%`,
                      '--duration': `${Math.random() * 3 + 2}s`,
                      '--delay': `${Math.random() * -2}s`
-                   }"
+                  }"
               ></div>
             </div>
           </div>
