@@ -53,13 +53,14 @@
         </div>
 
         <textarea 
-          v-model="userInput" 
-          placeholder="Type your message here..."
-          @keydown.enter.exact.prevent="sendMessage()"
-          class="message-input" 
-          :disabled="isLoading"
-          ref="inputField"
-        ></textarea>
+  v-model="userInput" 
+  placeholder="Type your message here..."
+  @keydown.enter.exact.prevent="sendMessage()"
+  class="message-input multi-line" 
+  :disabled="isLoading"
+  ref="inputField"
+></textarea>
+
         
         <button 
           @click="sendMessage()" 
@@ -535,7 +536,11 @@ onMounted(() => {
   border: 1px solid rgba(139, 92, 246, 0.3);
   color: white;
   resize: vertical;
+  /* Added for multi-line wrapping: */
+  white-space: pre-wrap;
+  word-wrap: break-word;
 }
+
 
 .send-button {
   background: #8b5cf6;
