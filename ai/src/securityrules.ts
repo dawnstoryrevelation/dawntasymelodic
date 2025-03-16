@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
-import { auth, firestore } from '../firebase';
+import { auth, firestore } from '../src/firebase/init';
 import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
 
 export const useSecurityStore = defineStore('security', () => {
