@@ -1,70 +1,72 @@
 {
-  "hosting": {
-    "public": "dist-ai",
-    "ignore": [
-      "firebase.json",
-      "**/.*",
-      "**/node_modules/**"
-    ],
-    "rewrites": [
-      {
-        "source": "/api/**",
-        "function": "chatHttpEndpoint"
-      },
-      {
-        "source": "**",
-        "destination": "/index.html"
-      }
-    ],
-    "headers": [
-      {
-        "source": "**/*.@(js|css|jpg|jpeg|png|svg|webp|gif|ico|woff|woff2)",
-        "headers": [
-          {
-            "key": "Cache-Control",
-            "value": "public, max-age=31536000, immutable"
-          }
-        ]
-      },
-      {
-        "source": "**",
-        "headers": [
-          {
-            "key": "X-Content-Type-Options",
-            "value": "nosniff"
-          },
-          {
-            "key": "X-Frame-Options",
-            "value": "DENY"
-          },
-          {
-            "key": "X-XSS-Protection",
-            "value": "1; mode=block"
-          },
-          {
-            "key": "Content-Security-Policy",
-            "value": "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net; font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net; img-src 'self' data: blob:; connect-src 'self' https://api.openai.com https://*.firebaseio.com https://*.googleapis.com"
-          }
-        ]
-      }
-    ]
+  "name": "dawntasy-ai",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "sideEffects": true,
+  "scripts": {
+    "dev": "vite",
+    "cleanup": "node cleanup.js",
+    "build": "npm run cleanup && vite build",
+    "preview": "vite preview",
+    "lint": "eslint . --ext .vue,.js,.ts",
+    "lint:fix": "eslint . --ext .vue,.js,.ts --fix",
+    "deploy": "npm run build && firebase deploy",
+    "functions:lint": "cd functions && npm run lint",
+    "functions:deploy": "firebase deploy --only functions"
   },
-  "functions": {
-    "source": "functions",
-    "predeploy": [
-      "npm --prefix \"$RESOURCE_DIR\" install",
-      "npm --prefix \"$RESOURCE_DIR\" run lint"
-    ]
+  "dependencies": {
+    "@vue/runtime-dom": "^3.5.13",
+    "@vueuse/core": "^10.11.1",
+    "@vueuse/head": "^2.0.0",
+    "animejs": "^3.2.2",
+    "aos": "^2.3.4",
+    "axios": "^1.8.3",
+    "date-fns": "^4.1.0",
+    "dompurify": "^3.2.4",
+    "dotenv": "^16.4.7",
+    "firebase": "^10.14.1",
+    "gsap": "^3.12.7",
+    "highlight.js": "^11.11.1",
+    "markdown-it": "^14.1.0",
+    "markdown-it-highlightjs": "^4.2.0",
+    "marked": "^15.0.7",
+    "motion": "^12.4.10",
+    "nprogress": "^0.2.0",
+    "openai": "^4.86.2",
+    "pinia": "^2.3.1",
+    "remixicon": "^4.6.0",
+    "three": "^0.161.0",
+    "typed.js": "^2.1.0",
+    "vue": "^3.5.13",
+    "vue-router": "^4.5.0"
   },
-  "emulators": {
-    "functions": {
-      "port": 5001
-    },
-    "hosting": {
-      "port": 5000
-    },
-    "ui": {
-      "enabled": true
-    }
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^25.0.4",
+    "@rollup/plugin-node-resolve": "^15.2.3",
+    "@tailwindcss/aspect-ratio": "^0.4.2",
+    "@tailwindcss/forms": "^0.5.10",
+    "@tailwindcss/typography": "^0.5.16",
+    "@types/aos": "^3.0.7",
+    "@types/node": "^20.10.8",
+    "@types/nprogress": "^0.2.3",
+    "@types/three": "^0.161.0",
+    "@vitejs/plugin-vue": "^5.0.3",
+    "autoprefixer": "^10.4.20",
+    "eslint": "^8.57.1",
+    "eslint-config-google": "^0.14.0",
+    "eslint-plugin-vue": "^9.19.2",
+    "firebase-tools": "^13.0.0",
+    "postcss": "^8.5.3",
+    "rollup": "^3.29.5",
+    "sass": "^1.85.1",
+    "tailwindcss": "^3.4.17",
+    "typescript": "^5.3.3",
+    "vite": "^5.0.11",
+    "vite-plugin-compression": "^0.5.1",
+    "vite-plugin-pwa": "^0.17.4"
+  },
+  "engines": {
+    "node": "18"
   }
 }
