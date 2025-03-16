@@ -8,11 +8,6 @@
     <!-- App Layout -->
     <div class="quantum-layout">
       <!-- App Header -->
-      <AppHeader 
-        v-if="isAuthenticated" 
-        :user-profile="userProfile"
-        aria-labelledby="main-navigation"
-      />
 
       <!-- Sidebar -->
       <AppSidebar 
@@ -119,6 +114,8 @@ onMounted(() => {
 .quantum-content {
   flex: 1;
   padding: 1rem;
+  min-height:100vh;
+  height:1200px;
   /* Content area—ready to SHINE! 🌟 */
 }
 

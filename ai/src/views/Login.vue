@@ -386,7 +386,7 @@ function forgotPassword() {
 }
 
 .login-title {
-  font-size: 1rem;
+  font-size: 1.5rem;
   font-weight: 700;
   margin-bottom: 0.5rem;
   color: white;
