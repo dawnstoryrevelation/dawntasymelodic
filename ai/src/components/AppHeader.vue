@@ -179,12 +179,12 @@ function closeMenu() {
 function toggleMobileMenu() {
   mobileMenuOpen.value = !mobileMenuOpen.value;
   
-  // Animate menu button
+  // Animate menu button—BURGER TIME, BRO! 🍔
   if (mobileMenuBtn.value) {
     const bars = mobileMenuBtn.value.querySelectorAll('.menu-bar');
     
     if (mobileMenuOpen.value) {
-      // Transform to X
+      // Transform to X—X MARKS THE SPOT! ✗
       gsap.to(bars[0], { 
         rotate: 45, 
         y: 8,
@@ -203,7 +203,7 @@ function toggleMobileMenu() {
         duration: 0.3
       });
     } else {
-      // Reset to hamburger
+      // Reset to hamburger—NOM NOM! 🍔
       gsap.to(bars[0], { 
         rotate: 0, 
         y: 0,
@@ -227,7 +227,7 @@ function toggleMobileMenu() {
 
 async function logout() {
   try {
-    // Animate logout
+    // Animate logout—ZOOM OUTTA HERE! 🚀
     if (profileButton.value) {
       gsap.to(profileButton.value, {
         scale: 0.8,
@@ -247,14 +247,14 @@ async function logout() {
       }
     }
   } catch (err) {
-    console.error('Logout error:', err);
+    console.error('Logout error—OOPSIE DAISY! 🌼', err);
   }
 }
 
 function animateNavLink(e: MouseEvent) {
   const target = e.currentTarget as HTMLElement;
   
-  // Glow effect
+  // Glow effect—SHINE LIKE A STAR, BRO! 🌟
   gsap.to(target, {
     textShadow: "0 0 8px rgba(139, 92, 246, 0.8)",
     color: "#8b5cf6",
@@ -262,7 +262,7 @@ function animateNavLink(e: MouseEvent) {
     duration: 0.3
   });
   
-  // Add particle effect
+  // Add particle effect—SPARKLE SPARKLE! ✨
   const particle = document.createElement('div');
   particle.className = 'nav-particle';
   target.appendChild(particle);
@@ -314,28 +314,28 @@ function onMenuLeave(el: Element, done: () => void) {
   });
 }
 
-// Initialize constellation background
+// Initialize constellation background—STARRY NIGHT, BRO! 🌠
 function initConstellation() {
   if (!constellationBg.value) return;
   
   constellationCanvas = document.createElement('canvas');
   constellationBg.value.appendChild(constellationCanvas);
   
-  // Create scene
+  // Create scene—COSMIC VIBES! 🌌
   scene = new THREE.Scene();
   
-  // Set up renderer
+  // Set up renderer—RENDER LIKE A BOSS! 🎥
   renderer = new THREE.WebGLRenderer({
     canvas: constellationCanvas,
     alpha: true,
     antialias: true
   });
   
-  // Configure camera
+  // Configure camera—ZOOM ZOOM! 📸
   camera = new THREE.PerspectiveCamera(50, window.innerWidth / 60, 0.1, 2000);
   camera.position.z = 500;
   
-  // Create stars
+  // Create stars—TWINKLE TWINKLE! ⭐
   const starGeometry = new THREE.BufferGeometry();
   const starVertices = [];
   const starColors = [];
@@ -347,10 +347,9 @@ function initConstellation() {
     
     starVertices.push(x, y, z);
     
-    // Random star colors between white, purple and blue
-    const r = Math.random() * 0.3 + 0.7; // 0.7-1.0
-    const g = Math.random() * 0.3 + 0.7; // 0.7-1.0
-    const b = 1; // Full blue
+    const r = Math.random() * 0.3 + 0.7;
+    const g = Math.random() * 0.3 + 0.7;
+    const b = 1;
     
     starColors.push(r, g, b);
   }
@@ -368,7 +367,7 @@ function initConstellation() {
   stars = new THREE.Points(starGeometry, starMaterial);
   scene.add(stars);
   
-  // Create connections between stars (constellation lines)
+  // Create connections—CONSTELLATION MAGIC! 🌃
   const lineGeometry = new THREE.BufferGeometry();
   const lineMaterial = new THREE.LineBasicMaterial({
     color: 0x8b5cf6,
@@ -379,9 +378,8 @@ function initConstellation() {
   const lineVertices = [];
   const positions = starGeometry.attributes.position.array;
   
-  // Connect some stars with lines (not all - just a subset)
   for (let i = 0; i < positions.length - 6; i += 9) {
-    if (Math.random() > 0.7) continue; // Only connect some stars
+    if (Math.random() > 0.7) continue;
     
     const x1 = positions[i];
     const y1 = positions[i + 1];
@@ -391,14 +389,12 @@ function initConstellation() {
     const y2 = positions[i + 4];
     const z2 = positions[i + 5];
     
-    // Calculate distance between stars
     const distance = Math.sqrt(
       Math.pow(x2 - x1, 2) + 
       Math.pow(y2 - y1, 2) + 
       Math.pow(z2 - z1, 2)
     );
     
-    // Only connect stars that are relatively close
     if (distance < 300) {
       lineVertices.push(x1, y1, z1);
       lineVertices.push(x2, y2, z2);
@@ -409,7 +405,7 @@ function initConstellation() {
   const lines = new THREE.LineSegments(lineGeometry, lineMaterial);
   scene.add(lines);
   
-  // Resize handler
+  // Resize handler—FIT THAT SCREEN, BRO! 📏
   const resizeHandler = () => {
     if (!headerElement.value) return;
     
@@ -421,19 +417,16 @@ function initConstellation() {
     camera.updateProjectionMatrix();
   };
   
-  // Initial sizing
   resizeHandler();
   window.addEventListener('resize', resizeHandler);
   
-  // Animation loop
+  // Animation loop—SPIN SPIN, SUGAR! 🎡
   const animate = () => {
     animationFrameId = requestAnimationFrame(animate);
     
-    // Subtle movement
     stars.rotation.y += 0.0005;
     stars.rotation.x += 0.0002;
     
-    // Mouse parallax effect if available
     if (window.mouseX !== undefined) {
       stars.rotation.y += (window.mouseX * 0.00001);
       stars.rotation.x += (window.mouseY * 0.00001);
@@ -447,16 +440,16 @@ function initConstellation() {
 
 // Lifecycle hooks
 onMounted(() => {
-  // Initialize animations
+  // Initialize animations—LET’S GET FUNKY! 💃
   initHeaderAnimations();
   
-  // Initialize constellation background
+  // Initialize constellation background—STARS ARE OUT, BRO! 🌟
   initConstellation();
   
-  // Handle clicks outside profile menu
+  // Handle clicks outside—NO SNEAKY CLICKS! 🚨
   document.addEventListener('click', handleClickOutside);
   
-  // Track mouse position for parallax
+  // Track mouse—PARALLAX PARTY! 🐭
   document.addEventListener('mousemove', handleMouseMove);
 });
 
@@ -464,7 +457,7 @@ onUnmounted(() => {
   document.removeEventListener('click', handleClickOutside);
   document.removeEventListener('mousemove', handleMouseMove);
   
-  // Clean up three.js
+  // Clean up three.js—BYE BYE, STARS! 🌠
   if (animationFrameId) {
     cancelAnimationFrame(animationFrameId);
   }
@@ -478,40 +471,46 @@ onUnmounted(() => {
   }
 });
 
-// Initialize animations
+// Initialize animations—TIME TO SHINE, BRO! ✨
 function initHeaderAnimations() {
-  // Logo animation
-  if (logoContainer.value) {
+  // Logo animation—GLOW LIKE A COSMIC DONUT! 🍩
+  if (logoContainer.value instanceof HTMLElement) { // Safety check—NO CRASHES HERE! 🚓
     const logoGlow = logoContainer.value.querySelector('.logo-glow');
-    
-    gsap.fromTo(logoGlow,
-      { scale: 0.8, opacity: 0.5 },
-      { 
-        scale: 1.2, 
-        opacity: 0.8, 
-        duration: 2,
-        repeat: -1,
-        yoyo: true,
-        ease: "sine.inOut"
-      }
-    );
+    if (logoGlow) { // Double check—GLOW’S READY! 🌟
+      gsap.fromTo(logoGlow,
+        { scale: 0.8, opacity: 0.5 },
+        { 
+          scale: 1.2, 
+          opacity: 0.8, 
+          duration: 2,
+          repeat: -1,
+          yoyo: true,
+          ease: "sine.inOut"
+        }
+      );
+    }
+  } else {
+    console.log('Logo container not ready—HOLD MY GLITTER! ✨');
   }
   
-  // Nav links entrance
-  if (navLinks.value) {
+  // Nav links entrance—SLIDE IN LIKE NINJAS! 🥷
+  if (navLinks.value instanceof HTMLElement) { // Safety check—LINKS ARE GOOD! 🔗
     const links = navLinks.value.querySelectorAll('.nav-link');
-    
-    gsap.from(links, {
-      y: -10,
-      opacity: 0,
-      stagger: 0.1,
-      duration: 0.5,
-      ease: "power2.out"
-    });
+    if (links.length > 0) { // Make sure we’ve got links—BOOM! 💥
+      gsap.from(links, {
+        y: -10,
+        opacity: 0,
+        stagger: 0.1,
+        duration: 0.5,
+        ease: "power2.out"
+      });
+    }
+  } else {
+    console.log('Nav links not found—WHERE’S MY MAP?! 🗺️');
   }
   
-  // Profile button entrance
-  if (profileButton.value) {
+  // Profile button entrance—POP IN LIKE A STAR! ⭐
+  if (profileButton.value instanceof HTMLElement) { // Safety check—BUTTON’S HERE! 🎮
     gsap.from(profileButton.value, {
       x: 20,
       opacity: 0,
@@ -519,23 +518,25 @@ function initHeaderAnimations() {
       delay: 0.4,
       ease: "back.out(1.7)"
     });
+  } else {
+    console.log('Profile button missing—WHO STOLE MY BUTTON?! 🙈');
   }
 }
 
-// Handle click outside of profile menu
+// Handle click outside—CLICK PATROL! 🚨
 function handleClickOutside(event: MouseEvent) {
   if (profileDropdown.value && !profileDropdown.value.contains(event.target as Node)) {
     showProfileMenu.value = false;
   }
 }
 
-// Handle mouse move for parallax
+// Handle mouse move—PARALLAX POWER, BRO! 🐭
 function handleMouseMove(event: MouseEvent) {
   window.mouseX = event.clientX - window.innerWidth / 2;
   window.mouseY = event.clientY - window.innerHeight / 2;
 }
 
-// Watch for route changes to close mobile menu
+// Watch for route changes—CLOSE THAT MENU, BRO! 🚪
 watch(() => router.currentRoute.value.path, () => {
   mobileMenuOpen.value = false;
 });
