@@ -92,7 +92,6 @@ onMounted(() => {
   
   // Clean up the subscription when component unmounts
   return () => unsubscribe();
-});
 </script>
 
 <style>
