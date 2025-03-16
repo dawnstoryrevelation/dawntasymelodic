@@ -296,6 +296,58 @@ const sendMessage = async (text) => {
       content: errorMessage,
       timestamp: Date.now()
     });
+  } finally {
+    isLoading.value = false;
+    await nextTick();
+    scrollToBottom();
+  }
+};
+  try {
+    // Direct call to OpenAI API
+    const response = await axios.post('https://api.openai.com/v1/chat/completions', {
+      model: 'gpt-4o-mini',
+      messages: [
+        { role: 'system', content: getDawntasySystemPrompt() },
+        ...messages.value.map(msg => ({
+          role: msg.role,
+          content: msg.content
+        }))
+      ],
+      temperature: 0.7,
+      max_tokens: 1000
+    }, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${import.meta.env.VITE_OPENAI_API_KEY}`
+      }
+    });
+    
+    // Add assistant's response
+    if (response.data?.choices?.[0]?.message) {
+      const aiContent = response.data.choices[0].message.content;
+      messages.value.push({
+        role: 'assistant',
+        content: aiContent,
+        timestamp: Date.now()
+      });
+    } else {
+      throw new Error("Invalid response from API");
+    }
+  } catch (error) {
+    console.error('Error sending message:', error);
+    let errorMessage = "⚠️ *The Rift appears to be unstable at the moment.* I'm having trouble connecting to the cosmic streams.";
+    
+    if (error.response) {
+      errorMessage += "\n\n**Error Details**: " + (error.response.data?.error?.message || error.message);
+    } else {
+      errorMessage += "\n\n**Connection Error**: Unable to reach the AI service. Please try again later.";
+    }
+    
+    messages.value.push({
+      role: 'assistant',
+      content: errorMessage,
+      timestamp: Date.now()
+    });
     } finally {
       isLoading.value = false;
       await nextTick();
