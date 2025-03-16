@@ -9,7 +9,7 @@ const API_URL = import.meta.env.VITE_OPENAI_API_URL || 'https://api.openai.com/v
 const API_KEY = import.meta.env.VITE_OPENAI_API_KEY; 
 const API_PATH = '/api/openai'; // For proxied requests if needed
 const DEFAULT_MODEL = 'gpt-4o-mini';
-const FALLBACK_MODEL = 'gpt-3.5-turbo';
+const FALLBACK_MODEL = 'gpt-4o-mini';
 
 export async function callOpenAI(messages: any[], model: string = DEFAULT_MODEL): Promise<string> {
   try {
