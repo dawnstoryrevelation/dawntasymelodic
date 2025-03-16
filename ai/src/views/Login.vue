@@ -230,8 +230,9 @@ function forgotPassword() {
 
 <style scoped>
 
-body {
+template {
   height:100%;
+  background-color:blue;
 }
 
 .login-container {
