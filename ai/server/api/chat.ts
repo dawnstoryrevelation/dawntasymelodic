@@ -1,105 +1,55 @@
-// server/api/chat.js
-import express from 'express';
-import { createServer } from 'http';
-import cors from 'cors';
-import bodyParser from 'body-parser';
-import dotenv from 'dotenv';
+// ai/server/api/chat.js
+import axios from 'axios';
 
-// Load environment variables
-dotenv.config();
-
-const app = express();
-const apiKey = process.env.VITE_OPENAI_API_KEY;
-
-// Middleware
-app.use(cors());
-app.use(bodyParser.json());
-
-// Validate environment variables
-if (!apiKey) {
-  console.error('ERROR: VITE_OPENAI_API_KEY is not set in environment variables');
-  process.exit(1);
-}
-
-// API endpoint for chat
-app.post('/api/chat', async (req: express.Request, res: express.Response) => {
+export default async function handler(req, res) {
+  // Only allow POST requests
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+  
   try {
-    const { message, mode, history } = req.body;
-
-    if (!message) {
-      return res.status(400).json({ error: 'Message is required' });
-    }
-
-    // Prepare messages for OpenAI API
-    let systemPrompt = "You are DawntasyAI, a helpful AI assistant from the Dawntasy universe.";
+    // Get OpenAI API key from environment variables
+    const apiKey = process.env.OPENAI_API_KEY;
     
-    // Adjust system prompt based on selected mode
-    if (mode === 'creative') {
-      systemPrompt += " You are in CREATIVE mode. Be more artistic, metaphorical, and imaginative in your responses.";
-    } else if (mode === 'archmage') {
-      systemPrompt += " You are in ARCHMAGE mode. Be deeply philosophical, profound, and multi-dimensional in your analysis.";
-    }
-
-    // Construct messages array for OpenAI
-    const messages = [
-      { role: 'system', content: systemPrompt },
-      ...(history || []).filter(msg => msg.role === 'user' || msg.role === 'assistant')
-    ];
-
-    // Make the request to OpenAI
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`
-      },
-      body: JSON.stringify({
-        model: 'gpt-3.5-turbo',
-        messages,
-        temperature: 0.7,
-        max_tokens: 1000
-      })
-    });
-
-    if (!response.ok) {
-      const error = await response.json();
-      console.error('OpenAI API error:', error);
-      return res.status(response.status).json({ 
-        error: 'Error communicating with AI service',
-        details: error.error?.message || 'Unknown error'
+    if (!apiKey) {
+      return res.status(500).json({ 
+        error: 'Server configuration error: API key is missing' 
       });
     }
-
-    const data = await response.json();
     
-    return res.json({
-      message: data.choices[0].message.content,
-      usage: data.usage
-    });
+    // Get request body
+    const { messages, model, temperature, max_tokens } = req.body;
+    
+    // Validate request
+    if (!messages || !Array.isArray(messages)) {
+      return res.status(400).json({ error: 'Invalid request: messages array is required' });
+    }
+    
+    // Make request to OpenAI API
+    const response = await axios.post(
+      'https://api.openai.com/v1/chat/completions',
+      {
+        model: model || 'gpt-3.5-turbo',
+        messages,
+        temperature: temperature || 0.7,
+        max_tokens: max_tokens || 1000
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`
+        }
+      }
+    );
+    
+    // Return the response
+    return res.status(200).json(response.data);
   } catch (error) {
-    console.error('Server error:', error);
-    return res.status(500).json({ 
-      error: 'Server error',
-      message: error.message
+    console.error('Error calling OpenAI:', error.response?.data || error.message);
+    
+    return res.status(error.response?.status || 500).json({
+      error: error.response?.data?.error?.message || 'Error processing your request',
+      details: error.message
     });
   }
-});
-
-// 404 handler
-app.use((req, res) => {
-  res.status(404).json({ error: 'API endpoint not found' });
-});
-
-// Error handler
-app.use((err, req, res, next) => {
-  console.error('Unhandled error:', err);
-  res.status(500).json({ error: 'Internal server error', message: err.message });
-});
-
-// Start server
-const PORT = process.env.PORT || 3000;
-createServer(app).listen(PORT, () => {
-  console.log(`API server running on port ${PORT}`);
-});
-
-export default app;
+}

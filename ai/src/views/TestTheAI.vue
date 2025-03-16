@@ -5,22 +5,8 @@
       <p class="description">Experience the AI without signing up. Conversations are not saved.</p>
     </div>
 
-    <!-- API Key Input -->
-    <div v-if="!hasApiKey" class="api-key-section">
-      <input 
-        v-model="apiKey" 
-        type="password"
-        placeholder="Enter your OpenAI API key to begin" 
-        class="api-key-input"
-      />
-      <button @click="saveApiKey" class="btn">
-        Start Preview
-      </button>
-      <p class="api-note">Your API key is stored only in your browser's local storage, never sent to our servers.</p>
-    </div>
-
     <!-- Chat Interface -->
-    <div v-if="hasApiKey" class="chat-interface">
+    <div class="chat-interface">
       <!-- Messages Display -->
       <div class="messages-area" ref="messagesContainer">
         <div v-if="messages.length === 0" class="welcome-message">
@@ -103,8 +89,6 @@ import axios from 'axios';
 const userInput = ref('');
 const messages = ref([]);
 const isLoading = ref(false);
-const apiKey = ref('');
-const hasApiKey = ref(false);
 const selectedMode = ref('default');
 const messagesContainer = ref(null);
 const inputField = ref(null);
@@ -162,29 +146,10 @@ const getDawntasySystemPrompt = () => {
   }
 };
 
-// Save API key to localStorage
-const saveApiKey = () => {
-  const trimmedKey = apiKey.value.trim();
-  if (trimmedKey.startsWith('sk-')) {
-    localStorage.setItem('dawntasy_api_key', trimmedKey);
-    hasApiKey.value = true;
-    
-    // Focus the input field after API key is saved
-    nextTick(() => {
-      if (inputField.value) inputField.value.focus();
-    });
-  } else {
-    alert("Please enter a valid OpenAI API key that begins with 'sk-'.");
-  }
-};
+// No longer need the saveApiKey function
 
-// Send message to OpenAI API
+// Send message to backend API
 const sendMessage = async (text) => {
-  if (!hasApiKey.value) {
-    alert("Please enter your OpenAI API key first to use the preview.");
-    return;
-  }
-  
   const messageText = text || userInput.value.trim();
   if (!messageText) return;
   
@@ -206,9 +171,9 @@ const sendMessage = async (text) => {
   isLoading.value = true;
   
   try {
-    // Use OpenAI API directly from client (this is just for preview purposes)
-    const response = await axios.post('https://api.openai.com/v1/chat/completions', {
-      model: 'gpt-3.5-turbo',
+    // Instead of using OpenAI API directly, use a simple relay API endpoint
+    // This endpoint will use the server's API key, not requiring the user to provide one
+    const response = await axios.post('/api/chat', {
       messages: [
         { role: 'system', content: getDawntasySystemPrompt() },
         ...messages.value.map(msg => ({
@@ -217,12 +182,8 @@ const sendMessage = async (text) => {
         }))
       ],
       temperature: 0.7,
-      max_tokens: 1000
-    }, {
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey.value.trim()}`
-      }
+      max_tokens: 1000,
+      model: 'gpt-3.5-turbo'
     });
     
     // Add assistant's response
@@ -243,18 +204,17 @@ const sendMessage = async (text) => {
     
     if (error.response) {
       if (error.response.status === 401) {
-        errorMessage += "\n\n**API Key Error**: Your API key appears to be invalid or expired. Please check and update your API key. Make sure you're entering a valid OpenAI API key that begins with 'sk-'.";
+        errorMessage += "\n\n**API Key Error**: The application's API key appears to be invalid. Please contact support.";
       } else if (error.response.data && error.response.data.error) {
         errorMessage += "\n\n**Error Details**: " + error.response.data.error.message;
       } else {
         errorMessage += "\n\n**Error**: " + error.message;
       }
     } else {
-      errorMessage += "\n\nNetwork error or CORS issue. This could be because:";
+      errorMessage += "\n\nNetwork error or connection issue. This could be because:";
       errorMessage += "\n1. Your ad blocker might be preventing the API call";
-      errorMessage += "\n2. Your browser might be blocking the connection";
-      errorMessage += "\n3. The OpenAI API might be experiencing issues";
-      errorMessage += "\n\nTry disabling any content blockers or using a different browser.";
+      errorMessage += "\n2. The server might be experiencing issues";
+      errorMessage += "\n\nPlease try again in a moment.";
     }
     
     messages.value.push({
@@ -280,16 +240,9 @@ const scrollToBottom = () => {
 
 // Initialize on component mount
 onMounted(() => {
-  // Check for stored API key
-  const storedApiKey = localStorage.getItem('dawntasy_api_key');
-  if (storedApiKey && storedApiKey.trim() !== '') {
-    apiKey.value = storedApiKey.trim();
-    hasApiKey.value = true;
-  }
-  
-  // Focus on appropriate field
+  // Focus on the input field
   nextTick(() => {
-    if (hasApiKey.value && inputField.value) {
+    if (inputField.value) {
       inputField.value.focus();
     }
   });
@@ -326,30 +279,7 @@ onMounted(() => {
   color: rgba(255, 255, 255, 0.7);
 }
 
-.api-key-section {
-  background: rgba(15, 23, 42, 0.6);
-  border-radius: 10px;
-  padding: 20px;
-  text-align: center;
-  margin: 30px 0;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.api-key-input {
-  width: 100%;
-  padding: 10px;
-  border-radius: 5px;
-  border: 1px solid rgba(139, 92, 246, 0.3);
-  background: rgba(15, 23, 42, 0.8);
-  color: white;
-  margin-bottom: 10px;
-}
-
-.api-note {
-  font-size: 0.8rem;
-  color: rgba(255, 255, 255, 0.5);
-  margin-top: 15px;
-}
+/* Removed API key section styles */
 
 .btn {
   background: linear-gradient(to right, #8b5cf6, #6d28d9);
