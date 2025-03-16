@@ -103,7 +103,7 @@ const suggestions = [
   "What can you help me with?"
 ];
 
-// Get a reference to the Firebase Functions
+// Get Firebase Functions instance
 const getFirebaseFunctions = () => {
   try {
     const app = getApp();
@@ -114,28 +114,22 @@ const getFirebaseFunctions = () => {
   }
 };
 
-// Format message content with basic markdown and highlight Dawntasy terms
+// Format message content with markdown and Dawntasy terms
 const formatMessage = (content) => {
   if (!content) return '';
-  
-  // Basic markdown conversion (bold, italic, code)
   let formatted = content
     .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
     .replace(/\*(.*?)\*/g, '<em>$1</em>')
     .replace(/`(.*?)`/g, '<code>$1</code>')
     .replace(/\n/g, '<br>');
-  
-  // Highlight Dawntasy terms
   const terms = [
     'Time Smith', 'The Rift', 'Plain and Pale Clock', 
     'Dawntasy', 'Bear Village', 'Ursa Minor', 'Yaee'
   ];
-  
   terms.forEach(term => {
     const regex = new RegExp(`\\b${term}\\b`, 'g');
     formatted = formatted.replace(regex, `<span class="highlight-term">${term}</span>`);
   });
-  
   return formatted;
 };
 
@@ -144,58 +138,52 @@ const formatTime = (timestamp) => {
   return format(new Date(timestamp), 'h:mm a');
 };
 
-// Scroll chat to bottom
-const scrollToBottom = () => {
-  nextTick(() => {
-    if (messagesContainer.value) {
-      messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight;
-    }
-  });
+// Scroll to bottom
+const scrollToBottom = async () => {
+  await nextTick();
+  if (messagesContainer.value) {
+    messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight;
+  }
 };
 
-// Send message function
+// System prompt (simplified for brevity, but can be expanded)
+const getSystemPrompt = () => {
+  const basePrompt = `You are DawntasyAI, created by Jasper Jiang for the DawntasyChatbot project. 
+Provide clear, engaging answers and weave in Dawntasy universe elements naturally when relevant.`;
+  if (selectedMode.value === 'creative') return `${basePrompt} Use vivid, poetic language.`;
+  if (selectedMode.value === 'archmage') return `${basePrompt} Adopt a deep, philosophical tone.`;
+  return basePrompt;
+};
+
+// Send message via Firebase Function
 const sendMessage = async (text) => {
   const messageText = text || userInput.value.trim();
   if (!messageText || isLoading.value) return;
-  
-  // Add user message to chat
+
   messages.value.push({
     role: 'user',
     content: messageText,
     timestamp: Date.now()
   });
-  
-  // Clear input field
   userInput.value = '';
   if (inputField.value) inputField.value.style.height = 'auto';
-  
-  // Scroll to bottom
   await scrollToBottom();
-  
-  // Start loading state
+
   isLoading.value = true;
-  
+
   try {
-    // Call Firebase Function
     const functions = getFirebaseFunctions();
-    
-    if (!functions) {
-      throw new Error("Firebase Functions not available");
-    }
-    
+    if (!functions) throw new Error("Firebase Functions not available");
+
     const chatWithAI = httpsCallable(functions, 'chatWithAI');
-    
     const response = await chatWithAI({
       message: messageText,
       mode: selectedMode.value,
-      history: messages.value.map(msg => ({
-        role: msg.role,
-        content: msg.content
-      }))
+      history: messages.value.map(msg => ({ role: msg.role, content: msg.content })),
+      systemPrompt: getSystemPrompt()
     });
-    
-    // Add assistant's response
-    if (response.data && response.data.message) {
+
+    if (response.data?.message) {
       messages.value.push({
         role: 'assistant',
         content: response.data.message,
@@ -206,32 +194,27 @@ const sendMessage = async (text) => {
     }
   } catch (error) {
     console.error('Error sending message:', error);
-    
-    // Provide a user-friendly error message
     messages.value.push({
       role: 'assistant',
-      content: "⚠️ *The Rift appears to be unstable at the moment.* I'm having trouble connecting to the cosmic streams. Please try again in a moment.",
+      content: "⚠️ *The Rift’s acting up, fam!* Can’t connect right now—try again soon!",
       timestamp: Date.now()
     });
   } finally {
     isLoading.value = false;
-    await nextTick();
-    scrollToBottom();
+    await scrollToBottom();
   }
 };
 
-// Initialize on component mount
+// Initialize on mount
 onMounted(() => {
-  // Focus on input field
   nextTick(() => {
-    if (inputField.value) {
-      inputField.value.focus();
-    }
+    if (inputField.value) inputField.value.focus();
   });
 });
 </script>
 
 <style scoped>
+/* Styles unchanged, included for completeness */
 .test-container {
   max-width: 800px;
   margin: 0 auto;
@@ -279,6 +262,7 @@ onMounted(() => {
   flex-direction: column;
   gap: 15px;
   max-height: 60vh;
+  scroll-behavior: smooth;
 }
 
 .welcome-message {
@@ -472,12 +456,10 @@ onMounted(() => {
   color: rgba(255, 255, 255, 0.5);
 }
 
-/* Responsive design */
 @media (max-width: 768px) {
   .test-container {
     padding: 10px;
   }
-  
   .message {
     max-width: 90%;
   }
@@ -487,7 +469,6 @@ onMounted(() => {
   .test-header h1 {
     font-size: 1.8rem;
   }
-  
   .suggestions {
     flex-direction: column;
     align-items: stretch;
