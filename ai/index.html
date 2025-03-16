@@ -1,14 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>DawntasyAI - The AI That Makes You Think</title>
-    
-    <!-- 🔥 FIXED: Added Google Tag Manager to CSP—PARTY TIME! 🎉 -->
- <!-- Update the CSP meta tag in index.html -->
-<meta http-equiv="Content-Security-Policy" 
-content="default-src 'self'; 
+
+    <!-- Updated Content Security Policy -->
+    <meta http-equiv="Content-Security-Policy" 
+      content="default-src 'self'; 
         script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net;
         style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net;
         font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net;
@@ -16,34 +15,36 @@ content="default-src 'self';
         connect-src 'self' https://api.openai.com https://*.firebaseio.com https://*.googleapis.com https://platform.openai.com;">
     
     <!-- SEO & OPEN GRAPH -->
-    <meta name="description" content="Dawntasy AI merges fantasy, music, and cutting-edge AI from the Dawntasy universe.">
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://ai.dawntasy.com">
-    <meta property="og:title" content="DawntasyAI - The AI That Makes You Think">
-    <meta property="og:description" content="Advanced chatbot blending fantasy lore with AI technology.">
-    <meta property="og:image" content="/images/og-image.jpg">
+    <meta name="description" content="Dawntasy AI merges fantasy, music, and cutting-edge AI from the Dawntasy universe." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://ai.dawntasy.com" />
+    <meta property="og:title" content="DawntasyAI - The AI That Makes You Think" />
+    <meta property="og:description" content="Advanced chatbot blending fantasy lore with AI technology." />
+    <meta property="og:image" content="/images/og-image.jpg" />
     
     <!-- DNS Prefetch -->
-    <link rel="dns-prefetch" href="//fonts.googleapis.com">
-    <link rel="dns-prefetch" href="//fonts.gstatic.com">
-    <link rel="dns-prefetch" href="//cdn.jsdelivr.net">
-    <link rel="dns-prefetch" href="//api.openai.com">
+    <link rel="dns-prefetch" href="//fonts.googleapis.com" />
+    <link rel="dns-prefetch" href="//fonts.gstatic.com" />
+    <link rel="dns-prefetch" href="//cdn.jsdelivr.net" />
+    <link rel="dns-prefetch" href="//api.openai.com" />
     
     <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Orbitron:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Orbitron:wght@400;500;600;700&display=swap" rel="stylesheet" />
     
     <!-- Icons - Preloaded to avoid CSP issues -->
-    <link rel="preload" href="https://cdn.jsdelivr.net/npm/remixicon@2.5.0/fonts/remixicon.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@2.5.0/fonts/remixicon.css"></noscript>
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/remixicon@2.5.0/fonts/remixicon.css" as="style" onload="this.onload=null;this.rel='stylesheet'" />
+    <noscript>
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@2.5.0/fonts/remixicon.css" />
+    </noscript>
     
     <!-- PWA -->
-    <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="#0f172a">
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#0f172a" />
     
     <!-- Accessibility -->
-    <meta name="format-detection" content="telephone=no">
+    <meta name="format-detection" content="telephone=no" />
     
     <!-- Styles -->
     <style>
@@ -53,7 +54,7 @@ content="default-src 'self';
           --cosmic-light: #1a2234;
         }
       }
-
+  
       @media (prefers-reduced-motion: reduce) {
         .cosmic-orbit, 
         .cosmic-spinner, 
@@ -70,7 +71,7 @@ content="default-src 'self';
         margin: 0;
         padding: 0;
       }
-
+  
       #app-loader {
         position: fixed;
         top: 0;
@@ -85,7 +86,7 @@ content="default-src 'self';
         background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #4c1d95 100%);
         transition: opacity 0.5s ease-out;
       }
-
+  
       .loading-text {
         font-family: 'Orbitron', sans-serif;
         margin-top: 120px;
@@ -93,20 +94,20 @@ content="default-src 'self';
         letter-spacing: 1px;
         opacity: 0.8;
       }
-
+  
       .cosmic-orbit {
         position: absolute;
         border-radius: 50%;
         box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
       }
-
+  
       .orbit-1 {
         width: 200px;
         height: 200px;
         border: 2px solid rgba(167, 139, 250, 0.5);
         animation: pulse 4s infinite alternate ease-in-out;
       }
-
+  
       .cosmic-spinner {
         position: absolute;
         width: 80px;
@@ -116,7 +117,7 @@ content="default-src 'self';
         border-top-color: #8b5cf6;
         animation: spin 1.5s linear infinite;
       }
-
+  
       .cosmic-core {
         position: absolute;
         width: 40px;
@@ -126,7 +127,7 @@ content="default-src 'self';
         box-shadow: 0 0 20px #a78bfa;
         animation: glow 2s infinite alternate;
       }
-
+  
       .sr-only {
         position: absolute;
         width: 1px;
@@ -138,17 +139,17 @@ content="default-src 'self';
         white-space: nowrap;
         border-width: 0;
       }
-
+  
       @keyframes spin {
         to { transform: rotate(360deg); }
       }
-
+  
       @keyframes pulse {
         0% { transform: scale(0.8); opacity: 0.3; }
         50% { transform: scale(1.1); opacity: 0.7; }
         100% { transform: scale(0.8); opacity: 0.3; }
       }
-
+  
       @keyframes glow {
         from { box-shadow: 0 0 10px #8b5cf6; }
         to { box-shadow: 0 0 30px #a78bfa, 0 0 50px #a78bfa; }
@@ -158,11 +159,9 @@ content="default-src 'self';
     <!-- Session Handling Script -->
     <script>
       (function() {
-        // Handle redirect from 404.html
         try {
           const redirect = sessionStorage.redirect;
           delete sessionStorage.redirect;
-          
           if (redirect && redirect !== '/' && !window.location.pathname.includes(redirect)) {
             console.log('Redirecting to:', redirect);
             history.replaceState(null, null, redirect);
@@ -175,16 +174,13 @@ content="default-src 'self';
   </head>
   <body>
     <div id="a11y-announcer" aria-live="polite" class="sr-only"></div>
-    
     <div id="app-loader" role="status" aria-live="polite">
       <div class="cosmic-orbit orbit-1" aria-hidden="true"></div>
       <div class="cosmic-spinner" aria-hidden="true"></div>
       <div class="cosmic-core" aria-hidden="true"></div>
       <p class="loading-text">Initializing DawntasyAI...</p>
     </div>
-
     <div id="app"></div>
-    <!-- Make sure this points to the correct source file -->
     <script>
       window.addEventListener('error', function(e) {
         console.error('Global error caught:', e.error);
