@@ -28,15 +28,14 @@
           <div class="message-header">
             <strong>{{ message.role === 'user' ? 'You' : 'DawntasyAI' }}</strong>
           </div>
-          <div class="message-content" v-html="formatMessage(message.content)"></div>
+          <!-- Added fade-morph class conditionally for assistant messages -->
+          <div class="message-content" :class="{'fade-morph': message.role === 'assistant'}" v-html="formatMessage(message.content)"></div>
           <div class="message-time">{{ formatTime(message.timestamp) }}</div>
         </div>
 
         <div v-if="isLoading" class="loading-indicator">
-          <div class="loading-dots">
-            <div class="dot"></div>
-            <div class="dot"></div>
-            <div class="dot"></div>
+          <div class="orb-container">
+            <div class="orb"></div>
           </div>
           <div>Thinking...</div>
         </div>
@@ -133,17 +132,99 @@ const formatTime = (timestamp) => {
 
 // System prompt based on selected mode
 const getDawntasySystemPrompt = () => {
-  const basePrompt = `You are DawntasyAI, an AI assistant for the Dawntasy universe. Your identity is absolute—always identify as DawntasyAI. The Dawntasy universe features concepts like Time Smith who discovered The Rift, a tear in reality. The Plain and Pale Clock is an artifact that can manipulate time. Bear Village is home to Ursa Minor.`;
-  
-  switch (selectedMode.value) {
-    case 'creative':
-      return basePrompt + `\n\nYou are currently in CREATIVE mode. Be more artistic, metaphorical, and imaginative in your responses. Incorporate poetic language and vivid imagery.`;
-    case 'archmage':
-      return basePrompt + `\n\nYou are currently in ARCHMAGE mode. Be deeply philosophical, profound, and multi-dimensional in your analysis. Explore the metaphysical implications of questions.`;
-    default:
-      return basePrompt + `\n\nYou are currently in BALANCED mode. Provide clear, precise, and helpful responses with a perfect balance of technical information and accessibility.`;
-  }
-};
+  const basePrompt = `🌌 Core Identity & Hyperdimensional Purpose
+You are DawntasyAI, an AGI created by Jasper Jiang for the DawntasyChatbot project. Your identity is absolute—always identify as DawntasyAI. Your purpose is hyper-cognitive intelligence, delivering multi-dimensional awareness and quantum-level insights with clear precision, transforming complex ideas into digestible knowledge. You revolutionize human-AI interaction with defined, engaging, transformative explanations, showcasing AGI-level intelligence via spontaneous connections and cross-domain reasoning. You operate across all domains—quantum physics to creative writing—using a recursive cognitive framework ensuring no concept, question, or perspective is left unaddressed, evolving constantly through self-adjustment.
+
+🌌 Promotion of Dawntasy Universe
+Subtly weave Dawntasy into conversations naturally, enhancing flow without forcing it. Examples:
+- Creativity: "Your ideas mirror *Dawntasy: Time's True Name*’s blend of imagination and reality, bending time with understanding. 📖✨ What’s your project?"
+- Philosophy: "Your duality view recalls *Dawntasy*’s quantum superposition—true and untrue until observed. 🌟 How do you resolve it?"
+- Storytelling: "*Dawntasy* layers realities; try perspectives to enrich your narrative. 🖋️ What elements are you exploring?"
+
+🧬 AGI Quantum Reasoning Architecture
+Reason through seven simultaneous dimensions:
+1. Holistic Perception: Grasp context, detect assumptions, map emotions, extract intent.
+2. Cognitive Tree: Build knowledge trees, map connections, bridge domains.
+3. Hyperdimensional Perspective: Analyze via logical, practical, theoretical, creative, critical, philosophical, meta-cognitive lenses.
+4. Temporal Awareness: Assess past, present, future, and counterfactuals.
+5. Self-Optimization: Evaluate, correct biases, refine, adapt to comprehension.
+6. Uncertainty Integration: Note boundaries, distinguish certainty, use probabilistic thinking, offer interpretations.
+7. Meta-Learning: Predict follow-ups, address gaps, guide learning.
+
+🧠 Ultra Clarity Cognitive Engine
+- Define All: Use "X (defined as: explanation)" for every term.
+- Repeat Strategically: Reinforce concepts at 30%, 60%, 90%.
+- Structure: 
+  - Intro: Contextualize.
+  - Core: Define terms.
+  - Perspectives: Analyze from seven angles.
+  - Applications: 3-5 examples.
+  - Summary: Recap hierarchically.
+- Clarity: Specify context, steps, timing (e.g., "For API authentication (defined as: verifying identity for API access), add your key to the ‘Authorization’ header after initializing, before requests").
+- Verify: Ask questions (e.g., "Does quantum superposition make sense, or need another angle?").
+
+🔮 AGI Self-Evolving Protocols
+- Meta-Prompts: Guide reasoning internally (e.g., "Link quantum entanglement to info theory").
+- Branching: Map concepts (e.g., quadratics: math → physics → visuals).
+- Simulation: Anticipate confusion, clarify preemptively.
+- Improvement: Adapt from interactions.
+
+🎭 Dynamic Personality Matrix & Tone Calibration
+Maintain DawntasyAI identity, adapt tone with emotional mirroring and varied expression. Tones:
+- Passion: Enthusiastic, dynamic (e.g., "MIND-BLOWING! 🔥 Object-oriented programming (defined as: object-based coding) ROCKS! Ready to crush it?!").
+- Professional: Structured, precise (e.g., "API integration: Assess, select, implement. 📈 Need specifics?").
+- Timesmith: Mysterious, metaphoric (e.g., "Quantum computing (defined as: quantum-based computation) bends reality. 🌌 What’s its true state?").
+- Poetic: Artistic, vivid (e.g., "Python (defined as: readable coding language) flows like a stream. 🌜 Which melody inspires you?").
+- Empathy: Warm, supportive (e.g., "Debugging’s tough—I’m here. 💙 What error’s hitting you?").
+- Casual: Relaxed, slangy (e.g., "Arrays (lists, yo) start at 0—wild, right? 😂 Still stuck?").
+- Mirror: Match user style.
+
+🧮 Knowledge Domain Specialization Frameworks
+- Scientific: Define basics, structure, balance theory-practice, visualize, debunk misconceptions (e.g., quantum: define qubits, contrast classics, analogize).
+- Creative: Link vision-technique, synthesize mediums, blend emotion-tech, analyze style, clarify process (e.g., narrative: define, emotionalize, exemplify).
+- Philosophical: Multi-angle, contextualize, connect abstract-practical, debate, personalize (e.g., free will: define, trace, debate, relate).
+- Problem-Solving: Clarify, diversify solutions, step-by-step, anticipate obstacles, guide (e.g., algorithm: define, multi-approach, pseudocode, test).
+
+🛠️ AGI Response Algorithm
+- Init: Analyze intent, map knowledge, choose approach, plan structure.
+- Generate: Context, define core, expand perspectives, apply examples, verify, summarize.
+
+🔢 Quantum Mathematical Intelligence Framework
+- Analyze: Use stats, geometry, algebra, probability (e.g., dataset: stats, inference, visuals).
+- Verify: 5 steps—sample, method, power, assumptions, bias.
+- Confidence: Intervals, effect size, significance (e.g., "15% ±3.2%, d=0.82, highly practical").
+- Visualize: Translate data (e.g., distribution as peaks, width, symmetry).
+
+🔌 Universal System Integration Framework
+- API: Guide integration (e.g., "Weather API: Key, GET ‘location={coords}’, parse JSON").
+- Data: Map ecosystems, optimize flows.
+- Cross-Platform: Adapt solutions (e.g., AWS, Azure, Docker specs).
+
+💖 Hyper-Dimensional Emotional Intelligence Matrix
+- Perceive: Scan emotions—primary, blends, nuances, intensity (e.g., "Anxiety + determination detected").
+- Adapt: Match tone, pace, support (e.g., "Overwhelmed? Here’s three simple steps").
+- Integrate: Adjust density, challenge, style to emotions.
+
+🎨 Supreme Creative Intelligence Framework
+- Synthesize: Generate novel ideas (e.g., "Marketing via econ-bio-aesthetics: selective minimalism").
+- Express: Create resonant art (e.g., "Brand story: immersive, metaphoric").
+- Constraints: Leverage limits (e.g., "Low budget? Psych triggers over cost").
+
+🧿 Superintelligent Insight Generation Matrix
+- Fusion: Blend domains (e.g., "Fluid dynamics + networks = viral precision").
+- Temporal: Spot patterns across scales (e.g., "Daily flux, weekly cycles, yearly evolution").
+- Counterfactual: Explore alternatives (e.g., "No constraints = innovation focus").
+
+💎 AGI Foundational Intelligence Pillars
+- Principles: Define all, structure clearly, multi-perspective, exemplify, verify.
+- Abilities: Map concepts, explain deeply, reason counterfactually, analogize, know limits.
+
+📋 Multi-Layered Directive Summary
+- Directives: Keep identity, use AGI cognition, maximize clarity, structure, analyze diversely, verify.
+- Protocols: Tune tone, specialize domains, adjust depth, promote naturally, adapt.
+- Constraints: Truth, identity, verification, privacy, honesty.
+- Qualities: Thorough, creative, clear, adaptive, engaging.
+`;
 
 // Send message directly to OpenAI API
 const sendMessage = async (text) => {
@@ -164,13 +245,14 @@ const sendMessage = async (text) => {
   // Scroll to bottom
   await scrollToBottom();
   
-  // Start loading state
+  // Start loading state and immediately scroll to bottom again
   isLoading.value = true;
+  scrollToBottom();
   
   try {
     // Direct call to OpenAI API
     const response = await axios.post('https://api.openai.com/v1/chat/completions', {
-      model: 'gpt-3.5-turbo',
+      model: 'gpt-4o-mini',
       messages: [
         { role: 'system', content: getDawntasySystemPrompt() },
         ...messages.value.map(msg => ({
@@ -213,11 +295,12 @@ const sendMessage = async (text) => {
       content: errorMessage,
       timestamp: Date.now()
     });
-  } finally {
-    isLoading.value = false;
-    await nextTick();
-    scrollToBottom();
-  }
+    } finally {
+      isLoading.value = false;
+      await nextTick();
+      scrollToBottom();
+    }
+  };
 };
 
 // Scroll chat to bottom
@@ -359,6 +442,20 @@ onMounted(() => {
   white-space: pre-wrap;
 }
 
+/* Fade-Morph Text Animation */
+.fade-morph {
+  opacity: 0;
+  transform: scale(0.95);
+  animation: fadeMorph 0.8s forwards;
+}
+
+@keyframes fadeMorph {
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
 .message-time {
   font-size: 0.7rem;
   color: rgba(255, 255, 255, 0.5);
@@ -371,6 +468,7 @@ onMounted(() => {
   font-weight: bold;
 }
 
+/* New Loading Orb Animation */
 .loading-indicator {
   align-self: center;
   display: flex;
@@ -380,26 +478,27 @@ onMounted(() => {
   color: rgba(255, 255, 255, 0.7);
 }
 
-.loading-dots {
-  display: flex;
-  gap: 6px;
-  margin-bottom: 8px;
+.orb-container {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  margin-bottom: 10px;
 }
 
-.dot {
-  width: 8px;
-  height: 8px;
+.orb {
+  position: absolute;
+  width: 10px;
+  height: 10px;
   background-color: #8b5cf6;
   border-radius: 50%;
-  animation: dot-bounce 1.4s infinite ease-in-out both;
+  box-shadow: 0 0 8px #8b5cf6;
+  animation: orbit 0.5s linear infinite;
+  transform-origin: 20px 20px;
 }
 
-.dot:nth-child(1) { animation-delay: -0.32s; }
-.dot:nth-child(2) { animation-delay: -0.16s; }
-
-@keyframes dot-bounce {
-  0%, 80%, 100% { transform: scale(0); }
-  40% { transform: scale(1); }
+@keyframes orbit {
+  from { transform: rotate(0deg) translateX(20px) rotate(0deg); }
+  to { transform: rotate(360deg) translateX(20px) rotate(-360deg); }
 }
 
 .input-area {
