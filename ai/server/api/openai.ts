@@ -12,8 +12,8 @@ if (!API_KEY_RAW || typeof API_KEY_RAW !== 'string' || API_KEY_RAW.trim() === ''
 }
 const API_KEY = API_KEY_RAW.trim();
 const API_PATH = '/api/openai'; // For proxied requests if needed
-const DEFAULT_MODEL = 'gpt-4-turbo-preview';
-const FALLBACK_MODEL = 'gpt-3.5-turbo';
+const DEFAULT_MODEL = 'gpt-4o-mini';
+const FALLBACK_MODEL = 'gpt-4o-mini';
 
 export async function callOpenAI(messages: any[], model: string = DEFAULT_MODEL): Promise<string> {
   try {

@@ -1,40 +1,55 @@
-import OpenAI from 'openai';
+// ai/server/api/chat.js
+import axios from 'axios';
 
-// Initialize OpenAI with the API key stored as a GitHub secret.
-// Ensure that 'GITHUB_OPENAI_API_KEY' is defined in your GitHub repository's secrets.
-const openai = new OpenAI({
-  apiKey: process.env.VITE_OPENAI_API_KEY
-});
-
-// Use OpenAI's ChatCompletionMessageParam type
-export async function sendChatMessage(messages) {
+export default async function handler(req, res) {
+  // Only allow POST requests
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+  
   try {
-    if (!messages || !Array.isArray(messages)) {
-      throw new Error('Invalid request. Messages array is required.');
+    // Get OpenAI API key from environment variables
+    const apiKey = process.env.OPENAI_API_KEY;
+    
+    if (!apiKey) {
+      return res.status(500).json({ 
+        error: 'Server configuration error: API key is missing' 
+      });
     }
-
-    const response = await openai.chat.completions.create({
-      model: 'gpt-4o-mini',
-      messages,
-      temperature: 0.7,
-      max_tokens: 1000
-    });
-
-    return {
-      statusCode: 200,
-      body: {
-        message: response.choices[0].message.content,
-        usage: response.usage
+    
+    // Get request body
+    const { messages, model, temperature, max_tokens } = req.body;
+    
+    // Validate request
+    if (!messages || !Array.isArray(messages)) {
+      return res.status(400).json({ error: 'Invalid request: messages array is required' });
+    }
+    
+    // Make request to OpenAI API
+    const response = await axios.post(
+      'https://api.openai.com/v1/chat/completions',
+      {
+        model: model || 'gpt-3.5-turbo',
+        messages,
+        temperature: temperature || 0.7,
+        max_tokens: max_tokens || 1000
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`
+        }
       }
-    };
+    );
+    
+    // Return the response
+    return res.status(200).json(response.data);
   } catch (error) {
-    console.error('Error calling OpenAI:', error);
-    return {
-      statusCode: 500,
-      body: {
-        error: 'Error processing your request',
-        message: error.message
-      }
-    };
+    console.error('Error calling OpenAI:', error.response?.data || error.message);
+    
+    return res.status(error.response?.status || 500).json({
+      error: error.response?.data?.error?.message || 'Error processing your request',
+      details: error.message
+    });
   }
 }

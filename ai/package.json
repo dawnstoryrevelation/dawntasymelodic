@@ -11,7 +11,9 @@
     "preview": "vite preview",
     "lint": "eslint . --ext .vue,.js,.ts",
     "lint:fix": "eslint . --ext .vue,.js,.ts --fix",
-    "deploy": "npm run build && netlify deploy --prod"
+    "deploy": "npm run build && firebase deploy",
+    "functions:lint": "cd functions && npm run lint",
+    "functions:deploy": "firebase deploy --only \"functions\""
   },
   "dependencies": {
     "@vue/runtime-dom": "^3.5.13",
@@ -22,6 +24,7 @@
     "axios": "^1.8.3",
     "date-fns": "^4.1.0",
     "dompurify": "^3.2.4",
+    "dotenv": "^16.4.7",
     "firebase": "^10.14.1",
     "gsap": "^3.12.7",
     "highlight.js": "^11.11.1",
@@ -50,8 +53,10 @@
     "@types/three": "^0.161.0",
     "@vitejs/plugin-vue": "^5.0.3",
     "autoprefixer": "^10.4.20",
-    "eslint": "^8.56.0",
+    "eslint": "^8.57.1",
+    "eslint-config-google": "^0.14.0",
     "eslint-plugin-vue": "^9.19.2",
+    "firebase-tools": "^13.0.0",
     "postcss": "^8.5.3",
     "rollup": "^3.29.5",
     "sass": "^1.85.1",
@@ -60,5 +65,8 @@
     "vite": "^5.0.11",
     "vite-plugin-compression": "^0.5.1",
     "vite-plugin-pwa": "^0.17.4"
+  },
+  "engines": {
+    "node": "18"
   }
 }
