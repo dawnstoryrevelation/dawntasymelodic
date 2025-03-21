@@ -31,7 +31,8 @@ import {
   updateProfile,
   setPersistence,
   browserLocalPersistence,
-  browserSessionPersistence
+  browserSessionPersistence,
+  signOut // Added to force refresh authentication state
 } from 'firebase/auth';
 import { getFirestore, setDoc, doc, serverTimestamp } from 'firebase/firestore';
 import gsap from 'gsap';
@@ -79,54 +80,72 @@ const starCanvas = ref(null);
 // Registration function using Firebase Auth and Firestore
 const register = async () => {
   if (isLoading.value) return;
-  
+
   error.value = '';
   isLoading.value = true;
-  
+
   try {
+    // Force sign out to refresh authentication state and avoid cached issues
+    await signOut(auth).catch((err) => console.warn('Sign out failed, proceeding:', err));
+
     // Set persistence based on your desired option (local in this case)
     await setPersistence(auth, browserLocalPersistence);
-    
+
     // Create the user with email and password
     const userCredential = await createUserWithEmailAndPassword(auth, email.value, password.value);
     const user = userCredential.user;
-    
+
     // Update the user's display name with the provided username
     await updateProfile(user, { displayName: username.value });
-    
+
+    // Check if user is authenticated before writing to Firestore
+    if (!user || !user.uid) {
+      throw new Error('Authentication failed after registration');
+    }
+
     // Create a Firestore document in 'users' collection for the user
     await setDoc(doc(db, 'users', user.uid), {
       username: username.value,
       email: email.value,
       createdAt: serverTimestamp()
-    });
-    
+    }, { merge: true }); // Use merge to avoid overwriting existing data
+
     console.log("🎉 Cosmic registration successful!", user);
-    
+
     // Redirect to the onboarding page
     window.location.href = 'https://ai.dawntasy.com/onboarding';
   } catch (err) {
     console.error("Registration error:", err);
-    // Handle errors based on error codes
+    // Handle errors based on error codes with detailed logging
     if (err.code === 'auth/email-already-in-use') {
-      error.value = 'This quantum ID is already in use.';
+      error.value = `The email ${email.value} is already in use. If you just deleted this account, please wait a few minutes for the change to propagate or try a different email.`;
+      console.log(`Email conflict detected for: ${email.value}. Check Firebase Authentication for existing users.`);
     } else if (err.code === 'auth/invalid-email') {
       error.value = 'The provided quantum ID is invalid.';
     } else if (err.code === 'auth/weak-password') {
       error.value = 'Dimensional key too weak. Must be at least 6 characters.';
+    } else if (err.code === 'permission-denied') {
+      error.value = 'Insufficient permissions to create user profile. Contact support.';
+      console.error('Permissions error details:', {
+        code: err.code,
+        message: err.message,
+        stack: err.stack
+      });
     } else {
       error.value = err.message || 'An unknown error occurred during registration';
+      console.error('Unexpected error:', err);
     }
   } finally {
     isLoading.value = false;
   }
 };
 
+// CSP Mitigation: Prevent unintended script loading (optional, based on app-level CSP)
 onMounted(() => {
   // Animate title and submit button using GSAP for a legendary entrance
   gsap.from(title.value, { duration: 1.5, opacity: 0, y: -50, ease: "power2.out" });
   gsap.from(submitButton.value, { duration: 1, opacity: 0, delay: 0.5, scale: 0.5, ease: "elastic.out(1, 0.3)" });
-  
+
   // Staggered sliding-in effect for input fields using AnimeJS
   anime({
     targets: 'input',
@@ -134,13 +153,13 @@ onMounted(() => {
     opacity: [0, 1],
     delay: anime.stagger(100)
   });
-  
+
   // THREE.js cosmic starfield background setup
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
   const renderer = new THREE.WebGLRenderer({ canvas: starCanvas.value, alpha: true });
   renderer.setSize(window.innerWidth, window.innerHeight);
-  
+
   const starGeometry = new THREE.BufferGeometry();
   const starCount = 10000;
   const starVertices = [];
@@ -150,17 +169,17 @@ onMounted(() => {
     starVertices.push((Math.random() - 0.5) * 2000);
   }
   starGeometry.setAttribute('position', new THREE.Float32BufferAttribute(starVertices, 3));
-  
+
   const starMaterial = new THREE.PointsMaterial({
     color: 0xffffff,
     size: 1,
     transparent: true
   });
-  
+
   const stars = new THREE.Points(starGeometry, starMaterial);
   scene.add(stars);
   camera.position.z = 1;
-  
+
   const animate = () => {
     requestAnimationFrame(animate);
     stars.rotation.x += 0.0005;
@@ -168,16 +187,32 @@ onMounted(() => {
     renderer.render(scene, camera);
   };
   animate();
-  
+
   // Update renderer on window resize for responsiveness
   window.addEventListener('resize', () => {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
   });
-});
-</script>
 
+  // Optional: Check for unintended script loading (e.g., GTM)
+  const checkExternalScripts = () => {
+    const scripts = document.querySelectorAll('script[src]');
+    scripts.forEach(script => {
+      if (script.src.includes('googletagmanager.com') && !script.src.includes('cdn.jsdelivr.net')) {
+        console.warn('Blocked Google Tag Manager script due to CSP:', script.src);
+        script.remove(); // Remove the offending script if not intended
+      }
+    });
+  };
+  checkExternalScripts(); // Run once on mount
+  // Note: For a permanent fix, update CSP in index.html or server config (see below)
+});
+
+// Suggested CSP Update (to be applied in index.html or server config)
+// Add this to <head> in index.html or configure in your server:
+// <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://www.googletagmanager.com; connect-src 'self' https://www.googletagmanager.com;">
+</script>
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
 

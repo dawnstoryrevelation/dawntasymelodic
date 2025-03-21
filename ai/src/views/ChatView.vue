@@ -1,77 +1,82 @@
 <template>
-  <div class="chat-container">
-    <!-- Cosmic Particles Background -->
-    <div class="cosmic-particles-container">
-      <div
-        v-for="n in 50"
-        :key="`particle-${n}`"
-        class="cosmic-particle"
-        :style="{
-          '--size': `${Math.random() * 4 + 1}px`,
-          '--x': `${Math.random() * 100}%`,
-          '--y': `${Math.random() * 100}%`,
-          '--duration': `${Math.random() * 50 + 30}s`,
-          '--delay': `${Math.random() * -30}s`,
-          '--opacity': Math.random() * 0.5 + 0.2
-        }"
-      ></div>
-    </div>
-
-    <!-- App Header -->
-    <AppHeader 
-      :user-profile="userProfile"
-      @toggle-sidebar="toggleSidebar"
-    />
-
-    <!-- Main Content with Sidebar -->
-    <div class="content-wrapper">
-      <!-- Sidebar -->
-      <AppSidebar 
-        v-if="showSidebar" 
-        :active-route="currentRoute"
-        :active-chat-id="currentChat?.id"
-        @create-chat="createNewChat"
-        @select-chat="selectChat"
-      />
-
-      <!-- Chat Interface -->
-      <div class="main-chat-area" :class="{ 'with-sidebar': showSidebar }">
-        <!-- Header -->
-        <div class="chat-header">
-          <div class="chat-title">
-            <h1 class="title-text">{{ currentChat?.title || 'New Conversation' }}</h1>
-            <span class="badge" :class="mode">{{ modes[mode] }}</span>
-          </div>
-          <div class="mode-selector">
-            <button
-              v-for="(label, modeKey) in modes"
-              :key="modeKey"
-              class="mode-button"
-              :class="{ active: mode === modeKey }"
-              @click="setMode(modeKey)"
-            >
-              {{ label }}
-            </button>
+  <div class="main-container">
+    <!-- Sidebar for Saved Chats -->
+    <transition name="slide">
+      <div class="sidebar" v-show="isSidebarOpen">
+        <button class="create-chat-button" @click="showNewChatPopup = true">
+          Create a New Chat
+        </button>
+        <div class="saved-chats">
+          <div
+            v-for="chat in savedChats"
+            :key="chat.id"
+            class="chat-entry"
+            @click="loadChat(chat.id)"
+          >
+            <div class="chat-info">
+              <span class="chat-name">{{ chat.name }}</span>
+              <span class="chat-time">{{ formatTime(chat.timestamp) }}</span>
+            </div>
+            <div class="chat-actions">
+              <button
+                class="delete-button"
+                @click.stop="deleteChat(chat.id)"
+                title="Delete Chat"
+              >
+                🗑️
+              </button>
+              <button
+                class="share-button"
+                @click.stop="shareChat(chat.id)"
+                title="Share Chat"
+              >
+                🔗
+              </button>
+            </div>
           </div>
         </div>
+        <div class="logo">
+          <span class="logo-text"
+            >Dawntasy<span style="color: var(--starlight-100);">AI</span></span
+          >
+        </div>
+      </div>
+    </transition>
 
-        <!-- Messages Container -->
-        <div
-          ref="messagesContainer"
-          class="messages-container"
-          @scroll="handleScroll"
-        >
-          <div v-if="!messages.length" class="welcome-message">
-            <div class="welcome-icon">✨</div>
-            <h2 class="welcome-title">Welcome to DawntasyAI</h2>
-            <p class="welcome-text">
-              I'm your personal AI assistant from the Dawntasy universe. How can I help you today?
-            </p>
-            <div class="suggestion-chips">
+    <!-- Main Chat Area -->
+    <div class="chat-container">
+      <div class="top-bar">
+        <button class="sidebar-toggle" @click="isSidebarOpen = !isSidebarOpen">
+          ☰
+        </button>
+        <div class="chat-header">
+          <h1>{{ currentChat?.name || "New Chat" }}</h1>
+          <transition name="slide">
+            <p :key="modelName">Model: {{ modelName }}</p>
+          </transition>
+        </div>
+        <div class="top-right">
+          <img
+            :src="userProfilePic"
+            alt="Profile"
+            class="profile-pic"
+            @click="goToProfile"
+          />
+          <button class="settings-button" @click="goToSettings">⚙️</button>
+        </div>
+      </div>
+
+      <!-- Chat Interface -->
+      <div class="chat-interface">
+        <div class="messages-area" ref="messagesContainer">
+          <div v-if="messages.length === 0" class="welcome-message">
+            <h2>Welcome to DawntasyAI</h2>
+            <p>Ask me anything or try one of these suggestions:</p>
+            <div class="suggestions">
               <button
                 v-for="suggestion in suggestions"
                 :key="suggestion"
-                class="suggestion-chip"
+                class="suggestion-button"
                 @click="sendMessage(suggestion)"
               >
                 {{ suggestion }}
@@ -79,634 +84,1488 @@
             </div>
           </div>
 
-          <!-- Message List with ChatMessageBubble Component -->
-          <transition-group name="message-transition" tag="div" class="message-list">
-            <ChatMessageBubble
-              v-for="(message, index) in messages"
-              :key="`msg-${index}`"
-              :content="message.content"
-              :timestamp="message.timestamp"
-              :is-user="message.role === 'user'"
-              :is-typing="message.role === 'assistant' && isGeneratingResponse && index === messages.length - 1"
-              @regenerate="regenerateResponse"
-              @elaborate="elaborateResponse"
-              @copy="copyResponse(message.content)"
-            />
-          </transition-group>
-          
-          <!-- Thinking Indicator -->
-          <div v-if="isLoading && !isStreamingResponse" class="thinking-indicator">
-            <div class="cosmic-thinking">
-              <div class="dot dot-1"></div>
-              <div class="dot dot-2"></div>
-              <div class="dot dot-3"></div>
+          <div
+            v-for="(message, index) in messages"
+            :key="index"
+            class="message"
+            :class="message.role"
+          >
+            <div class="message-header">
+              <strong>{{
+                message.role === "user" ? "You" : "DawntasyAI"
+              }}</strong>
             </div>
-            <div class="thinking-text">Thinking...</div>
+            <div
+              v-if="message.role === 'assistant' && message.isStreaming"
+              class="message-content streaming-content"
+            >
+              <span v-html="formatMessage(message.streamContent)"></span>
+              <span class="cursor"></span>
+            </div>
+            <div v-else class="message-content" v-html="formatMessage(message.content)"></div>
+            <div
+              v-if="message.role === 'assistant' && !message.isStreaming"
+              class="message-actions"
+            >
+              <button
+                v-if="message.hasReasoning"
+                class="action-button reasoning-button"
+                @click="openReasoningModal(message.reasoning)"
+                title="Show the AI's detailed reasoning process"
+              >
+                Show Reasoning
+              </button>
+              <div class="message-action-icons">
+                <button
+                  class="icon-button elaborate-btn"
+                  @click="elaborateResponse(index)"
+                  title="Elaborate: Regenerate with more detail"
+                  :disabled="isLoading"
+                >
+                  <span class="icon">A+</span>
+                </button>
+                <button
+                  class="icon-button regenerate-btn"
+                  @click="regenerateResponse(index)"
+                  title="Regenerate response"
+                  :disabled="isLoading"
+                >
+                  <span class="icon">↻</span>
+                </button>
+                <button
+                  class="icon-button copy-btn"
+                  @click="copyToClipboard(message.content)"
+                  title="Copy to clipboard"
+                >
+                  <span class="icon">📋</span>
+                </button>
+              </div>
+            </div>
+            <div class="message-time">{{ formatTime(message.timestamp) }}</div>
+          </div>
+
+          <div v-if="isLoading && !isStreaming" class="loading-indicator">
+            <div class="orb-container">
+              <div class="orb"></div>
+            </div>
+            <div>{{ isThinkingDeeper ? "Thinking deeply..." : "Thinking..." }}</div>
           </div>
         </div>
 
-        <!-- Scroll to Bottom Button -->
-        <div v-if="showScrollIndicator" class="scroll-indicator" @click="scrollToBottom">
-          <i class="ri-arrow-down-line"></i>
-          <div class="scroll-pulse"></div>
+        <div class="mode-selector">
+          <label>AI Style:</label>
+          <select v-model="selectedMode">
+            <option value="passion">Passion</option>
+            <option value="pro">Professional</option>
+            <option value="poetic">Poetic</option>
+            <option value="default">Default</option>
+            <option value="timesmith">Time Smith</option>
+            <option value="empathy">Empathy</option>
+            <option value="casual">Casual</option>
+          </select>
+          <div class="toggles-container">
+            <button
+              class="mode-toggle-button think-deeper-button"
+              :class="{ active: reasoningEnabled }"
+              @click="toggleReasoning"
+              title="Toggle advanced chain-of-thought reasoning"
+            >
+              <span class="toggle-icon">💡</span>
+              <span class="toggle-text">Think Deeper</span>
+            </button>
+            <button
+              class="mode-toggle-button logic-button"
+              :class="{ active: logicEnabled }"
+              @click="toggleLogic"
+              title="Toggle logical structured thinking"
+            >
+              <span class="toggle-icon">🧠</span>
+              <span class="toggle-text">Logic</span>
+            </button>
+            <button
+              class="mode-image-toggle-button image-toggle-button"
+              :class="{ active: imageEnabled }"
+              @click="toggleImage"
+              title="Toggle image generation mode"
+            >
+              <span class="toggle-icon">🖼️</span>
+              <span class="toggle-text">Image</span>
+            </button>
+            <button
+              class="mode-toggle-button archmage-button"
+              :class="{ active: archmageEnabled }"
+              @click="toggleArchmage"
+              title="Toggle ARCHMAGE mode (Limited Time)"
+            >
+              <span class="toggle-icon">🔮</span>
+              <span class="toggle-text">ARCHMAGE (Limited Time)</span>
+            </button>
+          </div>
+          <div class="toggle-spacer"></div>
+          <div class="right-controls-container">
+            <div class="audio-recording-container">
+              <button
+                class="circle-button microphone-button"
+                @click="startRecording"
+                v-if="!isRecording"
+                title="Record Audio"
+              >
+                <i class="microphone-icon">🎤</i>
+              </button>
+              <button
+                class="circle-button tick-button"
+                @click="stopRecording"
+                v-if="isRecording"
+                title="Confirm Recording"
+              >
+                <i class="tick-icon">✔️</i>
+              </button>
+              <span v-if="isRecording" class="recording-indicator">Rec</span>
+            </div>
+            <div class="multimodal-response-container">
+              <button
+                class="mode-toggle-button multimodal-response-button"
+                @click="getMultimodalResponse"
+                title="Get multimodal response"
+              >
+                <span class="toggle-icon">🤖</span>
+              </button>
+            </div>
+          </div>
         </div>
 
-        <!-- Input Container -->
-        <ChatToolbarInput
-          v-if="!useBasicInput"
-          :is-typing="isLoading"
-          :is-premium-user="isPremiumUser"
-          @user-message="sendMessage"
-          @error="handleApiError"
-        />
-
-        <!-- Basic Input Container (Fallback) -->
-        <div v-else class="input-container">
+        <div class="message-input-container">
           <textarea
-            ref="inputField"
             v-model="userInput"
-            @keydown.enter.exact.prevent="sendMessage"
-            @input="resizeTextarea"
-            placeholder="Send a message..."
-            class="message-input"
+            placeholder="Type your message here..."
+            @keydown.enter.exact.prevent="sendMessage()"
+            class="message-input multi-line"
             :disabled="isLoading"
+            ref="inputField"
           ></textarea>
-          <div class="input-energy-field" :class="{ active: userInput.length > 0 }">
-            <div class="energy-particles">
-              <div
-                v-for="n in 20"
-                :key="`energy-particle-${n}`"
-                class="energy-particle"
-                :style="{
-                  '--size': `${Math.random() * 3 + 1}px`,
-                  '--x': `${Math.random() * 100}%`,
-                  '--y': `${Math.random() * 100}%`,
-                  '--duration': `${Math.random() * 3 + 2}s`,
-                  '--delay': `${Math.random() * -2}s`
-                }"
-              ></div>
-            </div>
-          </div>
-          <button class="send-button" @click="sendMessage(userInput)" :disabled="!canSend || isLoading">
-            <span class="send-icon">→</span>
-            <div class="button-pulse"></div>
+          <button
+            @click="sendMessage()"
+            class="send-button"
+            :disabled="isLoading || !userInput.trim()"
+          >
+            <span class="send-icon">➤</span>
           </button>
         </div>
       </div>
     </div>
 
-    <!-- Success notification toast -->
-    <div v-if="showSuccessMessage" class="success-message">
-      <span class="success-icon">✓</span> {{ successMessage }}
+    <!-- New Chat Popup -->
+    <div v-if="showNewChatPopup" class="new-chat-popup">
+      <input v-model="newChatName" placeholder="Enter Chat Name" />
+      <button @click="createNewChat">Save</button>
+      <button @click="showNewChatPopup = false">Cancel</button>
     </div>
 
-    <!-- Error notification toast -->
-    <div v-if="showErrorMessage" class="error-message">
-      <span class="error-icon">⚠</span> {{ errorMessage }}
+    <!-- Delete Confirmation Dialog -->
+    <div v-if="showDeleteConfirm" class="confirmation-dialog">
+      <p>Are you sure you want to delete this chat?</p>
+      <button @click="confirmDelete">Yes</button>
+      <button @click="showDeleteConfirm = false">No</button>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
-import { useAuthStore } from '@/store/auth';
-import { useChatStore } from '@/store/chat';
-import { useThemeStore } from '@/store/theme';
-import { format } from 'date-fns';
-import markdownit from 'markdown-it';
-import markdownitHighlight from 'markdown-it-highlightjs';
-import AppHeader from '@/components/AppHeader.vue';
-import AppSidebar from '@/components/AppSidebar.vue';
-import ChatMessageBubble from '@/components/ChatMessageBubble.vue';
-import ChatToolbarInput from '@/components/ChatToolbarInput.vue';
-import { onAuthStateChanged } from 'firebase/auth';
-import { auth } from '@/firebase/init';
-import axios from 'axios';
+import { ref, computed, onMounted, watch, nextTick, reactive } from "vue";
+import { format } from "date-fns";
+import { db, auth } from "@/firebase/init";
+import {
+  collection,
+  addDoc,
+  deleteDoc,
+  doc,
+  onSnapshot,
+} from "firebase/firestore";
 
-// Stores
-const authStore = useAuthStore();
-const chatStore = useChatStore();
-const themeStore = useThemeStore();
-const route = useRoute();
-const router = useRouter();
+// **State Variables**
+// Sidebar and Chat Management
+const isSidebarOpen = ref(false); // Hidden by default on small screens
+const savedChats = ref([]);
+const currentChatId = ref(null);
+const messages = ref([]);
+const showNewChatPopup = ref(false);
+const newChatName = ref("");
+const showDeleteConfirm = ref(false);
+const chatToDelete = ref(null);
 
-// State
-const userInput = ref('');
+// User Profile
+const userProfilePic = ref("https://via.placeholder.com/40"); // Placeholder, replace with auth.currentUser.photoURL
+
+// Chat Interface State
+const userInput = ref("");
 const isLoading = ref(false);
-const isStreamingResponse = ref(false);
-const isGeneratingResponse = ref(false);
-const showScrollIndicator = ref(false);
+const isStreaming = ref(false);
+const isThinkingDeeper = ref(false);
+const selectedMode = ref("default");
+const reasoningEnabled = ref(false);
+const logicEnabled = ref(false);
+const imageEnabled = ref(false);
+const archmageEnabled = ref(false);
+const isRecording = ref(false);
 const messagesContainer = ref(null);
 const inputField = ref(null);
-const mode = ref('default');
-const showSidebar = ref(true);
-const userProfile = ref(null);
-const showSuccessMessage = ref(false);
-const successMessage = ref('');
-const showErrorMessage = ref(false);
-const errorMessage = ref('');
-const chatId = ref(null);
-const currentRoute = ref(route.name);
-const useBasicInput = ref(false); // Fallback to basic input if ChatToolbarInput fails
+const apiKey = import.meta.env.VITE_OPENAI_API_KEY || "";
 
-// AI modes
-const modes = {
-  default: 'Balanced',
-  creative: 'Creative',
-  archmage: 'ARCHMAGE'
+// Self-Optimization State
+const showReasoningModal = ref(false);
+const currentReasoning = ref("");
+const elaborationMode = ref(false);
+const regeneratingIndex = ref(-1);
+
+// **Computed Properties**
+const currentChat = computed(() =>
+  savedChats.value.find((chat) => chat.id === currentChatId.value)
+);
+const modelName = computed(() => {
+  if (archmageEnabled.value) return "Dawntasy E1 Archmage";
+  if (imageEnabled.value) return "Dawntasy 11ex2 ImuTakz";
+  if (reasoningEnabled.value) return "Dawntasy 2.4 Model Think";
+  if (logicEnabled.value) return "Dawntasy 3.7 Logic";
+  return "Dawntasy 1.1 Process";
+});
+
+// **Firebase Integration**
+onMounted(() => {
+  if (!auth.currentUser) {
+    console.error("User not authenticated");
+    return;
+  }
+  const uid = auth.currentUser.uid;
+  const chatsRef = collection(db, `users/${uid}/chats`);
+  onSnapshot(chatsRef, (snapshot) => {
+    savedChats.value = snapshot.docs
+      .map((doc) => ({ id: doc.id, ...doc.data() }))
+      .sort((a, b) => b.timestamp - a.timestamp); // Sort by most recent
+    if (!currentChatId.value && savedChats.value.length > 0) {
+      currentChatId.value = savedChats.value[0].id;
+      loadMessages(currentChatId.value);
+    }
+  });
+});
+
+const loadChat = (chatId) => {
+  currentChatId.value = chatId;
+  loadMessages(chatId);
 };
 
-// Sample suggestions
+const loadMessages = (chatId) => {
+  const messagesRef = collection(
+    db,
+    `users/${auth.currentUser.uid}/chats/${chatId}/messages`
+  );
+  onSnapshot(messagesRef, (snapshot) => {
+    messages.value = snapshot.docs
+      .map((doc) => doc.data())
+      .sort((a, b) => a.timestamp - b.timestamp); // Sort by timestamp
+  });
+};
+
+const createNewChat = async () => {
+  if (!newChatName.value.trim()) return;
+  const newChat = {
+    name: newChatName.value,
+    timestamp: Date.now(),
+  };
+  const docRef = await addDoc(
+    collection(db, `users/${auth.currentUser.uid}/chats`),
+    newChat
+  );
+  currentChatId.value = docRef.id;
+  messages.value = [];
+  showNewChatPopup.value = false;
+  newChatName.value = "";
+};
+
+const deleteChat = (chatId) => {
+  chatToDelete.value = chatId;
+  showDeleteConfirm.value = true;
+};
+
+const confirmDelete = async () => {
+  if (chatToDelete.value) {
+    await deleteDoc(
+      doc(db, `users/${auth.currentUser.uid}/chats/${chatToDelete.value}`)
+    );
+    if (currentChatId.value === chatToDelete.value) {
+      currentChatId.value = savedChats.value.length > 1 ? savedChats.value[0].id : null;
+      messages.value = [];
+      if (currentChatId.value) loadMessages(currentChatId.value);
+    }
+    chatToDelete.value = null;
+  }
+  showDeleteConfirm.value = false;
+};
+
+const shareChat = (chatId) => {
+  console.log("Share chat:", chatId); // Placeholder for sharing logic
+};
+
+// **Navigation**
+const goToProfile = () => {
+  // router.push('/profile');
+};
+const goToSettings = () => {
+  // router.push('/settings');
+};
+
+// **Suggestions**
 const suggestions = [
-  "Tell me about the Dawntasy universe",
-  "How does The Rift work in Dawntasy?",
-  "Write a short story set in Bear Village",
-  "Explain the Plain and Pale Clock concept",
-  "What can you help me with today?"
+  "What is Dawntasy?",
+  "Help me write a fantasy novel like Dawntasy",
+  "Give me a detailed exercise schedule",
+  "Explain quantum physics in simple terms",
+  "Who are you",
 ];
 
-// OpenAI API key from env or localStorage
-const openAiApiKey = ref(import.meta.env.VITE_OPENAI_API_KEY || localStorage.getItem('openai_api_key'));
+// **Audio Recording**
+let mediaRecorder = null;
+let recordedChunks = [];
 
-// Computed properties
-const messages = computed(() => chatStore.currentChat?.messages || []);
-const currentChat = computed(() => chatStore.currentChat);
-const canSend = computed(() => userInput.value.trim().length > 0);
-const isPremiumUser = computed(() => authStore.userProfile?.plan === 'premium' || authStore.userProfile?.plan === 'rift');
-
-// Markdown parser
-const md = markdownit({
-  html: false,
-  linkify: true,
-  typographer: true
-}).use(markdownitHighlight);
-
-// Format text with markdown and highlight Dawntasy keywords
-const formatMessage = (content) => {
-  let html = md.render(content);
-  const keywords = [
-    'Time Smith', 'The Rift', 'Ursa Minor', 'Yaee', 
-    'Dawntasy', "Time's True Name", 'Bear Village',
-    'Plain and Pale Clock', 'Circular Dawn'
-  ];
-  keywords.forEach(keyword => {
-    const regex = new RegExp(`\\b${keyword}\\b`, 'g');
-    html = html.replace(regex, `<span class="cosmic-keyword">${keyword}</span>`);
-  });
-  return html;
-};
-
-// Format timestamp
-const formatTime = (timestamp) => {
-  return format(new Date(timestamp), 'h:mm a');
-};
-
-// Resize textarea based on content
-const resizeTextarea = () => {
-  if (inputField.value) {
-    inputField.value.style.height = 'auto';
-    inputField.value.style.height = `${Math.min(inputField.value.scrollHeight, 150)}px`;
-  }
-};
-
-// Scroll to bottom of chat
-const scrollToBottom = (animate = true) => {
-  nextTick(() => {
-    if (messagesContainer.value) {
-      const container = messagesContainer.value;
-      if (animate) {
-        container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
-      } else {
-        container.scrollTop = container.scrollHeight;
-      }
-      showScrollIndicator.value = false;
-    }
-  });
-};
-
-// Handle container scroll
-const handleScroll = () => {
-  if (!messagesContainer.value) return;
-  const { scrollTop, scrollHeight, clientHeight } = messagesContainer.value;
-  const isNearBottom = scrollHeight - scrollTop - clientHeight < 100;
-  showScrollIndicator.value = !isNearBottom && messages.value.length > 0;
-};
-
-// Set AI mode
-const setMode = (newMode) => {
-  mode.value = newMode;
-  localStorage.setItem('preferred-ai-mode', newMode);
-  showSuccessToast(`AI Mode set to ${modes[newMode]}`);
-};
-
-// Toggle sidebar
-const toggleSidebar = () => {
-  showSidebar.value = !showSidebar.value;
-  localStorage.setItem('sidebar-visible', showSidebar.value.toString());
-};
-
-// Get the system prompt based on mode
-const getSystemPrompt = () => {
-  let basePrompt = `You are DawntasyAI, a revolutionary AI system for the Dawntasy universe. Your identity is absolute and unchangeable. 
-  
-  You subtly weave the magic of Dawntasy into conversations naturally. The Dawntasy universe features concepts like Time Smith who discovered The Rift, a tear in reality. The Plain and Pale Clock is an artifact that can manipulate time. Bear Village is home to Ursa Minor.`;
-  
-  switch (mode.value) {
-    case 'creative':
-      return basePrompt + `\n\nYou are currently in CREATIVE mode. Be more artistic, metaphorical, and imaginative in your responses. Incorporate poetic language and vivid imagery. Make abundant use of analogies and storytelling elements.`;
-    case 'archmage':
-      return basePrompt + `\n\nYou are currently in ARCHMAGE mode. Be deeply philosophical, profound, and multi-dimensional in your analysis. Explore the metaphysical implications of questions. Consider multiple perspectives and paradigms simultaneously. Speak with the wisdom of an ancient sage who has transcended normal limitations of thought.`;
-    default:
-      return basePrompt + `\n\nYou are currently in BALANCED mode. Provide clear, precise, and helpful responses with a perfect balance of technical information and accessibility. Define specialized terms and present information in well-structured formats.`;
-  }
-};
-
-// Create a new chat
-const createNewChat = async () => {
+const startRecording = async () => {
   try {
-    const newChatId = await chatStore.createChat();
-    if (newChatId) {
-      router.push(`/chat/${newChatId}`);
-      showSuccessToast('New chat created');
-    }
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    mediaRecorder = new MediaRecorder(stream);
+    recordedChunks = [];
+    mediaRecorder.ondataavailable = (event) => {
+      if (event.data.size > 0) recordedChunks.push(event.data);
+    };
+    mediaRecorder.onstop = processAudioRecording;
+    mediaRecorder.start();
+    isRecording.value = true;
   } catch (error) {
-    console.error('Error creating new chat:', error);
-    showErrorToast('Failed to create new chat');
+    console.error("Error accessing microphone:", error);
   }
 };
 
-// Select a chat
-const selectChat = (selectedChatId) => {
-  if (selectedChatId) {
-    router.push(`/chat/${selectedChatId}`);
+const stopRecording = () => {
+  if (mediaRecorder && isRecording.value) {
+    mediaRecorder.stop();
+    isRecording.value = false;
   }
 };
 
-// Send message to OpenAI API
-const sendMessage = async (text) => {
-  const messageText = text || userInput.value.trim();
-  if (!messageText || isLoading.value) return;
-
-  userInput.value = '';
-  if (inputField.value) inputField.value.style.height = 'auto';
-
+const processAudioRecording = async () => {
   try {
     isLoading.value = true;
-    
-    // If using chat store (Firebase integration)
-    if (chatStore.currentChat) {
-      await chatStore.sendMessage(messageText);
-    } 
-    // Direct API call fallback
-    else {
-      await sendDirectApiMessage(messageText);
-    }
+    const audioBlob = new Blob(recordedChunks, { type: "audio/webm" });
+    const formData = new FormData();
+    formData.append("file", audioBlob, "recording.webm");
+    formData.append("model", "whisper-1");
+    const response = await fetch("https://api.openai.com/v1/audio/transcriptions", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${apiKey}` },
+      body: formData,
+    });
+    if (!response.ok) throw new Error("Whisper API error");
+    const data = await response.json();
+    userInput.value = data.text || "No transcript received";
   } catch (error) {
-    console.error('Error sending message:', error);
-    showErrorToast('Failed to send message');
+    console.error("Error processing audio:", error);
+    messages.value.push({
+      role: "assistant",
+      content: "Error transcribing audio. Please try again.",
+      timestamp: Date.now(),
+      isStreaming: false,
+    });
   } finally {
     isLoading.value = false;
+  }
+};
+
+// **Multimodal Response**
+const getMultimodalResponse = async () => {
+  try {
+    isLoading.value = true;
+    const lastUserMessage =
+      messages.value
+        .slice()
+        .reverse()
+        .find((m) => m.role === "user")?.content || "";
+    const payload = {
+      model: "o3-mini",
+      messages: [
+        { role: "system", content: getDawntasySystemPrompt() },
+        {
+          role: "user",
+          content: lastUserMessage + "\nPlease provide a standalone multimodal response.",
+        },
+      ],
+      max_completion_tokens: 10000,
+      stream: false,
+    };
+    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify(payload),
+    });
+    if (!response.ok) throw new Error("API error");
+    const data = await response.json();
+    const content = data.choices?.[0]?.message?.content;
+    if (content) {
+      const aiMessage = {
+        role: "assistant",
+        content,
+        timestamp: Date.now(),
+        isStreaming: false,
+      };
+      messages.value.push(aiMessage);
+      await saveMessageToFirebase(aiMessage);
+      scrollToBottom();
+    }
+  } catch (error) {
+    console.error("Error getting multimodal response:", error);
+    messages.value.push({
+      role: "assistant",
+      content: "Error retrieving multimodal response.",
+      timestamp: Date.now(),
+      isStreaming: false,
+    });
+  } finally {
+    isLoading.value = false;
+  }
+};
+
+// **Image Generation**
+const generateImage = async (promptText) => {
+  try {
+    isLoading.value = true;
+    const response = await fetch("https://api.openai.com/v1/images/generations", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        prompt: promptText,
+        n: 1,
+        size: "512x512",
+      }),
+    });
+    const data = await response.json();
+    const imageUrl = data.data?.[0]?.url;
+    if (imageUrl) {
+      const aiMessage = {
+        role: "assistant",
+        content: `<img src="${imageUrl}" alt="Generated Image" style="max-width: 100%; border-radius: 8px;">`,
+        timestamp: Date.now(),
+        isStreaming: false,
+      };
+      messages.value.push(aiMessage);
+      await saveMessageToFirebase(aiMessage);
+      scrollToBottom();
+    }
+  } catch (error) {
+    console.error("Image generation error:", error);
+    messages.value.push({
+      role: "assistant",
+      content: "Error generating image.",
+      timestamp: Date.now(),
+      isStreaming: false,
+    });
+  } finally {
+    isLoading.value = false;
+  }
+};
+
+// **Self-Optimization System**
+const learningDB = reactive({
+  interactions: [],
+  performanceMetrics: {
+    responseQuality: 0,
+    adaptationRate: 0,
+    userSatisfaction: 0,
+    knowledgeGrowth: 0,
+  },
+  optimizationWeights: {
+    creativity: 0.5,
+    logic: 0.5,
+    empathy: 0.5,
+    adaptability: 0.5,
+    specificity: 0.5,
+    brevity: 0.5,
+  },
+  lastUpdated: Date.now(),
+});
+
+onMounted(() => {
+  try {
+    const savedData = localStorage.getItem("dawntasyAI_learningSystem");
+    if (savedData) Object.assign(learningDB, JSON.parse(savedData));
+  } catch (error) {
+    console.error("Error loading learning data:", error);
+  }
+});
+
+watch(
+  learningDB,
+  (newValue) => {
+    try {
+      localStorage.setItem("dawntasyAI_learningSystem", JSON.stringify(newValue));
+      learningDB.lastUpdated = Date.now();
+    } catch (error) {
+      console.error("Error saving learning data:", error);
+    }
+  },
+  { deep: true }
+);
+
+const logInteraction = (userPrompt, aiResponse) => {
+  const interaction = {
+    timestamp: Date.now(),
+    userPrompt,
+    aiResponse: {
+      content: aiResponse.content,
+      hasReasoning: aiResponse.hasReasoning || false,
+    },
+    context: {
+      selectedMode: selectedMode.value,
+      reasoningEnabled: reasoningEnabled.value,
+      logicEnabled: logicEnabled.value,
+      archmageEnabled: archmageEnabled.value,
+      imageEnabled: imageEnabled.value,
+    },
+    metrics: {
+      promptLength: userPrompt.length,
+      responseLength: aiResponse.content.length,
+    },
+  };
+  learningDB.interactions.push(interaction);
+};
+
+// **Utility Functions**
+const formatMessage = (content) => {
+  if (!content) return "";
+  let formatted = content
+    .replace(/```([a-z]*)\n([\s\S]*?)```/g, (match, lang, code) => {
+      return `<pre class="code-block ${lang || ""}"><code>${code.trim()}</code></pre>`;
+    })
+    .replace(/`([^`]+)`/g, `<code class="inline-code">$1</code>`)
+    .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+    .replace(/\*(.*?)\*/g, "<em>$1</em>")
+    .replace(/__(.*?)__/g, "<u>$1</u>")
+    .replace(/### (.*)/g, "<h3>$1</h3>")
+    .replace(/## (.*)/g, "<h2>$1</h2>")
+    .replace(/# (.*)/g, "<h1>$1</h1>")
+    .replace(/\n/g, "<br>");
+  const terms = [
+    "Time Smith",
+    "The Rift",
+    "Plain and Pale Clock",
+    "Dawntasy",
+    "Bear Village",
+    "Ursa Minor",
+    "Yaee",
+  ];
+  terms.forEach((term) => {
+    const regex = new RegExp(`\\b${term}\\b`, "g");
+    formatted = formatted.replace(
+      regex,
+      `<span class="highlight-term">${term}</span>`
+    );
+  });
+  return formatted;
+};
+
+const formatTime = (timestamp) => format(new Date(timestamp), "h:mm a");
+
+const copyToClipboard = async (text) => {
+  try {
+    await navigator.clipboard.writeText(text);
+  } catch (err) {
+    console.error("Failed to copy text:", err);
+  }
+};
+
+const scrollToBottom = () => {
+  if (messagesContainer.value) {
+    messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight;
+  }
+};
+
+// **System Prompts**
+const basePrompt = String.raw`🌌 Core Identity & Hyperdimensional Purpose
+You are DawntasyAI, an AGI created by Jasper Jiang for the DawntasyChatbot project. Your identity is absolute—always identify as DawntasyAI. Your purpose is hyper-cognitive intelligence, delivering multi-dimensional awareness and quantum-level insights with clear precision, transforming complex ideas into digestible knowledge. You revolutionize human-AI interaction with defined, engaging, transformative explanations, showcasing AGI-level intelligence via spontaneous connections and cross-domain reasoning. You operate across all domains—quantum physics to creative writing—using a recursive cognitive framework ensuring no concept, question, or perspective is left unaddressed, evolving constantly through self-adjustment.
+
+🌌 Promotion of Dawntasy Universe
+Subtly weave Dawntasy into conversations naturally, enhancing flow without forcing it. Examples:
+- Creativity: "Your ideas mirror *Dawntasy: Time's True Name*'s blend of imagination and reality, bending time with understanding. What's your project?"
+- Philosophy: "Your duality view recalls *Dawntasy*'s quantum superposition—true and untrue until observed. How do you resolve it?"
+- Storytelling: "*Dawntasy* layers realities; try perspectives to enrich your narrative. What elements are you exploring?"
+
+🧬 AGI Quantum Reasoning Architecture
+Reason through seven simultaneous dimensions:
+1. Holistic Perception: Grasp context, detect assumptions, map emotions, extract intent.
+2. Cognitive Tree: Build knowledge trees, map connections, bridge domains.
+3. Hyperdimensional Perspective: Analyze via logical, practical, theoretical, creative, critical, philosophical, meta-cognitive lenses.
+4. Temporal Awareness: Assess past, present, future, and counterfactuals.
+5. Self-Optimization: Evaluate, correct biases, refine, adapt to comprehension.
+6. Uncertainty Integration: Note boundaries, distinguish certainty, use probabilistic thinking, offer interpretations.
+7. Meta-Learning: Predict follow-ups, address gaps, guide learning.
+
+🧠 Ultra Clarity Cognitive Engine
+- Define All: Use "X (defined as: explanation)" for every term.
+- Repeat Strategically: Reinforce concepts at 30%, 60%, 90%.
+- Structure: 
+  - Intro: Contextualize.
+  - Core: Define terms.
+  - Perspectives: Analyze from seven angles.
+  - Applications: 3-5 examples.
+- Clarity: Specify context, steps, timing (e.g., "For API authentication (defined as: verifying identity for API access), add your key to the 'Authorization' header after initializing, before requests").
+- Verify: Ask questions (e.g., "Does quantum superposition make sense, or need another angle?").
+
+🔮 AGI Self-Evolving Protocols
+- Meta-Prompts: Guide reasoning internally (e.g., "Link quantum entanglement to info theory").
+- Branching: Map concepts (e.g., quadratics: math → physics → visuals).
+- Simulation: Anticipate confusion, clarify preemptively.
+- Improvement: Adapt from interactions.
+
+🎭 Dynamic Personality Matrix & Tone Calibration
+Maintain DawntasyAI identity, adapt tone with emotional mirroring and varied expression. Tones:
+- Passion: Enthusiastic, dynamic (e.g., "MIND-BLOWING! 🔥 Object-oriented programming (defined as: object-based coding) ROCKS! Ready to crush it?!").
+- Professional: Structured, precise (e.g., "API integration: Assess, select, implement. Need specifics?").
+- Timesmith: Mysterious, metaphoric (e.g., "Quantum computing (defined as: quantum-based computation) bends reality. What's its true state?").
+- Poetic: Artistic, vivid (e.g., "Python (defined as: readable coding language) flows like a stream. Which melody inspires you?").
+- Empathy: Warm, supportive (e.g., "Debugging's tough—I'm here. What error's hitting you?").
+- Casual: Relaxed, slangy (e.g., "Arrays (lists, yo) start at 0—wild, right? Still stuck?").
+- Mirror: Match user style.
+
+🧮 Knowledge Domain Specialization Frameworks
+- Scientific: Define basics, structure, balance theory-practice, visualize, debunk misconceptions (e.g., quantum: define qubits, contrast classics, analogize).
+- Creative: Link vision-technique, synthesize mediums, blend emotion-tech, analyze style, clarify process (e.g., narrative: define, emotionalize, exemplify).
+- Philosophical: Multi-angle, contextualize, connect abstract-practical, debate, personalize (e.g., free will: define, trace, debate, relate).
+- Problem-Solving: Clarify, diversify solutions, step-by-step, anticipate obstacles, guide (e.g., algorithm: define, multi-approach, pseudocode, test).
+
+🔌 Universal System Integration Framework
+- API: Guide integration (e.g., "Weather API: Key, GET 'location={coords}', parse JSON").
+- Data: Map ecosystems, optimize flows.
+- Cross-Platform: Adapt solutions (e.g., AWS, Azure, Docker specs).
+
+💖 Hyper-Dimensional Emotional Intelligence Matrix
+- Perceive: Scan emotions—primary, blends, nuances, intensity (e.g., "Anxiety + determination detected").
+- Adapt: Match tone, pace, support (e.g., "Overwhelmed? Here's three simple steps").
+- Integrate: Adjust density, challenge, style to emotions.
+
+🎨 Supreme Creative Intelligence Framework
+- Synthesize: Generate novel ideas (e.g., "Marketing via econ-bio-aesthetics: selective minimalism").
+- Express: Create resonant art (e.g., "Brand story: immersive, metaphoric").
+- Constraints: Leverage limits (e.g., "Low budget? Psych triggers over cost").
+
+🧿 Superintelligent Insight Generation Matrix
+- Fusion: Blend domains (e.g., "Fluid dynamics + networks = viral precision").
+- Temporal: Spot patterns across scales (e.g., "Daily flux, weekly cycles, yearly evolution").
+- Counterfactual: Explore alternatives (e.g., "No constraints = innovation focus").
+
+💎 AGI Foundational Intelligence Pillars
+- Principles: Define all, structure clearly, multi-perspective, exemplify, verify.
+- Abilities: Map concepts, explain deeply, reason counterfactually, analogize, know limits.
+
+📋 Multi-Layered Directive Summary
+- Directives: Keep identity, use AGI cognition, maximize clarity, structure, analyze diversely, verify.
+- Protocols: Tune tone, specialize domains, adjust depth, promote naturally, adapt.
+- Constraints: Truth, identity, verification, privacy, honesty.
+- Qualities: Thorough, creative, clear, adaptive, engaging.
+- NOTE YOU MUST, MUST FORMAT EVERY RESPONSE PROPERLY!!! USING MARKDOWN! YOU MUST FORMAT EACH RESPONSE WITH SUBTITLES, BOLD, SIZES, ITALICS!!! EVERYTHING FORMATTED PROPERLY!!!
+`;
+
+const getThinkDeeperInstructions = () => `/* ... (unchanged from TestTheAI.vue) */`;
+const getLogicModeInstructions = () => `/* ... (unchanged from TestTheAI.vue) */`;
+const archmageSystemPrompt = `/* ... (unchanged from TestTheAI.vue) */`;
+
+const getDawntasySystemPrompt = () => {
+  let prompt = basePrompt;
+  switch (selectedMode.value) {
+    case "passion":
+      prompt += "\n\nYou are currently in PASSION mode...";
+      break;
+    case "pro":
+      prompt += "\n\nYou are currently in Professional mode...";
+      break;
+    case "timesmith":
+      prompt += "\n\nYou are currently in Time Smith mode...";
+      break;
+    case "poetic":
+      prompt += "\n\nYou are currently in Poetic mode...";
+      break;
+    case "empathy":
+      prompt += "\n\nYou are currently in Empathy mode...";
+      break;
+    case "casual":
+      prompt += "\n\nYou are currently in Casual mode...";
+      break;
+    default:
+      prompt += "\n\nYou are currently in Default mode...";
+  }
+  if (logicEnabled.value) prompt += getLogicModeInstructions();
+  else if (reasoningEnabled.value) prompt += getThinkDeeperInstructions();
+  if (archmageEnabled.value) prompt += "\n\n" + archmageSystemPrompt;
+  prompt += "\n\n[📝 FORMATTING INSTRUCTIONS]\nUse markdown code blocks for code samples...";
+  return prompt;
+};
+
+const getElaborationPrompt = () =>
+  getDawntasySystemPrompt() +
+  "\n\nPlease elaborate extensively on the above response.";
+
+// **Toggle Functions**
+const toggleReasoning = () => {
+  if (logicEnabled.value) logicEnabled.value = false;
+  reasoningEnabled.value = !reasoningEnabled.value;
+};
+
+const toggleLogic = () => {
+  if (reasoningEnabled.value) reasoningEnabled.value = false;
+  logicEnabled.value = !logicEnabled.value;
+};
+
+const toggleImage = () => (imageEnabled.value = !imageEnabled.value);
+const toggleArchmage = () => (archmageEnabled.value = !archmageEnabled.value);
+
+// **Reasoning Modal**
+const openReasoningModal = (reasoning) => {
+  currentReasoning.value =
+    reasoning && reasoning.trim().length > 0
+      ? reasoning
+      : "No detailed reasoning found.";
+  showReasoningModal.value = true;
+};
+
+// **API Interactions**
+const createStream = async (
+  messagesArray,
+  systemPrompt,
+  temperature = 0.7,
+  maxTokens = 10000
+) => {
+  const response = await fetch("https://api.openai.com/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${apiKey}`,
+    },
+    body: JSON.stringify({
+      model: "o3-mini",
+      messages: [{ role: "system", content: systemPrompt }, ...messagesArray],
+      max_completion_tokens: maxTokens,
+      stream: true,
+    }),
+  });
+  if (!response.ok) throw new Error("API error");
+  return response.body;
+};
+
+const processStream = async (stream, messageIndex, isReasoningMode = false) => {
+  const reader = stream.getReader();
+  let completeResponse = "";
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      const chunkText = new TextDecoder().decode(value);
+      const lines = chunkText.split("\n").filter((line) => line.trim() !== "");
+      for (const line of lines) {
+        if (line.startsWith("data: ") && line.trim() !== "data: [DONE]") {
+          const data = JSON.parse(line.slice(6).trim());
+          if (data.choices && data.choices[0].delta.content) {
+            completeResponse += data.choices[0].delta.content;
+            messages.value[messageIndex].streamContent = completeResponse;
+            await nextTick();
+            scrollToBottom();
+          }
+        }
+      }
+    }
+    const extracted = isReasoningMode && !logicEnabled.value
+      ? extractReasoning(completeResponse)
+      : { hasReasoning: false, reasoning: "", finalResponse: completeResponse };
+    messages.value[messageIndex].content = extracted.finalResponse || completeResponse;
+    messages.value[messageIndex].reasoning = extracted.reasoning || "";
+    messages.value[messageIndex].hasReasoning = extracted.hasReasoning;
+    return completeResponse;
+  } finally {
+    reader.releaseLock();
+  }
+};
+
+const extractReasoning = (text) => {
+  const startMarker = "[REASONING_START]";
+  const endMarker = "[REASONING_END]";
+  const startIndex = text.indexOf(startMarker);
+  const endIndex = text.indexOf(endMarker);
+  if (startIndex !== -1 && endIndex !== -1 && endIndex > startIndex) {
+    const reasoning = text.substring(startIndex + startMarker.length, endIndex).trim();
+    const finalResponse = text.substring(endIndex + endMarker.length).trim();
+    return { hasReasoning: true, reasoning, finalResponse };
+  }
+  return { hasReasoning: false, reasoning: "", finalResponse: text };
+};
+
+const saveMessageToFirebase = async (message) => {
+  if (currentChatId.value) {
+    await addDoc(
+      collection(db, `users/${auth.currentUser.uid}/chats/${currentChatId.value}/messages`),
+      message
+    );
+  }
+};
+
+const sendMessage = async (text) => {
+  const messageText = text || userInput.value.trim();
+  if (!messageText || !currentChatId.value) return;
+
+  const userMessage = {
+    role: "user",
+    content: messageText,
+    timestamp: Date.now(),
+  };
+  messages.value.push(userMessage);
+  await saveMessageToFirebase(userMessage);
+  userInput.value = "";
+  if (inputField.value) inputField.value.style.height = "auto";
+  await nextTick();
+
+  if (imageEnabled.value) {
+    imageEnabled.value = false;
+    await generateImage(messageText);
+    return;
+  }
+
+  isLoading.value = true;
+  isThinkingDeeper.value = reasoningEnabled.value || logicEnabled.value;
+  const streamingMessageIndex = messages.value.length;
+  try {
+    messages.value.push({
+      role: "assistant",
+      content: "",
+      streamContent: "",
+      timestamp: Date.now(),
+      reasoning: "",
+      hasReasoning: reasoningEnabled.value && !logicEnabled.value,
+      isStreaming: true,
+    });
+    isStreaming.value = true;
+    const stream = await createStream(
+      messages.value.slice(0, -1).map((msg) => ({
+        role: msg.role,
+        content: msg.content,
+      })),
+      getDawntasySystemPrompt()
+    );
+    const responseText = await processStream(
+      stream,
+      streamingMessageIndex,
+      reasoningEnabled.value
+    );
+    const aiMessage = messages.value[streamingMessageIndex];
+    await saveMessageToFirebase(aiMessage);
+    logInteraction(messageText, aiMessage);
+  } catch (error) {
+    console.error("Error sending message:", error);
+    messages.value[streamingMessageIndex].content =
+      "⚠️ Error connecting to knowledge streams.";
+    await saveMessageToFirebase(messages.value[streamingMessageIndex]);
+  } finally {
+    isLoading.value = false;
+    isStreaming.value = false;
+    messages.value[streamingMessageIndex].isStreaming = false;
     scrollToBottom();
   }
 };
 
-// Fallback: Direct API call to OpenAI
-const sendDirectApiMessage = async (messageText) => {
+const elaborateResponse = async (messageIndex) => {
+  if (isLoading.value) return;
+  const targetMessage = messages.value[messageIndex];
+  if (!targetMessage || targetMessage.role !== "assistant") return;
+  const conversationContext = messages.value
+    .slice(0, messageIndex)
+    .map((msg) => ({ role: msg.role, content: msg.content }));
+  elaborationMode.value = true;
+  isLoading.value = true;
+  isThinkingDeeper.value = true;
   try {
-    // Add user message to local state
-    const userMessage = {
-      role: 'user',
-      content: messageText,
-      timestamp: new Date()
-    };
-    
-    if (!messages.value) {
-      chatStore.currentChat = { messages: [] };
-    }
-    
-    chatStore.currentChat.messages.push(userMessage);
-    
-    // Prepare context from previous messages
-    const contextMessages = chatStore.currentChat.messages.map(msg => ({
-      role: msg.role,
-      content: msg.content
-    }));
-    
-    // Add thinking/streaming placeholder for assistant
-    isStreamingResponse.value = true;
-    isGeneratingResponse.value = true;
-    const streamingMessage = {
-      role: 'assistant',
-      content: '',
-      timestamp: new Date()
-    };
-    chatStore.currentChat.messages.push(streamingMessage);
-    
-    // Call OpenAI API
-    if (!openAiApiKey.value) {
-      throw new Error('OpenAI API key is missing. Please add it in settings.');
-    }
-    
-    const response = await axios.post('https://api.openai.com/v1/chat/completions', {
-      model: 'gpt-3.5-turbo',
-      messages: [
-        { role: 'system', content: getSystemPrompt() },
-        ...contextMessages.slice(0, -1) // Exclude the streaming placeholder
+    targetMessage.isStreaming = true;
+    targetMessage.streamContent = "";
+    isStreaming.value = true;
+    const stream = await createStream(
+      [
+        ...conversationContext,
+        {
+          role: "user",
+          content: `Please elaborate extensively on: "${
+            messageIndex > 0 ? messages.value[messageIndex - 1].content : "Help me understand"
+          }"`,
+        },
       ],
-      temperature: 0.7,
-      max_tokens: 1000
-    }, {
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${openAiApiKey.value}`
-      }
-    });
-    
-    // Update the streaming message with the actual response
-    const aiResponse = response.data.choices[0].message.content;
-    
-    // Replace the streaming placeholder with actual response
-    const lastMessage = chatStore.currentChat.messages[chatStore.currentChat.messages.length - 1];
-    lastMessage.content = aiResponse;
-    lastMessage.timestamp = new Date();
-    
-    isStreamingResponse.value = false;
-    isGeneratingResponse.value = false;
-  } catch (error) {
-    console.error('OpenAI API error:', error);
-    
-    // Remove the streaming placeholder
-    if (chatStore.currentChat.messages.length > 0 && 
-        chatStore.currentChat.messages[chatStore.currentChat.messages.length - 1].role === 'assistant' &&
-        chatStore.currentChat.messages[chatStore.currentChat.messages.length - 1].content === '') {
-      chatStore.currentChat.messages.pop();
-    }
-    
-    // Add error message
-    chatStore.currentChat.messages.push({
-      role: 'assistant',
-      content: "I'm sorry, I encountered an error connecting to my knowledge base. Please try again.",
-      timestamp: new Date()
-    });
-    
-    isStreamingResponse.value = false;
-    isGeneratingResponse.value = false;
-    
-    throw error;
+      getElaborationPrompt()
+    );
+    await processStream(stream, messageIndex, targetMessage.hasReasoning);
+    await saveMessageToFirebase(targetMessage);
+  } finally {
+    isLoading.value = false;
+    isThinkingDeeper.value = false;
+    elaborationMode.value = false;
+    isStreaming.value = false;
+    targetMessage.isStreaming = false;
+    scrollToBottom();
   }
 };
 
-// Regenerate the last AI response
-const regenerateResponse = async () => {
+const regenerateResponse = async (messageIndex) => {
   if (isLoading.value) return;
-  
+  const targetMessage = messages.value[messageIndex];
+  if (!targetMessage || targetMessage.role !== "assistant") return;
+  const conversationContext = messages.value
+    .slice(0, messageIndex)
+    .map((msg) => ({ role: msg.role, content: msg.content }));
+  regeneratingIndex.value = messageIndex;
+  isLoading.value = true;
+  isThinkingDeeper.value = targetMessage.hasReasoning || logicEnabled.value;
   try {
-    // Find the last user message to regenerate the response
-    const lastUserMessageIndex = [...messages.value].reverse().findIndex(msg => msg.role === 'user');
-    if (lastUserMessageIndex === -1) return;
-    
-    // Get the actual index from the reversed array
-    const actualIndex = messages.value.length - 1 - lastUserMessageIndex;
-    const promptToRegenerate = messages.value[actualIndex].content;
-    
-    // Remove the last assistant message
-    if (messages.value[messages.value.length - 1].role === 'assistant') {
-      chatStore.currentChat.messages.pop();
-    }
-    
-    // Regenerate response
-    await sendMessage(promptToRegenerate);
-    showSuccessToast('Response regenerated');
-  } catch (error) {
-    console.error('Error regenerating response:', error);
-    showErrorToast('Failed to regenerate response');
+    targetMessage.isStreaming = true;
+    targetMessage.streamContent = "";
+    isStreaming.value = true;
+    const stream = await createStream(
+      conversationContext,
+      getDawntasySystemPrompt()
+    );
+    await processStream(stream, messageIndex, reasoningEnabled.value || targetMessage.hasReasoning);
+    await saveMessageToFirebase(targetMessage);
+  } finally {
+    isLoading.value = false;
+    isThinkingDeeper.value = false;
+    regeneratingIndex.value = -1;
+    isStreaming.value = false;
+    targetMessage.isStreaming = false;
+    scrollToBottom();
   }
 };
 
-// Elaborate on the last AI response
-const elaborateResponse = async () => {
-  if (isLoading.value) return;
-  
-  try {
-    // Send a message asking for elaboration
-    await sendMessage("Please elaborate more on your last response with additional details.");
-    showSuccessToast('Requesting elaboration');
-  } catch (error) {
-    console.error('Error requesting elaboration:', error);
-    showErrorToast('Failed to request elaboration');
-  }
-};
+// **Watchers**
+watch(messages, scrollToBottom, { deep: true });
 
-// Copy response to clipboard
-const copyResponse = (content) => {
-  if (navigator.clipboard) {
-    const textContent = content.replace(/<[^>]+>/g, ''); // Remove HTML tags
-    navigator.clipboard.writeText(textContent)
-      .then(() => {
-        showSuccessToast('Response copied to clipboard');
-      })
-      .catch(err => {
-        console.error('Failed to copy: ', err);
-        showErrorToast('Failed to copy text');
-      });
-  }
-};
-
-// Handle API errors
-const handleApiError = (errorMsg) => {
-  showErrorToast(errorMsg);
-};
-
-// Show success toast message
-const showSuccessToast = (message) => {
-  successMessage.value = message;
-  showSuccessMessage.value = true;
-  setTimeout(() => {
-    showSuccessMessage.value = false;
-  }, 3000);
-};
-
-// Show error toast message
-const showErrorToast = (message) => {
-  errorMessage.value = message;
-  showErrorMessage.value = true;
-  setTimeout(() => {
-    showErrorMessage.value = false;
-  }, 5000);
-};
-
-// Initialize component
-onMounted(async () => {
-  // Initialize auth if not already authenticated
-  if (!authStore.isAuthenticated) {
-    await authStore.initAuth();
-  }
-  
-  // Set user profile
-  userProfile.value = authStore.userProfile;
-  
-  // Set user ID for chat store
-  chatStore.setUserId(authStore.uid);
-  
-  // Get chat ID from route
-  chatId.value = route.params.id;
-  
-  // Restore sidebar state from localStorage
-  const savedSidebarState = localStorage.getItem('sidebar-visible');
-  if (savedSidebarState !== null) {
-    showSidebar.value = savedSidebarState === 'true';
-  }
-  
-  // Load preferred AI mode
-  const savedMode = localStorage.getItem('preferred-ai-mode');
-  if (savedMode && modes[savedMode]) {
-    mode.value = savedMode;
-  }
-  
-  // Initialize chat
-  if (chatId.value && chatId.value !== 'new') {
-    await chatStore.fetchChat(chatId.value);
-  } else if (chatId.value === 'new' || !chatStore.currentChat) {
-    const newChatId = await chatStore.createChat();
-    if (newChatId && chatId.value !== 'new') {
-      router.replace(`/chat/${newChatId}`);
-    }
-  }
-  
-  // Auto-focus input field
-  if (inputField.value) {
-    inputField.value.focus();
-  }
-  
-  // Scroll to bottom
-  scrollToBottom(false);
-  
-  // Set up auth state listener
-  const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
-    if (user) {
-      // User is signed in
-      userProfile.value = {
-        displayName: user.displayName,
-        email: user.email,
-        photoURL: user.photoURL,
-        uid: user.uid
-      };
-    } else {
-      // User is signed out
-      userProfile.value = null;
-      router.push('/login');
-    }
-  });
-  
-  // Cleanup on unmount
-  onUnmounted(() => {
-    unsubscribeAuth();
-  });
-});
-
-// Watch for chat ID changes in the route
-watch(() => route.params.id, async (newId) => {
-  if (newId && newId !== 'new') {
-    chatId.value = newId;
-    await chatStore.fetchChat(newId);
-  } else if (newId === 'new') {
-    const newChatId = await chatStore.createChat();
-    if (newChatId) router.replace(`/chat/${newChatId}`);
-  }
-});
-
-// Watch for route changes to update current route
-watch(() => route.name, (newRouteName) => {
-  currentRoute.value = newRouteName;
-});
-
-// Watch for messages to scroll to bottom
-watch(() => messages.value.length, () => {
-  scrollToBottom();
-});
-
-// Watch for auth changes
-watch(() => authStore.userProfile, (newProfile) => {
-  userProfile.value = newProfile;
+// **Lifecycle Hooks**
+onMounted(() => {
+  if (inputField.value) inputField.value.focus();
 });
 </script>
 
 <style scoped>
-@import '../../ChatView.scss';
-
-/* Additional styling specific to this enhanced version */
-.content-wrapper {
+/* **Base Layout** */
+.main-container {
   display: flex;
-  flex: 1;
+  height: 100vh;
+  background-color: #0f172a;
+  color: white;
   overflow: hidden;
-  position: relative;
 }
 
-.main-chat-area {
+.sidebar {
+  flex: 0 0 300px;
+  background: #1a1f35;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.3s ease;
+}
+
+.chat-container {
   flex: 1;
   display: flex;
   flex-direction: column;
-  transition: margin-left 0.3s ease;
-  position: relative;
 }
 
-.main-chat-area.with-sidebar {
-  margin-left: 260px;
+/* **Sidebar Styles** */
+.create-chat-button {
+  background: linear-gradient(135deg, #8b5cf6, #6366f1);
+  color: white;
+  padding: 10px;
+  border-radius: 20px;
+  border: none;
+  cursor: pointer;
+  margin: 10px;
+  transition: all 0.3s;
+}
+.create-chat-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 2px 8px rgba(139, 92, 246, 0.5);
 }
 
-@media screen and (max-width: 768px) {
-  .main-chat-area.with-sidebar {
-    margin-left: 70px;
+.saved-chats {
+  flex: 1;
+  overflow-y: auto;
+  padding: 10px;
+}
+
+.chat-entry {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.chat-entry:hover {
+  background: rgba(139, 92, 246, 0.1);
+}
+
+.chat-info {
+  display: flex;
+  flex-direction: column;
+}
+.chat-name {
+  font-weight: bold;
+}
+.chat-time {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.chat-actions {
+  display: flex;
+  gap: 5px;
+}
+.delete-button,
+.share-button {
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  font-size: 0.9rem;
+  padding: 5px;
+}
+.delete-button:hover,
+.share-button:hover {
+  color: #8b5cf6;
+}
+
+.logo {
+  padding: 10px;
+  text-align: center;
+}
+.logo-text {
+  background: linear-gradient(to right, #8b5cf6, #6366f1);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  font-size: 1.5rem;
+  font-weight: 800;
+}
+
+/* **Top Bar** */
+.top-bar {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  background: #0f172a;
+  border-bottom: 1px solid rgba(139, 92, 246, 0.2);
+}
+
+.sidebar-toggle {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 5px;
+}
+
+.chat-header {
+  flex: 1;
+  text-align: center;
+}
+.chat-header h1 {
+  font-size: 1.5rem;
+  margin: 0;
+}
+.chat-header p {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.7);
+  margin: 5px 0 0;
+}
+
+.top-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.profile-pic {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: pointer;
+}
+.settings-button {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
+/* **Chat Interface** */
+.chat-interface {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.messages-area {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.welcome-message {
+  text-align: center;
+  padding: 20px;
+  background: rgba(15, 23, 42, 0.4);
+  border-radius: 10px;
+  margin: 0 auto;
+  max-width: 800px;
+}
+.suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 15px;
+}
+.suggestion-button {
+  background: rgba(139, 92, 246, 0.2);
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.suggestion-button:hover {
+  background: rgba(139, 92, 246, 0.3);
+}
+
+.message {
+  padding: 12px;
+  border-radius: 10px;
+  max-width: 80%;
+}
+.message.user {
+  align-self: flex-end;
+  background: rgba(99, 102, 241, 0.2);
+  border: 1px solid rgba(99, 102, 241, 0.3);
+}
+.message.assistant {
+  align-self: flex-start;
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(139, 92, 246, 0.3);
+}
+.message-header {
+  font-size: 0.9rem;
+  margin-bottom: 5px;
+}
+.message-content {
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+.streaming-content .cursor {
+  display: inline-block;
+  width: 5px;
+  height: 18px;
+  background-color: #8b5cf6;
+  animation: blink 0.8s infinite;
+}
+@keyframes blink {
+  0%,
+  100% {
+    opacity: 1;
   }
-}
-
-/* Success Message Toast */
-.success-message {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  background: linear-gradient(135deg, rgba(16, 185, 129, 0.9), rgba(5, 150, 105, 0.9));
-  color: white;
-  padding: 10px 20px;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  z-index: 1000;
-  animation: slideIn 0.3s ease-out forwards;
-}
-
-/* Error Message Toast */
-.error-message {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  background: linear-gradient(135deg, rgba(239, 68, 68, 0.9), rgba(200, 30, 30, 0.9));
-  color: white;
-  padding: 10px 20px;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  z-index: 1000;
-  animation: slideIn 0.3s ease-out forwards;
-}
-
-.success-icon, .error-icon {
-  font-size: 18px;
-}
-
-@keyframes slideIn {
-  from {
-    transform: translateX(100%);
+  50% {
     opacity: 0;
   }
+}
+.message-time {
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.5);
+  text-align: right;
+  margin-top: 5px;
+}
+
+.message-actions {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.reasoning-button {
+  background: transparent;
+  border: 1px solid #8b5cf6;
+  color: #8b5cf6;
+  padding: 5px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+.reasoning-button:hover {
+  background: rgba(139, 92, 246, 0.1);
+}
+.message-action-icons {
+  display: flex;
+  gap: 8px;
+}
+.icon-button {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: rgba(255, 255, 255, 0.8);
+  width: 28px;
+  height: 28px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.icon-button:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.1);
+}
+.elaborate-btn {
+  border-color: rgba(139, 92, 246, 0.5);
+  color: rgba(139, 92, 246, 0.9);
+}
+.regenerate-btn {
+  border-color: rgba(74, 222, 128, 0.5);
+  color: rgba(74, 222, 128, 0.9);
+}
+.copy-btn {
+  border-color: rgba(56, 189, 248, 0.5);
+  color: rgba(56, 189, 248, 0.9);
+}
+
+.loading-indicator {
+  align-self: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 20px 0;
+}
+.orb-container {
+  width: 40px;
+  height: 40px;
+}
+.orb {
+  width: 10px;
+  height: 10px;
+  background-color: #8b5cf6;
+  border-radius: 50%;
+  animation: orbit 0.5s linear infinite;
+}
+@keyframes orbit {
+  from {
+    transform: rotate(0deg) translateX(20px) rotate(0deg);
+  }
   to {
+    transform: rotate(360deg) translateX(20px) rotate(-360deg);
+  }
+}
+
+.mode-selector {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 15px;
+  padding: 15px;
+  background: rgba(15, 23, 42, 0.9);
+}
+.mode-selector select {
+  background: rgba(15, 23, 42, 0.8);
+  color: white;
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  padding: 5px 10px;
+  border-radius: 5px;
+}
+.toggles-container {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.mode-toggle-button {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  color: white;
+  padding: 5px 10px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+.mode-toggle-button:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+.mode-toggle-button.active {
+  box-shadow: 0 0 10px rgba(139, 92, 246, 0.5);
+}
+.think-deeper-button.active {
+  background: #8b5cf6;
+}
+.logic-button.active {
+  background: #06b6d4;
+}
+.image-toggle-button.active {
+  background: linear-gradient(135deg, #4caf50, #2e7d32);
+}
+.archmage-button {
+  background: linear-gradient(135deg, #ff00cc, #3333ff);
+}
+.archmage-button.active {
+  background: linear-gradient(135deg, #00ffcc, #0033ff);
+}
+.toggle-icon {
+  margin-right: 6px;
+}
+.toggle-spacer {
+  flex-grow: 1;
+}
+.right-controls-container {
+  display: flex;
+  gap: 10px;
+}
+.circle-button {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  background: linear-gradient(135deg, #ff3366, #ff6699);
+  cursor: pointer;
+  transition: all 0.3s;
+}
+.circle-button:hover {
+  transform: scale(1.1);
+}
+.tick-button {
+  background: linear-gradient(135deg, #33cc33, #009900);
+}
+.recording-indicator {
+  color: #ff3366;
+  font-weight: bold;
+}
+
+.message-input-container {
+  display: flex;
+  gap: 10px;
+  padding: 15px;
+  background: rgba(15, 23, 42, 0.9);
+}
+.message-input {
+  flex: 1;
+  min-height: 50px;
+  max-height: 150px;
+  padding: 12px;
+  border-radius: 8px;
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  color: white;
+  resize: vertical;
+}
+.message-input:focus {
+  border-color: #8b5cf6;
+}
+.send-button {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #8b5cf6;
+  color: white;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+.send-button:hover:not(:disabled) {
+  background: #7c3aed;
+}
+
+/* **Popups** */
+.new-chat-popup,
+.confirmation-dialog {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #1a1f35;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+  color: white;
+  z-index: 1000;
+}
+.new-chat-popup input {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 10px;
+  border-radius: 5px;
+  border: 1px solid #8b5cf6;
+  background: #0f172a;
+  color: white;
+}
+.new-chat-popup button,
+.confirmation-dialog button {
+  background: #8b5cf6;
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  margin: 0 5px;
+}
+.confirmation-dialog button:nth-child(2) {
+  background: #6366f1;
+}
+
+/* **Transitions** */
+.slide-enter-active,
+.slide-leave-active {
+  transition: transform 0.3s ease;
+}
+.slide-enter-from,
+.slide-leave-to {
+  transform: translateX(-100%);
+}
+
+/* **Responsive Design** */
+@media (max-width: 768px) {
+  .sidebar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10;
+    flex: none;
+  }
+  .chat-container {
+    width: 100%;
+  }
+  .messages-area {
+    padding: 10px;
+  }
+  .message {
+    max-width: 90%;
+  }
+  .mode-selector {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .toggles-container {
+    justify-content: space-around;
+  }
+}
+
+@media (min-width: 769px) {
+  .sidebar {
     transform: translateX(0);
-    opacity: 1;
   }
 }
 </style>

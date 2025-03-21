@@ -127,11 +127,13 @@
 <script setup>
 import { ref, reactive } from 'vue';
 import { useRouter } from 'vue-router';
+import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
 import { useAuthStore } from '../store/auth';
 
 // Store references
 const authStore = useAuthStore();
 const router = useRouter();
+const auth = getAuth(); // Use existing auth instance
 
 // Form state
 const credentials = reactive({
@@ -159,15 +161,20 @@ function clearError(field) {
   loginError.value = '';
 }
 
-async function login() {
+async function login(event) {
+  // Manually prevent default form submission to handle cases where .prevent modifier fails
+  if (event) {
+    event.preventDefault();
+  }
+
   // Reset errors
   errors.email = '';
   errors.password = '';
   loginError.value = '';
-  
+
   // Validate form
   let isValid = true;
-  
+
   if (!credentials.email) {
     errors.email = 'Email is required';
     isValid = false;
@@ -175,32 +182,40 @@ async function login() {
     errors.email = 'Please enter a valid email';
     isValid = false;
   }
-  
+
   if (!credentials.password) {
     errors.password = 'Password is required';
     isValid = false;
   }
-  
+
   if (!isValid) return;
-  
+
   // Submit form
   isLoading.value = true;
-  
+
   try {
-    const result = await authStore.loginUser(
-      credentials.email, 
-      credentials.password,
-      rememberMe.value
-    );
-    
+    // Use authStore.loginUser if defined, otherwise fallback to manual login
+    let result;
+    if (typeof authStore.loginUser === 'function') {
+      result = await authStore.loginUser(credentials.email, credentials.password, rememberMe.value);
+    } else {
+      console.warn('authStore.loginUser not found, using manual login');
+      const persistence = rememberMe.value ? 'local' : 'none';
+      await auth.setPersistence(persistence === 'local' ? 'local' : 'session'); // Fallback without constants
+      const userCredential = await signInWithEmailAndPassword(auth, credentials.email, credentials.password);
+      result = { success: true, user: userCredential.user };
+      console.log('User logged in—PARTY TIME! 🎈');
+      console.log('Firebase Auth persistence set to', persistence);
+    }
+
     if (result.success) {
-      router.push('/');
+      router.push('/chat'); // Changed from '/' to '/chat'
     } else {
       loginError.value = result.error || 'Failed to sign in. Please check your credentials.';
     }
   } catch (error) {
     console.error('Login error:', error);
-    loginError.value = 'An unexpected error occurred. Please try again.';
+    loginError.value = error.message || 'An unexpected error occurred. Please try again.';
   } finally {
     isLoading.value = false;
   }
@@ -211,7 +226,7 @@ function forgotPassword() {
     errors.email = 'Please enter your email to reset password';
     return;
   }
-  
+
   authStore.resetPassword(credentials.email)
     .then(result => {
       if (result.success) {
@@ -226,6 +241,22 @@ function forgotPassword() {
       loginError.value = 'An unexpected error occurred. Please try again.';
     });
 }
+
+// Disable Firebase Analytics to prevent CSP violation
+const disableAnalytics = () => {
+  if (window.firebase && window.firebase.analytics) {
+    const originalAnalytics = window.firebase.analytics;
+    window.firebase.analytics = () => {
+      console.warn('Firebase Analytics disabled to comply with CSP');
+      return { logEvent: () => {}, setUserId: () => {}, setUserProperties: () => {} };
+    };
+    return () => {
+      window.firebase.analytics = originalAnalytics; // Restore if needed later
+    };
+  }
+};
+
+disableAnalytics(); // Run on mount to prevent analytics initialization
 </script>
 
 <style scoped>

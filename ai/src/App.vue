@@ -38,8 +38,6 @@ import { auth } from './firebase/init'; // Firebase magic—BOOP BOOP! 🔥
 import { useChatStore } from './store/chat';
 
 // Dynamically import components—laziness LEVEL 9000! 😴
-const AppHeader = defineAsyncComponent(() => import('./components/AppHeader.vue'));
-const AppSidebar = defineAsyncComponent(() => import('./components/AppSidebar.vue'));
 
 // Reactive goodies—time to get BOUNCY! 🦘
 const isDarkMode = ref(true);

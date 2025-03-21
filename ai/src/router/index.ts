@@ -162,7 +162,7 @@ const router = createRouter({
 const getCurrentUser = (): Promise<User | null> => {
   return new Promise((resolve, reject) => {
     const unsubscribe = onAuthStateChanged(
-      auth(), 
+      auth, 
       (user) => {
         unsubscribe();
         resolve(user);
@@ -186,7 +186,7 @@ router.beforeEach(async (to, from, next) => {
 
   try {
     // Update document title
-    document.title = to.meta.title || 'DawntasyAI';
+    document.title = ((to.meta as unknown) as EnhancedRouteMetadata).title || 'DawntasyAI';
     
     // **SPECIAL CASE**: If coming from Register and going to Onboarding, allow it
     if (from.name === 'Register' && to.name === 'Onboarding') {

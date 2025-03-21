@@ -28,6 +28,7 @@
     "firebase": "^10.14.1",
     "gsap": "^3.12.7",
     "highlight.js": "^11.11.1",
+    "mammoth": "^1.9.0",
     "markdown-it": "^14.1.0",
     "markdown-it-highlightjs": "^4.2.0",
     "marked": "^15.0.7",
@@ -38,6 +39,7 @@
     "remixicon": "^4.6.0",
     "three": "^0.161.0",
     "typed.js": "^2.1.0",
+    "uuid": "^11.1.0",
     "vue": "^3.5.13",
     "vue-router": "^4.5.0"
   },

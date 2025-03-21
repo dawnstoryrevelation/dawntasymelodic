@@ -1,6 +1,15 @@
 // src/store/auth.ts
 import { defineStore } from 'pinia';
 import { ref, computed, watch } from 'vue';
+
+// Declare firebase property on window object
+declare global {
+  interface Window {
+    firebase?: {
+      analytics: any;
+    };
+  }
+}
 import { 
   createUserWithEmailAndPassword, 
   signInWithEmailAndPassword,
@@ -10,7 +19,10 @@ import {
   onAuthStateChanged,
   User,
   GoogleAuthProvider,
-  signInWithPopup
+  signInWithPopup,
+  setPersistence, // Added
+  browserLocalPersistence, // Added
+  browserSessionPersistence // Added
 } from 'firebase/auth';
 import { 
   doc, 
@@ -73,7 +85,7 @@ export const useAuthStore = defineStore('auth', () => {
   const initAuth = () => {
     loading.value = true;
     return new Promise<void>((resolve) => {
-      const unsubscribe = onAuthStateChanged(auth(), async (currentUser) => {
+      const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
         try {
           if (currentUser) {
             user.value = currentUser;
@@ -109,7 +121,7 @@ export const useAuthStore = defineStore('auth', () => {
   // 🌟 FETCH USER PROFILE
   const fetchUserProfile = async (uid: string) => {
     try {
-      const docRef = doc(db(), "users", uid);
+      const docRef = doc(db, "users", uid);
       const docSnap = await getDoc(docRef);
       
       if (docSnap.exists()) {
@@ -155,7 +167,7 @@ export const useAuthStore = defineStore('auth', () => {
       
       // Check if username exists - using a safer query approach
       try {
-        const usernamesRef = collection(db(), "usernames");
+        const usernamesRef = collection(db, "usernames");
         const q = query(usernamesRef, where("name", "==", lowerCaseName));
         const querySnapshot = await getDocs(q);
         
@@ -188,12 +200,12 @@ export const useAuthStore = defineStore('auth', () => {
       console.log("Creating user document:", profileData);
       
       // Save to Firestore - user document
-      await setDoc(doc(db(), "users", user.uid), profileData);
+      await setDoc(doc(db, "users", user.uid), profileData);
       console.log("User document created successfully");
       
       // Try to save the username reservation (not critical if fails)
       try {
-        await setDoc(doc(db(), "usernames", lowerCaseName), {
+        await setDoc(doc(db, "usernames", lowerCaseName), {
           uid: user.uid,
           name: lowerCaseName,
           displayName: displayName,
@@ -241,7 +253,7 @@ export const useAuthStore = defineStore('auth', () => {
       console.log("Registering user:", { email, displayName });
       
       // 1. Create Firebase Auth account
-      const userCredential = await createUserWithEmailAndPassword(auth(), email, password);
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       console.log("Firebase auth account created successfully:", userCredential.user.uid);
       
       // 2. Update profile with display name
@@ -265,16 +277,18 @@ export const useAuthStore = defineStore('auth', () => {
     }
   };
 
-  // 🌟 LOGIN
-  const login = async (email: string, password: string) => {
+  // 🌟 LOGIN USER
+  const loginUser = async (email: string, password: string, rememberMe?: boolean) => {
     loading.value = true;
     error.value = null;
     
     try {
       console.log("Logging in user:", email);
       
-      // 1. Firebase authentication
-      const userCredential = await signInWithEmailAndPassword(auth(), email, password);
+      // 1. Firebase authentication with persistence
+      const persistence = rememberMe ? browserLocalPersistence : browserSessionPersistence;
+      await setPersistence(auth, persistence);
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
       console.log("Firebase auth successful");
       
       // 2. Load user profile
@@ -301,7 +315,7 @@ export const useAuthStore = defineStore('auth', () => {
     
     try {
       console.log("Logging out user");
-      await firebaseSignOut(auth());
+      await firebaseSignOut(auth);
       
       user.value = null;
       userProfile.value = null;
@@ -330,12 +344,12 @@ export const useAuthStore = defineStore('auth', () => {
       await updateProfile(user.value, { displayName: newUsername });
       
       // Update Firestore profile
-      const userRef = doc(db(), "users", user.value.uid);
+      const userRef = doc(db, "users", user.value.uid);
       await updateDoc(userRef, { displayName: newUsername });
       
       // Try to add to usernames collection (if permissions allow)
       try {
-        await setDoc(doc(db(), "usernames", newUsername.toLowerCase()), {
+        await setDoc(doc(db, "usernames", newUsername.toLowerCase()), {
           uid: user.value.uid,
           name: newUsername.toLowerCase(),
           displayName: newUsername,
@@ -367,7 +381,7 @@ export const useAuthStore = defineStore('auth', () => {
     error.value = null;
     
     try {
-      await sendPasswordResetEmail(auth(), email);
+      await sendPasswordResetEmail(auth, email);
       loading.value = false;
       return { success: true };
     } catch (e: any) {
@@ -389,11 +403,11 @@ export const useAuthStore = defineStore('auth', () => {
         'prompt': 'select_account'
       });
       
-      const result = await signInWithPopup(auth(), googleProvider);
+      const result = await signInWithPopup(auth, googleProvider);
       const firebaseUser = result.user;
       
       // Check if this is a new user
-      const userRef = doc(db(), "users", firebaseUser.uid);
+      const userRef = doc(db, "users", firebaseUser.uid);
       const userDoc = await getDoc(userRef);
       
       if (!userDoc.exists()) {
@@ -414,6 +428,23 @@ export const useAuthStore = defineStore('auth', () => {
     }
   };
 
+  // Optional: Disable Firebase Analytics to prevent CSP violation
+  const disableAnalytics = () => {
+    if (window.firebase && window.firebase.analytics) {
+      const originalAnalytics = window.firebase.analytics;
+      window.firebase.analytics = () => {
+        console.warn('Firebase Analytics disabled to comply with CSP');
+        return { logEvent: () => {}, setUserId: () => {}, setUserProperties: () => {} };
+      };
+      return () => {
+        window.firebase.analytics = originalAnalytics; // Restore if needed later
+      };
+    }
+  };
+
+  // Run analytics disable on store initialization (optional)
+  disableAnalytics();
+
   return {
     user,
     userProfile,
@@ -426,7 +457,7 @@ export const useAuthStore = defineStore('auth', () => {
     uid,
     initAuth,
     registerUser,
-    login,
+    loginUser,
     logout,
     resetPassword,
     signInWithGoogle,

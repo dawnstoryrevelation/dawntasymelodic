@@ -3,6 +3,12 @@ const functions = require("firebase-functions");
 const admin = require("firebase-admin");
 const axios = require("axios");
 const cors = require("cors")({origin: true});
+const selfOptimization = require('./selfOptimization');
+
+// Export the functions
+exports.processLearningPatterns = selfOptimization.processLearningPatterns;
+exports.generateOptimizedPrompt = selfOptimization.generateOptimizedPrompt;
+exports.onNewLearningPattern = selfOptimization.onNewLearningPattern;
 
 // Initialize Firebase Admin
 admin.initializeApp();
