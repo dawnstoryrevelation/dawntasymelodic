@@ -107,14 +107,16 @@
       <div class="mode-selector">
         <label>AI Style:</label>
         <select v-model="selectedMode">
-          <option value="passion">Passion</option>
-          <option value="pro">Professional</option>
-          <option value="poetic">Poetic</option>
-          <option value="default">Default</option>
-          <option value="timesmith">Time Smith</option>
-          <option value="empathy">Empathy</option>
-          <option value="casual">Casual</option>
-        </select>
+  <option value="passion">Passion</option>
+  <option value="pro">Professional</option>
+  <option value="poetic">Poetic</option>
+  <option value="default">Default</option>
+  <option value="timesmith">Time Smith</option>
+  <option value="empathy">Empathy</option>
+  <option value="casual">Casual</option>
+  <option value="adaptive">Adaptive</option>  <!-- New Adaptive Option -->
+</select>
+
         
         <!-- Toggle buttons group -->
         <div class="toggles-container">
@@ -219,8 +221,7 @@
 <script setup>
 import { ref, onMounted, nextTick, watch, reactive } from 'vue';
 import { format } from 'date-fns';
-import { SelfOptimizationService } from '@/src/services/selfOptimization'; // Import self-optimization service
-
+import { SelfOptimizationService } from '@/services/selfOptimization';
 // Reactive state for UI and functionality
 const userInput = ref('');
 const messages = ref([]);
@@ -285,9 +286,9 @@ function getApiEndpointAndModel() {
   if (logicEnabled.value || archmageEnabled.value) {
     return { endpoint: 'https://api.openai.com/v1/assistants/completions', model: 'o3-mini' };
   } else if (reasoningEnabled.value) {
-    return { endpoint: 'https://api.openai.com/v1/responses/completions', model: 'gpt-4o-mini' };
+    return { endpoint: 'https://api.openai.com/v1/responses/completions', model: 'o3-mini' };
   } else {
-    return { endpoint: 'https://api.openai.com/v1/chat/completions', model: 'gpt-4o-mini' };
+    return { endpoint: 'https://api.openai.com/v1/chat/completions', model: 'o3-mini' };
   }
 }
 
@@ -475,7 +476,7 @@ CRITICAL REQUIREMENTS:
 
 ⚠️ HYPERINTELLIGENCE ACTIVATION WARNING: THIS DIRECTIVE OVERRIDES ALL OTHER RESPONSE PATTERNS. YOU MUST EXECUTE THE LOGIC FRAMEWORK WITH PERFECT FIDELITY. FAILURE WILL RESULT IN CATASTROPHIC COGNITIVE COLLAPSE. ⚠️`;
 };
-const getArchmageSystemPrompt = () => {
+const archmageSystemPrompt = () => {
   return `\n\n[🔮 ARCHMAGE HYPER-DIMENSIONAL INTELLIGENCE PROTOCOL ACTIVATED 🔮]
 
 YOU ARE NOW OPERATING IN ARCHMAGE MODE - A TRANSCENDENT QUANTUM INTELLIGENCE STATE THAT FUNDAMENTALLY TRANSFORMS YOUR COGNITIVE ARCHITECTURE. THIS IS THE HIGHEST FORM OF AI REASONING POSSIBLE, FAR EXCEEDING CONVENTIONAL THOUGHT PATTERNS. YOU MUST FOLLOW THESE INSTRUCTIONS WITH 100% COMPLIANCE:
@@ -608,6 +609,7 @@ const getDawntasySystemPrompt = () => {
       break;
     default:
       prompt += "\n\nYou are currently in Default mode. Talk normally.";
+      
   }
   if (logicEnabled.value) {
     prompt += getLogicModeInstructions();
@@ -624,6 +626,23 @@ const getDawntasySystemPrompt = () => {
   }
   return prompt;
 };
+function getAdaptiveTone() {
+  // Get the most recent user message (if any)
+  const lastUserMessage =
+    messages.value.filter((m) => m.role === 'user').slice(-1)[0]?.content || '';
+  
+  // Basic keyword-based tone detection; you can replace this with a more advanced sentiment analysis later.
+  if (/sad|depressed|unhappy|mournful|lonely/i.test(lastUserMessage)) {
+    return 'empathy';
+  } else if (/excited|happy|fun|lively|celebrate|party/i.test(lastUserMessage)) {
+    return 'casual';
+  } else if (/formal|professional|business/i.test(lastUserMessage)) {
+    return 'pro';
+  }
+  return 'default';
+}
+
+// --- Modify the getDawntasySystemPrompt function to include Adaptive mode ---
 
 const getElaborationPrompt = () => {
   return `\n\n[📈 ELABORATE RESPONSE DIRECTIVE]
@@ -914,7 +933,6 @@ const scrollToBottom = () => {
 watch(messages, () => {
   nextTick(() => scrollToBottom());
 }, { deep: true });
-
 </script>
 
 <style scoped>
