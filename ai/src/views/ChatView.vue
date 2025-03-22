@@ -41,7 +41,15 @@
                   <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
                 </svg>
               </button>
-            </div>
+              <MindMap 
+    :savedChats="savedChats" 
+    :currentChatId="currentChatId" 
+    :apiKey="apiKey" 
+    :userId="userId" 
+    :showToastNotification="showToastNotification" 
+    :sendMessage="sendMessage"
+    :loadChat="loadChat"
+  />
           </div>
         </div>
         <div class="logo">
@@ -49,6 +57,7 @@
             Dawntasy<span style="color: var(--accent-color);">AI</span>
           </span>
         </div>
+      </div>
       </div>
     </transition>
     
@@ -65,6 +74,15 @@
                   <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z" />
                 </svg>
               </button>
+              <MindMap 
+    :savedChats="savedChats" 
+    :currentChatId="currentChatId" 
+    :apiKey="apiKey" 
+    :userId="userId" 
+    :showToastNotification="showToastNotification" 
+    :sendMessage="sendMessage"
+    :loadChat="loadChat"
+  />
               <div class="chat-header">
   <h1>{{ currentChat?.name || "New Chat" }}</h1>
   <div class="header-actions">
@@ -392,9 +410,13 @@ import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, getDocs, 
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { SelfOptimizationService } from '@/services/selfOptimization';
 import { useRouter } from 'vue-router';
+import MindMap from '@/components/MindMap.vue';
 
 export default {
   name: "DawntasyChat",
+  components: {
+  MindMap
+},
   setup() {
     // Initialize Firebase services
     const db = getFirestore();
@@ -633,7 +655,23 @@ onMounted(async () => {
         console.error("Error processing self-optimization:", error);
       }
     };
-
+// Add this at the beginning of your onMounted hook
+onMounted(() => {
+  // Fix for mobile viewport height issues with URL bar
+  const setVh = () => {
+    let vh = window.innerHeight * 0.01;
+    document.documentElement.style.setProperty('--vh', `${vh}px`);
+  };
+  
+  // Set the initial value
+  setVh();
+  
+  // Update on resize and orientation change
+  window.addEventListener('resize', setVh);
+  window.addEventListener('orientationchange', setVh);
+  
+  // Your existing onMounted code...
+});
     // **Firebase Authentication Check**
     onMounted(() => {
       // Listen for authentication state changes
