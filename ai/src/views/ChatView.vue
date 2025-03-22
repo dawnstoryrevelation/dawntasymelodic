@@ -539,7 +539,7 @@ import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, getDocs, 
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { SelfOptimizationService } from '@/services/selfOptimization';
 import { useRouter } from 'vue-router';
-import MindMap from '@/components/MindMap';
+import MindMap from '../components/MindMap.vue';
 
 export default {
   name: "DawntasyChat",
@@ -581,7 +581,19 @@ const deployMindMap = (mindMap) => {
   // Just a stub for now
   console.log("Deploy mind map:", mindMap);
 };
-
+const MindMap = {
+  name: 'MindMap',
+  props: {
+    savedChats: Array,
+    currentChatId: String,
+    apiKey: String,
+    userId: String,
+    showToastNotification: Function,
+    sendMessage: Function,
+    loadChat: Function
+  },
+  // Include the setup function and other parts of the component here
+};
 const deleteMindMap = async (mindMapId) => {
   if (!userId.value || !mindMapId) return;
   
