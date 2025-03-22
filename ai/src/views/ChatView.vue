@@ -41,68 +41,70 @@
                   <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
                 </svg>
               </button>
-            </div>
           </div>
         </div>
         
-        <!-- Saved Mind Maps Section (positioned above the logo) -->
+        <!-- Saved Mind Maps Section (new) -->
         <div class="saved-mind-maps">
-          <div class="mind-maps-header" @click="toggleMindMapsExpanded">
+          <div class="saved-mind-maps-header" @click="toggleMindMapsExpanded">
+            <span class="mind-maps-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M12 8v8M8 12h8"/>
+                <path d="M17 8a5 5 0 0 0-10 0"/>
+                <path d="M7 16a5 5 0 0 0 10 0"/>
+              </svg>
+            </span>
             <span>Saved Mind Maps</span>
-            <svg 
-              xmlns="http://www.w3.org/2000/svg" 
-              viewBox="0 0 24 24" 
-              width="16" 
-              height="16" 
-              fill="none" 
-              stroke="currentColor" 
-              stroke-width="2"
-              :style="{ transform: isMindMapsExpanded ? 'rotate(90deg)' : 'rotate(0deg)' }"
-              style="transition: transform 0.2s ease;"
-            >
-              <polyline points="9 18 15 12 9 6" />
-            </svg>
+            <span class="expand-icon" :class="{ expanded: mindMapsExpanded }">▶</span>
           </div>
-          <div v-if="isMindMapsExpanded" class="mind-maps-list">
-            <div
-              v-for="mindMap in savedMindMaps"
-              :key="mindMap.id"
-              class="mind-map-entry"
-            >
-              <span class="mind-map-name">{{ mindMap.name }}</span>
-              <div class="mind-map-actions">
-                <button
-                  class="deploy-button"
-                  @click.stop="deployMindMap(mindMap)"
-                  title="Deploy Mind Map"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
-                  </svg>
-                </button>
-                <button
-                  class="delete-mind-map-button"
-                  @click.stop="deleteMindMap(mindMap.id)"
-                  title="Delete Mind Map"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2M10 11v6M14 11v6" />
-                  </svg>
-                </button>
-              </div>
-            </div>
-            <div v-if="savedMindMaps.length === 0" class="no-mind-maps">
-              No mind maps yet
-            </div>
-          </div>
+          <div v-if="mindMapsExpanded" class="mind-maps-list">
+  <div
+    v-for="mindMap in savedMindMaps"
+    :key="mindMap.id"
+    class="mind-map-entry"
+    @click="deployMindMap(mindMap, $event)"
+  >
+    <div class="mind-map-info">
+      <span class="mind-map-name">{{ mindMap.topic }}</span>
+      <span class="mind-map-time">{{ formatTime(mindMap.timestamp) }}</span>
+    </div>
+    <div class="mind-map-actions">
+      <button
+        class="deploy-button"
+        @click.stop="deployMindMap(mindMap, $event)"
+        title="Deploy Mind Map"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path>
+          <polyline points="16 6 12 2 8 6"></polyline>
+          <line x1="12" y1="2" x2="12" y2="15"></line>
+        </svg>
+      </button>
+      <button
+        class="delete-button"
+        @click.stop="deleteMindMap(mindMap.id, $event)"
+        title="Delete Mind Map"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2M10 11v6M14 11v6" />
+        </svg>
+      </button>
+    </div>
+  </div>
+  <div v-if="savedMindMaps.length === 0" class="no-mind-maps">
+    No mind maps saved yet
+  </div>
+</div>
         </div>
-        
-        <!-- Logo (moved to bottom) -->
+
+        <!-- Logo moved to the bottom -->
         <div class="logo">
           <span class="logo-text">
             Dawntasy<span style="color: var(--accent-color);">AI</span>
           </span>
         </div>
+      </div>
       </div>
     </transition>
     
@@ -114,29 +116,31 @@
           <span class="sidebar-toggle-icon"></span>
         </button>
         <button class="settings-button" @click="goToSettings">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M12 15a3 3 0 100-6 3 3 0 000 6z" />
-            <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z" />
-          </svg>
-        </button>
-        <!-- Mind Map Button -->
-        <button class="mind-map-button" @click="showCreateMindMapModal = true" title="Create Mind Map">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="12" cy="12" r="5" />
-            <path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" />
-          </svg>
-          <span>Create Mind Map</span>
-        </button>
-        <div class="chat-header">
-          <h1>{{ currentChat?.name || "New Chat" }}</h1>
-          <div class="header-actions">
-            <a href="https://www.amazon.com/Dawntasy-Circular-Dawn-breathtaking-fantasy-ebook/dp/B0DT74DLY5/" target="_blank" class="buy-book-button subtle">
-              <span class="book-icon">📚</span>
-              Support Me by Buying the Book
-            </a>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 15a3 3 0 100-6 3 3 0 000 6z" />
+                  <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z" />
+                </svg>
+              </button>
+              <!-- Create Mind Map Button (new) -->
+              <button class="create-mind-map-button" @click="showMindMapModal = true">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"/>
+                  <path d="M12 8v8M8 12h8"/>
+                  <path d="M17 8a5 5 0 0 0-10 0"/>
+                  <path d="M7 16a5 5 0 0 0 10 0"/>
+                </svg>
+                Create Mind Map
+              </button>
+              <div class="chat-header">
+  <h1>{{ currentChat?.name || "New Chat" }}</h1>
+  <div class="header-actions">
+    <a href="https://www.amazon.com/Dawntasy-Circular-Dawn-breathtaking-fantasy-ebook/dp/B0DT74DLY5/" target="_blank" class="buy-book-button subtle">
+      <span class="book-icon">📚</span>
+      Support Me by Buying the Book
+    </a>
+  </div>
+</div>
           </div>
-        </div>
-      </div>
       <!-- Chat Interface -->
       <div class="chat-interface">
         <div class="messages-area" ref="messagesContainer">
@@ -209,7 +213,7 @@
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M23 4v6h-6M1 20v-6h6" />
-                    <path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15" />
+                    <path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0120.49 15" />
                   </svg>
                 </button>
                 <button
@@ -336,21 +340,21 @@
               <span v-if="isRecording" class="recording-indicator">Recording</span>
             </div>
             <button
-              class="mode-toggle-button multimodal-response-button"
-              @click="getMultimodalResponse"
-              title="Get multimodal response"
-            >
-              <span class="toggle-icon">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M10 3H3v7h7V3z"/>
-                  <path d="M21 3h-7v7h7V3z"/>
-                  <path d="M21 14h-7v7h7v-7z"/>
-                  <path d="M10 14H3v7h7v-7z"/>
-                  <line x1="12" y1="8" x2="12" y2="16"/>
-                  <line x1="8" y1="12" x2="16" y2="12"/>
-                </svg>
-              </span>
-            </button>
+  class="mode-toggle-button multimodal-response-button"
+  @click="getMultimodalResponse"
+  title="Get multimodal response"
+>
+  <span class="toggle-icon">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M10 3H3v7h7V3z"/>
+      <path d="M21 3h-7v7h7V3z"/>
+      <path d="M21 14h-7v7h7v-7z"/>
+      <path d="M10 14H3v7h7v-7z"/>
+      <line x1="12" y1="8" x2="12" y2="16"/>
+      <line x1="8" y1="12" x2="16" y2="12"/>
+    </svg>
+  </span>
+</button>
           </div>
         </div>
 
@@ -444,73 +448,63 @@
       </div>
       <div class="toast-content">{{ toastMessage }}</div>
     </div>
-    
-    <!-- Create Mind Map Modal -->
-    <div v-if="showCreateMindMapModal" class="modal-overlay">
+
+    <!-- Mind Map Modal (new) -->
+    <div v-if="showMindMapModal" class="modal-overlay">
       <div class="mind-map-modal">
         <div class="modal-header">
-          <h3>Create Mind Map</h3>
-          <button class="modal-close-btn" @click="showCreateMindMapModal = false">&times;</button>
+          <h3>
+            <span class="typing-effect" v-if="mindMapTitleTyping">{{ mindMapTitleDisplayed }}</span>
+            <span v-else>Create Mind Map</span>
+          </h3>
+          <button class="modal-close-btn" @click="closeMindMapModal">&times;</button>
         </div>
-        <div class="modal-content">
-          <div class="typing-text">{{ displayedPrompt }}</div>
-          <input 
-            v-model="mindMapTopic" 
-            placeholder="Enter mind map topic..." 
-            @keydown.enter="createMindMap"
-            ref="mindMapInput"
-            :disabled="isCreatingMindMap"
-          />
-        </div>
-        <div class="popup-buttons">
-          <button 
-            class="btn-primary" 
-            @click="createMindMap" 
-            :disabled="!mindMapTopic || isCreatingMindMap"
-          >
-            {{ isCreatingMindMap ? 'Creating...' : 'Create' }}
-          </button>
-          <button class="btn-secondary" @click="showCreateMindMapModal = false">Cancel</button>
+        <div class="mind-map-content">
+          <div class="mind-map-input-container">
+            <input 
+              v-model="newMindMapTopic" 
+              placeholder="Enter the topic of your Mind Map" 
+              @keydown.enter="createMindMap" 
+              ref="mindMapInput"
+              :disabled="mindMapTitleTyping"
+              autofocus
+            />
+          </div>
+          <div class="popup-buttons">
+            <button class="btn-primary" @click="createMindMap" :disabled="mindMapTitleTyping">Create</button>
+            <button class="btn-secondary" @click="closeMindMapModal">Cancel</button>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- Deploy Mind Map Modal -->
+    <!-- Mind Map Deployment Modal (new) -->
     <div v-if="showDeployMindMapModal" class="modal-overlay">
-      <div class="mind-map-modal large-modal">
+      <div class="mind-map-modal">
         <div class="modal-header">
-          <h3>Mind Map: {{ currentMindMap?.name }}</h3>
+          <h3>Deploy Mind Map: {{ selectedMindMap?.topic }}</h3>
           <button class="modal-close-btn" @click="showDeployMindMapModal = false">&times;</button>
         </div>
-        <div class="modal-content">
-          <div v-if="isDeployingMindMap" class="deploying-indicator">
-            <div class="deploying-animation">
-              <div class="orbit">
-                <div class="planet"></div>
-              </div>
+        <div v-if="isDeployingMindMap" class="mind-map-deploying">
+          <div class="deploying-animation">
+            <div class="orbit">
+              <div class="planet"></div>
+              <div class="moon"></div>
             </div>
-            <div class="deploying-text">Deploying Mind Map...</div>
           </div>
-          <div v-else class="mind-map-visualization" ref="mindMapContainer"></div>
+          <div class="deploying-text">Deploying Mind Map...</div>
         </div>
-      </div>
-    </div>
-
-    <!-- Select Chat Modal -->
-    <div v-if="showSelectChatModal" class="modal-overlay">
-      <div class="mind-map-modal">
-        <div class="modal-header">
-          <h3>Select Chat to Explore</h3>
-          <button class="modal-close-btn" @click="showSelectChatModal = false">&times;</button>
+        <div v-else-if="mindMapVisualization" class="mind-map-visualization">
+          <div class="mind-map-container" ref="mindMapContainer"></div>
         </div>
-        <div class="modal-content">
-          <p>What chat do you want to deploy this exploration in?</p>
+        <div v-else-if="showSelectChatModal" class="select-chat-modal">
+          <h4>What chat do you want to deploy this exploration in?</h4>
           <div class="chat-selection-list">
-            <div 
-              v-for="chat in savedChats" 
-              :key="chat.id" 
-              class="chat-selection-item" 
-              @click="exploreBranchInChat(chat.id)"
+            <div
+              v-for="chat in savedChats"
+              :key="chat.id"
+              class="chat-selection-item"
+              @click="deployBranchToChat(chat.id)"
             >
               {{ chat.name }}
             </div>
@@ -518,34 +512,20 @@
         </div>
       </div>
     </div>
-    
-    <!-- MindMap Component Integration -->
-    <MindMap 
-      :savedChats="savedChats" 
-      :currentChatId="currentChatId" 
-      :apiKey="apiKey" 
-      :userId="userId" 
-      :showToastNotification="showToastNotification" 
-      :sendMessage="sendMessage"
-      :loadChat="loadChat"
-    />
   </div>
 </template>
 
 <script>
 import { ref, computed, onMounted, watch, nextTick, reactive } from "vue";
 import { format } from "date-fns";
-import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, getDocs, query, orderBy } from "firebase/firestore";
+import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, getDocs, query, orderBy, getDoc, updateDoc, } from "firebase/firestore";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { SelfOptimizationService } from '@/services/selfOptimization';
 import { useRouter } from 'vue-router';
-import MindMap from '../components/MindMap.vue';
+
 
 export default {
   name: "DawntasyChat",
-  components: {
-  MindMap
-},
   setup() {
     // Initialize Firebase services
     const db = getFirestore();
@@ -554,16 +534,1048 @@ export default {
     // Add this near the beginning of your setup function, after initializing Firebase// Add this near the beginning of your setup function, after initializing Firebase
 const messages = ref([]);
 const savedChats = ref([]);
+const showMindMapModal = ref(false);
+const newMindMapTopic = ref("");
+const mindMapInput = ref(null);
+const mindMapsExpanded = ref(false);
 const savedMindMaps = ref([]);
-const isMindMapsExpanded = ref(false);
-const showCreateMindMapModal = ref(false);
+const mindMapTitleTyping = ref(false);
+const mindMapTitleDisplayed = ref("");
+const mindMapContainer = ref(null);
 const showDeployMindMapModal = ref(false);
+const isDeployingMindMap = ref(false);
+const mindMapVisualization = ref(false);
+const selectedMindMap = ref(null);
+const selectedBranch = ref(null);
+const showSelectChatModal = ref(false);
 const openBookLink = () => {
   window.open('https://www.amazon.com/Dawntasy-Circular-Dawn-breathtaking-fantasy-ebook/dp/B0DT74DLY5/', '_blank');
 };
+// Update the onMounted function to persist auth state
+onMounted(() => {
+  // Fix for mobile viewport height issues with URL bar
+  const setVh = () => {
+    let vh = window.innerHeight * 0.01;
+    document.documentElement.style.setProperty('--vh', `${vh}px`);
+  };
+  
+  // Set the initial value
+  setVh();
+  
+  // Update on resize and orientation change
+  window.addEventListener('resize', setVh);
+  window.addEventListener('orientationchange', setVh);
+  
+  // Try to retrieve userId from localStorage if it exists
+  const savedUserId = localStorage.getItem('dawntasyUserId');
+  if (savedUserId) {
+    userId.value = savedUserId;
+    isAuthenticated.value = true;
+  }
+  
+  // Listen for authentication state changes
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      isAuthenticated.value = true;
+      userId.value = user.uid;
+      userProfilePic.value = user.photoURL || "https://via.placeholder.com/40";
+      
+      // Store userId in localStorage for persistence
+      localStorage.setItem('dawntasyUserId', user.uid);
+      
+      // For development: Create a demo chat if no chats exist
+      createDemoChat();
+      
+      // Load mind maps after authentication
+      loadMindMaps();
+    } else {
+      // If previously authenticated but now logged out
+      localStorage.removeItem('dawntasyUserId');
+      isAuthenticated.value = false;
+      savedChats.value = [];
+      messages.value = [];
+      savedMindMaps.value = [];
+      
+      // For development: Enable demo mode without requiring auth
+      enableDemoMode();
+    }
+  });
+  
+  // Initialize input field
+  if (inputField.value) {
+    inputField.value.focus();
+  }
+  
+  // Adjust sidebar visibility based on screen size
+  window.addEventListener('resize', () => {
+    if (window.innerWidth <= 768) {
+      isSidebarOpen.value = false;
+    }
+  });
+});
+const startTypingEffect = async () => {
+  const text = "DawntasyAI says: What is the topic of your Mind Map?";
+  mindMapTitleTyping.value = true;
+  mindMapTitleDisplayed.value = "";
+  
+  for (let i = 0; i < text.length; i++) {
+    mindMapTitleDisplayed.value += text[i];
+    await new Promise(resolve => setTimeout(resolve, 30)); // Adjust speed as needed
+  }
+  
+  setTimeout(() => {
+    mindMapTitleTyping.value = false;
+    if (mindMapInput.value) {
+      mindMapInput.value.focus();
+    }
+  }, 500);
+};
+
+// Modify the loadMindMaps function to handle authentication more robustly
+const loadMindMaps = async () => {
+  // Check for auth state first
+  if (!auth.currentUser && !userId.value) {
+    console.warn("Cannot load mind maps: No user ID available");
+    
+    // Try to get the current user from auth
+    const currentUser = auth.currentUser;
+    if (currentUser) {
+      userId.value = currentUser.uid;
+    } else {
+      // If we're in demo mode, use the demo user ID
+      if (isAuthenticated.value) {
+        userId.value = userId.value || "demo-user";
+      } else {
+        return; // Exit if no user is authenticated
+      }
+    }
+  }
+  
+  // Exit if we still don't have a user ID
+  if (!userId.value) return;
+  
+  try {
+    // Reference to user's mind maps collection
+    const mindMapsRef = collection(db, `users/${userId.value}/mindmaps`);
+    const q = query(mindMapsRef, orderBy("timestamp", "desc"));
+    
+    // Set up real-time listener
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const mindMaps = [];
+      snapshot.forEach((doc) => {
+        mindMaps.push({
+          id: doc.id,
+          ...doc.data()
+        });
+      });
+      
+      savedMindMaps.value = mindMaps;
+      console.log(`Loaded ${mindMaps.length} mind maps from Firebase`);
+    }, (error) => {
+      console.error("Error loading mind maps:", error);
+      showToastNotification("Failed to load your mind maps", "error");
+    });
+    
+    // Store the unsubscribe function to clean up on component unmount
+    return unsubscribe;
+  } catch (error) {
+    console.error("Error setting up mind maps listener:", error);
+    showToastNotification("Failed to connect to mind maps database", "error");
+  }
+};
+
+const deployBranchToChat = async (chatId) => {
+  console.log("Deploying branch to chat:", chatId);
+  if (!selectedMindMap.value || !selectedBranch.value || !chatId || !userId.value) {
+    console.error("Missing required data for deployment");
+    showToastNotification("Unable to deploy: Missing data", "error");
+    showDeployMindMapModal.value = false;
+    showSelectChatModal.value = false;
+    return;
+  }
+  
+  try {
+    isLoading.value = true;
+    
+    // Load the selected chat
+    await loadChat(chatId);
+    
+    // Create user message about the mind map branch
+    const userMessage = {
+      role: "user",
+      content: `Let's explore the "${selectedBranch.value}" branch of my "${selectedMindMap.value.topic}" mind map.`,
+      timestamp: Date.now()
+    };
+    
+    // Save user message to Firebase
+    const messagesRef = collection(db, `users/${userId.value}/chats/${chatId}/messages`);
+    await addDoc(messagesRef, userMessage);
+    
+    // Add to UI
+    messages.value.push(userMessage);
+    
+    // Create AI message with branch exploration
+    const aiResponse = await generateMindMapBranchExploration(
+      selectedMindMap.value.topic,
+      selectedBranch.value
+    );
+    
+    const aiMessage = {
+      role: "assistant",
+      content: aiResponse,
+      timestamp: Date.now(),
+      hasReasoning: false
+    };
+    
+    // Save AI message to Firebase
+    await addDoc(messagesRef, aiMessage);
+    
+    // Add to UI
+    messages.value.push(aiMessage);
+    
+    // Close the modals
+    showDeployMindMapModal.value = false;
+    showSelectChatModal.value = false;
+    selectedMindMap.value = null;
+    selectedBranch.value = null;
+    
+    showToastNotification("Mind Map branch deployed to chat", "success");
+  } catch (error) {
+    console.error("Error deploying branch to chat:", error);
+    showToastNotification("Failed to deploy branch to chat", "error");
+    
+    showDeployMindMapModal.value = false;
+    showSelectChatModal.value = false;
+  } finally {
+    isLoading.value = false;
+  }
+};
+
+// Helper function to generate a response for the branch exploration
+const generateMindMapBranchExploration = async (topic, branch) => {
+  // In a real implementation, this would call your AI API
+  // For now, we'll generate a placeholder response
+  
+  return `# Exploring: ${branch} of ${topic}
+
+I'm analyzing the "${branch}" branch of your "${topic}" Mind Map. Here's what I can offer on this topic:
+
+## Key Points
+* This branch explores the "${branch}" aspect of ${topic}
+* I'll help you develop ideas and connections related to this branch
+* Let me know if you want to explore specific sub-branches
+
+## Suggestions for Exploration
+1. What specific aspects of "${branch}" are you most interested in?
+2. Would you like me to suggest key concepts related to this branch?
+3. Should we brainstorm how this branch connects to other areas of ${topic}?
+
+Let me know how you'd like to proceed with exploring this branch further!`;
+};
+let mindMapsUnsubscribe = null;
+
+
+// Web Search Feature
+// Add this to your existing onMounted hook
+onMounted(() => {
+  // Your existing code...
+  
+  // Load saved mind maps
+  loadMindMaps();
+  
+  // Set up mind map modal handlers
+  watch(showMindMapModal, (newValue) => {
+    if (newValue) {
+      nextTick(() => {
+        // Start typing effect when modal is shown
+        startTypingEffect();
+      });
+    }
+  });
+});
+const deleteMindMap = async (mindMapId) => {
+  if (!userId.value || !mindMapId) return;
+  
+  try {
+    await deleteDoc(doc(db, `users/${userId.value}/mindmaps/${mindMapId}`));
+    showToastNotification("Mind Map deleted", "success");
+  } catch (error) {
+    console.error("Error deleting mind map:", error);
+    showToastNotification("Failed to delete mind map", "error");
+  }
+};
+// Replace the current createMindMapVisualization function with this enhanced version
+// Enhanced visualization with dynamic text sizing
+const createMindMapVisualization = (centralTopic, branches = []) => {
+  console.log("Creating mind map visualization for:", centralTopic);
+  if (!mindMapContainer.value) {
+    console.error("Mind map container not found");
+    return;
+  }
+  
+  if (!window.d3) {
+    console.error("D3.js not loaded");
+    return;
+  }
+  
+  // Clear previous visualization
+  d3.select(mindMapContainer.value).selectAll("*").remove();
+  
+  // Get branch names
+  let branchNames = [];
+  if (branches && branches.length > 0) {
+    if (typeof branches[0] === 'string') {
+      branchNames = branches;
+    } else if (branches[0] && branches[0].name) {
+      branchNames = branches.map(b => b.name);
+    }
+  }
+  
+  // Fallback to default branches if needed
+  if (branchNames.length === 0) {
+    console.log("No valid branches provided, using defaults");
+    branchNames = ["Overview", "Key Concepts", "Applications", "Examples", "Resources"];
+  }
+  
+  console.log("Using branch names:", branchNames);
+  
+  // Set up the SVG container with better dimensions
+  const width = mindMapContainer.value.clientWidth || 600;
+  const height = 500;
+  const centerX = width / 2;
+  const centerY = height / 2;
+  
+  // Create SVG with a subtle gradient background
+  const svg = d3.select(mindMapContainer.value)
+    .append("svg")
+    .attr("width", width)
+    .attr("height", height)
+    .attr("viewBox", `0 0 ${width} ${height}`)
+    .attr("preserveAspectRatio", "xMidYMid meet");
+  
+  // Add a subtle gradient background
+  const defs = svg.append("defs");
+  const gradient = defs.append("radialGradient")
+    .attr("id", "mind-map-bg")
+    .attr("cx", "50%")
+    .attr("cy", "50%")
+    .attr("r", "50%");
+  
+  gradient.append("stop")
+    .attr("offset", "0%")
+    .attr("stop-color", "#1a1f35");
+  
+  gradient.append("stop")
+    .attr("offset", "100%")
+    .attr("stop-color", "#0f172a");
+  
+  svg.append("rect")
+    .attr("width", width)
+    .attr("height", height)
+    .attr("fill", "url(#mind-map-bg)");
+  
+  // Add a subtle grid pattern
+  const gridSize = 20;
+  const grid = defs.append("pattern")
+    .attr("id", "grid")
+    .attr("width", gridSize)
+    .attr("height", gridSize)
+    .attr("patternUnits", "userSpaceOnUse");
+  
+  grid.append("path")
+    .attr("d", `M ${gridSize} 0 L 0 0 0 ${gridSize}`)
+    .attr("fill", "none")
+    .attr("stroke", "rgba(255, 255, 255, 0.03)")
+    .attr("stroke-width", 1);
+  
+  svg.append("rect")
+    .attr("width", width)
+    .attr("height", height)
+    .attr("fill", "url(#grid)");
+  
+  // Function to calculate optimal text size
+  const calculateOptimalFontSize = (text, maxWidth, maxHeight) => {
+    // Start with a base size and adjust as needed
+    const baseSize = 16;
+    const minSize = 10;
+    const charWidth = 0.6 * baseSize; // Approximate width per character
+    
+    // Estimate text width
+    const estWidth = text.length * charWidth;
+    
+    if (estWidth <= maxWidth) {
+      return baseSize; // Base size is fine
+    }
+    
+    // Calculate a smaller size to fit
+    let fontSize = Math.max(minSize, (maxWidth / estWidth) * baseSize);
+    
+    // Round to nearest even number for cleaner rendering
+    fontSize = Math.floor(fontSize / 2) * 2;
+    
+    return fontSize;
+  };
+  
+  // Function to wrap text to fit within a circle
+  const wrapTextInCircle = (selection, radius) => {
+    selection.each(function() {
+      const text = d3.select(this);
+      const words = text.text().split(/\s+/);
+      const lineHeight = parseFloat(text.style("font-size")) * 1.2;
+      const y = parseFloat(text.attr("y"));
+      const maxWidth = radius * 1.5; // Little more than diameter to account for circle area
+      
+      text.text(null); // Clear the text element
+      
+      // Very short texts - just center them
+      if (words.length <= 2) {
+        text.append("tspan")
+          .attr("x", text.attr("x"))
+          .attr("y", y)
+          .attr("text-anchor", "middle")
+          .attr("dominant-baseline", "middle")
+          .text(words.join(" "));
+        return;
+      }
+      
+      // Longer texts - create wrapped lines
+      let line = [];
+      let lineNumber = 0;
+      let tspan = text.append("tspan")
+        .attr("x", text.attr("x"))
+        .attr("y", y - ((words.length / 2) * lineHeight / 2))
+        .attr("text-anchor", "middle");
+      
+      words.forEach(word => {
+        line.push(word);
+        tspan.text(line.join(" "));
+        
+        if (tspan.node().getComputedTextLength() > maxWidth) {
+          line.pop();
+          tspan.text(line.join(" "));
+          line = [word];
+          tspan = text.append("tspan")
+            .attr("x", text.attr("x"))
+            .attr("y", y - ((words.length / 2) * lineHeight / 2) + (++lineNumber * lineHeight))
+            .attr("text-anchor", "middle")
+            .text(word);
+        }
+      });
+    });
+  };
+  
+  // Create center node shadow for depth
+  svg.append("circle")
+    .attr("cx", centerX)
+    .attr("cy", centerY + 3)
+    .attr("r", 52)
+    .attr("fill", "rgba(0, 0, 0, 0.3)")
+    .attr("filter", "blur(5px)");
+  
+  // Create center node with gradient
+  const centerGradient = defs.append("radialGradient")
+    .attr("id", "center-gradient")
+    .attr("cx", "50%")
+    .attr("cy", "30%");
+  
+  centerGradient.append("stop")
+    .attr("offset", "0%")
+    .attr("stop-color", "#6366f1");
+  
+  centerGradient.append("stop")
+    .attr("offset", "100%")
+    .attr("stop-color", "#4f46e5");
+  
+  // Define central node radius based on text length
+  const centralRadius = Math.min(80, Math.max(50, 40 + centralTopic.length * 0.8));
+  
+  // Add central node
+  svg.append("circle")
+    .attr("cx", centerX)
+    .attr("cy", centerY)
+    .attr("r", centralRadius)
+    .attr("fill", "url(#center-gradient)")
+    .attr("stroke", "rgba(255, 255, 255, 0.2)")
+    .attr("stroke-width", 2)
+    .attr("filter", "drop-shadow(0 2px 4px rgba(0,0,0,0.2))");
+  
+  // Create a clipping path for central text
+  defs.append("clipPath")
+    .attr("id", "center-clip")
+    .append("circle")
+      .attr("cx", centerX)
+      .attr("cy", centerY)
+      .attr("r", centralRadius - 5);
+  
+  // Calculate optimal font size for central topic
+  const centralFontSize = calculateOptimalFontSize(centralTopic, centralRadius * 1.6, centralRadius * 1.6);
+  
+  // Add central text with proper wrapping
+  const centralText = svg.append("text")
+    .attr("x", centerX)
+    .attr("y", centerY)
+    .attr("clip-path", "url(#center-clip)")
+    .attr("text-anchor", "middle")
+    .attr("fill", "white")
+    .attr("font-weight", "bold")
+    .attr("font-size", `${centralFontSize}px`)
+    .style("pointer-events", "none")
+    .text(centralTopic);
+  
+  // Apply text wrapping to central text
+  wrapTextInCircle(centralText, centralRadius - 10);
+  
+  // Calculate positions for branch nodes based on number of branches
+  const numBranches = branchNames.length;
+  const radius = Math.min(width, height) * 0.35; // Slightly smaller to fit better
+  
+  // Create a group for connections to position them behind nodes
+  const connectionsGroup = svg.append("g").attr("class", "connections");
+  const nodesGroup = svg.append("g").attr("class", "nodes");
+  
+  // Calculate node radius based on branch name length and available space
+  const calculateNodeRadius = (branchName, totalBranches) => {
+    // Base radius calculation
+    const baseRadius = Math.min(width, height) * 0.1;
+    
+    // Adjust based on number of branches and text length
+    let adjustedRadius = baseRadius - (totalBranches * 1.2) - (branchName.length * 0.3);
+    
+    // Ensure minimum and maximum size
+    return Math.min(Math.max(adjustedRadius, 30), 45);
+  };
+  
+  // Add branches and connections
+  branchNames.forEach((branch, i) => {
+    const angle = (i * (2 * Math.PI / numBranches)) - Math.PI / 2;
+    const x = centerX + radius * Math.cos(angle);
+    const y = centerY + radius * Math.sin(angle);
+    
+    // Calculate appropriate node radius based on branch name
+    const nodeRadius = calculateNodeRadius(branch, numBranches);
+    
+    // Create gradient for connection line
+    const connectionGradient = defs.append("linearGradient")
+      .attr("id", `connection-gradient-${i}`)
+      .attr("x1", "0%")
+      .attr("y1", "0%")
+      .attr("x2", "100%")
+      .attr("y2", "0%")
+      .attr("gradientUnits", "userSpaceOnUse")
+      .attr("gradientTransform", `rotate(${angle * 180 / Math.PI}, ${centerX}, ${centerY})`);
+    
+    connectionGradient.append("stop")
+      .attr("offset", "0%")
+      .attr("stop-color", "#4f46e5");
+    
+    connectionGradient.append("stop")
+      .attr("offset", "100%")
+      .attr("stop-color", "rgba(255, 255, 255, 0.6)");
+    
+    // Draw curved connection line
+    const controlPointDistance = radius * 0.6;
+    const controlX = centerX + controlPointDistance * Math.cos(angle);
+    const controlY = centerY + controlPointDistance * Math.sin(angle);
+    
+    connectionsGroup.append("path")
+      .attr("d", `M ${centerX} ${centerY} Q ${controlX} ${controlY} ${x} ${y}`)
+      .attr("stroke", `url(#connection-gradient-${i})`)
+      .attr("stroke-width", 2)
+      .attr("fill", "none")
+      .attr("opacity", 0.7);
+    
+    // Create gradient for branch node
+    const nodeGradient = defs.append("linearGradient")
+      .attr("id", `node-gradient-${i}`)
+      .attr("x1", "0%")
+      .attr("y1", "0%")
+      .attr("x2", "100%")
+      .attr("y2", "100%");
+    
+    nodeGradient.append("stop")
+      .attr("offset", "0%")
+      .attr("stop-color", "#1e293b");
+    
+    nodeGradient.append("stop")
+      .attr("offset", "100%")
+      .attr("stop-color", "#0f172a");
+    
+    // Draw branch node shadow
+    nodesGroup.append("circle")
+      .attr("cx", x + 2)
+      .attr("cy", y + 2)
+      .attr("r", nodeRadius)
+      .attr("fill", "rgba(0, 0, 0, 0.3)")
+      .attr("filter", "blur(3px)");
+    
+    // Draw branch node
+    const node = nodesGroup.append("circle")
+      .attr("cx", x)
+      .attr("cy", y)
+      .attr("r", nodeRadius)
+      .attr("fill", `url(#node-gradient-${i})`)
+      .attr("stroke", "#4f46e5")
+      .attr("stroke-width", 2)
+      .attr("cursor", "pointer")
+      .attr("data-branch", branch)
+      .on("mouseover", function() {
+        d3.select(this)
+          .transition()
+          .duration(200)
+          .attr("r", nodeRadius + 2)
+          .attr("stroke-width", 3);
+      })
+      .on("mouseout", function() {
+        d3.select(this)
+          .transition()
+          .duration(200)
+          .attr("r", nodeRadius)
+          .attr("stroke-width", 2);
+      })
+      .on("click", function() {
+        // Handle branch click
+        console.log("Selected branch:", branch);
+        selectedBranch.value = branch;
+        mindMapVisualization.value = false;
+        showSelectChatModal.value = true;
+        
+        // Add subtle animation effect on click
+        d3.select(this)
+          .transition()
+          .duration(100)
+          .attr("r", nodeRadius - 2)
+          .transition()
+          .duration(200)
+          .attr("r", nodeRadius);
+      });
+    
+    // Create a clipping path for branch text
+    defs.append("clipPath")
+      .attr("id", `branch-clip-${i}`)
+      .append("circle")
+        .attr("cx", x)
+        .attr("cy", y)
+        .attr("r", nodeRadius - 5);
+    
+    // Calculate optimal font size for branch text
+    const fontSize = calculateOptimalFontSize(branch, nodeRadius * 1.6, nodeRadius * 1.6);
+    
+    // Add branch text
+    const text = nodesGroup.append("text")
+      .attr("x", x)
+      .attr("y", y)
+      .attr("clip-path", `url(#branch-clip-${i})`)
+      .attr("text-anchor", "middle")
+      .attr("fill", "white")
+      .attr("font-size", `${fontSize}px`)
+      .attr("pointer-events", "none")
+      .text(branch);
+    
+    // Apply text wrapping to branch text
+    wrapTextInCircle(text, nodeRadius - 5);
+    
+    // Add subtle pulse animation to the nodes
+    const randomDelay = Math.random() * 5;
+    node.transition()
+      .delay(randomDelay * 1000)
+      .duration(2000)
+      .attr("stroke-opacity", 0.7)
+      .transition()
+      .duration(2000)
+      .attr("stroke-opacity", 1)
+      .on("end", function repeat() {
+        d3.select(this)
+          .transition()
+          .duration(2000)
+          .attr("stroke-opacity", 0.7)
+          .transition()
+          .duration(2000)
+          .attr("stroke-opacity", 1)
+          .on("end", repeat);
+      });
+  });
+  
+  // Add subtle animations to connections
+  connectionsGroup.selectAll("path")
+    .attr("stroke-dasharray", function() {
+      const length = this.getTotalLength();
+      return `${length} ${length}`;
+    })
+    .attr("stroke-dashoffset", function() {
+      return this.getTotalLength();
+    })
+    .transition()
+    .duration(1000)
+    .attr("stroke-dashoffset", 0);
+  
+  // Add a subtle animation to the central node
+  svg.select("circle[cx='" + centerX + "'][cy='" + centerY + "']")
+    .attr("r", 0)
+    .transition()
+    .duration(800)
+    .attr("r", centralRadius)
+    .ease(d3.easeBounceOut);
+};
+const toggleMindMapsExpanded = () => {
+  mindMapsExpanded.value = !mindMapsExpanded.value;
+};
+const closeMindMapModal = () => {
+  showMindMapModal.value = false;
+  newMindMapTopic.value = "";
+  mindMapTitleTyping.value = false;
+  mindMapTitleDisplayed.value = "";
+};
+// Update the createMindMap function to support demo mode
+// Update the createMindMap function to support async branch generation
+const createMindMap = async () => {
+  if (!newMindMapTopic.value.trim()) {
+    showToastNotification("Please enter a topic for your Mind Map", "error");
+    return;
+  }
+  
+  if (!userId.value) {
+    // If somehow we don't have a userId, try to enable demo mode
+    enableDemoMode();
+  }
+  
+  try {
+    isLoading.value = true;
+    
+    // Generate branches using AI
+    const topic = newMindMapTopic.value.trim();
+    const branches = await generateInitialBranches(topic);
+    
+    // Create structured mind map data
+    const mindMapData = {
+      topic: topic,
+      timestamp: Date.now(),
+      createdBy: userId.value,
+      branches: branches,
+      lastModified: Date.now(),
+      isPublic: false
+    };
+    
+    if (userId.value === "demo-user") {
+      // For demo mode, just add to local state with a random ID
+      const demoId = `demo-mindmap-${Date.now()}`;
+      savedMindMaps.value.unshift({
+        id: demoId,
+        ...mindMapData
+      });
+    } else {
+      // For real users, save to Firebase
+      const mindMapsRef = collection(db, `users/${userId.value}/mindmaps`);
+      const docRef = await addDoc(mindMapsRef, mindMapData);
+      
+      // Add the new mind map to the local state
+      savedMindMaps.value.unshift({
+        id: docRef.id,
+        ...mindMapData
+      });
+    }
+    
+    showToastNotification("Mind Map created successfully", "success");
+    closeMindMapModal();
+    
+    // Ensure the mind maps list is expanded to show the new addition
+    mindMapsExpanded.value = true;
+  } catch (error) {
+    console.error("Error creating mind map:", error);
+    showToastNotification("Failed to create mind map", "error");
+  } finally {
+    isLoading.value = false;
+  }
+};
+
+// Helper function to generate initial branches based on the topic
+// Replace the current generateInitialBranches function with this AI-powered version
+// Improved version with better logging and error handling
+const generateInitialBranches = async (topic) => {
+  console.log(`Generating branches for topic: "${topic}"`);
+
+  try {
+    // Check if API key is available and valid
+    if (!apiKey || apiKey.trim() === "") {
+      console.log("No valid API key available, using fallback branches");
+      return generateDemoBranches(topic);
+    }
+
+    console.log("Attempting to generate branches via OpenAI API with o3-mini model");
+
+    // Make an API call to OpenAI
+    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${apiKey}`
+      },
+      body: JSON.stringify({
+        model: "o3-mini", // Primary choice: new reasoning model from 2025
+        messages: [
+          {
+            role: "system",
+            content: "You are an AI specialized in creating mind maps. For the given topic, generate 5-7 relevant sub-topics. Return only a JSON array of strings, like [\"Subtopic1\", \"Subtopic2\", \"Subtopic3\"], with no extra text or explanation."
+          },
+          {
+            role: "user",
+            content: `Generate relevant mind map branches for the topic: "${topic}"`
+          }
+        ],
+        max_tokens: 150
+      })
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("API error response:", errorText);
+
+      // If model not found or unavailable, try fallback model
+      if (response.status === 404 || response.status === 403) {
+        console.log("o3-mini unavailable, attempting gpt-4o-mini as fallback");
+        const fallbackResponse = await fetch("https://api.openai.com/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${apiKey}`
+          },
+          body: JSON.stringify({
+            model: "gpt-4o-mini", // Fallback model
+            messages: [
+              {
+                role: "system",
+                content: "You are an AI specialized in creating mind maps. For the given topic, generate 5-7 relevant sub-topics. Return only a JSON array of strings, like [\"Subtopic1\", \"Subtopic2\", \"Subtopic3\"], with no extra text or explanation."
+              },
+              {
+                role: "user",
+                content: `Generate relevant mind map branches for the topic: "${topic}"`
+              }
+            ],
+            max_tokens: 150
+          })
+        });
+
+        if (!fallbackResponse.ok) {
+          const fallbackErrorText = await fallbackResponse.text();
+          console.error("Fallback API error response:", fallbackErrorText);
+          throw new Error(`Fallback API error: ${fallbackResponse.status} - ${fallbackErrorText}`);
+        }
+
+        const fallbackData = await fallbackResponse.json();
+        const fallbackContent = fallbackData.choices[0].message.content.trim();
+        console.log("Fallback API content response:", fallbackContent);
+        return parseContent(fallbackContent);
+      }
+
+      throw new Error(`API error: ${response.status} - ${errorText}`);
+    }
+
+    // Parse the response from o3-mini
+    const data = await response.json();
+    console.log("API response data:", data);
+
+    const content = data.choices[0].message.content.trim();
+    console.log("API content response:", content);
+
+    return parseContent(content);
+  } catch (error) {
+    console.error("Error generating mind map branches:", error);
+    console.log("Using fallback branches due to error");
+    return generateDemoBranches(topic);
+  }
+};
+
+// Helper function to parse content and extract branches
+const parseContent = (content) => {
+  let branchNames = [];
+
+  try {
+    // Try parsing as JSON array
+    branchNames = JSON.parse(content);
+    if (!Array.isArray(branchNames)) {
+      throw new Error("Parsed content is not an array");
+    }
+  } catch (e) {
+    console.log("JSON parsing failed, attempting alternative parsing:", e.message);
+    // Fallback: extract array-like content or split text
+    const arrayMatch = content.match(/\[([^\]]+)\]/);
+    if (arrayMatch && arrayMatch[0]) {
+      try {
+        branchNames = JSON.parse(arrayMatch[0]);
+      } catch (e) {
+        console.log("Embedded array parsing failed:", e.message);
+      }
+    }
+
+    // If still no array, split by lines or commas
+    if (!Array.isArray(branchNames)) {
+      branchNames = content
+        .split(/[\n,]/)
+        .map(item => item.trim().replace(/["[\]]/g, "")) // Remove quotes and brackets
+        .filter(item => item && !item.match(/^\d+\.|-/)); // Remove numbered or bulleted prefixes
+    }
+  }
+
+  console.log("Extracted branch names:", branchNames);
+
+  if (!branchNames.length) {
+    throw new Error("No valid branches extracted");
+  }
+
+  return branchNames.map(branch => ({
+    name: branch,
+    notes: "",
+    subBranches: []
+  }));
+};
+
+// Enhanced fallback function with more domain-specific branches
+const generateDemoBranches = (topic) => {
+  console.log(`Using demo branches for: "${topic}"`);
+  const topicLower = topic.toLowerCase();
+  
+  // More specific branch patterns based on topic
+  if (topicLower.includes("medieval") || topicLower.includes("europe")) {
+    return [
+      { name: "Feudal System", notes: "", subBranches: [] },
+      { name: "Knights & Warfare", notes: "", subBranches: [] },
+      { name: "Religion & Church", notes: "", subBranches: [] },
+      { name: "Castle Architecture", notes: "", subBranches: [] },
+      { name: "Guilds & Trade", notes: "", subBranches: [] },
+      { name: "Monarchies", notes: "", subBranches: [] },
+      { name: "Daily Life", notes: "", subBranches: [] }
+    ];
+  } else if (topicLower.includes("writing") || topicLower.includes("author")) {
+    return [
+      { name: "Story Structure", notes: "", subBranches: [] },
+      { name: "Character Development", notes: "", subBranches: [] },
+      { name: "World Building", notes: "", subBranches: [] },
+      { name: "Dialogue", notes: "", subBranches: [] },
+      { name: "Editing Process", notes: "", subBranches: [] },
+      { name: "Publishing", notes: "", subBranches: [] }
+    ];
+  } else if (topicLower.includes("history")) {
+    return [
+      { name: "Time Periods", notes: "", subBranches: [] },
+      { name: "Key Events", notes: "", subBranches: [] },
+      { name: "Historical Figures", notes: "", subBranches: [] },
+      { name: "Cultural Impact", notes: "", subBranches: [] },
+      { name: "Artifacts", notes: "", subBranches: [] },
+      { name: "Historiography", notes: "", subBranches: [] }
+    ];
+  } else if (topicLower.includes("science")) {
+    return [
+      { name: "Theories", notes: "", subBranches: [] },
+      { name: "Experiments", notes: "", subBranches: [] },
+      { name: "Key Discoveries", notes: "", subBranches: [] },
+      { name: "Notable Scientists", notes: "", subBranches: [] },
+      { name: "Applications", notes: "", subBranches: [] },
+      { name: "Future Directions", notes: "", subBranches: [] }
+    ];
+  } else if (topicLower.includes("dawntasy")) {
+    return [
+      { name: "Plot Elements", notes: "", subBranches: [] },
+      { name: "Characters", notes: "", subBranches: [] },
+      { name: "World Building", notes: "", subBranches: [] },
+      { name: "Symbolism", notes: "", subBranches: [] },
+      { name: "Themes", notes: "", subBranches: [] },
+      { name: "Time Concepts", notes: "", subBranches: [] }
+    ];
+  } else if (topicLower.includes("coding") || topicLower.includes("programming")) {
+    return [
+      { name: "Languages", notes: "", subBranches: [] },
+      { name: "Frameworks", notes: "", subBranches: [] },
+      { name: "Best Practices", notes: "", subBranches: [] },
+      { name: "Algorithms", notes: "", subBranches: [] },
+      { name: "Data Structures", notes: "", subBranches: [] },
+      { name: "Development Tools", notes: "", subBranches: [] }
+    ];
+  } else {
+    // Generic fallback branches
+    return [
+      { name: "Overview", notes: "", subBranches: [] },
+      { name: "Key Concepts", notes: "", subBranches: [] },
+      { name: "Applications", notes: "", subBranches: [] },
+      { name: "Examples", notes: "", subBranches: [] },
+      { name: "Resources", notes: "", subBranches: [] }
+    ];
+  }
+};
+// Update the deployMindMap function to better handle click events
+// Update the deployMindMap function to handle AI-generated branches
+const deployMindMap = async (mindMap, event) => {
+  // Stop event propagation to prevent conflicts with parent click handlers
+  if (event) event.stopPropagation();
+  
+  if (!mindMap || !userId.value) {
+    showToastNotification("Cannot deploy mind map: Missing data", "error");
+    return;
+  }
+  
+  console.log("Deploying mind map:", mindMap);
+  selectedMindMap.value = mindMap;
+  showDeployMindMapModal.value = true;
+  isDeployingMindMap.value = true;
+  mindMapVisualization.value = false;
+  showSelectChatModal.value = false;
+  
+  try {
+    // Load D3.js if not already loaded
+    await loadD3();
+    
+    // Check if the mind map has branches
+    let branches = mindMap.branches;
+    
+    // If no branches exist or they're invalid, generate them using AI
+    if (!branches || !Array.isArray(branches) || branches.length === 0) {
+      branches = await generateInitialBranches(mindMap.topic);
+      
+      // Update the mindMap object
+      mindMap.branches = branches;
+      
+      // Save the updated mind map to Firebase
+      if (userId.value !== "demo-user") {
+        const mindMapRef = doc(db, `users/${userId.value}/mindmaps/${mindMap.id}`);
+        await updateDoc(mindMapRef, { branches: branches, lastModified: Date.now() });
+      }
+    }
+    
+    // Simulate loading time with a nice animation
+    setTimeout(async () => {
+      isDeployingMindMap.value = false;
+      mindMapVisualization.value = true;
+      
+      await nextTick();
+      createMindMapVisualization(mindMap.topic, branches);
+    }, 1500);
+  } catch (error) {
+    console.error("Error deploying mind map:", error);
+    showToastNotification("Failed to deploy mind map", "error");
+    showDeployMindMapModal.value = false;
+  }
+};
+
+// Update the deleteMindMap function to handle events
 const toggleWebSearch = () => {
   useWebSearch.value = !useWebSearch.value;
   showToastNotification(`Web search ${useWebSearch.value ? 'enabled' : 'disabled'}`, "info");
+};
+const loadD3 = () => {
+  if (window.d3) return Promise.resolve();
+  
+  return new Promise((resolve, reject) => {
+    const script = document.createElement('script');
+    // Use jsdelivr instead of d3js.org to comply with your CSP
+    script.src = 'https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js';
+    script.onload = () => {
+      console.log("D3.js loaded successfully");
+      resolve();
+    };
+    script.onerror = (error) => {
+      console.error("Failed to load D3.js:", error);
+      reject(error);
+    };
+    document.head.appendChild(script);
+  });
 };
     // Add this new function within the `<script>` tag's `setup()` function, after Firebase initialization
 const loadDawntasyBookContent = async () => {
@@ -572,43 +1584,6 @@ const loadDawntasyBookContent = async () => {
     "Dawntasy B1 Part 2": "",
     "Dawntasy B1 Part 3": ""
   });
-  const toggleMindMapsExpanded = () => {
-  isMindMapsExpanded.value = !isMindMapsExpanded.value;
-};
-
-const deployMindMap = (mindMap) => {
-  // This will be handled by the MindMap component
-  // Just a stub for now
-  console.log("Deploy mind map:", mindMap);
-};
-const MindMap = {
-  name: 'MindMap',
-  props: {
-    savedChats: Array,
-    currentChatId: String,
-    apiKey: String,
-    userId: String,
-    showToastNotification: Function,
-    sendMessage: Function,
-    loadChat: Function
-  },
-  // Include the setup function and other parts of the component here
-};
-const deleteMindMap = async (mindMapId) => {
-  if (!userId.value || !mindMapId) return;
-  
-  try {
-    isLoading.value = true;
-    const mindMapRef = doc(db, `users/${userId.value}/mindmaps/${mindMapId}`);
-    await deleteDoc(mindMapRef);
-    showToastNotification("Mind map deleted", "success");
-  } catch (error) {
-    console.error("Error deleting mind map:", error);
-    showToastNotification("Failed to delete mind map", "error");
-  } finally {
-    isLoading.value = false;
-  }
-};
   const router = useRouter();
   try {
     const db = getFirestore();
@@ -621,7 +1596,54 @@ const deleteMindMap = async (mindMapId) => {
         dawntasyBookContent.value[docName] = doc.data().content || "Content not available";
       }
     });
-// Web Search Feature
+    // Add these functions to your setup function after the variables
+
+
+
+
+
+
+
+
+
+
+
+
+
+const generateMindMapData = (centralTopic) => {
+  // Try to dynamically generate branches based on the topic
+  // This could be replaced with an actual API call to your AI service
+  
+  let branches = [];
+  
+  // Map common topics to relevant branches
+  const topicMap = {
+    "Claude": ["Claude 3.7 Sonnet", "Claude Search Capabilities", "What is Claude?", "Claude vs GPT", "Claude's Limitations"],
+    "AI": ["Machine Learning", "Neural Networks", "AI Ethics", "Generative AI", "AI Applications"],
+    "JavaScript": ["ES6 Features", "Frontend Frameworks", "Node.js", "JavaScript Libraries", "Async Programming"],
+    "Dawntasy": ["Book Synopsis", "Characters", "The Rift", "Time Smith", "Reading Guide"]
+  };
+  
+  // Find a matching topic or generate generic branches
+  const normalizedTopic = centralTopic.trim().toLowerCase();
+  const matchingTopic = Object.keys(topicMap).find(key => 
+    normalizedTopic.includes(key.toLowerCase())
+  );
+  
+  if (matchingTopic) {
+    branches = topicMap[matchingTopic];
+  } else {
+    // Fallback to generic branches
+    branches = ["Overview", "Extension", "Application", "More About", "History"];
+  }
+  
+  return {
+    central: centralTopic,
+    branches: branches
+  };
+};
+
+
 const performWebSearch = async (query) => {
   try {
     isLoading.value = true;
@@ -961,31 +1983,63 @@ onMounted(() => {
   }
 };
     // Enable demo mode for development when authentication fails
-    const enableDemoMode = () => {
-      console.log("Demo mode activated - no Firebase authentication required");
-      isAuthenticated.value = true;
-      userId.value = "demo-user";
-      
-      // Create local demo chats
-      savedChats.value = [
-        { id: "demo-chat-1", name: "Welcome Chat", timestamp: Date.now() },
-        { id: "demo-chat-2", name: "Feature Demo", timestamp: Date.now() - 3600000 }
-      ];
-      
-      // Set default chat
-      currentChatId.value = "demo-chat-1";
-      
-      // Add welcome messages
-      messages.value = [
-        {
-          role: "assistant",
-          content: "# Welcome to DawntasyAI Demo Mode\n\nFirebase authentication is not configured yet. This is a local demo that doesn't save data to Firebase.\n\nYou can:\n- Test the UI\n- Try different AI modes\n- Send messages (using mock responses)\n\n## To Fix Firebase Permissions\nUpdate your Firestore security rules in the Firebase Console.",
-          timestamp: Date.now() - 10000,
-          hasReasoning: false,
-          isStreaming: false
-        }
-      ];
-    };
+    // Update the enableDemoMode function to support mind maps
+const enableDemoMode = () => {
+  console.log("Demo mode activated - no Firebase authentication required");
+  isAuthenticated.value = true;
+  userId.value = "demo-user";
+  
+  // Create local demo chats
+  savedChats.value = [
+    { id: "demo-chat-1", name: "Welcome Chat", timestamp: Date.now() },
+    { id: "demo-chat-2", name: "Feature Demo", timestamp: Date.now() - 3600000 }
+  ];
+  
+  // Create demo mind maps
+  savedMindMaps.value = [
+    { 
+      id: "demo-mindmap-1", 
+      topic: "Dawntasy Universe", 
+      timestamp: Date.now(),
+      createdBy: "demo-user",
+      branches: [
+        { name: "Plot Elements", notes: "Complex, layered narrative with time manipulation", subBranches: [] },
+        { name: "Characters", notes: "Time Smith, Yaee, Ursa Minor", subBranches: [] },
+        { name: "Symbolism", notes: "Clocks, coffee, water & fire", subBranches: [] },
+        { name: "Themes", notes: "Reality vs illusion, time, control", subBranches: [] }
+      ]
+    },
+    { 
+      id: "demo-mindmap-2", 
+      topic: "AI Concepts", 
+      timestamp: Date.now() - 7200000,
+      createdBy: "demo-user",
+      branches: [
+        { name: "Machine Learning", notes: "", subBranches: [] },
+        { name: "Neural Networks", notes: "", subBranches: [] },
+        { name: "AI Ethics", notes: "", subBranches: [] },
+        { name: "Applications", notes: "", subBranches: [] }
+      ]
+    }
+  ];
+  
+  // Set default chat
+  currentChatId.value = "demo-chat-1";
+  
+  // Add welcome messages
+  messages.value = [
+    {
+      role: "assistant",
+      content: "# Welcome to DawntasyAI Demo Mode\n\nFirebase authentication is not configured yet. This is a local demo that doesn't save data to Firebase.\n\nYou can:\n- Test the UI\n- Try different AI modes\n- Send messages (using mock responses)\n- Create and interact with Mind Maps\n\n## To Fix Firebase Permissions\nUpdate your Firestore security rules in the Firebase Console.",
+      timestamp: Date.now() - 10000,
+      hasReasoning: false,
+      isStreaming: false
+    }
+  ];
+  
+  // Make sure mind maps section is expanded to show demo maps
+  mindMapsExpanded.value = true;
+};
     
     // Create a demo chat if no chats exist
     const createDemoChat = async () => {
@@ -2564,7 +3618,6 @@ The most brilliant revelation is that Time Smith is actually Wartstune of Valley
 The entire story operates on multiple levels: a dystopian rebellion tale on the surface, a philosophical exploration of reality beneath, and ultimately a meta-narrative about being trapped in recursive storytelling - just as the characters are trapped in The Rift's simulation.
 
 
-
 PROMOTIONAL ACTIVITIES: EXTREMELY IMPORTANT!!!!! 
 
 when advertising the BOOK sales, use this link, this is the link to the book: https://www.amazon.com/Dawntasy-Circular-Dawn-breathtaking-fantasy-ebook/dp/B0DT74DLY5
@@ -4100,6 +5153,26 @@ const contextualMemory = reactive({
       showNewChatPopup,
       newChatName,
       showDeleteConfirm,
+      showMindMapModal,
+  newMindMapTopic,
+  mindMapTitleTyping,
+  mindMapTitleDisplayed,
+  mindMapsExpanded,
+  savedMindMaps,
+  showDeployMindMapModal,
+  isDeployingMindMap,
+  mindMapVisualization,
+  showSelectChatModal,
+  selectedMindMap,
+  selectedBranch,
+  mindMapContainer,
+  mindMapInput,
+  closeMindMapModal,
+  createMindMap,
+  toggleMindMapsExpanded,
+  deployMindMap,
+  deleteMindMap,
+  deployBranchToChat,
       userProfilePic,
       userInput,
       isLoading,
@@ -5754,32 +6827,119 @@ html, body {
     padding-bottom: 40px;
   }
 }
-/* Add these styles to your existing <style> section */
-.saved-mind-maps {
-  margin-top: 20px;
-  border-top: 1px solid var(--border-light);
-}
-
-.mind-maps-header {
+/* Mind Map Styles */
+.create-mind-map-button {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: var(--text-secondary);
+  border-radius: 6px;
+  padding: 6px 12px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  margin-left: 10px;
+}
+
+.create-mind-map-button:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: white;
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+.create-mind-map-button svg {
+  color: var(--primary);
+}
+
+.mind-map-modal {
+  background: #1a1f35;
+  border-radius: 8px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.25);
+  color: white;
+  min-width: 400px;
+  max-width: 90%;
+  animation: slideIn 0.3s ease;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.mind-map-content {
+  padding: 20px;
+}
+
+.mind-map-input-container {
+  margin-bottom: 20px;
+}
+
+.mind-map-input-container input {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(15, 23, 42, 0.7);
+  color: white;
+  font-size: 14px;
+}
+
+.mind-map-input-container input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 1px rgba(79, 70, 229, 0.2);
+}
+
+.typing-effect {
+  position: relative;
+}
+
+.typing-effect::after {
+  content: '|';
+  animation: blink 1s infinite;
+}
+
+.saved-mind-maps {
+  margin-top: auto;
+  border-top: 1px solid var(--border-light);
+  padding-top: 10px;
+}
+
+.saved-mind-maps-header {
+  display: flex;
+  align-items: center;
   padding: 10px;
   cursor: pointer;
   font-weight: 500;
-  color: var(--text-secondary);
   font-size: 14px;
   transition: all 0.2s ease;
 }
 
-.mind-maps-header:hover {
-  color: white;
+.saved-mind-maps-header:hover {
   background: rgba(255, 255, 255, 0.05);
 }
 
+.mind-maps-icon {
+  margin-right: 8px;
+  display: flex;
+  align-items: center;
+}
+
+.expand-icon {
+  margin-left: auto;
+  font-size: 10px;
+  transition: transform 0.2s ease;
+}
+
+.expand-icon.expanded {
+  transform: rotate(90deg);
+}
+
 .mind-maps-list {
-  padding: 0 10px;
-  margin-bottom: 10px;
+  padding: 0 10px 10px 10px;
+  max-height: 200px;
+  overflow-y: auto;
 }
 
 .mind-map-entry {
@@ -5789,10 +6949,9 @@ html, body {
   padding: 8px 10px;
   margin-bottom: 5px;
   border-radius: 6px;
-  background: rgba(15, 23, 42, 0.3);
   cursor: pointer;
   transition: all 0.2s ease;
-  border-left: 2px solid transparent;
+  border-left: 3px solid transparent;
 }
 
 .mind-map-entry:hover {
@@ -5800,16 +6959,28 @@ html, body {
   border-left-color: rgba(79, 70, 229, 0.5);
 }
 
+.mind-map-info {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
 .mind-map-name {
+  font-weight: 500;
   font-size: 13px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
+.mind-map-time {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.5);
+}
+
 .mind-map-actions {
   display: flex;
-  gap: 5px;
+  gap: 6px;
   opacity: 0.6;
   transition: opacity 0.2s;
 }
@@ -5818,11 +6989,10 @@ html, body {
   opacity: 1;
 }
 
-.deploy-button,
-.delete-mind-map-button {
+.deploy-button {
   background: none;
   border: none;
-  color: var(--text-secondary);
+  color: var(--primary);
   cursor: pointer;
   padding: 4px;
   border-radius: 4px;
@@ -5833,80 +7003,137 @@ html, body {
 }
 
 .deploy-button:hover {
-  background: rgba(79, 70, 229, 0.2);
+  background: rgba(79, 70, 229, 0.1);
   color: var(--primary);
 }
 
-.delete-mind-map-button:hover {
-  background: rgba(239, 68, 68, 0.2);
-  color: #ef4444;
-}
-
 .no-mind-maps {
-  text-align: center;
-  padding: 10px;
   color: var(--text-secondary);
-  font-size: 13px;
+  font-size: 12px;
+  text-align: center;
+  padding: 10px 0;
   font-style: italic;
 }
 
-.mind-map-button {
+.mind-map-deploying {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 8px;
-  background: none;
-  border: none;
-  color: var(--text-secondary);
-  cursor: pointer;
-  padding: 6px 10px;
+  justify-content: center;
+  padding: 40px;
+}
+
+.deploying-animation {
+  width: 100px;
+  height: 100px;
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.orbit {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border: 2px solid rgba(79, 70, 229, 0.3);
+  border-radius: 50%;
+  animation: rotate 3s linear infinite;
+}
+
+.planet {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  background: var(--primary);
+  border-radius: 50%;
+  top: calc(50% - 15px);
+  left: calc(50% - 15px);
+}
+
+.moon {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background: white;
+  border-radius: 50%;
+  top: 0;
+  left: calc(50% - 6px);
+  animation: rotate 1.5s linear infinite;
+}
+
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.deploying-text {
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--primary);
+}
+
+.mind-map-visualization {
+  padding: 20px;
+  height: 500px;
+  width: 100%;
+  overflow: hidden;
+}
+
+.mind-map-container {
+  width: 100%;
+  height: 100%;
+  background: rgba(15, 23, 42, 0.5);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.select-chat-modal {
+  padding: 20px;
+}
+
+.select-chat-modal h4 {
+  margin-top: 0;
+  margin-bottom: 16px;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.chat-selection-list {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.chat-selection-item {
+  padding: 10px 12px;
   border-radius: 6px;
-  font-size: 13px;
-  transition: all 0.2s ease;
-  margin-left: 10px;
-}
-
-.mind-map-button:hover {
-  background: rgba(255, 255, 255, 0.05);
-  color: white;
-}
-
-/* Additional styles for mind map visualization */
-.mind-map-visualization .link {
-  fill: none;
-  stroke: var(--primary);
-  stroke-width: 1.5px;
-  opacity: 0.7;
-}
-
-.mind-map-visualization .node circle {
-  fill: var(--primary);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: 8px;
   cursor: pointer;
+  transition: all 0.2s ease;
 }
 
-.mind-map-visualization .node text {
-  font-size: 12px;
-  fill: white;
+.chat-selection-item:hover {
+  background: rgba(79, 70, 229, 0.1);
+  border-color: rgba(79, 70, 229, 0.3);
 }
 
 @media (max-width: 768px) {
-  .mind-map-button span {
-    display: none;
+  .create-mind-map-button {
+    padding: 6px 8px;
+    font-size: 0;
+  }
+  
+  .create-mind-map-button svg {
+    margin-right: 0;
+  }
+  
+  .mind-map-modal {
+    width: 90%;
+    min-width: unset;
+  }
+  
+  .mind-map-visualization {
+    height: 400px;
   }
 }
 </style>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
