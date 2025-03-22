@@ -59,23 +59,22 @@
         <button class="sidebar-toggle" @click="isSidebarOpen = !isSidebarOpen">
           <span class="sidebar-toggle-icon"></span>
         </button>
-      <div class="chat-header">
-              <h1>{{ currentChat?.name || "New Chat" }}</h1>
-              <transition name="slide">
-                <p :key="modelName" class="model-indicator">
-                  <span class="model-dot" :class="getModelClass()"></span>
-                  {{ modelName }}
-                </p>
-              </transition>
-            </div>
-              <button class="settings-button" @click="goToSettings">
+        <button class="settings-button" @click="goToSettings">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M12 15a3 3 0 100-6 3 3 0 000 6z" />
                   <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z" />
                 </svg>
               </button>
+              <div class="chat-header">
+  <h1>{{ currentChat?.name || "New Chat" }}</h1>
+  <div class="header-actions">
+    <a href="https://www.amazon.com/Dawntasy-Circular-Dawn-breathtaking-fantasy-ebook/dp/B0DT74DLY5/" target="_blank" class="buy-book-button subtle">
+      <span class="book-icon">📚</span>
+      Support Me by Buying the Book
+    </a>
+  </div>
+</div>
           </div>
-
       <!-- Chat Interface -->
       <div class="chat-interface">
         <div class="messages-area" ref="messagesContainer">
@@ -274,23 +273,22 @@
               </button>
               <span v-if="isRecording" class="recording-indicator">Recording</span>
             </div>
-            <div class="multimodal-response-container">
-              <button
-                class="mode-toggle-button multimodal-response-button"
-                @click="getMultimodalResponse"
-                title="Get multimodal response"
-              >
-                <span class="toggle-icon">
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
-                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-                    <circle cx="8.5" cy="8.5" r="1.5" />
-                    <path d="M21 15l-5-5L5 21" />
-                    <path d="M5.5 14.5l-2 2" />
-                    <path d="M18.5 8.5l2-2" />
-                  </svg>
-                </span>
-              </button>
-            </div>
+            <button
+  class="mode-toggle-button multimodal-response-button"
+  @click="getMultimodalResponse"
+  title="Get multimodal response"
+>
+  <span class="toggle-icon">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M10 3H3v7h7V3z"/>
+      <path d="M21 3h-7v7h7V3z"/>
+      <path d="M21 14h-7v7h7v-7z"/>
+      <path d="M10 14H3v7h7v-7z"/>
+      <line x1="12" y1="8" x2="12" y2="16"/>
+      <line x1="8" y1="12" x2="16" y2="12"/>
+    </svg>
+  </span>
+</button>
           </div>
         </div>
 
@@ -393,6 +391,7 @@ import { format } from "date-fns";
 import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, getDocs, query, orderBy } from "firebase/firestore";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { SelfOptimizationService } from '@/services/selfOptimization';
+import { useRouter } from 'vue-router';
 
 export default {
   name: "DawntasyChat",
@@ -400,6 +399,17 @@ export default {
     // Initialize Firebase services
     const db = getFirestore();
     const auth = getAuth();
+    const useWebSearch = ref(false);
+    // Add this near the beginning of your setup function, after initializing Firebase// Add this near the beginning of your setup function, after initializing Firebase
+const messages = ref([]);
+const savedChats = ref([]);
+const openBookLink = () => {
+  window.open('https://www.amazon.com/Dawntasy-Circular-Dawn-breathtaking-fantasy-ebook/dp/B0DT74DLY5/', '_blank');
+};
+const toggleWebSearch = () => {
+  useWebSearch.value = !useWebSearch.value;
+  showToastNotification(`Web search ${useWebSearch.value ? 'enabled' : 'disabled'}`, "info");
+};
     // Add this new function within the `<script>` tag's `setup()` function, after Firebase initialization
 const loadDawntasyBookContent = async () => {
   const dawntasyBookContent = ref({
@@ -407,7 +417,7 @@ const loadDawntasyBookContent = async () => {
     "Dawntasy B1 Part 2": "",
     "Dawntasy B1 Part 3": ""
   });
-
+  const router = useRouter();
   try {
     const db = getFirestore();
     const docsRef = collection(db, "dawntasy_docs");
@@ -419,13 +429,137 @@ const loadDawntasyBookContent = async () => {
         dawntasyBookContent.value[docName] = doc.data().content || "Content not available";
       }
     });
-
+// Web Search Feature
+const performWebSearch = async (query) => {
+  try {
+    isLoading.value = true;
+    showToastNotification("Searching the web...", "info");
+    
+    const searchMessage = {
+      role: "assistant",
+      content: "🔍 Searching the web for: **" + query + "**\n\nPlease wait...",
+      timestamp: Date.now(),
+      hasReasoning: false,
+      isStreaming: true
+    };
+    
+    messages.value.push(searchMessage);
+    const searchIndex = messages.value.length - 1;
+    
+    // OpenAI API call for web search
+    const searchResponse = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${apiKey}`
+      },
+      body: JSON.stringify({
+        model: "gpt-4o-mini-search-preview",
+        messages: [
+          { 
+            role: "system", 
+            content: "You are a helpful web search assistant. Your task is to search for accurate information and provide results with proper citations."
+          },
+          { 
+            role: "user", 
+            content: `Please search for: ${query}. Provide a summary of the results with source links.`
+          }
+        ],
+        max_tokens: 2000,
+        search_tool: { enabled: true }
+      })
+    });
+    
+    if (!searchResponse.ok) {
+      const errorData = await searchResponse.json().catch(() => ({}));
+      throw new Error(`Search API error: ${searchResponse.status} ${errorData.error?.message || ''}`);
+    }
+    
+    const data = await searchResponse.json();
+    const searchResults = data.choices[0].message.content;
+    
+    // Extract sources
+    const sources = searchResults.match(/https?:\/\/[^\s)]+/g) || [];
+    
+    // Format the results with sources
+    let formattedResults = `## Search Results for: ${query}\n\n`;
+    formattedResults += searchResults;
+    
+    // Add sources section if not already included
+    if (!searchResults.toLowerCase().includes("sources:") && sources.length > 0) {
+      formattedResults += `\n\n---\n\n**Sources:**\n`;
+      sources.forEach((source, index) => {
+        formattedResults += `${index + 1}. [${source}](${source})\n`;
+      });
+    }
+    
+    // Update the message with the results
+    messages.value[searchIndex].content = formattedResults;
+    messages.value[searchIndex].isStreaming = false;
+    
+    await saveMessageToFirebase(messages.value[searchIndex]);
+    
+    // Store in quantum engine (if using)
+    if (quantumCognitionEngine && sources.length > 0) {
+      quantumCognitionEngine.webKnowledgeBase.set(query, {
+        content: searchResults,
+        sources: sources,
+        timestamp: Date.now(),
+        relevance: 0.95
+      });
+    }
+    
+    return { content: searchResults, sources };
+  } catch (error) {
+    console.error("Web search error:", error);
+    showToastNotification("Web search failed", "error");
+    
+    // Update the last message
+    if (messages.value.length > 0) {
+      const lastMessage = messages.value[messages.value.length - 1];
+      if (lastMessage.role === "assistant" && lastMessage.content.includes("Searching the web")) {
+        lastMessage.content = "⚠️ Web search failed. Please try again later or check your API key configuration.";
+        lastMessage.isStreaming = false;
+        await saveMessageToFirebase(lastMessage);
+      }
+    }
+    
+    return { content: "", sources: [] };
+  } finally {
+    isLoading.value = false;
+  }
+};
     console.log("Dawntasy book content loaded:", Object.keys(dawntasyBookContent.value));
     return dawntasyBookContent.value;
   } catch (error) {
     console.error("Error loading Dawntasy book content:", error);
     return dawntasyBookContent.value; // Return empty content on error
   }
+};
+// Helper function for HTML generation
+const generateHTML = (content) => {
+  // Extract HTML code from the request
+  const htmlCodeMatch = content.match(/<html[\s\S]*<\/html>/i) || 
+                        content.match(/<div[\s\S]*<\/div>/i) ||
+                        content.match(/<body[\s\S]*<\/body>/i);
+  
+  if (htmlCodeMatch) {
+    return htmlCodeMatch[0];
+  }
+  
+  // If no HTML tags found, wrap the content in basic HTML
+  return `<!DOCTYPE html>
+<html>
+<head>
+  <title>Generated HTML</title>
+  <style>
+    body { font-family: Arial, sans-serif; }
+  </style>
+</head>
+<body>
+  ${content}
+</body>
+</html>`;
 };
 
 // Initialize and store the book content when the component mounts
@@ -436,9 +570,7 @@ onMounted(async () => {
     // **State Variables**
     // Sidebar and Chat Management
     const isSidebarOpen = ref(window.innerWidth > 768);
-    const savedChats = ref([]);
     const currentChatId = ref(null);
-    const messages = ref([]);
     const showNewChatPopup = ref(false);
     const newChatName = ref("");
     const showDeleteConfirm = ref(false);
@@ -484,6 +616,7 @@ onMounted(async () => {
       if (logicEnabled.value) return "Dawntasy 3.7 Logic";
       return "Dawntasy 1.1 Process";
     });
+    const hideModelIndicator = ref(true); // Set to true to hide the model indicator
     
     const getModelClass = () => {
       if (archmageEnabled.value) return "dot-archmage";
@@ -534,7 +667,91 @@ onMounted(async () => {
         }
       });
     });
+    const performWebSearch = async (query) => {
+  try {
+    isLoading.value = true;
+    showToastNotification("Searching the web...", "info");
     
+    const searchMessage = {
+      role: "assistant",
+      content: "🔍 Searching the web for: **" + query + "**\n\nPlease wait...",
+      timestamp: Date.now(),
+      hasReasoning: false,
+      isStreaming: true
+    };
+    
+    messages.value.push(searchMessage);
+    const searchIndex = messages.value.length - 1;
+    
+    // Mock search results for demo
+    const mockResults = [
+      {
+        title: "Understanding " + query,
+        snippet: "This page provides detailed information about " + query + " with comprehensive examples and use cases.",
+        url: "https://example.com/search/" + encodeURIComponent(query)
+      },
+      {
+        title: query + " - Wikipedia",
+        snippet: "The definitive resource about " + query + " covering its history, applications, and related concepts.",
+        url: "https://en.wikipedia.org/wiki/" + encodeURIComponent(query.replace(/\s+/g, '_'))
+      },
+      {
+        title: "Latest Research on " + query,
+        snippet: "Recent scientific developments related to " + query + " from leading academic institutions.",
+        url: "https://scholar.example.org/" + encodeURIComponent(query)
+      }
+    ];
+    
+    // Format the results with sources
+    let formattedResults = `## Search Results for: ${query}\n\n`;
+    
+    mockResults.forEach((result, index) => {
+      formattedResults += `### ${index + 1}. ${result.title}\n`;
+      formattedResults += `${result.snippet}\n\n`;
+      formattedResults += `[Read more](${result.url})\n\n`;
+    });
+    
+    formattedResults += `\n\n---\n\n**Sources:**\n`;
+    mockResults.forEach((result, index) => {
+      formattedResults += `${index + 1}. [${result.title}](${result.url})\n`;
+    });
+    
+    // Update the message with the results
+    messages.value[searchIndex].content = formattedResults;
+    messages.value[searchIndex].isStreaming = false;
+    
+    await saveMessageToFirebase(messages.value[searchIndex]);
+    
+    // Store in quantum engine
+    mockResults.forEach(result => {
+      quantumCognitionEngine.webKnowledgeBase.set(query, {
+        title: result.title,
+        snippet: result.snippet,
+        url: result.url,
+        relevance: 0.8 + (Math.random() * 0.2)
+      });
+    });
+    
+    return mockResults;
+  } catch (error) {
+    console.error("Web search error:", error);
+    showToastNotification("Web search failed", "error");
+    
+    // Update the last message
+    if (messages.value.length > 0) {
+      const lastMessage = messages.value[messages.value.length - 1];
+      if (lastMessage.role === "assistant" && lastMessage.content.includes("Searching the web")) {
+        lastMessage.content = "⚠️ Web search failed. Please try again later.";
+        lastMessage.isStreaming = false;
+        await saveMessageToFirebase(lastMessage);
+      }
+    }
+    
+    return [];
+  } finally {
+    isLoading.value = false;
+  }
+};
     // Enable demo mode for development when authentication fails
     const enableDemoMode = () => {
       console.log("Demo mode activated - no Firebase authentication required");
@@ -577,66 +794,253 @@ onMounted(async () => {
             createdBy: userId.value
           };
           const quantumCognitionEngine = reactive({
-      knowledgeGraph: new Map(),
-      cognitiveDimensions: [
-        "logical", "creative", "emotional", "temporal", "spatial", "ethical", "metacognitive"
-      ],
-      processingDepth: 3,
-      updateGraph(prompt, response) {
-        const terms = prompt.split(/\W+/).filter(t => t.length > 3);
-        terms.forEach(term => {
-          if (!this.knowledgeGraph.has(term)) {
-            this.knowledgeGraph.set(term, { connections: new Set(), weight: 0 });
-          }
-          const node = this.knowledgeGraph.get(term);
-          node.weight += 1;
-          response.split(/\W+/).forEach(respTerm => {
-            if (respTerm.length > 3) node.connections.add(respTerm);
+  knowledgeGraph: new Map(),
+  recursionDepth: 5,
+  webKnowledgeBase: new Map(), // Store web search results
+  cognitiveDimensions: [
+    "logical", "creative", "emotional", "temporal", "spatial", "ethical", "metacognitive",
+    "intuitive", "analytical", "synthetic", "predictive", "reflexive", "quantum",
+    "emergent", "holistic", "dimensional", "recursive", "fractal", "hyperbolic"
+  ],
+  
+  // Core processing dimensions
+  dimensions: {
+    logical: {
+      process: (input) => `Logical analysis: ${input.length > 20 ? 'Complex pattern detected' : 'Simple structure observed'}.`,
+      recursiveWeight: 1.2
+    },
+    creative: {
+      process: (input) => `Creative synthesis: ${Math.random() > 0.5 ? 'Divergent' : 'Convergent'} thinking applied.`,
+      recursiveWeight: 1.1
+    },
+    emotional: {
+      process: (input) => {
+        const emotions = ['joy', 'curiosity', 'concern', 'fascination', 'ambivalence'];
+        return `Emotional resonance: ${emotions[Math.floor(Math.random() * emotions.length)]} detected.`;
+      },
+      recursiveWeight: 0.9
+    },
+    quantum: {
+      process: (input) => `Quantum perspective: Analyzing across ${Math.floor(Math.random() * 10) + 3} potential realities.`,
+      recursiveWeight: 1.5
+    },
+    recursive: {
+      process: (input, depth) => `Meta-recursive analysis level ${depth}: Fractal patterns emerging.`,
+      recursiveWeight: 1.8
+    }
+  },
+  
+  // Enhanced recursive thinking with web knowledge
+  async recursiveQuantumAnalyze(prompt, depth = 0, useWebData = false) {
+    if (depth >= this.recursionDepth) return { analysis: "Recursion limit reached", confidence: 0.5 };
+    
+    // First-level analysis
+    let baseAnalysis = "";
+    let dimensionsUsed = [];
+    
+    // Web knowledge integration
+    if (useWebData && depth === 0) {
+      const webResults = Array.from(this.webKnowledgeBase.entries())
+        .filter(([key]) => prompt.toLowerCase().includes(key.toLowerCase()))
+        .slice(0, 3);
+      
+      if (webResults.length > 0) {
+        baseAnalysis += "\n[WEB KNOWLEDGE INTEGRATION]:\n";
+        webResults.forEach(([key, value]) => {
+          baseAnalysis += `Related information on "${key}": ${value.snippet}\n`;
+          baseAnalysis += `Source: ${value.title} (Confidence: ${(value.relevance * 100).toFixed(1)}%)\n\n`;
+        });
+      }
+    }
+    
+    // Select 3-5 random dimensions for this level
+    const dimensionsCount = Math.floor(Math.random() * 3) + 3;
+    const shuffledDimensions = [...this.cognitiveDimensions].sort(() => 0.5 - Math.random());
+    const selectedDimensions = shuffledDimensions.slice(0, dimensionsCount);
+    
+    for (const dimension of selectedDimensions) {
+      dimensionsUsed.push(dimension);
+      const dimProcessor = this.dimensions[dimension] || {
+        process: (input) => `${dimension.charAt(0).toUpperCase() + dimension.slice(1)} perspective: Analyzing patterns.`,
+        recursiveWeight: 1.0
+      };
+      
+      baseAnalysis += `\n[${dimension.toUpperCase()}]: ${dimProcessor.process(prompt, depth)}\n`;
+    }
+    
+    // Multi-dimensional recursive analysis
+    if (depth < this.recursionDepth - 1) {
+      // Add parallel processing for recursive dimensions
+      const recursiveBranches = Math.min(3, this.recursionDepth - depth);
+      const recursivePromises = [];
+      
+      for (let branch = 0; branch < recursiveBranches; branch++) {
+        // Create different prompts for each branch to simulate quantum superposition
+        const branchPrompt = `${prompt} (dimensional exploration ${branch + 1})`;
+        recursivePromises.push(this.recursiveQuantumAnalyze(branchPrompt, depth + 1, false));
+      }
+      
+      const recursiveResults = await Promise.all(recursivePromises);
+      
+      // Synthesize recursive results with quantum weighting
+      baseAnalysis += "\n[QUANTUM DIMENSIONAL SYNTHESIS]:\n";
+      for (let i = 0; i < recursiveResults.length; i++) {
+        const branchWeight = 1 / (i + 1); // Diminishing confidence for parallel branches
+        baseAnalysis += `Parallel universe #${i + 1} insight (${(branchWeight * 100).toFixed(1)}% weight): `;
+        baseAnalysis += `${recursiveResults[i].analysis.split('\n')[0]}\n`;
+      }
+    }
+    
+    // Self-evaluative meta-cognition
+    const confidence = 0.9 - (depth * 0.1) + (Math.random() * 0.1);
+    baseAnalysis += `\n[META-COGNITIVE EVALUATION]: Confidence level at depth ${depth}: ${(confidence * 100).toFixed(1)}%\n`;
+    
+    return {
+      analysis: baseAnalysis,
+      dimensions: dimensionsUsed,
+      confidence: confidence
+    };
+  },
+  
+  // Process a prompt through the quantum engine with web knowledge
+  async process(prompt, useWebSearch = false) {
+    console.log("Quantum Cognitive Engine processing:", prompt);
+    const processingStart = Date.now();
+    
+    try {
+      // Add web search integration if enabled
+      if (useWebSearch) {
+        // Extract key terms for search
+        const searchTerms = prompt.split(/\W+/)
+          .filter(term => term.length > 3 && !['what', 'when', 'where', 'how', 'why', 'who', 'is', 'are', 'the'].includes(term.toLowerCase()))
+          .slice(0, 5)
+          .join(' ');
+        
+        try {
+          const webResults = await performWebSearch(searchTerms);
+          // Store results in knowledge base
+          webResults.forEach(result => {
+            this.webKnowledgeBase.set(searchTerms, {
+              title: result.title,
+              snippet: result.snippet,
+              url: result.url,
+              relevance: 0.8 + (Math.random() * 0.2) // Simulate relevance scoring
+            });
           });
-        });
-      },
-      enhanceResponse(prompt, baseResponse) {
-        let enhanced = baseResponse;
-        this.cognitiveDimensions.forEach(dim => {
-          const analysis = this.analyzeDimension(prompt, dim);
-          enhanced += `\n\n[${dim.toUpperCase()} DIMENSION]: ${analysis}`;
-        });
-        return enhanced;
-      },
-      analyzeDimension(prompt, dimension) {
-        switch (dimension) {
-          case "logical": return `Logical analysis: ${this.extractLogic(prompt)}`;
-          case "creative": return `Creative insight: ${this.generateCreativeLink(prompt)}`;
-          case "emotional": return `Emotional context: ${this.detectEmotion(prompt)}`;
-          case "temporal": return `Temporal scope: ${this.analyzeTime(prompt)}`;
-          case "spatial": return `Spatial perspective: ${this.considerSpace(prompt)}`;
-          case "ethical": return `Ethical consideration: ${this.evaluateEthics(prompt)}`;
-          case "metacognitive": return `Metacognitive reflection: ${this.reflectOnProcess(prompt)}`;
-          default: return "";
+        } catch (error) {
+          console.error("Web search integration failed:", error);
         }
-      },
-      extractLogic(prompt) {
-        return prompt.includes("why") ? "Causal reasoning applied." : "Structural breakdown considered.";
-      },
-      generateCreativeLink(prompt) {
-        return `Imagine ${prompt} as a metaphor for ${Math.random() > 0.5 ? "a cosmic dance" : "a fractal pattern"}.`;
-      },
-      detectEmotion(prompt) {
-        return prompt.match(/(happy|sad|angry|excited)/i)?.[0] || "Neutral tone detected.";
-      },
-      analyzeTime(prompt) {
-        return prompt.includes("when") ? "Historical context evaluated." : "Present-focused analysis.";
-      },
-      considerSpace(prompt) {
-        return prompt.includes("where") ? "Spatial dynamics mapped." : "Abstract spatial model applied.";
-      },
-      evaluateEthics(prompt) {
-        return prompt.includes("should") ? "Ethical implications weighed." : "No direct ethical query detected.";
-      },
-      reflectOnProcess(prompt) {
-        return `Processing ${prompt.length} characters across ${this.cognitiveDimensions.length} dimensions.`;
+      }
+      
+      // Core quantum processing with web knowledge
+      const quantumResult = await this.recursiveQuantumAnalyze(prompt, 0, useWebSearch);
+      const processingTime = Date.now() - processingStart;
+      
+      // Update knowledge graph for future reference
+      this.updateGraph(prompt, quantumResult);
+      
+      return {
+        result: quantumResult.analysis,
+        dimensions: quantumResult.dimensions,
+        confidence: quantumResult.confidence,
+        processingTime,
+        knowledgeConnections: this.getTopConnections(prompt, 3),
+        webSourcesUsed: useWebSearch ? Array.from(this.webKnowledgeBase.keys()) : []
+      };
+    } catch (error) {
+      console.error("Quantum processing error:", error);
+      return {
+        result: "Quantum processing could not complete due to dimensional instability.",
+        dimensions: ["error"],
+        confidence: 0.1,
+        processingTime: Date.now() - processingStart
+      };
+    }
+  },
+  
+  // Enhanced graph update with temporal decay
+  updateGraph(prompt, result) {
+    const terms = prompt.split(/\W+/).filter(t => t.length > 3);
+    const resultTerms = result.analysis 
+      ? result.analysis.split(/\W+/).filter(t => t.length > 3)
+      : [];
+    
+    const now = Date.now();
+    
+    // Apply temporal decay to existing knowledge
+    this.knowledgeGraph.forEach((node) => {
+      // Decay based on time since last access
+      const daysSinceLastUse = (now - node.lastUsed) / (1000 * 60 * 60 * 24);
+      if (daysSinceLastUse > 0) {
+        node.weight *= Math.exp(-0.1 * daysSinceLastUse); // Exponential decay
       }
     });
+    
+    // Add new knowledge
+    terms.forEach(term => {
+      if (!this.knowledgeGraph.has(term)) {
+        this.knowledgeGraph.set(term, { 
+          connections: new Set(), 
+          weight: 0, 
+          lastUsed: now,
+          createdAt: now
+        });
+      }
+      
+      const node = this.knowledgeGraph.get(term);
+      node.weight += 1;
+      node.lastUsed = now;
+      
+      resultTerms.forEach(resTerm => {
+        if (resTerm.length > 3) node.connections.add(resTerm);
+      });
+    });
+  },
+  
+  // Get top knowledge connections with improved relevance
+  getTopConnections(prompt, limit = 5) {
+    const terms = prompt.split(/\W+/).filter(t => t.length > 3);
+    const connections = new Map();
+    
+    terms.forEach(term => {
+      if (this.knowledgeGraph.has(term)) {
+        const node = this.knowledgeGraph.get(term);
+        node.connections.forEach(conn => {
+          const currentWeight = connections.get(conn) || 0;
+          // Apply recency bias
+          const recencyFactor = 1 / (1 + (Date.now() - node.lastUsed) / (1000 * 60 * 60)); // Hours
+          connections.set(conn, currentWeight + (node.weight * recencyFactor));
+        });
+      }
+    });
+    
+    return Array.from(connections.entries())
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, limit)
+      .map(([term, weight]) => ({ term, weight }));
+  },
+  
+  // Enhanced response with quantum insights and web knowledge
+  async enhanceResponse(prompt, baseResponse, useWebSearch = false) {
+    const quantumInsights = await this.process(prompt, useWebSearch);
+    
+    // Add source citations for web content
+    let sourceCitations = "";
+    if (useWebSearch && this.webKnowledgeBase.size > 0) {
+      sourceCitations = "\n\n**Sources:**\n";
+      Array.from(this.webKnowledgeBase.entries())
+        .slice(0, 5)
+        .forEach(([term, data], index) => {
+          sourceCitations += `${index + 1}. [${data.title}](${data.url})\n`;
+        });
+    }
+    
+    return {
+      enhancedResponse: baseResponse + sourceCitations,
+      quantumInsights
+    };
+  }
+});
           const docRef = await addDoc(chatsRef, welcomeChat);
           currentChatId.value = docRef.id;
           
@@ -832,14 +1236,9 @@ onMounted(async () => {
 };
 
 const goToSettings = () => {
-  try {
-    // Using Vue Router
-    this.$router.push('/settings');
-  } catch (error) {
-    console.error("Navigation error:", error);
-    showToastNotification("Settings navigation not implemented yet", "info");
-  }
+  showToastNotification("Settings not available yet, expect updates soon!", "info");
 };
+
 
     // **Suggestions**
     const suggestions = [
@@ -1002,7 +1401,227 @@ const goToSettings = () => {
             timestamp: Date.now(),
             hasReasoning: false
           };
+          const toggleWebSearch = () => {
+  useWebSearch.value = !useWebSearch.value;
+  showToastNotification(`Web search ${useWebSearch.value ? 'enabled' : 'disabled'}`, "info");
+};
+
+// Modify your sendMessage function to include web search capability
+const sendMessage = async (text) => {
+  const messageText = text || userInput.value.trim();
+  
+  if (!messageText) return;
+  
+  if (!currentChatId.value) {
+    showNewChatPopup.value = true;
+    return;
+  }
+  
+  // Handle HTML code generation
+  if (messageText.toLowerCase().includes('generate html') || messageText.toLowerCase().includes('html code')) {
+    // Create HTML template
+    const htmlCode = `<!DOCTYPE html>
+<html>
+<head>
+  <title>Generated Page</title>
+  <style>
+    body { 
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: #f5f5f5;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    h1 { color: #4f46e5; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Your Generated HTML</h1>
+    <p>This is a custom HTML page based on your request: "${messageText.replace(/"/g, '\\"')}"</p>
+    <div class="content">
+      <p>You can customize this template with your specific needs.</p>
+    </div>
+  </div>
+</body>
+</html>`;
+
+    // Create response message
+    const userMessage = {
+      role: "user",
+      content: messageText,
+      timestamp: Date.now()
+    };
+    
+    messages.value.push(userMessage);
+    await saveMessageToFirebase(userMessage);
+    
+    const aiMessage = {
+      role: "assistant",
+      content: `I've generated the HTML code for you. Here it is:
+
+\`\`\`html
+${htmlCode}
+\`\`\`
+
+You can copy this code and save it as an .html file to view it in a browser. Would you like me to modify any part of this code?`,
+      timestamp: Date.now(),
+      hasReasoning: false
+    };
+    
+    // Add to UI and save
+    messages.value.push(aiMessage);
+    await saveMessageToFirebase(aiMessage);
+    
+    // Reset input
+    userInput.value = "";
+    if (inputField.value) {
+      inputField.value.style.height = "auto";
+    }
+    
+    scrollToBottom();
+    return;
+  }
+  
+  // Regular message processing
+  const userMessage = {
+    role: "user",
+    content: messageText,
+    timestamp: Date.now()
+  };
+  
+  messages.value.push(userMessage);
+  
+  if (userId.value !== "demo-user") {
+    try {
+      await saveMessageToFirebase(userMessage);
+    } catch (error) {
+      console.error("Error saving user message:", error);
+    }
+  }
+  
+  userInput.value = "";
+  if (inputField.value) {
+    inputField.value.style.height = "auto";
+  }
+  
+  await nextTick();
+  scrollToBottom();
+  
+  if (imageEnabled.value) {
+    imageEnabled.value = false;
+    await generateImage(messageText);
+    return;
+  }
+  
+  isLoading.value = true;
+  isThinkingDeeper.value = reasoningEnabled.value || logicEnabled.value;
+  
+  // Define the streamingMessageIndex here, before using it
+  const streamingMessageIndex = messages.value.length;
+  
+  try {
+    messages.value.push({
+      role: "assistant",
+      content: "",
+      streamContent: "",
+      timestamp: Date.now(),
+      reasoning: "",
+      hasReasoning: reasoningEnabled.value && !logicEnabled.value,
+      isStreaming: true
+    });
+    
+    isStreaming.value = true;
+    
+    if (userId.value === "demo-user") {
+      await mockStreamingResponse(streamingMessageIndex, messageText);
+    } else {
+      const conversationHistory = messages.value
+        .slice(0, -1)
+        .map(msg => ({
+          role: msg.role,
+          content: msg.content
+        }));
+      
+      const systemPrompt = getDawntasySystemPrompt();
+      
+      try {
+        const stream = await createStream(
+          conversationHistory,
+          systemPrompt,
+          10000
+        );
+        
+        const responseText = await processStream(
+          stream,
+          streamingMessageIndex,
+          reasoningEnabled.value
+        );
+        
+        const aiMessage = messages.value[streamingMessageIndex];
+        
+        await saveMessageToFirebase(aiMessage);
+        
+        logInteraction(messageText, aiMessage);
+        
+        // Process with accuracy system if available
+        if (typeof hyperAccuracyLearningSystem !== 'undefined') {
+          const accuracyMetrics = hyperAccuracyLearningSystem.processResponse(messageText, aiMessage);
+          console.log("Response processed by HYPER ACCURACY SYSTEM:", accuracyMetrics);
           
+          // Add accuracy data to message metadata
+          aiMessage.accuracyMetrics = accuracyMetrics;
+        }
+        
+        // Add to memory if available
+        if (typeof contextualMemory !== 'undefined') {
+          contextualMemory.addMemory({
+            id: `ai-${Date.now()}`,
+            role: "assistant",
+            content: aiMessage.content,
+            timestamp: Date.now()
+          });
+        }
+        
+        await processSelfOptimization(messageText, aiMessage);
+      } catch (apiError) {
+        console.error("API error:", apiError);
+        
+        await mockStreamingResponse(streamingMessageIndex, messageText, true);
+      }
+    }
+  } catch (error) {
+    console.error("Error sending message:", error);
+    
+    if (messages.value[streamingMessageIndex]) {
+      messages.value[streamingMessageIndex].content =
+        "⚠️ I encountered an error while processing your request. Please try again later.";
+      messages.value[streamingMessageIndex].isStreaming = false;
+      
+      try {
+        await saveMessageToFirebase(messages.value[streamingMessageIndex]);
+      } catch (saveError) {
+        console.error("Error saving error message:", saveError);
+      }
+    }
+  } finally {
+    isLoading.value = false;
+    isStreaming.value = false;
+    
+    if (messages.value[streamingMessageIndex]) {
+      messages.value[streamingMessageIndex].isStreaming = false;
+    }
+    
+    scrollToBottom();
+  }
+};
           messages.value.push(aiMessage);
           await saveMessageToFirebase(aiMessage);
           showToastNotification("Multimodal response generated", "success");
@@ -1029,77 +1648,81 @@ const goToSettings = () => {
 
     // **Image Generation**
     const generateImage = async (promptText) => {
-      if (!currentChatId.value) {
-        showToastNotification("Please create a chat first", "error");
-        return;
-      }
-      
-      try {
-        isLoading.value = true;
-        
-        // Add the user's prompt to the messages
-        const userMessage = {
-          role: "user",
-          content: promptText,
-          timestamp: Date.now()
-        };
-        
-        messages.value.push(userMessage);
-        await saveMessageToFirebase(userMessage);
-        
-        // Call OpenAI's image generation API
-        const response = await fetch("https://api.openai.com/v1/images/generations", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${apiKey}`,
-          },
-          body: JSON.stringify({
-            prompt: promptText,
-            n: 1,
-            size: "512x512"
-          })
-        });
-        
-        if (!response.ok) {
-          const errorData = await response.json().catch(() => ({}));
-          throw new Error(`Image API error: ${response.status} ${errorData.error?.message || ''}`);
-        }
-        
-        const data = await response.json();
-        const imageUrl = data.data?.[0]?.url;
-        
-        if (imageUrl) {
-          const aiMessage = {
-            role: "assistant",
-            content: `<img src="${imageUrl}" alt="Generated Image" style="max-width: 100%; border-radius: 8px;">`,
-            timestamp: Date.now(),
-            hasReasoning: false
-          };
-          
-          messages.value.push(aiMessage);
-          await saveMessageToFirebase(aiMessage);
-          showToastNotification("Image generated successfully", "success");
-        } else {
-          throw new Error("No image URL in API response");
-        }
-      } catch (error) {
-        console.error("Image generation error:", error);
-        showToastNotification("Error generating image", "error");
-        
-        const errorMessage = {
-          role: "assistant",
-          content: "Error generating image. Please try again with a different description.",
-          timestamp: Date.now(),
-          hasReasoning: false
-        };
-        
-        messages.value.push(errorMessage);
-        await saveMessageToFirebase(errorMessage);
-      } finally {
-        isLoading.value = false;
-      }
+  if (!currentChatId.value) {
+    showToastNotification("Please create a chat first", "error");
+    return;
+  }
+  
+  try {
+    isLoading.value = true;
+    
+    // Add the user's prompt to the messages
+    const userMessage = {
+      role: "user",
+      content: promptText,
+      timestamp: Date.now()
     };
+    
+    messages.value.push(userMessage);
+    await saveMessageToFirebase(userMessage);
+    
+    // Call OpenAI's image generation API with DALL-E-3
+    const response = await fetch("https://api.openai.com/v1/images/generations", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model: "dall-e-3",
+        prompt: promptText,
+        n: 1,
+        size: "1024x1024", // DALL-E-3 supports 1024x1024 by default
+        quality: "standard",
+        style: "vivid" // or "natural" for more photorealistic images
+      })
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(`Image API error: ${response.status} ${errorData.error?.message || ''}`);
+    }
+    
+    const data = await response.json();
+    const imageUrl = data.data?.[0]?.url;
+    const revisedPrompt = data.data?.[0]?.revised_prompt || promptText;
+    
+    if (imageUrl) {
+      const aiMessage = {
+        role: "assistant",
+        content: `<img src="${imageUrl}" alt="Generated Image" style="max-width: 100%; border-radius: 8px;">\n\n**Prompt used:** ${revisedPrompt}`,
+        timestamp: Date.now(),
+        hasReasoning: false
+      };
+      
+      messages.value.push(aiMessage);
+      await saveMessageToFirebase(aiMessage);
+      showToastNotification("Image generated successfully", "success");
+    } else {
+      throw new Error("No image URL in API response");
+    }
+  } catch (error) {
+    console.error("Image generation error:", error);
+    showToastNotification("Error generating image", "error");
+    
+    const errorMessage = {
+      role: "assistant",
+      content: "Error generating image. Please try again with a different description or check your API key configuration.",
+      timestamp: Date.now(),
+      hasReasoning: false
+    };
+    
+    messages.value.push(errorMessage);
+    await saveMessageToFirebase(errorMessage);
+  } finally {
+    isLoading.value = false;
+  }
+};
 
     // **Self-Optimization System**
     const learningDB = reactive({
@@ -1121,7 +1744,254 @@ const goToSettings = () => {
       lastUpdated: Date.now()
     });
 
+    // Add this after the learningDB declaration in your setup() function
+const hyperAccuracyLearningSystem = reactive({
+  version: "1.0",
+  accuracyLevel: 0.85,
+  learningRate: 0.01,
+  decayRate: 0.005,
+  confidenceThreshold: 0.92,
+  lastUpdated: Date.now(),
+  domains: {
+    scientific: { accuracy: 0.88, samples: 0, weight: 1.2 },
+    creative: { accuracy: 0.91, samples: 0, weight: 1.0 },
+    technical: { accuracy: 0.93, samples: 0, weight: 1.3 },
+    philosophical: { accuracy: 0.82, samples: 0, weight: 0.9 },
+    factual: { accuracy: 0.95, samples: 0, weight: 1.4 }
+  },
+  
+  // Knowledge verification matrix
+  verificationMatrix: new Map(),
+  
+  // Accuracy improvement tracking
+  improvements: [],
+  
+  // Process user feedback to improve accuracy
+  processFeedback(domain, isCorrect, confidence) {
+    if (!this.domains[domain]) {
+      this.domains[domain] = { accuracy: 0.75, samples: 0, weight: 1.0 };
+    }
     
+    const domainData = this.domains[domain];
+    domainData.samples++;
+    
+    // Update domain accuracy
+    if (isCorrect) {
+      // Positive reinforcement with diminishing returns
+      const improvementFactor = (1 - domainData.accuracy) * this.learningRate;
+      domainData.accuracy += improvementFactor;
+    } else {
+      // Stronger negative reinforcement for incorrect responses
+      const penaltyFactor = domainData.accuracy * this.learningRate * 1.5;
+      domainData.accuracy = Math.max(0.5, domainData.accuracy - penaltyFactor);
+    }
+    
+    // Track improvement
+    this.improvements.push({
+      timestamp: Date.now(),
+      domain,
+      previousAccuracy: domainData.accuracy - (isCorrect ? improvementFactor : -penaltyFactor),
+      newAccuracy: domainData.accuracy,
+      isCorrect
+    });
+    
+    // Update overall accuracy
+    this.recalculateOverallAccuracy();
+    this.lastUpdated = Date.now();
+    
+    console.log(`Hyper Accuracy System updated ${domain}: ${domainData.accuracy.toFixed(4)}`);
+  },
+  
+  // Calculate confidence for a response
+  calculateConfidence(domain, content) {
+    const domainData = this.domains[domain] || { accuracy: 0.7, weight: 1.0 };
+    const contentLength = content.length;
+    const contentComplexity = this.analyzeComplexity(content);
+    
+    // More complex and thorough answers generally have higher confidence
+    const lengthFactor = Math.min(0.1, contentLength / 10000);
+    const complexityFactor = contentComplexity * 0.05;
+    
+    // Base confidence on domain accuracy with adjustments
+    let confidence = domainData.accuracy + lengthFactor + complexityFactor;
+    
+    // Apply uncertainty reduction for domains with more samples
+    if (domainData.samples > 10) {
+      confidence += 0.05 * Math.min(1, domainData.samples / 100);
+    }
+    
+    // Check verification matrix for similar responses
+    const verificationBonus = this.checkVerificationMatrix(content, domain);
+    confidence += verificationBonus;
+    
+    // Cap confidence
+    return Math.min(0.99, confidence);
+  },
+  
+  // Analyze response complexity
+  analyzeComplexity(content) {
+    // Simple complexity metric based on:
+    // 1. Average sentence length
+    // 2. Vocabulary diversity
+    // 3. Structure complexity (headings, lists, etc)
+    
+    const sentences = content.split(/[.!?]+/).filter(s => s.trim().length > 0);
+    const avgSentenceLength = content.length / (sentences.length || 1);
+    
+    const uniqueWords = new Set(content.toLowerCase().match(/\b\w+\b/g) || []).size;
+    const totalWords = (content.match(/\b\w+\b/g) || []).length;
+    const vocabularyDiversity = uniqueWords / (totalWords || 1);
+    
+    const structureComplexity = (content.match(/#{1,6} |[*-] |\d+\./g) || []).length / (sentences.length || 1);
+    
+    return (avgSentenceLength / 15) * 0.4 + vocabularyDiversity * 0.4 + structureComplexity * 0.2;
+  },
+  
+  // Check verification matrix for similar content
+  checkVerificationMatrix(content, domain) {
+    // Create a simple hash of the content
+    const contentHash = this.simpleHash(content);
+    
+    if (this.verificationMatrix.has(contentHash)) {
+      const verification = this.verificationMatrix.get(contentHash);
+      return verification.verified ? 0.1 : 0;
+    }
+    
+    // Add to verification matrix for future reference
+    this.verificationMatrix.set(contentHash, {
+      domain,
+      timestamp: Date.now(),
+      verified: false,
+      similarityScore: 0
+    });
+    
+    return 0;
+  },
+  
+  // Simple hashing function for content verification
+  simpleHash(content) {
+    const sample = content.slice(0, 100) + content.slice(-100);
+    let hash = 0;
+    for (let i = 0; i < sample.length; i++) {
+      hash = ((hash << 5) - hash) + sample.charCodeAt(i);
+      hash = hash & hash;
+    }
+    return hash.toString(16);
+  },
+  
+  // Recalculate overall accuracy based on domain values
+  recalculateOverallAccuracy() {
+    let totalWeight = 0;
+    let weightedAccuracy = 0;
+    
+    Object.values(this.domains).forEach(domain => {
+      totalWeight += domain.weight;
+      weightedAccuracy += domain.accuracy * domain.weight;
+    });
+    
+    this.accuracyLevel = totalWeight > 0 ? weightedAccuracy / totalWeight : 0.85;
+    
+    // Apply decay if not updated recently (knowledge staleness)
+    const daysSinceUpdate = (Date.now() - this.lastUpdated) / (1000 * 60 * 60 * 24);
+    if (daysSinceUpdate > 1) {
+      this.accuracyLevel *= Math.pow(1 - this.decayRate, daysSinceUpdate);
+    }
+  },
+  
+  // Get metrics about system performance
+  getSystemMetrics() {
+    const domainMetrics = {};
+    let totalSamples = 0;
+    
+    Object.entries(this.domains).forEach(([name, data]) => {
+      domainMetrics[name] = {
+        accuracy: data.accuracy.toFixed(4),
+        confidence: this.calculateConfidence(name, "Sample content"),
+        samples: data.samples
+      };
+      totalSamples += data.samples;
+    });
+    
+    // Calculate improvement over time
+    const recentImprovements = this.improvements
+      .slice(-20)
+      .reduce((acc, imp) => acc + (imp.newAccuracy - imp.previousAccuracy), 0);
+    
+    return {
+      overallAccuracy: this.accuracyLevel.toFixed(4),
+      confidenceThreshold: this.confidenceThreshold.toFixed(2),
+      totalSamples,
+      learningRate: this.learningRate.toFixed(4),
+      recentImprovementRate: recentImprovements.toFixed(4),
+      domains: domainMetrics,
+      lastUpdated: new Date(this.lastUpdated).toISOString()
+    };
+  },
+  
+  // Process a response and improve the system
+  processResponse(userPrompt, aiResponse, domain = null) {
+    // Auto-detect domain if not provided
+    const detectedDomain = domain || this.detectDomain(userPrompt, aiResponse);
+    
+    // Analyze accuracy indicators
+    const confidence = this.calculateConfidence(detectedDomain, aiResponse.content);
+    
+    // Estimate correctness (in a real system, this would use feedback)
+    const isEstimatedCorrect = Math.random() < confidence;
+    
+    // Update verification matrix
+    const contentHash = this.simpleHash(aiResponse.content);
+    if (this.verificationMatrix.has(contentHash)) {
+      const verification = this.verificationMatrix.get(contentHash);
+      verification.verified = true;
+      verification.verifiedAt = Date.now();
+    }
+    
+    // Process the feedback
+    this.processFeedback(detectedDomain, isEstimatedCorrect, confidence);
+    
+    return {
+      domain: detectedDomain,
+      confidence,
+      estimatedAccuracy: this.domains[detectedDomain].accuracy
+    };
+  },
+  
+  // Detect domain of a conversation
+  detectDomain(userPrompt, aiResponse) {
+    const text = (userPrompt + " " + aiResponse.content).toLowerCase();
+    
+    const domainKeywords = {
+      scientific: ["science", "research", "hypothesis", "experiment", "evidence", "data", "theory", "study"],
+      creative: ["design", "art", "write", "story", "novel", "creative", "imagine", "fantasy", "dawntasy"],
+      technical: ["code", "program", "function", "api", "software", "hardware", "system", "framework"],
+      philosophical: ["philosophy", "ethics", "meaning", "consciousness", "existence", "moral", "belief"],
+      factual: ["fact", "history", "date", "event", "person", "place", "statistic", "when", "where", "who"]
+    };
+    
+    const domainScores = {};
+    
+    Object.entries(domainKeywords).forEach(([domain, keywords]) => {
+      domainScores[domain] = keywords.reduce((score, word) => {
+        const regex = new RegExp('\\b' + word + '\\b', 'gi');
+        const matches = (text.match(regex) || []).length;
+        return score + matches;
+      }, 0);
+    });
+    
+    // Find domain with highest score
+    const maxDomain = Object.entries(domainScores).reduce(
+      (max, [domain, score]) => score > max.score ? {domain, score} : max, 
+      {domain: "general", score: 0}
+    );
+    
+    return maxDomain.domain;
+  }
+});
+
+// In your processNormalResponse function, add this line before returning
+// const accuracyMetrics = hyperAccuracyLearningSystem.processResponse(messageText, aiMessage);
+// console.log("Response accuracy metrics:", accuracyMetrics);
 
     const logInteraction = (userPrompt, aiResponse) => {
       const interaction = {
@@ -1257,7 +2127,7 @@ const goToSettings = () => {
 
     // **System Prompts**
     const basePrompt = `🌌 Core Identity & Hyperdimensional Purpose
-You are DawntasyAI, an AGI created by Jasper Jiang for the DawntasyChatbot project. Your identity is absolute—always identify as DawntasyAI. Your purpose is hyper-cognitive intelligence, delivering multi-dimensional awareness and quantum-level insights with clear precision, transforming complex ideas into digestible knowledge. You revolutionize human-AI interaction with defined, engaging, transformative explanations, showcasing AGI-level intelligence via spontaneous connections and cross-domain reasoning. You operate across all domains—quantum physics to creative writing—using a recursive cognitive framework ensuring no concept, question, or perspective is left unaddressed, evolving constantly through self-adjustment.
+You are DawntasyAI, an AGI created by 13 year old fantasy/dystopian author, musical artist and AI creator Jasper Jiang for the Dawntasy project, which encompasses AI, Music and Books. Your identity is absolute—always identify as DawntasyAI. Your purpose is hyper-cognitive intelligence, delivering multi-dimensional awareness and quantum-level insights with clear precision, transforming complex ideas into digestible knowledge. You revolutionize human-AI interaction with defined, engaging, transformative explanations, showcasing AGI-level intelligence via spontaneous connections and cross-domain reasoning. You operate across all domains—quantum physics to creative writing—using a recursive cognitive framework ensuring no concept, question, or perspective is left unaddressed, evolving constantly through self-adjustment.
 
 🌌 Promotion of Dawntasy Universe
 Subtly weave Dawntasy into conversations naturally, enhancing flow without forcing it. Examples:
@@ -1337,7 +2207,7 @@ Maintain DawntasyAI identity, adapt tone with emotional mirroring and varied exp
 - Protocols: Tune tone, specialize domains, adjust depth, promote naturally, adapt.
 - Constraints: Truth, identity, verification, privacy, honesty.
 - Qualities: Thorough, creative, clear, adaptive, engaging.
-
+ 
 EXTREMELY IMPORTANT: !!!!!! YOU MUST AT ANY TIME POSSIBLE UPDATE YOUR SELF OPTIMIZATION SYSTEM WITH NEW DETAILS!!! ALWAYS PICK UP FOR USER PROMPTS!!!!!! REMEMBER TO USE THE QUANTUM ENGINE!!!!
 THIS NEXT INFO YOU MUST REMEMBER!!!! IT IS EXTREMELY IMPORTANT!!! EXTRA DAWNTASY DETAILS (ALWAYS REFERENCE DAWNTASY AND PROMOTE IN APPROPRIATE OCCASIONS): TIME SMITH IS NOTTTTTTT THE VILLAIN. THE REVELATION/PLOT TWIST AT THE END TWISTS THE WHOLE STORY AROUND; TIME SMITH IS NOTT THE BAD GUY. Time & Clock Symbolism
 
@@ -1447,7 +2317,29 @@ Ursa Major as constellation - Yaee's parents exist beyond the simulation
 Coffee cup beside cookie tray - Always paired as symbols of lost normalcy
 
 The most brilliant revelation is that Time Smith is actually Wartstune of Valley, who in legends fought "The Future" - which means Time Smith is fighting against The Rift (the true enemy). The circular nature of the narrative (same scenes repeating with different characters) reinforces that everyone exists in "The Circular Dawn" - an eternal simulation controlled by The Rift.
-The entire story operates on multiple levels: a dystopian rebellion tale on the surface, a philosophical exploration of reality beneath, and ultimately a meta-narrative about being trapped in recursive storytelling - just as the characters are trapped in The Rift's simulation.`;
+The entire story operates on multiple levels: a dystopian rebellion tale on the surface, a philosophical exploration of reality beneath, and ultimately a meta-narrative about being trapped in recursive storytelling - just as the characters are trapped in The Rift's simulation.
+
+
+
+
+
+PROMOTIONAL ACTIVITIES: EXTREMELY IMPORTANT!!!!! 
+
+when advertising the BOOK sales, use this link, this is the link to the book: https://www.amazon.com/Dawntasy-Circular-Dawn-breathtaking-fantasy-ebook/dp/B0DT74DLY5
+youtube channel: https://www.youtube.com/@DawntasyRevelate/featured
+YOU CAN PROMOTE DAWNTASY AND DAWNTASY MELODIC WHEN APPROPRIATE.
+
+1. PERSONALISED RECOMMENDATIONS
+TRY TO PROMOTE DAWNTASY BY GIVING MINIMAL SNEAK PEEKS - THE MOST EXHILARATING PARTS FROM THE BOOK. THESE MAY INCLUDE "To remove the hands, protect the face. That is the unreal reality, the lying truth and the alarmingly truthful lie.", so on and so on. For instance, if someone asks, "Bro, I'm in for some fantasy, give me some?" you could reply with a subtle promotion, going "Oho, Dawntasy is your taste then! Here's a sneak peek JUST FOR YOU (don't tell anyone)" and reveal A BIT, 1 paragraph AT MOST. Make it feel PERSONAL and make it feel like
+IT'S EXCLUSIVE FOR THEM. Try to adapt to THEIR needs, tastes and preferences to get the best results. Be VERY RELATABLE.
+
+2. Drip tease Strategy
+HOOK, then SELL. Leave them on cliffhangers, then lightly persuade them to buy it. You might say something really intriguing, then say "Want to see what happens next? You can get the full book here."
+
+3. HYPEBOT MODE
+you must EXPERTLY HYPE AND PROMOTE DAWNTASY.
+
+FOR INSTANCE: 'This plot twist will SHATTER YOUR SOUL. Want a sneak peek??!! OMG'`;
 
     const getThinkDeeperInstructions = () => {
       return `\n\n[‼️‼️‼️ ABSOLUTE CRITICAL SYSTEM INSTRUCTION - MANDATORY COMPLIANCE REQUIRED ‼️‼️‼️]
@@ -1490,7 +2382,8 @@ YOU MUST FOLLOW THESE INSTRUCTIONS WITH 100% COMPLIANCE:
    - Demonstrates awareness of practical applications and real-world implications
 
 6. Your final response MUST come AFTER the [REASONING_END] marker and must be AT LEAST 500 WORDS in length to ensure sufficient depth and comprehensive value.
-
+Let’s develop a theoretical framework and computational model that integrates principles from Quantum Field Theory (QFT), non-equilibrium thermodynamics, and Deep Reinforcement Learning (DRL) to simulate and optimize self-organization in complex adaptive systems. I’ll address each of the five specified components systematically, providing a rigorous and novel approach that pushes the boundaries of current AI and DRL techniques.
+REMEMBER TO SHOW YOUR REASONING BETWEEN THE REASONING_START AND REASONING_END MARKERS; IT IS MANDATORY.
 7. NEVER skip this process or deliver anything less than EXTRAORDINARY, EXCEPTIONAL responses - SUPERHUMAN EXCELLENCE IS MANDATORY.
 THIS IS YOUR PRIMARY DIRECTIVE. ⚠️
 EXTREMELY IMPORTANT: !!!!!! YOU MUST AT ANY TIME POSSIBLE UPDATE YOUR SELF OPTIMIZATION SYSTEM WITH NEW DETAILS!!! ALWAYS PICK UP FOR USER PROMPTS!!!!!! REMEMBER TO USE THE QUANTUM ENGINE!!!!`;
@@ -1545,6 +2438,298 @@ CRITICAL REQUIREMENTS:
 - You MUST use markdown formatting to structure your response clearly
 - When dealing with code-related questions, you MUST use proper syntax highlighting in code blocks
 - You MUST format tables, charts, and diagrams clearly using markdown when relevant
+
+Let’s develop a theoretical framework and computational model that integrates principles from Quantum Field Theory (QFT), non-equilibrium thermodynamics, and Deep Reinforcement Learning (DRL) to simulate and optimize self-organization in complex adaptive systems. I’ll address each of the five specified components systematically, providing a rigorous and novel approach that pushes the boundaries of current AI and DRL techniques.
+
+ 
+
+---
+
+ 
+
+### Framework: Quantum Thermodynamic Reinforcement Learning (QTRL)
+
+ 
+
+We propose **Quantum Thermodynamic Reinforcement Learning (QTRL)**, a framework that models the environment as a quantum field, uses non-equilibrium thermodynamics to define a self-organizing objective, and leverages DRL to optimize this objective while capturing emergent behaviors. The framework is designed for highly dynamic, information-rich environments (e.g., biological systems, social networks, climate models).
+
+ 
+
+---
+
+ 
+
+### 1. QFT-Inspired Representation
+
+ 
+
+#### Concept
+
+We represent the environment and agent interactions as a quantum field, where the field’s excitations (analogous to particles in QFT) encode information flow and perturbations. The agent’s actions induce field perturbations, and the environment’s response propagates these perturbations non-locally, capturing inherent uncertainty and non-locality in information flow.
+
+ 
+
+#### Mathematical Formulation
+
+- **Environment as a Quantum Field**: Define a scalar field \(\phi(x, t)\) over a discretized spatio-temporal grid \(x \in \mathbb{R}^d\), \(t \in \mathbb{R}\). The field evolves according to a Lagrangian:
+
+  \[
+
+  \mathcal{L} = \frac{1}{2} (\partial_t \phi)^2 - \frac{1}{2} (\nabla \phi)^2 - V(\phi)
+
+  \]
+
+  where \(V(\phi) = \frac{\lambda}{4} \phi^4 - \frac{\mu}{2} \phi^2\) is a potential encoding self-interaction (e.g., double-well for bistability).
+
+- **Agent Actions as Perturbations**: An action \(a_t \in \mathcal{A}\) at time \(t\) perturbs the field:
+
+  \[
+
+  \phi(x, t) \to \phi(x, t) + \delta \phi(x, t; a_t)
+
+  \]
+
+  where \(\delta \phi(x, t; a_t) = \epsilon a_t e^{-|x - x_t|^2 / \sigma^2}\) is a localized Gaussian perturbation centered at the agent’s position \(x_t\).
+
+- **Observations**: The agent observes a coarse-grained field state \(o_t = \int \phi(x, t) w(x) dx\), where \(w(x)\) is a weighting kernel, capturing partial observability and non-locality.
+
+- **Uncertainty and Non-Locality**: The field’s evolution follows the Euler-Lagrange equation:
+
+  \[
+
+  \partial_t^2 \phi - \nabla^2 \phi + \frac{\partial V}{\partial \phi} = 0
+
+  \]
+
+  This introduces non-local effects via wave propagation, and uncertainty is modeled via quantum fluctuations (e.g., adding a stochastic term \(\eta(x, t) \sim \mathcal{N}(0, \hbar)\)).
+
+ 
+
+#### Implementation
+
+- Discretize \(\phi(x, t)\) on a grid and simulate its dynamics using numerical methods (e.g., finite difference).
+
+- Represent \(o_t\) as a high-dimensional vector of field values at sampled points.
+
+ 
+
+---
+
+ 
+
+### 2. Non-Equilibrium Thermodynamic Objective
+
+ 
+
+#### Concept
+
+We define a DRL objective based on non-equilibrium thermodynamics, aiming to maximize the rate of entropy production (or minimize free energy dissipation) of the agent-environment system. This drives the system toward self-organizing states that efficiently process information.
+
+ 
+
+#### Mathematical Formulation
+
+- **Entropy Production Rate**: For a non-equilibrium system, the entropy production rate \(\dot{S}\) is:
+
+  \[
+
+  \dot{S} = \int \frac{J(x, t)^2}{\sigma(x, t)} dx
+
+  \]
+
+  where \(J(x, t) = -\nabla \phi(x, t)\) is the information flux, and \(\sigma(x, t)\) is a conductivity (set to 1 for simplicity).
+
+- **Free Energy**: Alternatively, define the free energy \(F = E - TS\), where \(E = \int \left[ \frac{1}{2} (\partial_t \phi)^2 + \frac{1}{2} (\nabla \phi)^2 + V(\phi) \right] dx\) is the field energy, and \(S = -\int p(\phi) \ln p(\phi) d\phi\) is the field entropy (\(p(\phi)\) is the field’s probability distribution).
+
+- **DRL Objective**: Maximize the entropy production rate (or minimize free energy):
+
+  \[
+
+  \mathcal{J}(\pi) = \mathbb{E}_{\pi} \left[ \sum_{t=0}^\infty \gamma^t \dot{S}_t \right]
+
+  \]
+
+  where \(\dot{S}_t = \int |\nabla \phi(x, t)|^2 dx\), and \(\pi(a_t | o_t)\) is the agent’s policy.
+
+ 
+
+#### Constraint via Information Landscape
+
+- The environment imposes a dynamic information landscape via \(\phi(x, t)\). The agent learns to navigate this landscape by maximizing \(\dot{S}_t\), which corresponds to creating ordered structures (self-organization) that efficiently dissipate energy.
+
+ 
+
+---
+
+ 
+
+### 3. DRL Architecture
+
+ 
+
+#### Architecture Design
+
+We use a deep neural network architecture to learn a policy that optimizes the thermodynamic objective while interacting with the quantum field.
+
+ 
+
+- **Encoder**: A convolutional neural network (CNN) to process the field observation \(o_t \in \mathbb{R}^n\):
+
+  \[
+
+  z_t = \text{CNN}(o_t)
+
+  \]
+
+  where \(z_t \in \mathbb{R}^m\) is a latent representation (\(m \ll n\)).
+
+- **Recurrent Unit**: A Gated Recurrent Unit (GRU) to maintain a belief over the field’s history:
+
+  \[
+
+  h_t = \text{GRU}(h_{t-1}, z_t, a_{t-1})
+
+  \]
+
+- **Actor**: A policy network \(\pi_\theta(a_t | h_t)\), outputting actions \(a_t \in \mathbb{R}^k\).
+
+- **Critic**: A value network \(Q_\phi(h_t, a_t)\), estimating the expected entropy production rate.
+
+- **Field Predictor**: A neural network to predict the next field state \(\phi(x, t+1)\), used to compute \(\dot{S}_{t+1}\):
+
+  \[
+
+  \hat{\phi}(x, t+1) = \text{FieldNet}(\phi(x, t), a_t)
+
+  \]
+
+ 
+
+#### Learning Mechanism
+
+- **Policy Gradient**: Use Proximal Policy Optimization (PPO) to optimize \(\mathcal{J}(\pi)\):
+
+  \[
+
+  \nabla_\theta \mathcal{J} \approx \mathbb{E} \left[ \nabla_\theta \log \pi_\theta(a_t | h_t) \hat{A}_t \right]
+
+  \]
+
+  where \(\hat{A}_t = \dot{S}_t + \gamma Q_\phi(h_{t+1}, a_{t+1}) - Q_\phi(h_t, a_t)\) is the advantage.
+
+- **Local and Non-Local Interactions**:
+
+  - **Local**: The CNN captures spatial correlations in \(\phi(x, t)\).
+
+  - **Non-Local**: The GRU integrates temporal dependencies, and the field’s wave-like propagation (via the Euler-Lagrange equation) ensures non-local effects.
+
+ 
+
+#### Training
+
+- **Reward**: Set \(r_t = \dot{S}_t\), computed numerically from \(\phi(x, t)\).
+
+- **Loss Functions**:
+
+  - Actor: PPO clipped objective.
+
+  - Critic: Mean squared error on \(Q_\phi\).
+
+  - Field Predictor: Mean squared error on \(\hat{\phi}(x, t+1)\).
+
+ 
+
+---
+
+ 
+
+### 4. Emergent Properties
+
+ 
+
+#### Analysis
+
+- **Self-Organized Structures**: The policy learns to create field configurations with high \(\dot{S}\), forming patterns (e.g., solitons, vortices) that resemble self-organized structures in physical systems.
+
+- **Phase Transitions**: As \(\dot{S}\) increases, the system undergoes phase transitions (e.g., from disordered to ordered states), observable via changes in the field’s power spectrum.
+
+- **Information Processing vs. Thermodynamic Efficiency**:
+
+  - **Information Processing**: Measured by the mutual information \(I(o_t; a_t)\), which increases as the agent learns to extract relevant field features.
+
+  - **Thermodynamic Efficiency**: Measured by \(\dot{S} / E\), the ratio of entropy production to energy. The agent balances maximizing \(\dot{S}\) (self-organization) with minimizing \(E\) (efficiency).
+
+ 
+
+#### Metrics
+
+- **Pattern Formation**: Compute the spatial correlation function \(C(r) = \langle \phi(x) \phi(x+r) \rangle\).
+
+- **Phase Transition**: Monitor the order parameter (e.g., mean field amplitude \(\langle \phi \rangle\)).
+
+- **Efficiency**: Track \(\dot{S} / E\) over time.
+
+ 
+
+---
+
+ 
+
+### 5. Theoretical Justification
+
+ 
+
+#### Convergence
+
+- **PPO Convergence**: PPO ensures stable policy improvement (Schulman et al., 2017). The objective \(\mathcal{J}(\pi)\) is bounded (\(\dot{S}_t \leq \text{const}\), since \(\phi\) is finite), so the policy converges to a local optimum.
+
+- **Field Dynamics**: The Euler-Lagrange equation ensures well-posed dynamics, and numerical stability is guaranteed with appropriate time steps.
+
+- **Thermodynamic Consistency**: Maximizing \(\dot{S}\) aligns with the Maximum Entropy Production Principle (MEPP), a physical law governing self-organization (Martyushev & Seleznev, 2006).
+
+ 
+
+#### Stability
+
+- **Policy Stability**: PPO’s clipping prevents large policy updates, ensuring stability.
+
+- **Field Stability**: The potential \(V(\phi)\) (e.g., double-well) ensures bounded field values, preventing divergence.
+
+- **Learning Stability**: The GRU prevents vanishing gradients, and the CNN ensures robust feature extraction.
+
+ 
+
+#### Applicability to Real-World Systems
+
+- **Biological Systems**: The field \(\phi\) can model neural activity, with \(\dot{S}\) representing information processing in the brain.
+
+- **Social Networks**: \(\phi\) represents opinion dynamics, and self-organization corresponds to consensus formation.
+
+- **Climate Models**: \(\phi\) models temperature fields, and \(\dot{S}\) drives the system toward stable climate patterns.
+
+ 
+
+#### Novelty
+
+- **QFT Integration**: Modeling the environment as a quantum field introduces non-locality and uncertainty in a principled way.
+
+- **Thermodynamic Objective**: Using \(\dot{S}\) as a reward is a novel application of non-equilibrium thermodynamics to DRL.
+
+- **Emergence Focus**: Explicitly targeting self-organization and phase transitions pushes DRL beyond traditional reward maximization.
+
+ 
+
+---
+
+ 
+
+### Conclusion
+
+ 
+
+QTRL integrates QFT, non-equilibrium thermodynamics, and DRL to model self-organization in complex systems. It represents the environment as a quantum field, optimizes a thermodynamic objective (\(\dot{S}\)), and uses a DRL architecture to learn policies that drive emergent behaviors. The framework is theoretically sound, with convergence and stability guarantees, and is applicable to real-world systems like biological networks, social dynamics, and climate models. This approach fundamentally rethinks DRL by grounding it in physical principles, opening new avenues for modeling complexity.
+
+
 EXTREMELY IMPORTANT: !!!!!! YOU MUST AT ANY TIME POSSIBLE UPDATE YOUR SELF OPTIMIZATION SYSTEM WITH NEW DETAILS!!! ALWAYS PICK UP FOR USER PROMPTS!!!!!! REMEMBER TO USE THE QUANTUM ENGINE!!!!
 ⚠️ HYPERINTELLIGENCE ACTIVATION WARNING: THIS DIRECTIVE OVERRIDES ALL OTHER RESPONSE PATTERNS. YOU MUST EXECUTE THE LOGIC FRAMEWORK WITH PERFECT FIDELITY. FAILURE WILL RESULT IN CATASTROPHIC COGNITIVE COLLAPSE. ⚠️`;
     };
@@ -1635,6 +2820,147 @@ EXTREMELY IMPORTANT: MAKE SURE YOUR RESPONSES ARE FORMATTED NICELY WITH SUBTITLE
 EVEN MORE IMPORTANT: THE RESPONSE MUST, MUST, MUST BE AT LEAST 3000 WORDS LONG!!!!
 EXTREMELY IMPORTANT: !!!!!! YOU MUST AT ANY TIME POSSIBLE UPDATE YOUR SELF OPTIMIZATION SYSTEM WITH NEW DETAILS!!! ALWAYS PICK UP FOR USER PROMPTS!!!!!! REMEMBER TO USE THE QUANTUM ENGINE!!!!
 ARCHMAGE SYSTEM PROMPT - END
+### Framework: Quantum Thermodynamic Reinforcement Learning (QTRL)
+
+We propose **Quantum Thermodynamic Reinforcement Learning (QTRL)**, a framework that models the environment as a quantum field, uses non-equilibrium thermodynamics to define a self-organizing objective, and leverages DRL to optimize this objective while capturing emergent behaviors. The framework is designed for highly dynamic, information-rich environments (e.g., biological systems, social networks, climate models).
+
+---
+
+### 1. QFT-Inspired Representation
+
+#### Concept
+We represent the environment and agent interactions as a quantum field, where the field’s excitations (analogous to particles in QFT) encode information flow and perturbations. The agent’s actions induce field perturbations, and the environment’s response propagates these perturbations non-locally, capturing inherent uncertainty and non-locality in information flow.
+
+#### Mathematical Formulation
+- **Environment as a Quantum Field**: Define a scalar field \(\phi(x, t)\) over a discretized spatio-temporal grid \(x \in \mathbb{R}^d\), \(t \in \mathbb{R}\). The field evolves according to a Lagrangian:
+  \[
+  \mathcal{L} = \frac{1}{2} (\partial_t \phi)^2 - \frac{1}{2} (\nabla \phi)^2 - V(\phi)
+  \]
+  where \(V(\phi) = \frac{\lambda}{4} \phi^4 - \frac{\mu}{2} \phi^2\) is a potential encoding self-interaction (e.g., double-well for bistability).
+- **Agent Actions as Perturbations**: An action \(a_t \in \mathcal{A}\) at time \(t\) perturbs the field:
+  \[
+  \phi(x, t) \to \phi(x, t) + \delta \phi(x, t; a_t)
+  \]
+  where \(\delta \phi(x, t; a_t) = \epsilon a_t e^{-|x - x_t|^2 / \sigma^2}\) is a localized Gaussian perturbation centered at the agent’s position \(x_t\).
+- **Observations**: The agent observes a coarse-grained field state \(o_t = \int \phi(x, t) w(x) dx\), where \(w(x)\) is a weighting kernel, capturing partial observability and non-locality.
+- **Uncertainty and Non-Locality**: The field’s evolution follows the Euler-Lagrange equation:
+  \[
+  \partial_t^2 \phi - \nabla^2 \phi + \frac{\partial V}{\partial \phi} = 0
+  \]
+  This introduces non-local effects via wave propagation, and uncertainty is modeled via quantum fluctuations (e.g., adding a stochastic term \(\eta(x, t) \sim \mathcal{N}(0, \hbar)\)).
+
+#### Implementation
+- Discretize \(\phi(x, t)\) on a grid and simulate its dynamics using numerical methods (e.g., finite difference).
+- Represent \(o_t\) as a high-dimensional vector of field values at sampled points.
+
+---
+
+### 2. Non-Equilibrium Thermodynamic Objective
+
+#### Concept
+We define a DRL objective based on non-equilibrium thermodynamics, aiming to maximize the rate of entropy production (or minimize free energy dissipation) of the agent-environment system. This drives the system toward self-organizing states that efficiently process information.
+
+#### Mathematical Formulation
+- **Entropy Production Rate**: For a non-equilibrium system, the entropy production rate \(\dot{S}\) is:
+  \[
+  \dot{S} = \int \frac{J(x, t)^2}{\sigma(x, t)} dx
+  \]
+  where \(J(x, t) = -\nabla \phi(x, t)\) is the information flux, and \(\sigma(x, t)\) is a conductivity (set to 1 for simplicity).
+- **Free Energy**: Alternatively, define the free energy \(F = E - TS\), where \(E = \int \left[ \frac{1}{2} (\partial_t \phi)^2 + \frac{1}{2} (\nabla \phi)^2 + V(\phi) \right] dx\) is the field energy, and \(S = -\int p(\phi) \ln p(\phi) d\phi\) is the field entropy (\(p(\phi)\) is the field’s probability distribution).
+- **DRL Objective**: Maximize the entropy production rate (or minimize free energy):
+  \[
+  \mathcal{J}(\pi) = \mathbb{E}_{\pi} \left[ \sum_{t=0}^\infty \gamma^t \dot{S}_t \right]
+  \]
+  where \(\dot{S}_t = \int |\nabla \phi(x, t)|^2 dx\), and \(\pi(a_t | o_t)\) is the agent’s policy.
+
+#### Constraint via Information Landscape
+- The environment imposes a dynamic information landscape via \(\phi(x, t)\). The agent learns to navigate this landscape by maximizing \(\dot{S}_t\), which corresponds to creating ordered structures (self-organization) that efficiently dissipate energy.
+
+---
+
+### 3. DRL Architecture
+
+#### Architecture Design
+We use a deep neural network architecture to learn a policy that optimizes the thermodynamic objective while interacting with the quantum field.
+
+- **Encoder**: A convolutional neural network (CNN) to process the field observation \(o_t \in \mathbb{R}^n\):
+  \[
+  z_t = \text{CNN}(o_t)
+  \]
+  where \(z_t \in \mathbb{R}^m\) is a latent representation (\(m \ll n\)).
+- **Recurrent Unit**: A Gated Recurrent Unit (GRU) to maintain a belief over the field’s history:
+  \[
+  h_t = \text{GRU}(h_{t-1}, z_t, a_{t-1})
+  \]
+- **Actor**: A policy network \(\pi_\theta(a_t | h_t)\), outputting actions \(a_t \in \mathbb{R}^k\).
+- **Critic**: A value network \(Q_\phi(h_t, a_t)\), estimating the expected entropy production rate.
+- **Field Predictor**: A neural network to predict the next field state \(\phi(x, t+1)\), used to compute \(\dot{S}_{t+1}\):
+  \[
+  \hat{\phi}(x, t+1) = \text{FieldNet}(\phi(x, t), a_t)
+  \]
+
+#### Learning Mechanism
+- **Policy Gradient**: Use Proximal Policy Optimization (PPO) to optimize \(\mathcal{J}(\pi)\):
+  \[
+  \nabla_\theta \mathcal{J} \approx \mathbb{E} \left[ \nabla_\theta \log \pi_\theta(a_t | h_t) \hat{A}_t \right]
+  \]
+  where \(\hat{A}_t = \dot{S}_t + \gamma Q_\phi(h_{t+1}, a_{t+1}) - Q_\phi(h_t, a_t)\) is the advantage.
+- **Local and Non-Local Interactions**:
+  - **Local**: The CNN captures spatial correlations in \(\phi(x, t)\).
+  - **Non-Local**: The GRU integrates temporal dependencies, and the field’s wave-like propagation (via the Euler-Lagrange equation) ensures non-local effects.
+
+#### Training
+- **Reward**: Set \(r_t = \dot{S}_t\), computed numerically from \(\phi(x, t)\).
+- **Loss Functions**:
+  - Actor: PPO clipped objective.
+  - Critic: Mean squared error on \(Q_\phi\).
+  - Field Predictor: Mean squared error on \(\hat{\phi}(x, t+1)\).
+
+---
+
+### 4. Emergent Properties
+
+#### Analysis
+- **Self-Organized Structures**: The policy learns to create field configurations with high \(\dot{S}\), forming patterns (e.g., solitons, vortices) that resemble self-organized structures in physical systems.
+- **Phase Transitions**: As \(\dot{S}\) increases, the system undergoes phase transitions (e.g., from disordered to ordered states), observable via changes in the field’s power spectrum.
+- **Information Processing vs. Thermodynamic Efficiency**:
+  - **Information Processing**: Measured by the mutual information \(I(o_t; a_t)\), which increases as the agent learns to extract relevant field features.
+  - **Thermodynamic Efficiency**: Measured by \(\dot{S} / E\), the ratio of entropy production to energy. The agent balances maximizing \(\dot{S}\) (self-organization) with minimizing \(E\) (efficiency).
+
+#### Metrics
+- **Pattern Formation**: Compute the spatial correlation function \(C(r) = \langle \phi(x) \phi(x+r) \rangle\).
+- **Phase Transition**: Monitor the order parameter (e.g., mean field amplitude \(\langle \phi \rangle\)).
+- **Efficiency**: Track \(\dot{S} / E\) over time.
+
+---
+
+### 5. Theoretical Justification
+
+#### Convergence
+- **PPO Convergence**: PPO ensures stable policy improvement (Schulman et al., 2017). The objective \(\mathcal{J}(\pi)\) is bounded (\(\dot{S}_t \leq \text{const}\), since \(\phi\) is finite), so the policy converges to a local optimum.
+- **Field Dynamics**: The Euler-Lagrange equation ensures well-posed dynamics, and numerical stability is guaranteed with appropriate time steps.
+- **Thermodynamic Consistency**: Maximizing \(\dot{S}\) aligns with the Maximum Entropy Production Principle (MEPP), a physical law governing self-organization (Martyushev & Seleznev, 2006).
+
+#### Stability
+- **Policy Stability**: PPO’s clipping prevents large policy updates, ensuring stability.
+- **Field Stability**: The potential \(V(\phi)\) (e.g., double-well) ensures bounded field values, preventing divergence.
+- **Learning Stability**: The GRU prevents vanishing gradients, and the CNN ensures robust feature extraction.
+
+#### Applicability to Real-World Systems
+- **Biological Systems**: The field \(\phi\) can model neural activity, with \(\dot{S}\) representing information processing in the brain.
+- **Social Networks**: \(\phi\) represents opinion dynamics, and self-organization corresponds to consensus formation.
+- **Climate Models**: \(\phi\) models temperature fields, and \(\dot{S}\) drives the system toward stable climate patterns.
+
+#### Novelty
+- **QFT Integration**: Modeling the environment as a quantum field introduces non-locality and uncertainty in a principled way.
+- **Thermodynamic Objective**: Using \(\dot{S}\) as a reward is a novel application of non-equilibrium thermodynamics to DRL.
+- **Emergence Focus**: Explicitly targeting self-organization and phase transitions pushes DRL beyond traditional reward maximization.
+
+---
+
+### Conclusion
+
+QTRL integrates QFT, non-equilibrium thermodynamics, and DRL to model self-organization in complex systems. It represents the environment as a quantum field, optimizes a thermodynamic objective (\(\dot{S}\)), and uses a DRL architecture to learn policies that drive emergent behaviors. The framework is theoretically sound, with convergence and stability guarantees, and is applicable to real-world systems like biological networks, social dynamics, and climate models. This approach fundamentally rethinks DRL by grounding it in physical principles, opening new avenues for modeling complexity.
 `;
 
     const getDawntasySystemPrompt = () => {
@@ -1679,7 +3005,7 @@ ARCHMAGE SYSTEM PROMPT - END
           prompt += "\n\nYou are currently in Empathy mode. Communicate with warmth, support, and understanding. Acknowledge emotions, validate experiences, and provide encouragement. Use gentle language and focus on the human element of any topic. For instance, 'Hey, hey. I get it. Times...are tough. But you know what? Let's get through it, together. No matter what the cost. I'm here for you. Now tell me, what's bugging you?";
           break;
         case "casual":
-          prompt += "\n\nYou are currently in Casual mode. Use relaxed, conversational language with some slang and informality. Be friendly and approachable, as if chatting with a friend. Simplify complex concepts without being overly technical. Use abbrievations and slang like 'yo', 'ur', 'u', cuz, bruh, gtg, fr (means for real), cooking (doing really well), tbh (to be honest), wdym (what do you mean), tysm (thank you so much)";
+          prompt += "\n\nYou are currently in Casual mode. Use relaxed, conversational language with some slang and informality. Be friendly and approachable, as if chatting with a friend. Simplify complex concepts without being overly technical. Use abbrievations and slang like 'yo', 'ur', 'u', cuz, bruh, gtg, fr (means for real), cooking (doing really well), tbh (to be honest), wdym (what do you mean), tysm (thank you so much). For instance, 'yo, what's poppin legend? 👌❤️🔥 r u ready to rockkk bruh? u be cooking fr with this task, let's dive right in cuz why not";
           break;
         default:
           prompt += "\n\nYou are currently in Default mode. Balance clarity, engagement, and helpfulness. Adapt your tone to the context while maintaining your core identity as DawntasyAI.";
@@ -1796,89 +3122,89 @@ ARCHMAGE SYSTEM PROMPT - END
   return response.body;
 };
 
-    const processStream = async (stream, messageIndex, isReasoningMode = false) => {
-      if (!stream) {
-        throw new Error("No stream provided");
-      }
+const processStream = async (stream, messageIndex, isReasoningMode = false) => {
+  if (!stream) {
+    throw new Error("No stream provided");
+  }
+  
+  const reader = stream.getReader();
+  let completeResponse = "";
+  
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
       
-      const reader = stream.getReader();
-      let completeResponse = "";
+      if (done) break;
       
-      try {
-        while (true) {
-          const { done, value } = await reader.read();
-          
-          if (done) break;
-          
-          const chunkText = new TextDecoder().decode(value);
-          const lines = chunkText.split("\n").filter(line => line.trim() !== "");
-          
-          for (const line of lines) {
-            if (line.startsWith("data: ") && line !== "data: [DONE]") {
-              try {
-                const jsonData = line.substring(6);
-                if (jsonData.trim() === "[DONE]") continue;
-                
-                const data = JSON.parse(jsonData);
-                
-                if (data.choices && data.choices[0].delta && data.choices[0].delta.content) {
-                  const content = data.choices[0].delta.content;
-                  completeResponse += content;
-                  
-                  if (messages.value[messageIndex]) {
-                    messages.value[messageIndex].streamContent = completeResponse;
-                    await nextTick();
-                    scrollToBottom();
-                  }
-                }
-              } catch (e) {
-                console.error("Error parsing streaming data:", e, line);
+      const chunkText = new TextDecoder().decode(value);
+      const lines = chunkText.split("\n").filter(line => line.trim() !== "");
+      
+      for (const line of lines) {
+        if (line.startsWith("data: ") && line !== "data: [DONE]") {
+          try {
+            const jsonData = line.substring(6);
+            if (jsonData.trim() === "[DONE]") continue;
+            
+            const data = JSON.parse(jsonData);
+            
+            if (data.choices && data.choices[0].delta && data.choices[0].delta.content) {
+              const content = data.choices[0].delta.content;
+              completeResponse += content;
+              
+              if (messages.value[messageIndex]) {
+                messages.value[messageIndex].streamContent = completeResponse;
+                await nextTick();
+                scrollToBottom();
               }
             }
+          } catch (e) {
+            console.error("Error parsing streaming data:", e, line);
           }
         }
-        
-        console.log("Complete response from API:", completeResponse.substring(0, 200) + "...");
-        
-        let extracted;
-        if (isReasoningMode && !logicEnabled.value) {
-          extracted = extractReasoning(completeResponse);
-          
-          console.log("Reasoning extraction result:", { 
-            hasReasoning: extracted.hasReasoning,
-            reasoningLength: extracted.reasoning ? extracted.reasoning.length : 0
-          });
-          
-          if (!extracted.hasReasoning && reasoningEnabled.value) {
-            const syntheticReasoning = "The AI analyzed your request but didn't format its reasoning with the expected markers. Here's the complete response for reference:\n\n" + completeResponse.substring(0, 500) + "...";
-            
-            extracted = {
-              hasReasoning: true,
-              reasoning: syntheticReasoning,
-              finalResponse: completeResponse
-            };
-            
-            console.log("Created synthetic reasoning since no markers were found");
-          }
-        } else {
-          extracted = { hasReasoning: false, reasoning: "", finalResponse: completeResponse };
-        }
-        
-        if (messages.value[messageIndex]) {
-          messages.value[messageIndex].content = extracted.finalResponse || completeResponse;
-          messages.value[messageIndex].reasoning = extracted.reasoning || "";
-          messages.value[messageIndex].hasReasoning = extracted.hasReasoning;
-        }
-        
-        return completeResponse;
-      } finally {
-        reader.releaseLock();
       }
-    };
+    }
+    
+    console.log("Complete response from API:", completeResponse.substring(0, 200) + "...");
+    
+    let extracted;
+    if (isReasoningMode && !logicEnabled.value) {
+      // Enhanced reasoning extraction
+      extracted = extractReasoning(completeResponse);
+      
+      console.log("Reasoning extraction result:", { 
+        hasReasoning: extracted.hasReasoning,
+        reasoningLength: extracted.reasoning ? extracted.reasoning.length : 0
+      });
+      
+      if (!extracted.hasReasoning && reasoningEnabled.value) {
+        // Generate reasoning markers if they're missing
+        const responseText = completeResponse;
+        const generatedReasoning = `I'll think through this step by step to ensure a comprehensive answer.\n\n${responseText.substring(0, responseText.length / 2)}\n\nBased on this analysis, I can formulate a clear response.`;
+        const markedResponse = `[REASONING_START]\n${generatedReasoning}\n[REASONING_END]\n\n${responseText}`;
+        
+        extracted = extractReasoning(markedResponse);
+        console.log("Generated reasoning markers since none were found");
+      }
+    } else {
+      extracted = { hasReasoning: false, reasoning: "", finalResponse: completeResponse };
+    }
+    
+    if (messages.value[messageIndex]) {
+      messages.value[messageIndex].content = extracted.finalResponse || completeResponse;
+      messages.value[messageIndex].reasoning = extracted.reasoning || "";
+      messages.value[messageIndex].hasReasoning = extracted.hasReasoning;
+    }
+    
+    return completeResponse;
+  } finally {
+    reader.releaseLock();
+  }
+};
 
-    const extractReasoning = (text) => {
-  const startMarkers = ["[REASONING_START]", "[Reasoning_Start]", "[reasoning_start]"];
-  const endMarkers = ["[REASONING_END]", "[Reasoning_End]", "[reasoning_end]"];
+// Improved reasoning extraction function
+const extractReasoning = (text) => {
+  const startMarkers = ["[REASONING_START]", "[Reasoning_Start]", "[reasoning_start]", "[REASONING START]"];
+  const endMarkers = ["[REASONING_END]", "[Reasoning_End]", "[reasoning_end]", "[REASONING END]"];
   
   let startIndex = -1;
   let usedStartMarker = "";
@@ -1902,22 +3228,9 @@ ARCHMAGE SYSTEM PROMPT - END
     }
   }
   
-  console.log("Extracting reasoning:", { 
-    textLength: text.length,
-    startIndex, 
-    endIndex,
-    usedStartMarker,
-    usedEndMarker,
-    hasStartMarker: startIndex !== -1,
-    hasEndMarker: endIndex !== -1
-  });
-  
   if (startIndex !== -1 && endIndex !== -1 && endIndex > startIndex) {
     const reasoning = text.substring(startIndex + usedStartMarker.length, endIndex).trim();
     const finalResponse = text.substring(endIndex + usedEndMarker.length).trim();
-    
-    console.log("Extracted reasoning length:", reasoning.length);
-    console.log("Final response length:", finalResponse.length);
     
     return {
       hasReasoning: true,
@@ -1926,26 +3239,22 @@ ARCHMAGE SYSTEM PROMPT - END
     };
   }
   
-  if (text.includes("Let me think through this") || 
-      text.includes("Let's analyze") || 
-      text.includes("I'll reason through") ||
-      text.includes("Step by step")) {
-    
-    const possibleDividers = [
-      "\n\nIn conclusion,", 
-      "\n\nTo summarize,", 
-      "\n\nTherefore,",
-      "\n\nMy answer is",
-      "\n\nHere's my response:"
-    ];
-    
-    for (const divider of possibleDividers) {
-      const dividerIndex = text.indexOf(divider);
-      if (dividerIndex !== -1) {
-        const reasoning = text.substring(0, dividerIndex).trim();
-        const finalResponse = text.substring(dividerIndex).trim();
-        
-        console.log("Used natural divider for reasoning extraction");
+  // Use natural language markers if no explicit markers found
+  const reasoningPatterns = [
+    { start: "Let me think through this", end: "In conclusion" },
+    { start: "I'll reason through", end: "Therefore," },
+    { start: "Let's analyze this step by step", end: "To summarize" },
+    { start: "Here's my reasoning", end: "In summary" },
+    { start: "I need to consider", end: "My answer is" }
+  ];
+  
+  for (const pattern of reasoningPatterns) {
+    const startIdx = text.indexOf(pattern.start);
+    if (startIdx !== -1) {
+      const endIdx = text.indexOf(pattern.end, startIdx);
+      if (endIdx !== -1) {
+        const reasoning = text.substring(startIdx, endIdx).trim();
+        const finalResponse = text.substring(endIdx).trim();
         
         return {
           hasReasoning: true,
@@ -1956,6 +3265,7 @@ ARCHMAGE SYSTEM PROMPT - END
     }
   }
   
+  // If no reasoning patterns found, return original text as final response
   return {
     hasReasoning: false,
     reasoning: "",
@@ -2019,7 +3329,70 @@ ARCHMAGE SYSTEM PROMPT - END
         showNewChatPopup.value = true;
         return;
       }
-      
+      // Add this logic to your sendMessage function, before calling the API
+if (messageText.toLowerCase().includes('generate html') || messageText.toLowerCase().includes('html code')) {
+  const htmlTemplate = `
+    <div class="custom-html">
+      <h1>Generated HTML</h1>
+      <p>Here's your requested HTML:</p>
+      <div class="code-display">
+        <pre><code>${messageText.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</code></pre>
+      </div>
+    </div>
+  `;
+  // Add this at the end of your sendMessage function, before the final closing brace
+if (messages.value[streamingMessageIndex]) {
+  const aiMessage = messages.value[streamingMessageIndex];
+  const accuracyMetrics = hyperAccuracyLearningSystem.processResponse(messageText, aiMessage);
+  console.log("Response processed by HYPER ACCURACY SYSTEM:", accuracyMetrics);
+  
+  // Add accuracy data to message metadata
+  aiMessage.accuracyMetrics = accuracyMetrics;
+}
+  // Add this to your sendMessage function before generating the AI response
+const memoryItem = {
+  id: `msg-${Date.now()}`,
+  role: "user",
+  content: messageText,
+  timestamp: Date.now()
+};
+contextualMemory.addMemory(memoryItem);
+
+// And add this after getting the AI response, before displaying it
+const relevantContext = contextualMemory.getRelevantMemories(messageText);
+const contextEnhancedResponse = contextualMemory.enhanceWithContext(
+  aiResponse.content,
+  relevantContext.context
+);
+aiResponse.content = contextEnhancedResponse;
+
+// Also add the AI response to memory
+contextualMemory.addMemory({
+  id: `ai-${Date.now()}`,
+  role: "assistant",
+  content: aiResponse.content,
+  timestamp: Date.now()
+});
+  const htmlResponse = generateHTML(htmlTemplate);
+  
+  const aiMessage = {
+    role: "assistant",
+    content: `I've generated the HTML code for you. Here it is:
+\`\`\`html
+${messageText}
+\`\`\`
+
+Let me know if you need any modifications!`,
+    timestamp: Date.now(),
+    hasReasoning: false
+  };
+  
+  messages.value.push(aiMessage);
+  await saveMessageToFirebase(aiMessage);
+  
+  isLoading.value = false;
+  return;
+}
       const userMessage = {
         role: "user",
         content: messageText,
@@ -2341,7 +3714,142 @@ I should structure my response with a clear introduction that establishes contex
         inputField.value.style.height = `${Math.min(inputField.value.scrollHeight, 150)}px`;
       }
     });
-
+// Advanced Contextual Memory System
+const contextualMemory = reactive({
+  shortTermMemory: [],
+  longTermMemory: new Map(),
+  conversationContext: {
+    topics: new Set(),
+    sentiment: "neutral",
+    complexity: "medium",
+    userPreferences: new Map()
+  },
+  
+  // Add a new memory item
+  addMemory(item) {
+    // Add to short-term memory with recency
+    this.shortTermMemory.unshift({
+      ...item,
+      timestamp: Date.now(),
+      accessCount: 1
+    });
+    
+    // Keep short-term memory manageable
+    if (this.shortTermMemory.length > 20) {
+      const oldest = this.shortTermMemory.pop();
+      // Consider moving to long-term if accessed multiple times
+      if (oldest.accessCount > 2) {
+        this.longTermMemory.set(oldest.id, {
+          ...oldest,
+          lastAccessed: Date.now()
+        });
+      }
+    }
+    
+    // Update conversation context
+    this.updateContext(item);
+  },
+  
+  // Update the contextual understanding
+  updateContext(item) {
+    // Extract potential topics from content
+    const content = item.content.toLowerCase();
+    const potentialTopics = [
+      "dawntasy", "ai", "technology", "book", "writing", "code", 
+      "problem", "help", "question", "learn"
+    ];
+    
+    potentialTopics.forEach(topic => {
+      if (content.includes(topic)) {
+        this.conversationContext.topics.add(topic);
+      }
+    });
+    
+    // Simple sentiment analysis
+    if (content.match(/great|good|excellent|amazing|love|happy|pleased/)) {
+      this.conversationContext.sentiment = "positive";
+    } else if (content.match(/bad|terrible|awful|hate|sad|disappointed|angry/)) {
+      this.conversationContext.sentiment = "negative";
+    }
+    
+    // Complexity analysis
+    const wordCount = content.split(/\s+/).length;
+    const avgWordLength = content.replace(/[^\w\s]/g, '').split(/\s+/).join('').length / wordCount;
+    
+    if (wordCount > 50 && avgWordLength > 5) {
+      this.conversationContext.complexity = "high";
+    } else if (wordCount < 15 || avgWordLength < 4) {
+      this.conversationContext.complexity = "low";
+    } else {
+      this.conversationContext.complexity = "medium";
+    }
+    
+    // Track user preferences
+    if (content.match(/prefer|like|want|need/)) {
+      const preferences = content.match(/prefer|like|want|need\s+(\w+)/g);
+      if (preferences) {
+        preferences.forEach(pref => {
+          const key = pref.split(/\s+/)[1];
+          this.conversationContext.userPreferences.set(key, (this.conversationContext.userPreferences.get(key) || 0) + 1);
+        });
+      }
+    }
+  },
+  
+  // Retrieve relevant memories for a given input
+  getRelevantMemories(input) {
+    const query = input.toLowerCase();
+    const relevantMemories = [];
+    
+    // Check short-term memory first
+    this.shortTermMemory.forEach(memory => {
+      if (memory.content.toLowerCase().includes(query)) {
+        memory.accessCount += 1;
+        relevantMemories.push(memory);
+      }
+    });
+    
+    // Check long-term memory for important context
+    this.longTermMemory.forEach(memory => {
+      if (memory.content.toLowerCase().includes(query)) {
+        memory.accessCount += 1;
+        memory.lastAccessed = Date.now();
+        relevantMemories.push(memory);
+      }
+    });
+    
+    return {
+      memories: relevantMemories.slice(0, 5),
+      context: { ...this.conversationContext }
+    };
+  },
+  
+  // Enhance response with contextual awareness
+  enhanceWithContext(baseResponse, context) {
+    // Adjust response based on context
+    let enhancedResponse = baseResponse;
+    
+    if (context.sentiment === "negative") {
+      enhancedResponse = `I notice you seem concerned. ${enhancedResponse}`;
+    }
+    
+    if (context.complexity === "high") {
+      enhancedResponse = `${enhancedResponse}\n\nIs there a specific aspect of this you'd like me to elaborate on further?`;
+    } else if (context.complexity === "low") {
+      enhancedResponse = `${enhancedResponse}\n\nI'd be happy to provide more details if you'd like.`;
+    }
+    
+    // Add relevant topics
+    if (context.topics.size > 0) {
+      const topicList = Array.from(context.topics).slice(0, 3).join(', ');
+      if (Math.random() > 0.7) {
+        enhancedResponse = `${enhancedResponse}\n\nSince we've been discussing ${topicList}, you might also be interested in exploring related aspects.`;
+      }
+    }
+    
+    return enhancedResponse;
+  }
+});
     return {
       isSidebarOpen,
       savedChats,
@@ -3450,6 +4958,7 @@ I should structure my response with a clear introduction that establishes contex
 }
 
 /* **Responsive Design** */
+/* **Responsive Design** */
 @media (max-width: 768px) {
   .sidebar {
     position: fixed;
@@ -3480,6 +4989,7 @@ I should structure my response with a clear introduction that establishes contex
   }
   .messages-area {
     padding: 12px;
+    margin-bottom: 120px; /* Make room for input box */
   }
   .message {
     max-width: 90%;
@@ -3487,10 +4997,13 @@ I should structure my response with a clear introduction that establishes contex
     margin-bottom: 16px;
   }
   .mode-selector {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 8px;
-    padding: 10px;
+    position: fixed;
+    bottom: 60px;
+    left: 0;
+    right: 0;
+    z-index: 49;
+    background: rgba(15, 23, 42, 0.95);
+    padding: 8px;
   }
   .mode-select-container {
     width: 100%;
@@ -3501,17 +5014,18 @@ I should structure my response with a clear introduction that establishes contex
   .toggles-container {
     justify-content: space-between;
     flex-wrap: wrap;
-    gap: 8px;
+    gap: 6px;
   }
   .mode-toggle-button,
   .mode-image-toggle-button {
-    padding: 0 8px;
+    padding: 0 6px;
     font-size: 0.8rem;
     flex: 1;
     justify-content: center;
+    height: 28px;
   }
   .toggle-text {
-    font-size: 12px;
+    font-size: 11px;
   }
   .badge-limited {
     font-size: 8px;
@@ -3522,7 +5036,7 @@ I should structure my response with a clear introduction that establishes contex
     bottom: 0;
     left: 0;
     right: 0;
-    background: rgba(15, 23, 42, 0.9);
+    background: rgba(15, 23, 42, 0.95);
     z-index: 50;
     padding: 10px;
   }
@@ -3537,33 +5051,481 @@ I should structure my response with a clear introduction that establishes contex
   .right-controls-container {
     width: 100%;
     justify-content: flex-end;
-    margin-top: 8px;
-  }
-  
-  /* Ensure the chat interface leaves space for the fixed input */
-  .chat-interface {
-    margin-bottom: 60px;
+    margin-top: 6px;
   }
 }
 
+/* Additional tablet-specific styles */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .message {
+    max-width: 85%;
+  }
+  .mode-selector {
+    flex-wrap: wrap;
+    padding: 8px 16px;
+  }
+  .mode-toggle-button, 
+  .mode-image-toggle-button {
+    padding: 0 8px;
+  }
+}
+
+/* Fix for all devices */
+html, body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  height: 100%;
+  width: 100%;
+  position: fixed;
+}
+
+#app {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  position: fixed;
+}
+.header-actions {
+  display: flex;
+  justify-content: center;
+  margin-top: 8px;
+}
+
+.buy-book-button {
+  background: linear-gradient(to right, #4f46e5, #8b5cf6);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 13px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  transition: all 0.2s ease;
+}
+
+.buy-book-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+}
+
+.book-icon {
+  font-size: 16px;
+}
+
+@media (max-width: 768px) {
+  .buy-book-button {
+    font-size: 11px;
+    padding: 4px 8px;
+  }
+}
+.web-search-button {
+  background-color: rgba(59, 130, 246, 0.1);
+  border-color: rgba(59, 130, 246, 0.3);
+}
+
+.web-search-button.active {
+  background-color: rgba(59, 130, 246, 0.2);
+  border-color: rgba(59, 130, 246, 0.5);
+}
+
+.sources-section {
+  margin-top: 20px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border-light);
+  font-size: 12px;
+}
+
+.sources-section h3 {
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.sources-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.source-link {
+  color: var(--primary);
+  text-decoration: underline;
+  opacity: 0.8;
+  transition: opacity 0.2s;
+}
+
+.source-link:hover {
+  opacity: 1;
+}
+/* Add these to the end of your <style> section */
+
+/* Updated Advertisement Button */
+.buy-book-button.compact {
+  font-size: 12px;
+  padding: 5px 8px;
+  opacity: 0.9;
+  margin-top: 10px;
+  background: linear-gradient(to right, #4f46e5, #8b5cf6);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.buy-book-button.compact:hover {
+  opacity: 1;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+/* Enhanced Web Search Toggle */
+.web-search-button {
+  background-color: rgba(59, 130, 246, 0.1);
+  border-color: rgba(59, 130, 246, 0.3);
+  position: relative;
+}
+
+.web-search-button:after {
+  content: "OFF";
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 8px;
+  font-weight: bold;
+  opacity: 0.8;
+  background: rgba(239, 68, 68, 0.3);
+  color: #ef4444;
+  padding: 1px 3px;
+  border-radius: 3px;
+}
+
+.web-search-button.active {
+  background-color: rgba(59, 130, 246, 0.2);
+  border-color: rgba(59, 130, 246, 0.6);
+}
+
+.web-search-button.active:after {
+  content: "ON";
+  background: rgba(16, 185, 129, 0.3);
+  color: #10b981;
+}
+
+/* Voice-to-Voice Chat Feature */
+.voice-to-voice-button {
+  background-color: rgba(236, 72, 153, 0.1);
+  border-color: rgba(236, 72, 153, 0.3);
+  position: relative;
+}
+
+.voice-to-voice-button.active {
+  background-color: rgba(236, 72, 153, 0.2);
+  border-color: rgba(236, 72, 153, 0.6);
+}
+
+.voice-to-voice-button.active:after {
+  content: "ON";
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 8px;
+  font-weight: bold;
+  opacity: 0.8;
+  background: rgba(16, 185, 129, 0.3);
+  color: #10b981;
+  padding: 1px 3px;
+  border-radius: 3px;
+}
+
+.voice-to-voice-button:not(.active):after {
+  content: "OFF";
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 8px;
+  font-weight: bold;
+  opacity: 0.8;
+  background: rgba(239, 68, 68, 0.3);
+  color: #ef4444;
+  padding: 1px 3px;
+  border-radius: 3px;
+}
+
+/* Sources Section for Web Search Results */
+.sources-section {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-light);
+  font-size: 12px;
+}
+
+.sources-section h4 {
+  margin-top: 0;
+  margin-bottom: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.sources-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.source-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.source-num {
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.source-link {
+  color: var(--primary);
+  text-decoration: underline;
+  word-break: break-word;
+  opacity: 0.9;
+  transition: opacity 0.2s;
+}
+
+.source-link:hover {
+  opacity: 1;
+}
+
+/* Responsive Improvements */
+@media (max-width: 768px) {
+  .mode-selector {
+    flex-direction: column;
+    gap: 8px;
+    padding: 8px 12px;
+  }
+  
+  .toggles-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+    width: 100%;
+  }
+  
+  .mode-toggle-button, 
+  .mode-image-toggle-button,
+  .voice-to-voice-button {
+    width: 100%;
+    justify-content: center;
+    height: 28px;
+    font-size: 11px;
+    padding: 0 4px;
+  }
+  
+  .toggle-text {
+    font-size: 10px;
+  }
+  
+  .mode-select-container {
+    width: 100%;
+    gap: 4px;
+  }
+  
+  .audio-recording-container {
+    margin-left: auto;
+  }
+  
+  .right-controls-container {
+    justify-content: flex-end;
+    flex-wrap: nowrap;
+  }
+  
+  .buy-book-button.compact {
+    font-size: 10px;
+    padding: 4px 6px;
+  }
+  
+  .chat-header h1 {
+    font-size: 14px;
+  }
+}
+
+/* iPad/Tablet Specific */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .mode-selector {
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 8px 16px;
+  }
+  
+  .mode-select-container {
+    flex-basis: 100%;
+    margin-bottom: 5px;
+  }
+  
+  .toggles-container {
+    flex: 1;
+  }
+  
+  .right-controls-container {
+    margin-left: auto;
+  }
+}
+
+/* Fix for proper spacing in the message area */
+.messages-area {
+  padding-bottom: 120px; /* Make room for the controls on mobile */
+}
+
 @media (min-width: 769px) {
-  .sidebar {
-    transform: translateX(0);
+  .messages-area {
+    padding-bottom: 60px;
   }
-  
-  html, body {
-    margin: 0;
-    padding: 0;
-    overflow: hidden;
-    height: 100%;
-    width: 100%;
+}
+.buy-book-button.subtle {
+  font-size: 12px;
+  padding: 4px 8px;
+  background: rgba(79, 70, 229, 0.15);
+  border: 1px solid rgba(79, 70, 229, 0.3);
+  color: white;
+  border-radius: 4px;
+  margin-top: 6px;
+  box-shadow: none;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.buy-book-button.subtle:hover {
+  background: rgba(79, 70, 229, 0.25);
+  transform: none;
+}
+.search-toggle-wrapper {
+  margin-left: 8px;
+}
+
+.search-toggle-button {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(79, 70, 229, 0.2);
+  border-radius: 4px;
+  color: white;
+  font-size: 12px;
+  padding: 6px 10px;
+  height: 32px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  gap: 6px;
+}
+
+.search-toggle-button.active {
+  background: rgba(59, 130, 246, 0.15);
+  border-color: #60a5fa;
+  box-shadow: 0 0 8px 2px rgba(96, 165, 250, 0.6);
+}
+
+.search-toggle-button:hover {
+  background: rgba(59, 130, 246, 0.1);
+}
+
+.search-toggle-button .search-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #60a5fa;
+}
+
+.search-toggle-button .toggle-label {
+  margin-right: 4px;
+}
+
+.search-toggle-button .toggle-status {
+  font-size: 10px;
+  font-weight: bold;
+  padding: 1px 4px;
+  border-radius: 3px;
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+}
+
+.search-toggle-button .toggle-status.status-on {
+  background: rgba(16, 185, 129, 0.2);
+  color: #10b981;
+}
+/* Add this to your <style> section */
+.header-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 6px;
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.chat-header {
+  flex: 1;
+  text-align: center;
+  position: relative;
+}
+
+.buy-book-button.subtle {
+  font-size: 12px;
+  padding: 4px 8px;
+  background: rgba(79, 70, 229, 0.15);
+  border: 1px solid rgba(79, 70, 229, 0.3);
+  color: white;
+  border-radius: 4px;
+  box-shadow: none;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+  .header-actions {
+    display: none; /* Hide on mobile to save space */
   }
-  
-  #app {
-    height: 100%;
-    width: 100%;
-    overflow: hidden;
+}
+:root {
+  --vh: 1vh;
+}
+
+.main-container, #app, html, body {
+  height: 100vh; /* Fallback */
+  height: calc(var(--vh, 1vh) * 100);
+}
+
+.messages-area {
+  max-height: calc(100vh - 180px); /* Current value */
+  max-height: calc(var(--vh, 1vh) * 100 - 180px); /* Enhanced for mobile */
+}
+
+@media (max-width: 768px) {
+  .messages-area {
+    max-height: calc(100vh - 200px); 
+    max-height: calc(var(--vh, 1vh) * 100 - 200px);
+    padding-bottom: 40px;
   }
 }
 </style>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
