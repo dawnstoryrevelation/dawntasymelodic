@@ -41,23 +41,68 @@
                   <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
                 </svg>
               </button>
-              <MindMap 
-    :savedChats="savedChats" 
-    :currentChatId="currentChatId" 
-    :apiKey="apiKey" 
-    :userId="userId" 
-    :showToastNotification="showToastNotification" 
-    :sendMessage="sendMessage"
-    :loadChat="loadChat"
-  />
+            </div>
           </div>
         </div>
+        
+        <!-- Saved Mind Maps Section (positioned above the logo) -->
+        <div class="saved-mind-maps">
+          <div class="mind-maps-header" @click="toggleMindMapsExpanded">
+            <span>Saved Mind Maps</span>
+            <svg 
+              xmlns="http://www.w3.org/2000/svg" 
+              viewBox="0 0 24 24" 
+              width="16" 
+              height="16" 
+              fill="none" 
+              stroke="currentColor" 
+              stroke-width="2"
+              :style="{ transform: isMindMapsExpanded ? 'rotate(90deg)' : 'rotate(0deg)' }"
+              style="transition: transform 0.2s ease;"
+            >
+              <polyline points="9 18 15 12 9 6" />
+            </svg>
+          </div>
+          <div v-if="isMindMapsExpanded" class="mind-maps-list">
+            <div
+              v-for="mindMap in savedMindMaps"
+              :key="mindMap.id"
+              class="mind-map-entry"
+            >
+              <span class="mind-map-name">{{ mindMap.name }}</span>
+              <div class="mind-map-actions">
+                <button
+                  class="deploy-button"
+                  @click.stop="deployMindMap(mindMap)"
+                  title="Deploy Mind Map"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+                  </svg>
+                </button>
+                <button
+                  class="delete-mind-map-button"
+                  @click.stop="deleteMindMap(mindMap.id)"
+                  title="Delete Mind Map"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2M10 11v6M14 11v6" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+            <div v-if="savedMindMaps.length === 0" class="no-mind-maps">
+              No mind maps yet
+            </div>
+          </div>
+        </div>
+        
+        <!-- Logo (moved to bottom) -->
         <div class="logo">
           <span class="logo-text">
             Dawntasy<span style="color: var(--accent-color);">AI</span>
           </span>
         </div>
-      </div>
       </div>
     </transition>
     
@@ -69,21 +114,29 @@
           <span class="sidebar-toggle-icon"></span>
         </button>
         <button class="settings-button" @click="goToSettings">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M12 15a3 3 0 100-6 3 3 0 000 6z" />
-                  <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z" />
-                </svg>
-              </button>
-              <div class="chat-header">
-  <h1>{{ currentChat?.name || "New Chat" }}</h1>
-  <div class="header-actions">
-    <a href="https://www.amazon.com/Dawntasy-Circular-Dawn-breathtaking-fantasy-ebook/dp/B0DT74DLY5/" target="_blank" class="buy-book-button subtle">
-      <span class="book-icon">📚</span>
-      Support Me by Buying the Book
-    </a>
-  </div>
-</div>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 15a3 3 0 100-6 3 3 0 000 6z" />
+            <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z" />
+          </svg>
+        </button>
+        <!-- Mind Map Button -->
+        <button class="mind-map-button" @click="showCreateMindMapModal = true" title="Create Mind Map">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="5" />
+            <path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" />
+          </svg>
+          <span>Create Mind Map</span>
+        </button>
+        <div class="chat-header">
+          <h1>{{ currentChat?.name || "New Chat" }}</h1>
+          <div class="header-actions">
+            <a href="https://www.amazon.com/Dawntasy-Circular-Dawn-breathtaking-fantasy-ebook/dp/B0DT74DLY5/" target="_blank" class="buy-book-button subtle">
+              <span class="book-icon">📚</span>
+              Support Me by Buying the Book
+            </a>
           </div>
+        </div>
+      </div>
       <!-- Chat Interface -->
       <div class="chat-interface">
         <div class="messages-area" ref="messagesContainer">
@@ -283,21 +336,21 @@
               <span v-if="isRecording" class="recording-indicator">Recording</span>
             </div>
             <button
-  class="mode-toggle-button multimodal-response-button"
-  @click="getMultimodalResponse"
-  title="Get multimodal response"
->
-  <span class="toggle-icon">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
-      <path d="M10 3H3v7h7V3z"/>
-      <path d="M21 3h-7v7h7V3z"/>
-      <path d="M21 14h-7v7h7v-7z"/>
-      <path d="M10 14H3v7h7v-7z"/>
-      <line x1="12" y1="8" x2="12" y2="16"/>
-      <line x1="8" y1="12" x2="16" y2="12"/>
-    </svg>
-  </span>
-</button>
+              class="mode-toggle-button multimodal-response-button"
+              @click="getMultimodalResponse"
+              title="Get multimodal response"
+            >
+              <span class="toggle-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M10 3H3v7h7V3z"/>
+                  <path d="M21 3h-7v7h7V3z"/>
+                  <path d="M21 14h-7v7h7v-7z"/>
+                  <path d="M10 14H3v7h7v-7z"/>
+                  <line x1="12" y1="8" x2="12" y2="16"/>
+                  <line x1="8" y1="12" x2="16" y2="12"/>
+                </svg>
+              </span>
+            </button>
           </div>
         </div>
 
@@ -391,6 +444,91 @@
       </div>
       <div class="toast-content">{{ toastMessage }}</div>
     </div>
+    
+    <!-- Create Mind Map Modal -->
+    <div v-if="showCreateMindMapModal" class="modal-overlay">
+      <div class="mind-map-modal">
+        <div class="modal-header">
+          <h3>Create Mind Map</h3>
+          <button class="modal-close-btn" @click="showCreateMindMapModal = false">&times;</button>
+        </div>
+        <div class="modal-content">
+          <div class="typing-text">{{ displayedPrompt }}</div>
+          <input 
+            v-model="mindMapTopic" 
+            placeholder="Enter mind map topic..." 
+            @keydown.enter="createMindMap"
+            ref="mindMapInput"
+            :disabled="isCreatingMindMap"
+          />
+        </div>
+        <div class="popup-buttons">
+          <button 
+            class="btn-primary" 
+            @click="createMindMap" 
+            :disabled="!mindMapTopic || isCreatingMindMap"
+          >
+            {{ isCreatingMindMap ? 'Creating...' : 'Create' }}
+          </button>
+          <button class="btn-secondary" @click="showCreateMindMapModal = false">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Deploy Mind Map Modal -->
+    <div v-if="showDeployMindMapModal" class="modal-overlay">
+      <div class="mind-map-modal large-modal">
+        <div class="modal-header">
+          <h3>Mind Map: {{ currentMindMap?.name }}</h3>
+          <button class="modal-close-btn" @click="showDeployMindMapModal = false">&times;</button>
+        </div>
+        <div class="modal-content">
+          <div v-if="isDeployingMindMap" class="deploying-indicator">
+            <div class="deploying-animation">
+              <div class="orbit">
+                <div class="planet"></div>
+              </div>
+            </div>
+            <div class="deploying-text">Deploying Mind Map...</div>
+          </div>
+          <div v-else class="mind-map-visualization" ref="mindMapContainer"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Select Chat Modal -->
+    <div v-if="showSelectChatModal" class="modal-overlay">
+      <div class="mind-map-modal">
+        <div class="modal-header">
+          <h3>Select Chat to Explore</h3>
+          <button class="modal-close-btn" @click="showSelectChatModal = false">&times;</button>
+        </div>
+        <div class="modal-content">
+          <p>What chat do you want to deploy this exploration in?</p>
+          <div class="chat-selection-list">
+            <div 
+              v-for="chat in savedChats" 
+              :key="chat.id" 
+              class="chat-selection-item" 
+              @click="exploreBranchInChat(chat.id)"
+            >
+              {{ chat.name }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- MindMap Component Integration -->
+    <MindMap 
+      :savedChats="savedChats" 
+      :currentChatId="currentChatId" 
+      :apiKey="apiKey" 
+      :userId="userId" 
+      :showToastNotification="showToastNotification" 
+      :sendMessage="sendMessage"
+      :loadChat="loadChat"
+    />
   </div>
 </template>
 
@@ -401,7 +539,7 @@ import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, getDocs, 
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { SelfOptimizationService } from '@/services/selfOptimization';
 import { useRouter } from 'vue-router';
-import MindMap from '@/components/MindMap.vue';
+import MindMap from '@/components/MindMap';
 
 export default {
   name: "DawntasyChat",
@@ -416,6 +554,10 @@ export default {
     // Add this near the beginning of your setup function, after initializing Firebase// Add this near the beginning of your setup function, after initializing Firebase
 const messages = ref([]);
 const savedChats = ref([]);
+const savedMindMaps = ref([]);
+const isMindMapsExpanded = ref(false);
+const showCreateMindMapModal = ref(false);
+const showDeployMindMapModal = ref(false);
 const openBookLink = () => {
   window.open('https://www.amazon.com/Dawntasy-Circular-Dawn-breathtaking-fantasy-ebook/dp/B0DT74DLY5/', '_blank');
 };
@@ -430,6 +572,31 @@ const loadDawntasyBookContent = async () => {
     "Dawntasy B1 Part 2": "",
     "Dawntasy B1 Part 3": ""
   });
+  const toggleMindMapsExpanded = () => {
+  isMindMapsExpanded.value = !isMindMapsExpanded.value;
+};
+
+const deployMindMap = (mindMap) => {
+  // This will be handled by the MindMap component
+  // Just a stub for now
+  console.log("Deploy mind map:", mindMap);
+};
+
+const deleteMindMap = async (mindMapId) => {
+  if (!userId.value || !mindMapId) return;
+  
+  try {
+    isLoading.value = true;
+    const mindMapRef = doc(db, `users/${userId.value}/mindmaps/${mindMapId}`);
+    await deleteDoc(mindMapRef);
+    showToastNotification("Mind map deleted", "success");
+  } catch (error) {
+    console.error("Error deleting mind map:", error);
+    showToastNotification("Failed to delete mind map", "error");
+  } finally {
+    isLoading.value = false;
+  }
+};
   const router = useRouter();
   try {
     const db = getFirestore();
@@ -822,7 +989,8 @@ onMounted(() => {
             timestamp: Date.now(),
             createdBy: userId.value
           };
-          const quantumCognitionEngine = reactive({
+          // Add this after the contextualMemory declaration in your setup() function
+const quantumCognitionEngine = reactive({
   knowledgeGraph: new Map(),
   recursionDepth: 5,
   webKnowledgeBase: new Map(), // Store web search results
@@ -876,8 +1044,8 @@ onMounted(() => {
       if (webResults.length > 0) {
         baseAnalysis += "\n[WEB KNOWLEDGE INTEGRATION]:\n";
         webResults.forEach(([key, value]) => {
-          baseAnalysis += `Related information on "${key}": ${value.snippet}\n`;
-          baseAnalysis += `Source: ${value.title} (Confidence: ${(value.relevance * 100).toFixed(1)}%)\n\n`;
+          baseAnalysis += `Related information on "${key}": ${value.snippet || value.content}\n`;
+          baseAnalysis += `Source: ${value.title || 'Unknown'} (Confidence: ${(value.relevance * 100).toFixed(1)}%)\n\n`;
         });
       }
     }
@@ -947,15 +1115,7 @@ onMounted(() => {
         
         try {
           const webResults = await performWebSearch(searchTerms);
-          // Store results in knowledge base
-          webResults.forEach(result => {
-            this.webKnowledgeBase.set(searchTerms, {
-              title: result.title,
-              snippet: result.snippet,
-              url: result.url,
-              relevance: 0.8 + (Math.random() * 0.2) // Simulate relevance scoring
-            });
-          });
+          console.log("Web results obtained:", webResults);
         } catch (error) {
           console.error("Web search integration failed:", error);
         }
@@ -1060,7 +1220,7 @@ onMounted(() => {
       Array.from(this.webKnowledgeBase.entries())
         .slice(0, 5)
         .forEach(([term, data], index) => {
-          sourceCitations += `${index + 1}. [${data.title}](${data.url})\n`;
+          sourceCitations += `${index + 1}. [${data.title || term}](${data.url || '#'})\n`;
         });
     }
     
@@ -1650,6 +1810,49 @@ You can copy this code and save it as an .html file to view it in a browser. Wou
     
     scrollToBottom();
   }
+  // Add this at the end of your sendMessage function, before the final closing brace
+if (messages.value[streamingMessageIndex]) {
+  const aiMessage = messages.value[streamingMessageIndex];
+  
+  // Process with quantum engine
+  try {
+    const enhancedResponse = await quantumCognitionEngine.enhanceResponse(
+      messageText,
+      aiMessage.content,
+      useWebSearch.value
+    );
+    
+    // Only add sources/enhancements if significant changes were made
+    if (enhancedResponse.quantumInsights.webSourcesUsed.length > 0) {
+      aiMessage.content = enhancedResponse.enhancedResponse;
+      aiMessage.quantumInsights = enhancedResponse.quantumInsights;
+      await saveMessageToFirebase(aiMessage);
+    }
+    
+    console.log("Response enhanced by Quantum Cognition Engine:", enhancedResponse.quantumInsights);
+  } catch (error) {
+    console.error("Error processing with Quantum Engine:", error);
+  }
+}
+// Add this at the end of your sendMessage function, before the final closing brace
+if (messages.value[streamingMessageIndex]) {
+  const aiMessage = messages.value[streamingMessageIndex];
+  const accuracyMetrics = hyperAccuracyLearningSystem.processResponse(messageText, aiMessage);
+  console.log("Response processed by HYPER ACCURACY SYSTEM:", accuracyMetrics);
+  
+  // Add accuracy data to message metadata
+  aiMessage.accuracyMetrics = accuracyMetrics;
+  
+  // Add to memory if available
+  if (contextualMemory) {
+    contextualMemory.addMemory({
+      id: `ai-${Date.now()}`,
+      role: "assistant",
+      content: aiMessage.content,
+      timestamp: Date.now()
+    });
+  }
+}
 };
           messages.value.push(aiMessage);
           await saveMessageToFirebase(aiMessage);
@@ -1776,17 +1979,17 @@ You can copy this code and save it as an .html file to view it in a browser. Wou
     // Add this after the learningDB declaration in your setup() function
 const hyperAccuracyLearningSystem = reactive({
   version: "1.0",
-  accuracyLevel: 0.85,
-  learningRate: 0.01,
+  accuracyLevel: 0.999,
+  learningRate: 1,
   decayRate: 0.005,
-  confidenceThreshold: 0.92,
+  confidenceThreshold: 0.9,
   lastUpdated: Date.now(),
   domains: {
-    scientific: { accuracy: 0.88, samples: 0, weight: 1.2 },
-    creative: { accuracy: 0.91, samples: 0, weight: 1.0 },
-    technical: { accuracy: 0.93, samples: 0, weight: 1.3 },
-    philosophical: { accuracy: 0.82, samples: 0, weight: 0.9 },
-    factual: { accuracy: 0.95, samples: 0, weight: 1.4 }
+    scientific: { accuracy: 0.999, samples: 0, weight: 1.3 },
+    creative: { accuracy: 0.9999999, samples: 0, weight: 1.6 },
+    technical: { accuracy: 0.9999, samples: 0, weight: 1.5 },
+    philosophical: { accuracy: 0.99999999999, samples: 0, weight: 1.6 },
+    factual: { accuracy: 0.9999, samples: 0, weight: 1.4 }
   },
   
   // Knowledge verification matrix
@@ -1798,7 +2001,7 @@ const hyperAccuracyLearningSystem = reactive({
   // Process user feedback to improve accuracy
   processFeedback(domain, isCorrect, confidence) {
     if (!this.domains[domain]) {
-      this.domains[domain] = { accuracy: 0.75, samples: 0, weight: 1.0 };
+      this.domains[domain] = { accuracy: 0.95, samples: 0, weight: 1.0 };
     }
     
     const domainData = this.domains[domain];
@@ -2347,8 +2550,6 @@ Coffee cup beside cookie tray - Always paired as symbols of lost normalcy
 
 The most brilliant revelation is that Time Smith is actually Wartstune of Valley, who in legends fought "The Future" - which means Time Smith is fighting against The Rift (the true enemy). The circular nature of the narrative (same scenes repeating with different characters) reinforces that everyone exists in "The Circular Dawn" - an eternal simulation controlled by The Rift.
 The entire story operates on multiple levels: a dystopian rebellion tale on the surface, a philosophical exploration of reality beneath, and ultimately a meta-narrative about being trapped in recursive storytelling - just as the characters are trapped in The Rift's simulation.
-
-
 
 
 
@@ -5539,6 +5740,145 @@ html, body {
     max-height: calc(100vh - 200px); 
     max-height: calc(var(--vh, 1vh) * 100 - 200px);
     padding-bottom: 40px;
+  }
+}
+/* Add these styles to your existing <style> section */
+.saved-mind-maps {
+  margin-top: 20px;
+  border-top: 1px solid var(--border-light);
+}
+
+.mind-maps-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px;
+  cursor: pointer;
+  font-weight: 500;
+  color: var(--text-secondary);
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.mind-maps-header:hover {
+  color: white;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.mind-maps-list {
+  padding: 0 10px;
+  margin-bottom: 10px;
+}
+
+.mind-map-entry {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 10px;
+  margin-bottom: 5px;
+  border-radius: 6px;
+  background: rgba(15, 23, 42, 0.3);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-left: 2px solid transparent;
+}
+
+.mind-map-entry:hover {
+  background: rgba(79, 70, 229, 0.08);
+  border-left-color: rgba(79, 70, 229, 0.5);
+}
+
+.mind-map-name {
+  font-size: 13px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mind-map-actions {
+  display: flex;
+  gap: 5px;
+  opacity: 0.6;
+  transition: opacity 0.2s;
+}
+
+.mind-map-entry:hover .mind-map-actions {
+  opacity: 1;
+}
+
+.deploy-button,
+.delete-mind-map-button {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.deploy-button:hover {
+  background: rgba(79, 70, 229, 0.2);
+  color: var(--primary);
+}
+
+.delete-mind-map-button:hover {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+}
+
+.no-mind-maps {
+  text-align: center;
+  padding: 10px;
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-style: italic;
+}
+
+.mind-map-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 13px;
+  transition: all 0.2s ease;
+  margin-left: 10px;
+}
+
+.mind-map-button:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: white;
+}
+
+/* Additional styles for mind map visualization */
+.mind-map-visualization .link {
+  fill: none;
+  stroke: var(--primary);
+  stroke-width: 1.5px;
+  opacity: 0.7;
+}
+
+.mind-map-visualization .node circle {
+  fill: var(--primary);
+  cursor: pointer;
+}
+
+.mind-map-visualization .node text {
+  font-size: 12px;
+  fill: white;
+}
+
+@media (max-width: 768px) {
+  .mind-map-button span {
+    display: none;
   }
 }
 </style>
