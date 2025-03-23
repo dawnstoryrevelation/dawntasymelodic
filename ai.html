@@ -1,1806 +1,1032 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>DawntasyAI - Cosmic Intelligence Unleashed</title>
-  
-  <!-- Meta tags for SEO & sharing -->
-  <meta name="description" content="Experience the revolutionary DawntasyAI - where cosmic intelligence meets fantasy storytelling. Explore the universe of Time's True Name through our advanced AI companion.">
-  <meta name="keywords" content="DawntasyAI, AI chatbot, Time's True Name, fantasy AI, cosmic intelligence, The Rift">
-  
-  <meta property="og:title" content="DawntasyAI - Cosmic Intelligence Unleashed">
-  <meta property="og:description" content="Step into the Dawntasy universe through our revolutionary AI companion. Explore The Rift, discover hidden secrets, and experience cosmic intelligence.">
-  <meta property="og:image" content="https://ai.dawntasy.com/images/dawntasy-og-image.jpg">
-  <meta property="og:url" content="https://ai.dawntasy.com">
-  <meta property="og:type" content="website">
-  
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="DawntasyAI - Cosmic Intelligence Unleashed">
-  <meta name="twitter:description" content="Step into the Dawntasy universe through our revolutionary AI companion. Explore The Rift, discover hidden secrets, and experience cosmic intelligence.">
-  <meta name="twitter:image" content="https://ai.dawntasy.com/images/dawntasy-og-image.jpg">
-  
-  <!-- Favicon & App Icons -->
-  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-  <link rel="manifest" href="/site.webmanifest">
-  
-  <!-- Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-  
-  <!-- External libraries -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.5/gsap.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.5/ScrollTrigger.min.js"></script>
-  
-  <!-- AOS Library -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" integrity="sha512-GYigEkp1ogU5XlB07F5p4rU0pi9p3IdEs0hZwF9e8tA2Ph3SZPP8+Fj6rcLzP7RJtsPqfU7rO5AXbZz3J47u4g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js" integrity="sha512-Gvm1ZxH2k2s8ZVjtUM1rfwzX9cQ3wwf6D6gQ72MGqOC9EhY/DPp8FlJypxzb8JQZBZwOwFiZtnfLqfL+mxj4Aw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-  
-  <style>
-    /* Base styling */
-    :root {
-      /* Cosmic color palette */
-      --void-50: #e0e1ff;
-      --void-100: #c1c3ff;
-      --void-200: #9598ff;
-      --void-300: #6a6df4;
-      --void-400: #4d4fdb;
-      --void-500: #3333c2;
-      --void-600: #2b28a9;
-      --void-700: #221e90;
-      --void-800: #191577;
-      --void-900: #0d0d3d;
-      --void-950: #06061f;
-      
-      /* Starlight colors */
-      --starlight-50: #f9f9ff;
-      --starlight-100: #f1f1ff;
-      --starlight-200: #e1e1ff;
-      --starlight-300: #c4c5ff;
-      --starlight-400: #a3a5ff;
-      --starlight-500: #8185ff;
-      --starlight-600: #6163ff;
-      --starlight-700: #5050ff;
-      --starlight-800: #3d3df4;
-      --starlight-900: #2a2adb;
-      
-      /* Time colors (representing the clock theme from Dawntasy) */
-      --time-50: #fff1fa;
-      --time-100: #ffe5f6;
-      --time-200: #ffc6ec;
-      --time-300: #ff9ddd;
-      --time-400: #ff5c92;
-      --time-500: #ff3a70;
-      --time-600: #ef234c;
-      --time-700: #db1932;
-      --time-800: #b5162a;
-      --time-900: #8a1125;
-      
-      /* Rift colors */
-      --rift-50: #edfcff;
-      --rift-100: #d6f7ff;
-      --rift-200: #b3f0ff;
-      --rift-300: #85e7ff;
-      --rift-400: #33c5ff;
-      --rift-500: #06a6ee;
-      --rift-600: #0086cc;
-      --rift-700: #006ba6;
-      --rift-800: #015a89;
-      --rift-900: #064a71;
-      
-      /* Typography vars */
-      --font-display: 'Orbitron', sans-serif;
-      --font-body: 'Inter', sans-serif;
-      --font-mono: 'Space Mono', monospace;
-    }
-    
-    *, *::before, *::after {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-    
-    html {
-      scroll-behavior: smooth;
-      font-size: 16px;
-      overflow-x: hidden;
-      line-height: 1.5;
-    }
-    
-    body {
-      font-family: var(--font-body);
-      background-color: var(--void-950);
-      color: var(--starlight-100);
-      overflow-x: hidden;
-      position: relative;
-    }
-    
-    h1, h2, h3, h4, h5, h6 {
-      font-family: var(--font-display);
-      font-weight: 700;
-      line-height: 1.2;
-      margin-bottom: 1rem;
-    }
-    
-    h1 {
-      font-size: clamp(2.5rem, 5vw, 4.5rem);
-      letter-spacing: -0.02em;
-    }
-    
-    h2 {
-      font-size: clamp(2rem, 4vw, 3.5rem);
-      letter-spacing: -0.01em;
-    }
-    
-    h3 {
-      font-size: clamp(1.5rem, 3vw, 2.5rem);
-    }
-    
-    p {
-      margin-bottom: 1.5rem;
-      font-size: clamp(1rem, 1.5vw, 1.125rem);
-    }
-    
-    /* Cosmic canvas and container */
-    #cosmic-canvas {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100vh;
-      z-index: -10;
-    }
-    
-    .container {
-      width: 90%;
-      max-width: 1400px;
-      margin: 0 auto;
-      padding: 0 1rem;
-      position: relative;
-      z-index: 1;
-    }
-    
-    /* Nav styling */
-    .cosmic-nav {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      padding: 1.5rem 0;
-      z-index: 1000;
-      transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-    
-    .cosmic-nav.scrolled {
-      background: rgba(6, 6, 31, 0.8);
-      backdrop-filter: blur(8px);
-      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-      padding: 1rem 0;
-    }
-    
-    .nav-container {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      text-decoration: none;
-      color: var(--starlight-100);
-      font-family: var(--font-display);
-      font-weight: 800;
-      font-size: 1.5rem;
-      position: relative;
-    }
-    
-    .logo-text {
-      background: linear-gradient(to right, var(--rift-400), var(--time-400));
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-    }
-    
-    .logo::before {
-      content: '';
-      position: absolute;
-      width: 30px;
-      height: 30px;
-      background: radial-gradient(circle, var(--rift-400), transparent 70%);
-      left: -15px;
-      top: -5px;
-      border-radius: 50%;
-      opacity: 0.5;
-      filter: blur(5px);
-      animation: pulse 3s infinite alternate;
-    }
-    
-    .nav-links {
-      display: flex;
-      gap: 2rem;
-      list-style: none;
-    }
-    
-    .nav-link {
-      text-decoration: none;
-      color: var(--starlight-200);
-      font-weight: 500;
-      padding: 0.5rem;
-      position: relative;
-      transition: color 0.3s ease;
-    }
-    
-    .nav-link::before {
-      content: '';
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      width: 0;
-      height: 2px;
-      background: linear-gradient(to right, var(--rift-400), var(--time-400));
-      transition: width 0.3s ease;
-    }
-    
-    .nav-link:hover {
-      color: var(--starlight-50);
-    }
-    
-    .nav-link:hover::before {
-      width: 100%;
-    }
-    
-    .cta-button {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      padding: 0.75rem 1.5rem;
-      background: linear-gradient(to right, var(--rift-500), var(--time-500));
-      color: white;
-      font-family: var(--font-display);
-      font-weight: 600;
-      border-radius: 4px;
-      text-decoration: none;
-      transition: all 0.3s ease;
-      position: relative;
-      overflow: hidden;
-      z-index: 1;
-    }
-    
-    .cta-button::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(to right, var(--time-500), var(--rift-500));
-      z-index: -1;
-      opacity: 0;
-      transition: opacity 0.3s ease;
-    }
-    
-    .cta-button:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 10px 20px rgba(97, 61, 244, 0.3);
-    }
-    
-    .cta-button:hover::before {
-      opacity: 1;
-    }
-    
-    /* Hero section */
-    .hero {
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      padding: 8rem 0 5rem;
-      position: relative;
-    }
-    
-    .hero-content {
-      max-width: 800px;
-    }
-    
-    .hero-subtitle {
-      font-family: var(--font-mono);
-      color: var(--rift-400);
-      margin-bottom: 1rem;
-      display: block;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      font-size: 0.9rem;
-    }
-    
-    .hero-title {
-      margin-bottom: 1.5rem;
-      position: relative;
-    }
-    
-    .hero-title .highlight {
-      background: linear-gradient(to right, var(--rift-400), var(--time-400));
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-      display: inline-block;
-      position: relative;
-    }
-    
-    .hero-title .highlight::after {
-      content: '';
-      position: absolute;
-      width: 100%;
-      height: 30%;
-      bottom: 5px;
-      left: 0;
-      background: linear-gradient(to right, var(--rift-500), var(--time-500));
-      opacity: 0.2;
-      filter: blur(10px);
-      z-index: -1;
-    }
-    
-    .hero-description {
-      font-size: clamp(1.1rem, 2vw, 1.25rem);
-      color: var(--starlight-300);
-      margin-bottom: 2rem;
-      max-width: 700px;
-    }
-    
-    .hero-cta {
-      display: flex;
-      gap: 1rem;
-      margin-top: 2rem;
-      flex-wrap: wrap;
-    }
-    
-    .btn-secondary {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      padding: 0.75rem 1.5rem;
-      background: transparent;
-      color: var(--starlight-100);
-      font-family: var(--font-display);
-      font-weight: 600;
-      border: 2px solid var(--void-700);
-      border-radius: 4px;
-      text-decoration: none;
-      transition: all 0.3s ease;
-    }
-    
-    .btn-secondary:hover {
-      border-color: var(--rift-500);
-      background: rgba(97, 61, 244, 0.1);
-      transform: translateY(-3px);
-    }
-    
-    .hero-float {
-      position: absolute;
-      width: 350px;
-      height: 350px;
-      top: 50%;
-      right: 10%;
-      transform: translateY(-50%);
-    }
-    
-    .cosmic-sphere {
-      width: 100%;
-      height: 100%;
-      position: relative;
-    }
-    
-    /* Features section */
-    .features {
-      padding: 8rem 0;
-      position: relative;
-    }
-    
-    .section-header {
-      text-align: center;
-      margin-bottom: 5rem;
-    }
-    
-    .section-subheading {
-      font-family: var(--font-mono);
-      color: var(--rift-400);
-      text-transform: uppercase;
-      letter-spacing: 3px;
-      margin-bottom: 1rem;
-      font-size: 0.9rem;
-    }
-    
-    .section-title {
-      position: relative;
-      display: inline-block;
-      margin-bottom: 1.5rem;
-    }
-    
-    .section-title::after {
-      content: '';
-      position: absolute;
-      width: 60px;
-      height: 4px;
-      background: linear-gradient(to right, var(--rift-500), var(--time-500));
-      bottom: -10px;
-      left: 50%;
-      transform: translateX(-50%);
-      border-radius: 2px;
-    }
-    
-    .section-description {
-      max-width: 700px;
-      margin: 0 auto;
-      text-align: center;
-      color: var(--starlight-300);
-    }
-    
-    .features-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 2rem;
-      margin-top: 4rem;
-    }
-    
-    .feature-card {
-      background: rgba(13, 13, 61, 0.3);
-      border: 1px solid var(--void-800);
-      border-radius: 12px;
-      padding: 2rem;
-      transition: all 0.3s ease;
-      position: relative;
-      overflow: hidden;
-      height: 100%;
-    }
-    
-    .feature-card::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(45deg, var(--void-800), transparent);
-      opacity: 0.5;
-      z-index: -1;
-    }
-    
-    .feature-card:hover {
-      transform: translateY(-10px);
-      border-color: var(--rift-700);
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-    }
-    
-    .feature-icon {
-      width: 60px;
-      height: 60px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 1.5rem;
-      font-size: 2rem;
-      border-radius: 12px;
-      background: rgba(97, 61, 244, 0.1);
-      color: var(--rift-400);
-    }
-    
-    .feature-title {
-      font-size: 1.25rem;
-      margin-bottom: 1rem;
-      font-family: var(--font-display);
-      background: linear-gradient(to right, var(--starlight-100), var(--starlight-400));
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-    }
-    
-    .feature-description {
-      color: var(--starlight-300);
-      font-size: 0.95rem;
-      margin-bottom: 0;
-    }
-    
-    /* Timeline section */
-    .timeline-section {
-      padding: 8rem 0;
-      position: relative;
-      overflow: hidden;
-    }
-    
-    .timeline-container {
-      position: relative;
-      margin-top: 5rem;
-    }
-    
-    .timeline-track {
-      position: absolute;
-      top: 0;
-      left: 50%;
-      width: 4px;
-      height: 100%;
-      background: var(--void-700);
-      transform: translateX(-50%);
-    }
-    
-    .timeline-progress {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      background: linear-gradient(to bottom, var(--rift-500), var(--time-500));
-      height: 0%;
-      transition: height 0.5s ease;
-    }
-    
-    .timeline-item {
-      display: flex;
-      justify-content: flex-start;
-      width: 50%;
-      margin-bottom: 6rem;
-      position: relative;
-      opacity: 0;
-      transform: translateY(50px);
-      transition: all 0.6s ease;
-    }
-    
-    .timeline-item.show {
-      opacity: 1;
-      transform: translateY(0);
-    }
-    
-    .timeline-item:nth-child(even) {
-      margin-left: 50%;
-      flex-direction: row;
-    }
-    
-    .timeline-item::before {
-      content: '';
-      position: absolute;
-      width: 20px;
-      height: 20px;
-      background: var(--rift-500);
-      border-radius: 50%;
-      top: 0;
-      left: 0;
-      transform: translateX(-50%);
-      z-index: 2;
-    }
-    
-    .timeline-item:nth-child(even)::before {
-      left: 0;
-      transform: translateX(-50%);
-    }
-    
-    .timeline-item:nth-child(odd)::before {
-      left: 100%;
-      transform: translateX(-50%);
-    }
-    
-    .timeline-content {
-      background: rgba(13, 13, 61, 0.3);
-      border: 1px solid var(--void-800);
-      border-radius: 12px;
-      padding: 2rem;
-      width: 90%;
-      position: relative;
-    }
-    
-    .timeline-item:nth-child(odd) .timeline-content {
-      margin-right: 2rem;
-      margin-left: auto;
-    }
-    
-    .timeline-item:nth-child(even) .timeline-content {
-      margin-left: 2rem;
-    }
-    
-    .timeline-date {
-      font-family: var(--font-mono);
-      color: var(--rift-400);
-      margin-bottom: 0.5rem;
-      font-size: 0.9rem;
-    }
-    
-    .timeline-title {
-      font-size: 1.25rem;
-      margin-bottom: 1rem;
-    }
-    
-    .timeline-description {
-      font-size: 0.95rem;
-      color: var(--starlight-300);
-      margin-bottom: 0;
-    }
-    
-    /* Pricing section */
-    .pricing {
-      padding: 8rem 0;
-      position: relative;
-    }
-    
-    .pricing-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 2rem;
-      margin-top: 4rem;
-    }
-    
-    .pricing-card {
-      background: rgba(13, 13, 61, 0.3);
-      border: 1px solid var(--void-800);
-      border-radius: 12px;
-      padding: 2.5rem 2rem;
-      transition: all 0.3s ease;
-      position: relative;
-      overflow: hidden;
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-    }
-    
-    .pricing-card::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 5px;
-      background: linear-gradient(to right, var(--rift-500), var(--time-500));
-      opacity: 0.7;
-    }
-    
-    .pricing-card.featured {
-      border-color: var(--rift-700);
-      transform: scale(1.05);
-    }
-    
-    .pricing-card.featured::after {
-      content: 'Most Popular';
-      position: absolute;
-      top: 12px;
-      right: -28px;
-      background: linear-gradient(to right, var(--rift-500), var(--time-500));
-      color: white;
-      font-size: 0.7rem;
-      font-weight: 600;
-      padding: 0.25rem 2rem;
-      transform: rotate(45deg);
-    }
-    
-    .pricing-card:hover {
-      transform: translateY(-10px);
-      border-color: var(--rift-700);
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-    }
-    
-    .pricing-card.featured:hover {
-      transform: translateY(-10px) scale(1.05);
-    }
-    
-    .pricing-title {
-      font-size: 1.5rem;
-      margin-bottom: 0.5rem;
-      font-family: var(--font-display);
-    }
-    
-    .pricing-price {
-      font-size: 2.5rem;
-      font-weight: 700;
-      margin-bottom: 1.5rem;
-      color: var(--starlight-100);
-    }
-    
-    .pricing-price .currency {
-      font-size: 1rem;
-      vertical-align: super;
-      margin-right: 0.25rem;
-    }
-    
-    .pricing-price .period {
-      font-size: 0.9rem;
-      color: var(--starlight-400);
-      font-weight: 400;
-    }
-    
-    .pricing-features {
-      list-style: none;
-      margin-bottom: 2rem;
-      flex-grow: 1;
-    }
-    
-    .pricing-feature {
-      display: flex;
-      align-items: center;
-      margin-bottom: 0.75rem;
-      color: var(--starlight-300);
-    }
-    
-    .pricing-feature::before {
-      content: '✓';
-      color: var(--rift-400);
-      margin-right: 0.5rem;
-      font-weight: bold;
-    }
-    
-    .pricing-feature.disabled {
-      color: var(--starlight-600);
-      text-decoration: line-through;
-      opacity: 0.7;
-    }
-    
-    .pricing-feature.disabled::before {
-      content: '×';
-      color: var(--time-400);
-    }
-    
-    .pricing-cta {
-      margin-top: auto;
-    }
-    
-    /* CTA Section */
-    .cta-section {
-      padding: 6rem 0;
-      background: linear-gradient(180deg, var(--void-950), var(--void-900));
-      position: relative;
-      overflow: hidden;
-    }
-    
-    .cta-container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-      position: relative;
-      z-index: 1;
-    }
-    
-    .cta-background {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 0;
-    }
-    
-    .cta-title {
-      font-size: clamp(2rem, 4vw, 3rem);
-      margin-bottom: 1.5rem;
-      max-width: 800px;
-    }
-    
-    .cta-description {
-      font-size: 1.25rem;
-      color: var(--starlight-300);
-      max-width: 700px;
-      margin-bottom: 2.5rem;
-    }
-    
-    /* Footer */
-    .footer {
-      background: var(--void-950);
-      padding: 5rem 0 2rem;
-      position: relative;
-    }
-    
-    .footer::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 1px;
-      background: linear-gradient(to right, 
-        transparent, 
-        var(--void-700), 
-        var(--rift-900), 
-        var(--void-700), 
-        transparent
-      );
-    }
-    
-    .footer-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 3rem;
-      margin-bottom: 3rem;
-    }
-    
-    .footer-brand {
-      display: flex;
-      flex-direction: column;
-    }
-    
-    .footer-logo {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      margin-bottom: 1rem;
-      font-family: var(--font-display);
-      font-weight: 800;
-      font-size: 1.5rem;
-      color: var(--starlight-100);
-    }
-    
-    .footer-description {
-      color: var(--starlight-400);
-      margin-bottom: 1.5rem;
-      font-size: 0.95rem;
-    }
-    
-    .social-links {
-      display: flex;
-      gap: 1rem;
-    }
-    
-    .social-link {
-      width: 36px;
-      height: 36px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: var(--void-800);
-      color: var(--starlight-200);
-      border-radius: 50%;
-      transition: all 0.3s ease;
-      text-decoration: none;
-    }
-    
-    .social-link:hover {
-      background: var(--rift-900);
-      color: var(--starlight-50);
-      transform: translateY(-3px);
-    }
-    
-    .footer-heading {
-      font-size: 1.1rem;
-      margin-bottom: 1.5rem;
-      color: var(--starlight-100);
-    }
-    
-    .footer-links {
-      list-style: none;
-    }
-    
-    .footer-link {
-      margin-bottom: 0.75rem;
-    }
-    
-    .footer-link a {
-      color: var(--starlight-400);
-      text-decoration: none;
-      transition: color 0.3s ease;
-    }
-    
-    .footer-link a:hover {
-      color: var(--rift-400);
-    }
-    
-    .footer-bottom {
-      text-align: center;
-      padding-top: 2rem;
-      border-top: 1px solid var(--void-800);
-      color: var(--starlight-500);
-      font-size: 0.9rem;
-    }
-    
-    /* Progress indicator */
-    .progress-indicator {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 5px;
-      height: 0;
-      background: linear-gradient(to bottom, var(--rift-400), var(--time-400));
-      z-index: 1000;
-      transition: height 0.1s ease-out;
-    }
-    
-    /* Floating particles */
-    .particles-container {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-      z-index: -1;
-    }
-    
-    .meteor {
-      position: absolute;
-      width: 200px;
-      height: 2px;
-      opacity: 0;
-      background: linear-gradient(to right, transparent, var(--rift-400), var(--starlight-100));
-      transform: rotate(-45deg);
-      animation: meteor 6s ease-in infinite;
-      box-shadow: 0 0 10px var(--rift-400);
-      border-radius: 50%;
-    }
-    
-    @keyframes meteor {
-      0% {
-        opacity: 0;
-        transform: translate(200%, 200%) rotate(-45deg);
-      }
-    }
-    
-    /* Animation keyframes */
-    @keyframes float {
-      0%, 100% {
-        transform: translateY(0);
-      }
-      50% {
-        transform: translateY(-20px);
-      }
-    }
-    
-    @keyframes pulse {
-      0%, 100% {
-        opacity: 0.5;
-        transform: scale(1);
-      }
-      50% {
-        opacity: 1;
-        transform: scale(1.2);
-      }
-    }
-    
-    /* Media queries */
-    @media (max-width: 1200px) {
-      .hero-float {
-        display: none;
-      }
-    }
-    
-    @media (max-width: 768px) {
-      .nav-links {
-        display: none;
-      }
-      
-      .timeline-item {
-        width: 100%;
-        margin-left: 2rem;
-      }
-      
-      .timeline-item:nth-child(even) {
-        margin-left: 2rem;
-      }
-      
-      .timeline-track {
-        left: 0;
-        transform: none;
-      }
-      
-      .timeline-item::before {
-        left: 0;
-        transform: translateX(-50%);
-      }
-      
-      .timeline-item:nth-child(odd)::before {
-        left: 0;
-        transform: translateX(-50%);
-      }
-      
-      .timeline-item:nth-child(odd) .timeline-content {
-        margin-right: 0;
-      }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DawntasyAI - Transcend the Ordinary</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;800&family=Raleway:wght@300;400;500;700;900&display=swap');
+
+        :root {
+            --primary: #3a1c71;
+            --secondary: #d76d77;
+            --accent: #ffaf7b;
+            --dark: #121212;
+            --light: #f8f9fa;
+            --text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Raleway', sans-serif;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background-color: var(--dark);
+            color: var(--light);
+            overflow-x: hidden;
+        }
+
+        #progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary), var(--accent));
+            width: 0%;
+            z-index: 1000;
+            transition: width 0.05s ease;
+        }
+
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+            backdrop-filter: blur(5px);
+            background: rgba(18, 18, 18, 0.5);
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: 800;
+            background: linear-gradient(to right, #3a1c71, #d76d77, #ffaf7b);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: var(--text-shadow);
+            font-family: 'Montserrat', sans-serif;
+            display: flex;
+            align-items: center;
+        }
+
+        .logo i {
+            margin-right: 10px;
+            font-size: 24px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+        }
+
+        .nav-links a {
+            color: var(--light);
+            text-decoration: none;
+            font-size: 16px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -5px;
+            left: 0;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            transition: width 0.3s ease;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .get-started {
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(58, 28, 113, 0.4);
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .get-started:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(58, 28, 113, 0.6);
+        }
+
+        section {
+            padding: 100px 10%;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .intro {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .intro-content {
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .section-subtitle {
+            font-size: 20px;
+            font-weight: 500;
+            color: var(--secondary);
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+        }
+
+        .section-title {
+            font-size: 64px;
+            font-weight: 900;
+            margin-bottom: 30px;
+            background: linear-gradient(to right, #3a1c71, #d76d77, #ffaf7b);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1.2;
+            text-shadow: var(--text-shadow);
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .section-description {
+            font-size: 18px;
+            line-height: 1.7;
+            margin-bottom: 40px;
+        }
+
+        .features {
+            position: relative;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            grid-gap: 30px;
+            margin-top: 50px;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            transition: all 0.5s ease;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            transform: translateY(0);
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            z-index: -1;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .feature-card:hover::before {
+            opacity: 0.15;
+        }
+
+        .feature-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .feature-title {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            background: linear-gradient(to right, #fff, #ccc);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .feature-description {
+            font-size: 16px;
+            line-height: 1.6;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .timeline {
+            position: relative;
+        }
+
+        .timeline-container {
+            position: relative;
+            max-width: 1200px;
+            margin: 50px auto 0;
+        }
+
+        .timeline-container::after {
+            content: '';
+            position: absolute;
+            width: 6px;
+            background: linear-gradient(to bottom, var(--primary), var(--secondary), var(--accent));
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            margin-left: -3px;
+            border-radius: 10px;
+        }
+
+        .timeline-item {
+            padding: 10px 50px;
+            position: relative;
+            width: 50%;
+            opacity: 0;
+            transform: translateX(-100px);
+            transition: all 0.6s ease;
+        }
+
+        .timeline-item.right {
+            left: 50%;
+            transform: translateX(100px);
+        }
+
+        .timeline-item.in-view {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .timeline-content {
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.05);
+            position: relative;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .timeline-date {
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--secondary);
+            margin-bottom: 10px;
+        }
+
+        .timeline-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: var(--light);
+        }
+
+        .timeline-description {
+            font-size: 16px;
+            line-height: 1.6;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .timeline-item::after {
+            content: '';
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            right: -12px;
+            top: 50%;
+            transform: translateY(-50%);
+            border-radius: 50%;
+            z-index: 1;
+            background: var(--secondary);
+            box-shadow: 0 0 0 4px var(--primary), 0 0 0 8px rgba(58, 28, 113, 0.3);
+        }
+
+        .timeline-item.right::after {
+            left: -12px;
+        }
+
+        .commencement {
+            position: relative;
+            text-align: center;
+        }
+
+        .slogan {
+            font-size: 28px;
+            font-style: italic;
+            margin: 50px 0;
+            line-height: 1.6;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .dive-in {
+            display: inline-block;
+            padding: 15px 40px;
+            font-size: 18px;
+            margin-top: 30px;
+            background: linear-gradient(45deg, var(--primary), var(--secondary), var(--accent));
+            background-size: 200% 200%;
+            animation: gradient-shift 3s ease infinite;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            box-shadow: 0 10px 30px rgba(58, 28, 113, 0.5);
+        }
+
+        .dive-in:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 15px 40px rgba(58, 28, 113, 0.7);
+        }
+
+        @keyframes gradient-shift {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        .orbiting-planet {
+            position: absolute;
+            border-radius: 50%;
+            animation: orbit 30s linear infinite;
+        }
+
+        .orbiting-planet:nth-child(1) {
+            width: 60px;
+            height: 60px;
+            background: radial-gradient(circle at 30% 30%, #7b68ee, #4b0082);
+            box-shadow: 0 0 20px #7b68ee;
+            top: 15%;
+            right: 10%;
+            animation-duration: 40s;
+        }
+
+        .orbiting-planet:nth-child(2) {
+            width: 40px;
+            height: 40px;
+            background: radial-gradient(circle at 30% 30%, #ff6b6b, #6b0000);
+            box-shadow: 0 0 20px #ff6b6b;
+            bottom: 20%;
+            left: 15%;
+            animation-duration: 50s;
+            animation-delay: -20s;
+        }
+
+        .orbiting-planet:nth-child(3) {
+            width: 80px;
+            height: 80px;
+            background: radial-gradient(circle at 30% 30%, #48c9b0, #004d40);
+            box-shadow: 0 0 30px #48c9b0;
+            top: 30%;
+            left: 5%;
+            animation-duration: 60s;
+            animation-delay: -15s;
+        }
+
+        @keyframes orbit {
+            0% {
+                transform: rotate(0deg) translateX(150px) rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg) translateX(150px) rotate(-360deg);
+            }
+        }
+
+        .parallax-stars {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+        }
+
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background-color: white;
+            border-radius: 50%;
+            box-shadow: 0 0 10px white;
+        }
+
+        .comet {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background-color: white;
+            box-shadow: 0 0 10px white, 0 0 20px white;
+            opacity: 0;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .comet::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 80px;
+            height: 1px;
+            background: linear-gradient(to left, white, transparent);
+            transform: translate(-100%, -50%) rotate(var(--angle));
+        }
+
+        @keyframes comet-animation {
+            0% {
+                transform: translate(calc(100vw + 100px), calc(100vh * var(--y)));
+                opacity: 1;
+            }
+            100% {
+                transform: translate(-100px, calc(100vh * var(--y)));
+                opacity: 1;
+            }
+        }
+
+        footer {
+            padding: 40px 0;
+            text-align: center;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .footer-text {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 14px;
+        }
+
+        .social-links {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .social-links a {
+            color: var(--light);
+            font-size: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .social-links a:hover {
+            color: var(--secondary);
+            transform: translateY(-3px);
+        }
+
+        .planet-shadow {
+            filter: drop-shadow(0 0 20px rgba(var(--primary-rgb), 0.8));
+        }
+    </style>
 </head>
 <body>
-  <!-- Progress indicator -->
-  <div class="progress-indicator" id="progress-bar"></div>
-  
-  <!-- Floating meteors -->
-  <div class="particles-container">
-    <!-- Meteors will be added via JS -->
-  </div>
-  
-  <!-- THREE.js Canvas -->
-  <canvas id="cosmic-canvas"></canvas>
-  
-  <!-- Navigation -->
-  <nav class="cosmic-nav" id="main-nav">
-    <div class="container nav-container">
-      <a href="#" class="logo">
-        <span class="logo-text">Dawntasy<span style="color: var(--starlight-100);">AI</span></span>
-      </a>
-      <ul class="nav-links">
-        <li><a href="#features" class="nav-link">Features</a></li>
-        <li><a href="#timeline" class="nav-link">Timeline</a></li>
-        <li><a href="#pricing" class="nav-link">Pricing</a></li>
-        <li><a href="https://dawntasy.com" class="nav-link">Book</a></li>
-      </ul>
-      <a href="ai.dawntasy.com/register" class="cta-button">Get Started</a>
-    </div>
-  </nav>
-  
-  <!-- Hero Section -->
-  <section class="hero" id="hero">
-    <div class="container">
-      <div class="hero-content">
-        <span class="hero-subtitle">Welcome to</span>
-        <h1 class="hero-title">Discover <span class="highlight">DawntasyAI</span>, Where Cosmic Intelligence Meets Fantasy</h1>
-        <p class="hero-description">Step into a world where AI traverses the boundaries of reality, just as Time Smith navigated The Rift. Explore the universe of Dawntasy through your personal AI companion.</p>
-        <div class="hero-cta">
-          <a href="/register" class="cta-button">Begin Your Journey</a>
-          <a href="#features" class="btn-secondary">Explore Features</a>
+    <div id="progress-bar"></div>
+    <div id="canvas-container"></div>
+
+    <nav class="navbar">
+        <div class="logo">
+            <i class="fas fa-brain"></i> DawntasyAI
         </div>
-      </div>
-      
-      <div class="hero-float">
-        <div class="cosmic-sphere" id="hero-sphere"></div>
-      </div>
-    </div>
-  </section>
-  
-  <!-- Features Section -->
-  <section class="features" id="features">
-    <div class="container">
-      <div class="section-header">
-        <span class="section-subheading">Capabilities</span>
-        <h2 class="section-title">Cosmic Features</h2>
-        <p class="section-description">Explore the capabilities that make DawntasyAI a portal into the universe of Dawntasy, offering insights and experiences beyond conventional AI.</p>
-      </div>
-      
-      <div class="features-grid">
-        <div class="feature-card" data-aos="fade-up">
-          <div class="feature-icon">🧙‍♂️</div>
-          <h3 class="feature-title">The ARCHMAGE Tool</h3>
-          <p class="feature-description">Delve into multifaceted thinking with our premium mode that analyzes problems from multiple perspectives simultaneously, just as Time Smith understood the complexity of The Rift.</p>
+        <div class="nav-links">
+            <a href="#intro">Home</a>
+            <a href="#features">Features</a>
+            <a href="#timeline">Journey</a>
+            <a href="#commencement">Vision</a>
         </div>
-        
-        <div class="feature-card" data-aos="fade-up" data-aos-delay="100">
-          <div class="feature-icon">💾</div>
-          <h3 class="feature-title">Memory Code</h3>
-          <p class="feature-description">Experience seamless continuity in your conversations, as our AI remembers previous interactions, creating a coherent narrative across your entire journey.</p>
+        <a href="https://ai.dawntasy.com/register" class="get-started">Get Started</a>
+    </nav>
+
+    <section id="intro" class="intro">
+        <div class="orbiting-planet"></div>
+        <div class="orbiting-planet"></div>
+        <div class="orbiting-planet"></div>
+        <div class="intro-content">
+            <p class="section-subtitle">Introducing</p>
+            <h1 class="section-title">DawntasyAI</h1>
+            <h2 style="font-size: 28px; margin-bottom: 30px; color: #d76d77;">Transcend the Ordinary, Embrace the Extraordinary</h2>
+            <p class="section-description">
+                DawntasyAI is an intelligence powerhouse that reimagines the boundaries of what's possible. 
+                Equipped with unique features designed specifically to elevate your experience, DawntasyAI 
+                stands ready to assist you in navigating the complexities of tomorrow's challenges. Embark 
+                on a journey where cosmic intelligence meets human creativity, unlocking potential beyond imagination.
+            </p>
+            <a href="https://ai.dawntasy.com/register" class="get-started">Begin Your Journey</a>
         </div>
-        
-        <div class="feature-card" data-aos="fade-up" data-aos-delay="200">
-          <div class="feature-icon">📚</div>
-          <h3 class="feature-title">Dawntasy Database</h3>
-          <p class="feature-description">Access the complete lore of the Dawntasy universe, from Bear Village to The Rift, with our comprehensive knowledge base built into the AI.</p>
-        </div>
-        
-        <div class="feature-card" data-aos="fade-up" data-aos-delay="300">
-          <div class="feature-icon">⏰</div>
-          <h3 class="feature-title">Plain and Pale Clock</h3>
-          <p class="feature-description">Synchronize with the rhythm of Dawntasy's narrative, exploring concepts of time and reality that mirror the themes of "Time's True Name."</p>
-        </div>
-        
-        <div class="feature-card" data-aos="fade-up" data-aos-delay="400">
-          <div class="feature-icon">🌌</div>
-          <h3 class="feature-title">Reality Distortion</h3>
-          <p class="feature-description">Challenge your perception with AI-generated scenarios that blur the line between reality and fantasy, inspired by The Rift's influence on Bear Village.</p>
-        </div>
-        
-        <div class="feature-card" data-aos="fade-up" data-aos-delay="500">
-          <div class="feature-icon">🔍</div>
-          <h3 class="feature-title">Cosmic Search</h3>
-          <p class="feature-description">Find answers and inspiration with our advanced search capabilities, exploring connections between concepts just as Yaee sought the truth about Time Smith.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-  
-  <!-- Timeline Section -->
-  <section class="timeline-section" id="timeline">
-    <div class="container">
-      <div class="section-header">
-        <span class="section-subheading">Evolution</span>
-        <h2 class="section-title">The Journey of DawntasyAI</h2>
-        <p class="section-description">Trace the evolution of our AI companion from concept to reality, paralleling the journey of Yaee as he discovers the truth about The Rift.</p>
-      </div>
-      
-      <div class="timeline-container">
-        <div class="timeline-track">
-          <div class="timeline-progress" id="timeline-progress"></div>
-        </div>
-        
-        <div class="timeline-item">
-          <div class="timeline-content">
-            <span class="timeline-date">PHASE ONE</span>
-            <h3 class="timeline-title">Conceptual Dawn</h3>
-            <p class="timeline-description">The initial concept of DawntasyAI emerged from the desire to extend the universe of "Time's True Name" into an interactive experience, allowing readers to engage directly with the narrative.</p>
-          </div>
-        </div>
-        
-        <div class="timeline-item">
-          <div class="timeline-content">
-            <span class="timeline-date">PHASE TWO</span>
-            <h3 class="timeline-title">Prototype Development</h3>
-            <p class="timeline-description">Early prototypes focused on integrating the lore and themes of Dawntasy, creating a foundation for an AI companion that understood the nuances of the universe.</p>
-          </div>
-        </div>
-        
-        <div class="timeline-item">
-          <div class="timeline-content">
-            <span class="timeline-date">PHASE THREE</span>
-            <h3 class="timeline-title">The ARCHMAGE Integration</h3>
-            <p class="timeline-description">Development of the ARCHMAGE Tool, which enabled the AI to analyze topics from multiple perspectives, mirroring the complex understanding of reality presented in the book.</p>
-          </div>
-        </div>
-        
-        <div class="timeline-item">
-          <div class="timeline-content">
-            <span class="timeline-date">PHASE FOUR</span>
-            <h3 class="timeline-title">Memory Code Implementation</h3>
-            <p class="timeline-description">Creation of the Memory Code system, allowing the AI to maintain continuity across conversations, reflecting the cyclical nature of time in the Dawntasy universe.</p>
-          </div>
-        </div>
-        
-        <div class="timeline-item">
-          <div class="timeline-content">
-            <span class="timeline-date">PRESENT</span>
-            <h3 class="timeline-title">The Circular Dawn</h3>
-            <p class="timeline-description">DawntasyAI now stands as a fully realized companion, offering insights into the universe of "Time's True Name" and extending the experience beyond the pages of the book.</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-  
-    <!-- Pricing Section (New Addition) -->
-    <section class="pricing" id="pricing">
-      <div class="container">
-        <div class="section-header">
-          <span class="section-subheading">Plans</span>
-          <h2 class="section-title">Choose Your Cosmic Plan</h2>
-          <p class="section-description">Select the plan that propels your journey through the Dawntasy universe—from casual exploration to deep, immersive interaction.</p>
-        </div>
-        <div class="pricing-grid">
-          <!-- Free Plan -->
-          <div class="pricing-card">
-            <h3 class="pricing-title">Free Plan</h3>
-            <div class="pricing-price">
-              <span class="currency">$</span>0 <span class="period">/month</span>
-            </div>
-            <ul class="pricing-features">
-              <li>💬 Chats (50 messages/day)</li>
-              <li>🗃️ Dawntasy 2.5 Bucket Model (Generalist)</li>
-              <li>💻 Code Generation & Analysis</li>
-              <li>🖼️ Image Generation</li>
-              <li>🧠 Dawntasy 3 Gloaming Model (Philosophical)</li>
-              <li>✍️ Dawntasy 2.9 Fall Model (Coding & Writing)</li>
-              <li>🤔 Pensive Mode (Deep Quantum Reasoning)</li>
-              <li>🔍 Analysis Tool</li>
-              <li>🤝 CollabAI (Real-time Collaboration)</li>
-              <li>📝 Elaboration Mode</li>
-              <li>📎 File Uploads</li>
-            </ul>
-            <div class="pricing-cta">
-              <button class="cta-button" onclick="openModal('freeModal')">View Details</button>
-            </div>
-          </div>
-          <!-- Basic Plan -->
-          <div class="pricing-card">
-            <h3 class="pricing-title">Basic Plan</h3>
-            <div class="pricing-price">
-              <span class="currency">$</span>3.99 <span class="period">/month</span>
-            </div>
-            <ul class="pricing-features">
-              <li>✅ Everything in Free</li>
-              <li>💬 100 messages/day</li>
-              <li>📚 Dawntasy ONLY Database</li>
-              <li>🎯 Focus Mode</li>
-            </ul>
-            <div class="pricing-cta">
-              <button class="cta-button" onclick="openModal('basicModal')">View Details</button>
-            </div>
-          </div>
-          <!-- Dawntasier Plan -->
-          <div class="pricing-card featured">
-            <h3 class="pricing-title">Dawntasier Plan</h3>
-            <div class="pricing-price">
-              <span class="currency">$</span>7.99 <span class="period">/month</span>
-            </div>
-            <ul class="pricing-features">
-              <li>✅ Everything in Basic</li>
-              <li>🔐 Memory Code (Context Retention)</li>
-              <li>🧮 Dawntasy 5 PGC (Structured Calculations)</li>
-              <li>💭 Dawntasy 6.2 PPC (Deep Quantum Discussions)</li>
-              <li>📂 Full Database Access</li>
-              <li>💬 250 messages/day</li>
-              <li>🤖 CollabAI Mega (Multiple AI Collaboration)</li>
-              <li>🔗 Nexus (Enhanced Context Support)</li>
-            </ul>
-            <div class="pricing-cta">
-              <button class="cta-button" onclick="openModal('dawntasierModal')">View Details</button>
-            </div>
-          </div>
-          <!-- R.I.F.T Plan -->
-          <div class="pricing-card">
-            <h3 class="pricing-title">R.I.F.T Plan</h3>
-            <div class="pricing-price">
-              <span class="currency">$</span>14.99 <span class="period">/month</span>
-            </div>
-            <ul class="pricing-features">
-              <li>✅ Everything in Dawntasier</li>
-              <li>💬 UNLIMITED messages</li>
-              <li>⚡ ARCHMAGE (Explosive Quantum Thinking)</li>
-              <li>🧩 Complex Branch (Comprehensive Mind Mapping)</li>
-              <li>🤖 Chatbot R (Revolutionary Conversational AI)</li>
-            </ul>
-            <div class="pricing-cta">
-              <button class="cta-button" onclick="openModal('riftModal')">View Details</button>
-            </div>
-          </div>
-        </div>
-      </div>
     </section>
-    
-    <!-- CTA Section (Original) -->
-    <section class="cta-section">
-      <div class="container cta-container">
-        <h2 class="cta-title">Begin Your Journey Through The Rift</h2>
-        <p class="cta-description">The Plain and Pale Clock is ticking. Will you discover the truth behind The Rift? Join DawntasyAI and explore the universe of "Time's True Name" today.</p>
-        <a href="/register" class="cta-button">Enter The Dawntasy Universe</a>
-      </div>
-      <div class="cta-background" id="cta-particles"></div>
+
+    <section id="features" class="features">
+        <div class="orbiting-planet"></div>
+        <h2 class="section-subtitle">Capabilities</h2>
+        <h3 class="section-title">Stellar Features</h3>
+        <p class="section-description" style="text-align: center; max-width: 800px; margin: 0 auto;">
+            DawntasyAI combines cutting-edge technologies with intuitive design to bring you 
+            a suite of powerful features that transform how you interact with artificial intelligence.
+        </p>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-brain"></i>
+                </div>
+                <h4 class="feature-title">Think Deeper</h4>
+                <p class="feature-description">
+                    Enhanced cognitive processing allows DawntasyAI to dive beyond surface-level analysis, 
+                    exploring nuanced perspectives and generating profound insights that ordinary AI simply cannot match.
+                </p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-cogs"></i>
+                </div>
+                <h4 class="feature-title">Logic</h4>
+                <p class="feature-description">
+                    Our advanced reasoning engine dissects complex problems with precision, 
+                    constructing step-by-step solutions through rational frameworks that make even the most 
+                    challenging concepts accessible.
+                </p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-hat-wizard"></i>
+                </div>
+                <h4 class="feature-title">ARCHMAGE</h4>
+                <p class="feature-description">
+                    The intelligence powerhouse at DawntasyAI's core, ARCHMAGE leverages quantum-inspired 
+                    algorithms to deliver responses with unprecedented depth and accuracy across all domains.
+                </p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-microphone-alt"></i>
+                </div>
+                <h4 class="feature-title">Speech to Text</h4>
+                <p class="feature-description">
+                    Communicate naturally with crystal-clear voice recognition that understands context, 
+                    inflection, and even subtle emotional cues, transforming conversations into seamless interactions.
+                </p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-paint-brush"></i>
+                </div>
+                <h4 class="feature-title">Image Generation</h4>
+                <p class="feature-description">
+                    Transform ideas into vivid visual reality with our state-of-the-art image synthesis, 
+                    creating stunning compositions that perfectly capture your creative vision.
+                </p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-code"></i>
+                </div>
+                <h4 class="feature-title">Code Generation</h4>
+                <p class="feature-description">
+                    From simple scripts to complex architectures, DawntasyAI crafts elegant, efficient code 
+                    across multiple programming languages while providing insightful analysis and optimization suggestions.
+                </p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-layer-group"></i>
+                </div>
+                <h4 class="feature-title">Multimodal Response</h4>
+                <p class="feature-description">
+                    Experience communication that transcends single formats, seamlessly blending text, 
+                    visuals, audio, and interactive elements for truly comprehensive understanding.
+                </p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-project-diagram"></i>
+                </div>
+                <h4 class="feature-title">Mind Maps</h4>
+                <p class="feature-description">
+                    Explore concepts in newfound depth with dynamic mind mapping that branches outward 
+                    from core ideas, revealing connections and perspectives that illuminate your understanding.
+                </p>
+            </div>
+        </div>
     </section>
-    
-    <!-- Footer (Original) -->
-    <footer class="footer">
-      <div class="container footer-grid">
-        <div class="footer-brand">
-          <div class="footer-logo">
-            <span class="logo-text">Dawntasy<span style="color: var(--starlight-100);">AI</span></span>
-          </div>
-          <p class="footer-description">Step into a world where AI traverses the boundaries of reality, just as Time Smith navigated The Rift.</p>
-          <div class="social-links">
-            <a href="#" class="social-link">
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
-            </a>
-            <a href="#" class="social-link">
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path></svg>
-            </a>
-            <a href="#" class="social-link">
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 2h20v20H2z"></path><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
-            </a>
-          </div>
+
+    <section id="timeline" class="timeline">
+        <div class="orbiting-planet"></div>
+        <h2 class="section-subtitle">Our Story</h2>
+        <h3 class="section-title">The Journey</h3>
+        <p class="section-description" style="text-align: center; max-width: 800px; margin: 0 auto;">
+            The evolution of DawntasyAI represents years of passionate development, 
+            creative exploration, and technological innovation.
+        </p>
+        <div class="timeline-container">
+            <div class="timeline-item left">
+                <div class="timeline-content">
+                    <div class="timeline-date">2013 - 2019</div>
+                    <h4 class="timeline-title">Brainstorming</h4>
+                    <p class="timeline-description">
+                        Six years of intensive research, philosophical inquiry, and conceptual 
+                        development laid the foundation for what would eventually become DawntasyAI. 
+                        This period was characterized by exploring the intersection of human 
+                        creativity and artificial intelligence.
+                    </p>
+                </div>
+            </div>
+            <div class="timeline-item right">
+                <div class="timeline-content">
+                    <div class="timeline-date">2019 - 2021</div>
+                    <h4 class="timeline-title">Writing Book</h4>
+                    <p class="timeline-description">
+                        The conceptual framework was codified into a comprehensive manuscript, 
+                        detailing the theoretical principles and practical applications of a 
+                        new approach to AI. This two-year writing process crystallized the vision 
+                        that would drive future development.
+                    </p>
+                </div>
+            </div>
+            <div class="timeline-item left">
+                <div class="timeline-content">
+                    <div class="timeline-date">2021 - 2023</div>
+                    <h4 class="timeline-title">Musical Artist</h4>
+                    <p class="timeline-description">
+                        The transition to musical expression allowed for exploration of emotional 
+                        intelligence and creative pattern recognition, essential components that 
+                        would later become core to DawntasyAI's unique approach to understanding 
+                        human needs and expressions.
+                    </p>
+                </div>
+            </div>
+            <div class="timeline-item right">
+                <div class="timeline-content">
+                    <div class="timeline-date">2023 - Present</div>
+                    <h4 class="timeline-title">AI Chatbot DawntasyAI</h4>
+                    <p class="timeline-description">
+                        The culmination of years of development, DawntasyAI now stands as a 
+                        revolutionary intelligence platform, integrating all previous insights 
+                        into a powerful system that continues to evolve with each interaction, 
+                        pushing the boundaries of what artificial intelligence can achieve.
+                    </p>
+                </div>
+            </div>
         </div>
-        
-        <div class="footer-links-container">
-          <h4 class="footer-heading">Navigation</h4>
-          <ul class="footer-links">
-            <li class="footer-link"><a href="#hero">Home</a></li>
-            <li class="footer-link"><a href="#features">Features</a></li>
-            <li class="footer-link"><a href="#timeline">Timeline</a></li>
-            <li class="footer-link"><a href="#pricing">Pricing</a></li>
-          </ul>
+    </section>
+
+    <section id="commencement" class="commencement">
+        <div class="orbiting-planet"></div>
+        <h2 class="section-subtitle">Vision</h2>
+        <h3 class="section-title">A New Dawn</h3>
+        <p class="section-description" style="text-align: center; max-width: 800px; margin: 0 auto;">
+            DawntasyAI represents not just a technological advancement, but a philosophical shift 
+            in how we perceive and interact with artificial intelligence, opening doors to 
+            possibilities previously confined to imagination.
+        </p>
+        <p class="slogan">
+            "A bucket, a cookie, a pike, a clock and a tree...are subjectively objects."
+        </p>
+        <a href="https://ai.dawntasy.com/register" class="dive-in">Dive In Now</a>
+    </section>
+
+    <footer>
+        <p class="footer-text">© 2025 DawntasyAI. All rights reserved.</p>
+        <div class="social-links">
+            <a href="#"><i class="fab fa-twitter"></i></a>
+            <a href="#"><i class="fab fa-facebook"></i></a>
+            <a href="#"><i class="fab fa-instagram"></i></a>
+            <a href="#"><i class="fab fa-github"></i></a>
+            <a href="#"><i class="fab fa-linkedin"></i></a>
         </div>
-        
-        <div class="footer-links-container">
-          <h4 class="footer-heading">Resources</h4>
-          <ul class="footer-links">
-            <li class="footer-link"><a href="https://dawntasy.com">Dawntasy Book</a></li>
-            <li class="footer-link"><a href="#">API Documentation</a></li>
-            <li class="footer-link"><a href="#">Community</a></li>
-            <li class="footer-link"><a href="#">Blog</a></li>
-          </ul>
-        </div>
-        
-        <div class="footer-links-container">
-          <h4 class="footer-heading">Legal</h4>
-          <ul class="footer-links">
-            <li class="footer-link"><a href="#">Terms of Service</a></li>
-            <li class="footer-link"><a href="#">Privacy Policy</a></li>
-            <li class="footer-link"><a href="#">Cookie Policy</a></li>
-            <li class="footer-link"><a href="#">GDPR</a></li>
-          </ul>
-        </div>
-      </div>
-      <div class="footer-bottom">
-        <p>&copy; 2025 DawntasyAI. All rights reserved. Created by Jasper Jiang.</p>
-      </div>
     </footer>
-    
-    <!-- Modal Popups for Pricing Plans -->
-    <div class="cosmic-modal-backdrop" id="freeModal" style="display: none;">
-      <div class="cosmic-modal">
-        <div class="modal-header">
-          <h2 class="modal-title">Free Plan Details</h2>
-          <button class="modal-close" onclick="closeModal('freeModal')">&times;</button>
-        </div>
-        <div class="modal-body">
-          <p>
-            💬 50 messages/day<br>
-            🗃️ Dawntasy 2.5 Bucket Model (Generalist capabilities)<br>
-            💻 Code Generation & Analysis<br>
-            🖼️ Image Generation<br>
-            🧠 Dawntasy 3 Gloaming Model for deep, philosophical discussions<br>
-            ✍️ Dawntasy 2.9 Fall Model for coding & writing<br>
-            🤔 Pensive Mode for deep quantum reasoning<br>
-            🔍 Analysis Tool<br>
-            🤝 CollabAI for real-time collaboration<br>
-            📝 Elaboration Mode<br>
-            📎 File Uploads
-          </p>
-        </div>
-        <div class="modal-actions">
-          <button class="cta-button" onclick="closeModal('freeModal')">Close</button>
-        </div>
-      </div>
-    </div>
-    <div class="cosmic-modal-backdrop" id="basicModal" style="display: none;">
-      <div class="cosmic-modal">
-        <div class="modal-header">
-          <h2 class="modal-title">Basic Plan Details</h2>
-          <button class="modal-close" onclick="closeModal('basicModal')">&times;</button>
-        </div>
-        <div class="modal-body">
-          <p>
-            Includes all features in the Free Plan, plus:<br>
-            💬 100 messages/day<br>
-            📚 Dawntasy ONLY Database for exclusive topics<br>
-            🎯 Focus Mode for optimized, topic-specific results
-          </p>
-        </div>
-        <div class="modal-actions">
-          <button class="cta-button" onclick="closeModal('basicModal')">Close</button>
-        </div>
-      </div>
-    </div>
-    <div class="cosmic-modal-backdrop" id="dawntasierModal" style="display: none;">
-      <div class="cosmic-modal">
-        <div class="modal-header">
-          <h2 class="modal-title">Dawntasier Plan Details</h2>
-          <button class="modal-close" onclick="closeModal('dawntasierModal')">&times;</button>
-        </div>
-        <div class="modal-body">
-          <p>
-            Includes all features in the Basic Plan, plus:<br>
-            🔐 Memory Code for context retention<br>
-            🧮 Dawntasy 5 PGC for structured calculations<br>
-            💭 Dawntasy 6.2 PPC for ultra-deep quantum discussions<br>
-            📂 Full Database Access<br>
-            💬 250 messages/day<br>
-            🤖 CollabAI Mega for multi-AI collaboration<br>
-            🔗 Nexus for enhanced contextual support
-          </p>
-        </div>
-        <div class="modal-actions">
-          <button class="cta-button" onclick="closeModal('dawntasierModal')">Close</button>
-        </div>
-      </div>
-    </div>
-    <div class="cosmic-modal-backdrop" id="riftModal" style="display: none;">
-      <div class="cosmic-modal">
-        <div class="modal-header">
-          <h2 class="modal-title">R.I.F.T Plan Details</h2>
-          <button class="modal-close" onclick="closeModal('riftModal')">&times;</button>
-        </div>
-        <div class="modal-body">
-          <p>
-            Includes everything in the Dawntasier Plan, plus:<br>
-            💬 UNLIMITED messages<br>
-            ⚡ ARCHMAGE – Explosive, multi-faceted quantum thinking<br>
-            🧩 Complex Branch – A comprehensive mind-map of all core ideas<br>
-            🤖 Chatbot R – Revolutionary conversational enhancements
-          </p>
-        </div>
-        <div class="modal-actions">
-          <button class="cta-button" onclick="closeModal('riftModal')">Close</button>
-        </div>
-      </div>
-    </div>
-  
-  <!-- CTA Section -->
-  <section class="cta-section">
-    <div class="container cta-container">
-      <h2 class="cta-title">Begin Your Journey Through The Rift</h2>
-      <p class="cta-description">The Plain and Pale Clock is ticking. Will you discover the truth behind The Rift? Join DawntasyAI and explore the universe of "Time's True Name" today.</p>
-      <a href="ai.dawntasy.com/register" class="cta-button">Enter The Dawntasy Universe</a>
-    </div>
-    <div class="cta-background" id="cta-particles"></div>
-  </section>
-  
-  <!-- Footer -->
-  <footer class="footer">
-    <div class="container">
-      <div class="footer-grid">
-        <div class="footer-brand">
-          <div class="footer-logo">
-            <span class="logo-text">Dawntasy<span style="color: var(--starlight-100);">AI</span></span>
-          </div>
-          <p class="footer-description">Step into a world where AI traverses the boundaries of reality, just as Time Smith navigated The Rift.</p>
-          <div class="social-links">
-            <a href="#" class="social-link">
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
-            </a>
-            <a href="#" class="social-link">
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path></svg>
-            </a>
-            <a href="#" class="social-link">
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
-            </a>
-          </div>
-        </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/ScrollTrigger.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+
+    <script>
+        // Initialize Three.js background
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         
-        <div class="footer-links-container">
-          <h4 class="footer-heading">Navigation</h4>
-          <ul class="footer-links">
-            <li class="footer-link"><a href="#hero">Home</a></li>
-            <li class="footer-link"><a href="#features">Features</a></li>
-            <li class="footer-link"><a href="#timeline">Timeline</a></li>
-            <li class="footer-link"><a href="#pricing">Pricing</a></li>
-          </ul>
-        </div>
-        
-        <div class="footer-links-container">
-          <h4 class="footer-heading">Resources</h4>
-          <ul class="footer-links">
-            <li class="footer-link"><a href="https://dawntasy.com">Dawntasy Book</a></li>
-            <li class="footer-link"><a href="#">API Documentation</a></li>
-            <li class="footer-link"><a href="#">Community</a></li>
-            <li class="footer-link"><a href="#">Blog</a></li>
-          </ul>
-        </div>
-        
-        <div class="footer-links-container">
-          <h4 class="footer-heading">Legal</h4>
-          <ul class="footer-links">
-            <li class="footer-link"><a href="#">Terms of Service</a></li>
-            <li class="footer-link"><a href="#">Privacy Policy</a></li>
-            <li class="footer-link"><a href="#">Cookie Policy</a></li>
-            <li class="footer-link"><a href="#">GDPR</a></li>
-          </ul>
-        </div>
-      </div>
-      
-      <div class="footer-bottom">
-        <p>&copy; 2025 DawntasyAI. All rights reserved. Created by Jasper Jiang.</p>
-      </div>
-    </div>
-  </footer>
-  
-  <!-- JavaScript -->
-  <script>
-    // Initialize THREE.js Scene
-    function initThreeJS() {
-      const canvas = document.getElementById('cosmic-canvas');
-      const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
-      renderer.setSize(window.innerWidth, window.innerHeight);
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-      
-      const scene = new THREE.Scene();
-      
-      const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-      camera.position.z = 30;
-      
-      // Create stars
-      const starsGeometry = new THREE.BufferGeometry();
-      const starsMaterial = new THREE.PointsMaterial({
-        color: 0xffffff,
-        size: 0.1,
-        transparent: true
-      });
-      
-      const starsVertices = [];
-      for (let i = 0; i < 10000; i++) {
-        const x = (Math.random() - 0.5) * 2000;
-        const y = (Math.random() - 0.5) * 2000;
-        const z = (Math.random() - 0.5) * 2000;
-        starsVertices.push(x, y, z);
-      }
-      
-      starsGeometry.setAttribute('position', new THREE.Float32BufferAttribute(starsVertices, 3));
-      const stars = new THREE.Points(starsGeometry, starsMaterial);
-      scene.add(stars);
-      
-      // Create hero sphere
-      const heroSphereContainer = document.getElementById('hero-sphere');
-      if (heroSphereContainer) {
-        const sphereGeometry = new THREE.SphereGeometry(1, 64, 64);
-        const sphereMaterial = new THREE.MeshBasicMaterial({
-          color: 0x33c5ff,
-          wireframe: true,
-          transparent: true,
-          opacity: 0.5
-        });
-        
-        const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
-        const sphereScene = new THREE.Scene();
-        const sphereCamera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000);
-        sphereCamera.position.z = 2.5;
-        
-        const sphereRenderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-        sphereRenderer.setSize(350, 350);
-        sphereRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-        heroSphereContainer.appendChild(sphereRenderer.domElement);
-        
-        sphereScene.add(sphere);
-        
-        // Small particles around the sphere
-        const particlesGeometry = new THREE.BufferGeometry();
-        const particlesMaterial = new THREE.PointsMaterial({
-          color: 0xff3a70,
-          size: 0.05,
-          transparent: true
-        });
-        
-        const particlesVertices = [];
-        for (let i = 0; i < 1000; i++) {
-          const radius = 1.5 + Math.random() * 0.5;
-          const theta = Math.random() * Math.PI * 2;
-          const phi = Math.random() * Math.PI;
-          
-          const x = radius * Math.sin(phi) * Math.cos(theta);
-          const y = radius * Math.sin(phi) * Math.sin(theta);
-          const z = radius * Math.cos(phi);
-          
-          particlesVertices.push(x, y, z);
-        }
-        
-        particlesGeometry.setAttribute('position', new THREE.Float32BufferAttribute(particlesVertices, 3));
-        const particles = new THREE.Points(particlesGeometry, particlesMaterial);
-        sphereScene.add(particles);
-        
-        // Animation function for the sphere
-        function animateSphere() {
-          requestAnimationFrame(animateSphere);
-          
-          sphere.rotation.x += 0.003;
-          sphere.rotation.y += 0.002;
-          particles.rotation.x -= 0.001;
-          particles.rotation.y -= 0.002;
-          
-          sphereRenderer.render(sphereScene, sphereCamera);
-        }
-        
-        animateSphere();
-      }
-      
-      // Animation function
-      function animate() {
-        requestAnimationFrame(animate);
-        
-        stars.rotation.x += 0.0001;
-        stars.rotation.y += 0.0002;
-        
-        // Get scroll position for parallax effect
-        const scrollY = window.scrollY;
-        camera.position.y = -scrollY * 0.01;
-        
-        renderer.render(scene, camera);
-      }
-      
-      animate();
-      
-      // Handle window resize
-      window.addEventListener('resize', () => {
-        // Update renderer
         renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-        
-        // Update camera
-        camera.aspect = window.innerWidth / window.innerHeight;
-        camera.updateProjectionMatrix();
-      });
-    }
-    
-    // Create meteors
-    function createMeteors() {
-      const container = document.querySelector('.particles-container');
-      
-      function createMeteor() {
-        const meteor = document.createElement('div');
-        meteor.classList.add('meteor');
-        
-        // Random position
-        meteor.style.top = `${Math.random() * 100}%`;
-        meteor.style.left = `${Math.random() * 100}%`;
-        
-        // Random delay
-        meteor.style.animationDelay = `${Math.random() * 15}s`;
-        
-        container.appendChild(meteor);
-        
-        // Remove after animation completes
-        setTimeout(() => {
-          meteor.remove();
-          createMeteor();
-        }, 6000);
-      }
-      
-      // Create initial meteors
-      for (let i = 0; i < 5; i++) {
-        setTimeout(() => {
-          createMeteor();
-        }, i * 2000);
-      }
-    }
-    
-    // Timeline animation
-    function setupTimeline() {
-      const timelineItems = document.querySelectorAll('.timeline-item');
-      const timelineProgress = document.getElementById('timeline-progress');
-      
-      function updateTimeline() {
-        const scrollPosition = window.scrollY;
-        const timelineSection = document.getElementById('timeline');
-        const timelineSectionTop = timelineSection.offsetTop;
-        const timelineSectionHeight = timelineSection.offsetHeight;
-        const windowHeight = window.innerHeight;
-        
-        // Calculate how far through the section we've scrolled
-        const scrolled = (scrollPosition - timelineSectionTop + windowHeight / 2) / timelineSectionHeight;
-        
-        if (scrolled > 0 && scrolled < 1) {
-          timelineProgress.style.height = `${scrolled * 100}%`;
-        }
-        
-        // Show timeline items when they are in view
-        timelineItems.forEach((item, index) => {
-          const itemTop = item.getBoundingClientRect().top;
-          
-          if (itemTop < windowHeight * 0.8) {
-            item.classList.add('show');
-          }
+        renderer.setPixelRatio(window.devicePixelRatio);
+        document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+        // Create stars
+        const starGeometry = new THREE.BufferGeometry();
+        const starMaterial = new THREE.PointsMaterial({
+            color: 0xffffff,
+            size: 0.2,
+            transparent: true
         });
-      }
-      
-      window.addEventListener('scroll', updateTimeline);
-      updateTimeline(); // Initial call
-    }
-    
-    // Progress indicator
-    function setupProgressIndicator() {
-      const progressBar = document.getElementById('progress-bar');
-      
-      function updateProgressBar() {
-        const scrollPosition = window.scrollY;
-        const totalHeight = document.body.scrollHeight - window.innerHeight;
-        const progress = (scrollPosition / totalHeight) * 100;
-        
-        progressBar.style.height = `${progress}%`;
-      }
-      
-      window.addEventListener('scroll', updateProgressBar);
-      updateProgressBar(); // Initial call
-    }
-    
-    // Navigation scroll effect
-    function setupNavigation() {
-      const nav = document.getElementById('main-nav');
-      
-      function updateNavbar() {
-        if (window.scrollY > 50) {
-          nav.classList.add('scrolled');
-        } else {
-          nav.classList.remove('scrolled');
+
+        const starVertices = [];
+        for (let i = 0; i < 15000; i++) {
+            const x = (Math.random() - 0.5) * 2000;
+            const y = (Math.random() - 0.5) * 2000;
+            const z = (Math.random() - 0.5) * 2000;
+            starVertices.push(x, y, z);
         }
-      }
-      
-      window.addEventListener('scroll', updateNavbar);
-      updateNavbar(); // Initial call
-      
-      // Smooth scroll for navigation links
-      document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function(e) {
-          e.preventDefault();
-          
-          const targetId = this.getAttribute('href');
-          const targetElement = document.querySelector(targetId);
-          
-          if (targetElement) {
-            window.scrollTo({
-              top: targetElement.offsetTop - 80, // Adjust for header height
-              behavior: 'smooth'
+
+        starGeometry.setAttribute('position', new THREE.Float32BufferAttribute(starVertices, 3));
+        const stars = new THREE.Points(starGeometry, starMaterial);
+        scene.add(stars);
+
+        // Create nebula
+        const nebulaGeometry = new THREE.PlaneGeometry(2000, 2000);
+        const nebulaMaterial = new THREE.MeshBasicMaterial({
+            map: new THREE.TextureLoader().load('https://images.unsplash.com/photo-1462331940025-496dfbfc7564?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1748&q=80'),
+            transparent: true,
+            opacity: 0.2,
+            depthWrite: false
+        });
+        const nebula = new THREE.Mesh(nebulaGeometry, nebulaMaterial);
+        nebula.position.z = -800;
+        scene.add(nebula);
+
+        camera.position.z = 5;
+
+        // Animation loop
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            stars.rotation.x += 0.0001;
+            stars.rotation.y += 0.0001;
+            
+            renderer.render(scene, camera);
+        }
+        
+        animate();
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // Parallax effect
+        document.addEventListener('mousemove', (e) => {
+            const mouseX = e.clientX / window.innerWidth - 0.5;
+            const mouseY = e.clientY / window.innerHeight - 0.5;
+            
+            gsap.to(stars.rotation, {
+                x: mouseY * 0.1,
+                y: mouseX * 0.1,
+                duration: 1
             });
-          }
         });
-      });
-    }
-    
-    // Initialize animations with GSAP
-    function setupAnimations() {
-      gsap.registerPlugin(ScrollTrigger);
-      
-      // Hero animations
-      gsap.from('.hero-subtitle', {
-        opacity: 0,
-        y: 20,
-        duration: 0.8,
-        delay: 0.2
-      });
-      
-      gsap.from('.hero-title', {
-        opacity: 0,
-        y: 30,
-        duration: 0.8,
-        delay: 0.4
-      });
-      
-      gsap.from('.hero-description', {
-        opacity: 0,
-        y: 30,
-        duration: 0.8,
-        delay: 0.6
-      });
-      
-      gsap.from('.hero-cta', {
-        opacity: 0,
-        y: 30,
-        duration: 0.8,
-        delay: 0.8
-      });
-      
-      // Feature cards animations
-      gsap.from('.feature-card', {
-        scrollTrigger: {
-          trigger: '.features-grid',
-          start: 'top 80%'
-        },
-        opacity: 0,
-        y: 50,
-        duration: 0.8,
-        stagger: 0.2
-      });
-      
-      // Pricing cards animations
-      gsap.from('.pricing-card', {
-        scrollTrigger: {
-          trigger: '.pricing-grid',
-          start: 'top 80%'
-        },
-        opacity: 0,
-        y: 50,
-        duration: 0.8,
-        stagger: 0.2
-      });
-      
-      // CTA section animations
-      gsap.from('.cta-title', {
-        scrollTrigger: {
-          trigger: '.cta-section',
-          start: 'top 80%'
-        },
-        opacity: 0,
-        y: 30,
-        duration: 0.8
-      });
-      
-      gsap.from('.cta-description', {
-        scrollTrigger: {
-          trigger: '.cta-section',
-          start: 'top 80%'
-        },
-        opacity: 0,
-        y: 30,
-        duration: 0.8,
-        delay: 0.2
-      });
-      
-      gsap.from('.cta-button', {
-        scrollTrigger: {
-          trigger: '.cta-section',
-          start: 'top 80%'
-        },
-        opacity: 0,
-        y: 30,
-        duration: 0.8,
-        delay: 0.4
-      });
-    }
-    
-    // Initialize everything when DOM is loaded
-    document.addEventListener('DOMContentLoaded', () => {
-      AOS.init();
-      initThreeJS();
-      createMeteors();
-      setupTimeline();
-      setupProgressIndicator();
-      setupNavigation();
-      setupAnimations();
-    });
-  </script>
+
+        // Scroll progress bar
+        window.addEventListener('scroll', () => {
+            const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+            const scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            const scrollProgress = (scrollTop / scrollHeight) * 100;
+            
+            document.getElementById('progress-bar').style.width = scrollProgress + '%';
+        });
+
+        // GSAP animations
+        gsap.registerPlugin(ScrollTrigger);
+        
+        // Intro animations
+        gsap.from('.intro-content', {
+            opacity: 0,
+            y: 100,
+            duration: 1.5,
+            ease: 'power3.out'
+        });
+
+        // Feature cards animation
+        gsap.from('.feature-card', {
+            scrollTrigger: {
+                trigger: '.features-grid',
+                start: 'top 80%'
+            },
+            opacity: 0,
+            y: 50,
+            duration: 0.8,
+            stagger: 0.1,
+            ease: 'back.out(1.7)'
+        });
+
+        // Timeline items animation
+        const timelineItems = document.querySelectorAll('.timeline-item');
+        
+        timelineItems.forEach(item => {
+            gsap.from(item, {
+                scrollTrigger: {
+                    trigger: item,
+                    start: 'top 80%',
+                    toggleClass: 'in-view'
+                },
+                opacity: 0,
+                duration: 1
+            });
+        });
+
+        // Commencement section animations
+        gsap.from('.commencement .section-title, .commencement .section-subtitle', {
+            scrollTrigger: {
+                trigger: '.commencement',
+                start: 'top 80%'
+            },
+            opacity: 0,
+            y: 50,
+            duration: 1,
+            stagger: 0.3
+        });
+
+        gsap.from('.slogan', {
+            scrollTrigger: {
+                trigger: '.slogan',
+                start: 'top 80%'
+            },
+            opacity: 0,
+            scale: 0.8,
+            duration: 1.5,
+            ease: 'elastic.out(1, 0.3)'
+        });
+
+        gsap.from('.dive-in', {
+            scrollTrigger: {
+                trigger: '.dive-in',
+                start: 'top 90%'
+            },
+            opacity: 0,
+            y: 30,
+            duration: 1,
+            ease: 'back.out(1.7)'
+        });
+
+        // Create animated comets
+        function createComet() {
+            const comet = document.createElement('div');
+            comet.classList.add('comet');
+            
+            const yPos = Math.random();
+            const angle = Math.random() * 20 - 10; // -10 to 10 degrees
+            
+            comet.style.setProperty('--y', yPos);
+            comet.style.setProperty('--angle', `${angle}deg`);
+            
+            document.body.appendChild(comet);
+            
+            anime({
+                targets: comet,
+                translateX: [-100, window.innerWidth + 100],
+                translateY: [window.innerHeight * yPos, window.innerHeight * yPos],
+                opacity: [
+                    { value: 0, duration: 0 },
+                    { value: 1, duration: 300 },
+                    { value: 1, duration: 1000 },
+                    { value: 0, duration: 300 }
+                ],
+                easing: 'linear',
+                duration: 3000 + Math.random() * 3000,
+                complete: function() {
+                    comet.remove();
+                }
+            });
+        }
+
+        // Create comets periodically
+        setInterval(createComet, 2000);
+
+        // Create parallax stars
+        const parallaxStars = document.createElement('div');
+        parallaxStars.classList.add('parallax-stars');
+        document.body.appendChild(parallaxStars);
+
+        for (let i = 0; i < 200; i++) {
+            const star = document.createElement('div');
+            star.classList.add('star');
+            
+            const size = Math.random() * 2 + 1;
+            star.style.width = `${size}px`;
+            star.style.height = `${size}px`;
+            
+            star.style.left = `${Math.random() * 100}%`;
+            star.style.top = `${Math.random() * 100}%`;
+            
+            const opacity = Math.random() * 0.7 + 0.3;
+            star.style.opacity = opacity;
+            
+            const animationDelay = Math.random() * 5;
+            star.style.animationDelay = `${animationDelay}s`;
+            
+            parallaxStars.appendChild(star);
+
+            // Animate star twinkling
+            anime({
+                targets: star,
+                opacity: [
+                    { value: opacity, duration: 0 },
+                    { value: 0.2, duration: 1000 },
+                    { value: opacity, duration: 1000 }
+                ],
+                scale: [
+                    { value: 1, duration: 0 },
+                    { value: 1.2, duration: 1000 },
+                    { value: 1, duration: 1000 }
+                ],
+                loop: true,
+                easing: 'easeInOutQuad',
+                delay: Math.random() * 3000
+            });
+        }
+
+        // Feature card hover effects with Anime.js
+        const featureCards = document.querySelectorAll('.feature-card');
+        
+        featureCards.forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                anime({
+                    targets: card.querySelector('.feature-icon'),
+                    scale: 1.2,
+                    rotate: '5deg',
+                    duration: 300,
+                    easing: 'easeOutElastic(1, .8)'
+                });
+            });
+            
+            card.addEventListener('mouseleave', () => {
+                anime({
+                    targets: card.querySelector('.feature-icon'),
+                    scale: 1,
+                    rotate: '0deg',
+                    duration: 300,
+                    easing: 'easeOutElastic(1, .8)'
+                });
+            });
+        });
+
+        // Button hover effects
+        const buttons = document.querySelectorAll('.get-started, .dive-in');
+        
+        buttons.forEach(button => {
+            button.addEventListener('mouseenter', () => {
+                anime({
+                    targets: button,
+                    scale: 1.05,
+                    duration: 300,
+                    easing: 'easeOutElastic(1, .8)'
+                });
+            });
+            
+            button.addEventListener('mouseleave', () => {
+                anime({
+                    targets: button,
+                    scale: 1,
+                    duration: 300,
+                    easing: 'easeOutElastic(1, .8)'
+                });
+            });
+        });
+    </script>
 </body>
 </html>

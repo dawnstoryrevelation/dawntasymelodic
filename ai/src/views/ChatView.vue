@@ -106,6 +106,7 @@
         </div>
       </div>
       </div>
+      
     </transition>
     
 
@@ -529,6 +530,7 @@ export default {
   setup() {
     // Initialize Firebase services
     const db = getFirestore();
+    const apiKey = import.meta.env.VITE_OPENAI_API_KEY || "";
     const auth = getAuth();
     const useWebSearch = ref(false);
     // Add this near the beginning of your setup function, after initializing Firebase// Add this near the beginning of your setup function, after initializing Firebase
@@ -536,8 +538,11 @@ const messages = ref([]);
 const savedChats = ref([]);
 const showMindMapModal = ref(false);
 const newMindMapTopic = ref("");
+const userId = ref(null);
+const branches = ref([]);
 const mindMapInput = ref(null);
 const mindMapsExpanded = ref(false);
+const isLoadingMindMap = ref(false);
 const savedMindMaps = ref([]);
 const mindMapTitleTyping = ref(false);
 const mindMapTitleDisplayed = ref("");
@@ -551,6 +556,32 @@ const showSelectChatModal = ref(false);
 const openBookLink = () => {
   window.open('https://www.amazon.com/Dawntasy-Circular-Dawn-breathtaking-fantasy-ebook/dp/B0DT74DLY5/', '_blank');
 };
+const processMindMapContent = (content) => {
+    // Extract just the HTML part if there's markdown or other content
+    const htmlMatch = content.match(/<div class=["']mind-map-box["'][\s\S]*?<\/div>/i);
+    
+    if (htmlMatch) {
+      return htmlMatch[0];
+    }
+    
+    // If no matching div found, try to extract any HTML
+    const htmlRegex = /<html[\s\S]*?<\/html>|<body[\s\S]*?<\/body>|<div[\s\S]*?<\/div>/i;
+    const anyHtmlMatch = content.match(htmlRegex);
+    
+    if (anyHtmlMatch) {
+      return `<div class="mind-map-box">${anyHtmlMatch[0]}</div>`;
+    }
+    
+    // If no HTML found, create a basic structure with the raw content
+    return `
+      <div class="mind-map-box">
+        <div class="mind-map-core">${currentMindMap.value.title}</div>
+        <div class="sub-idea" style="top: 30%; left: 75%;" onclick="window.exploreMindMapIdea('Example sub-idea')">Example sub-idea</div>
+        <div class="connection-line" style="width: 100px; height: 2px; top: 50%; left: 55%; transform: rotate(0deg);"></div>
+      </div>
+    `;
+  };
+  
 // Update the onMounted function to persist auth state
 onMounted(() => {
   // Fix for mobile viewport height issues with URL bar
@@ -1227,57 +1258,69 @@ const closeMindMapModal = () => {
 };
 // Update the createMindMap function to support demo mode
 // Update the createMindMap function to support async branch generation
+// Fix for createMindMap function with undefined map error
+// Add this at the beginning of createMindMap function to ensure API key is available
+// Update the createMindMap function to prevent duplication
 const createMindMap = async () => {
   if (!newMindMapTopic.value.trim()) {
     showToastNotification("Please enter a topic for your Mind Map", "error");
     return;
   }
-  
-  if (!userId.value) {
-    // If somehow we don't have a userId, try to enable demo mode
-    enableDemoMode();
-  }
-  
+
   try {
     isLoading.value = true;
-    
-    // Generate branches using AI
     const topic = newMindMapTopic.value.trim();
-    const branches = await generateInitialBranches(topic);
     
-    // Create structured mind map data
+    // Check if API key is available for dynamic branch generation
+    const hasApiKey = apiKey && apiKey.length > 0;
+    let branches = [];
+    
+    if (hasApiKey) {
+      try {
+        branches = await generateInitialBranches(topic);
+        // Ensure branches is an array
+        if (!Array.isArray(branches)) {
+          branches = [];
+        }
+      } catch (branchError) {
+        console.error("Error generating branches:", branchError);
+        branches = generateDemoBranches(topic);
+      }
+    } else {
+      console.log("No API key available, using demo branches");
+      branches = generateDemoBranches(topic);
+    }
+
     const mindMapData = {
       topic: topic,
       timestamp: Date.now(),
-      createdBy: userId.value,
-      branches: branches,
+      createdBy: userId.value || "demo-user",
+      branches: branches.map(branch => {
+        // If branch is already an object with a name property, use it as is
+        if (typeof branch === 'object' && branch !== null && branch.name) {
+          return branch;
+        }
+        // Otherwise, create a new object
+        return { name: String(branch || "Branch"), notes: "", subBranches: [] };
+      }),
       lastModified: Date.now(),
-      isPublic: false
+      isPublic: false,
     };
-    
+
     if (userId.value === "demo-user") {
-      // For demo mode, just add to local state with a random ID
       const demoId = `demo-mindmap-${Date.now()}`;
-      savedMindMaps.value.unshift({
-        id: demoId,
-        ...mindMapData
-      });
+      // Only add to local array for demo mode, don't add it here if using Firebase
+      savedMindMaps.value.unshift({ id: demoId, ...mindMapData });
     } else {
-      // For real users, save to Firebase
+      // For Firebase users, don't add to local array here
+      // as onSnapshot listener will add it automatically
       const mindMapsRef = collection(db, `users/${userId.value}/mindmaps`);
-      const docRef = await addDoc(mindMapsRef, mindMapData);
-      
-      // Add the new mind map to the local state
-      savedMindMaps.value.unshift({
-        id: docRef.id,
-        ...mindMapData
-      });
+      await addDoc(mindMapsRef, mindMapData);
+      // Note: We're NOT adding to savedMindMaps.value here anymore
     }
-    
+
     showToastNotification("Mind Map created successfully", "success");
     closeMindMapModal();
-    
-    // Ensure the mind maps list is expanded to show the new addition
     mindMapsExpanded.value = true;
   } catch (error) {
     console.error("Error creating mind map:", error);
@@ -1286,23 +1329,58 @@ const createMindMap = async () => {
     isLoading.value = false;
   }
 };
+// Add this helper function to extract branch names from various formats
+const extractBranchNames = (branches) => {
+  if (!branches || !Array.isArray(branches)) {
+    return [];
+  }
+  
+  return branches.map(branch => {
+    if (typeof branch === 'string') {
+      return branch;
+    } else if (typeof branch === 'object' && branch !== null) {
+      return branch.name || "Unnamed Branch";
+    } else {
+      return "Unnamed Branch";
+    }
+  });
+};
+
+// Then update this line in createMindMapVisualization function
+// Replace:
+// let branchNames = [];
+// if (branches && branches.length > 0) {
+//   if (typeof branches[0] === 'string') {
+//     branchNames = branches;
+//   } else if (branches[0] && branches[0].name) {
+//     branchNames = branches.map(b => b.name);
+//   }
+// }
+
+// With:
+let branchNames = extractBranchNames(branches);
 
 // Helper function to generate initial branches based on the topic
 // Replace the current generateInitialBranches function with this AI-powered version
 // Improved version with better logging and error handling
-const generateInitialBranches = async (topic) => {
-  console.log(`Generating branches for topic: "${topic}"`);
-
+// In the <script> setup section
+// Fix for the data parsing error in generateInitialBranches
+// Replace the current generateInitialBranches function with this one
+const generateInitialBranches = async (topic, mapId) => {
   try {
-    // Check if API key is available and valid
-    if (!apiKey || apiKey.trim() === "") {
-      console.log("No valid API key available, using fallback branches");
-      return generateDemoBranches(topic);
+    console.log(`Generating AI branches for topic: "${topic}"`);
+    
+    // Prepare the prompt for the AI
+    const prompt = `Create a detailed visual mind map about "${topic}". 
+    Please provide 6-8 branch names that would be directly connected to ${topic}.
+    Return ONLY the branch names in a simple JSON array format like this:
+    ["Branch 1", "Branch 2", "Branch 3", "Branch 4", "Branch 5", "Branch 6"]`;
+    
+    // Make API call to OpenAI
+    if (!apiKey) {
+      throw new Error("API key not configured");
     }
-
-    console.log("Attempting to generate branches via OpenAI API with o3-mini model");
-
-    // Make an API call to OpenAI
+    
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -1310,124 +1388,79 @@ const generateInitialBranches = async (topic) => {
         "Authorization": `Bearer ${apiKey}`
       },
       body: JSON.stringify({
-        model: "o3-mini", // Primary choice: new reasoning model from 2025
+        model: "gpt-3.5-turbo", // Use a more affordable model for this task
         messages: [
-          {
-            role: "system",
-            content: "You are an AI specialized in creating mind maps. For the given topic, generate 5-7 relevant sub-topics. Return only a JSON array of strings, like [\"Subtopic1\", \"Subtopic2\", \"Subtopic3\"], with no extra text or explanation."
-          },
-          {
-            role: "user",
-            content: `Generate relevant mind map branches for the topic: "${topic}"`
-          }
+          { role: "system", content: "You are a mind mapping assistant. Respond only with a JSON array of branches." },
+          { role: "user", content: prompt }
         ],
-        max_tokens: 150
+        temperature: 0.7,
+        max_tokens: 500
       })
     });
-
+    
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error("API error response:", errorText);
-
-      // If model not found or unavailable, try fallback model
-      if (response.status === 404 || response.status === 403) {
-        console.log("o3-mini unavailable, attempting gpt-4o-mini as fallback");
-        const fallbackResponse = await fetch("https://api.openai.com/v1/chat/completions", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${apiKey}`
-          },
-          body: JSON.stringify({
-            model: "gpt-4o-mini", // Fallback model
-            messages: [
-              {
-                role: "system",
-                content: "You are an AI specialized in creating mind maps. For the given topic, generate 5-7 relevant sub-topics. Return only a JSON array of strings, like [\"Subtopic1\", \"Subtopic2\", \"Subtopic3\"], with no extra text or explanation."
-              },
-              {
-                role: "user",
-                content: `Generate relevant mind map branches for the topic: "${topic}"`
-              }
-            ],
-            max_tokens: 150
-          })
-        });
-
-        if (!fallbackResponse.ok) {
-          const fallbackErrorText = await fallbackResponse.text();
-          console.error("Fallback API error response:", fallbackErrorText);
-          throw new Error(`Fallback API error: ${fallbackResponse.status} - ${fallbackErrorText}`);
-        }
-
-        const fallbackData = await fallbackResponse.json();
-        const fallbackContent = fallbackData.choices[0].message.content.trim();
-        console.log("Fallback API content response:", fallbackContent);
-        return parseContent(fallbackContent);
-      }
-
-      throw new Error(`API error: ${response.status} - ${errorText}`);
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(`API error: ${response.status} ${errorData.error?.message || ''}`);
     }
-
-    // Parse the response from o3-mini
+    
     const data = await response.json();
-    console.log("API response data:", data);
-
-    const content = data.choices[0].message.content.trim();
-    console.log("API content response:", content);
-
-    return parseContent(content);
+    const aiResponse = data.choices[0].message.content;
+    
+    // Extract the JSON array from the response
+    // The AI might add explanations, so we need to extract just the array
+    const jsonMatch = aiResponse.match(/\[[\s\S]*\]/);
+    
+    let branches = [];
+    if (jsonMatch) {
+      try {
+        // Try to parse the JSON array
+        const branchNames = JSON.parse(jsonMatch[0]);
+        
+        // Convert string array to proper branch objects
+        branches = branchNames.map(name => ({ 
+          name: name.trim(), 
+          notes: "", 
+          subBranches: [] 
+        }));
+        
+        console.log("Successfully generated AI branches:", branches);
+      } catch (parseError) {
+        console.error("Error parsing AI response:", parseError);
+        throw new Error("Failed to parse AI response");
+      }
+    } else {
+      throw new Error("Could not find valid branch array in AI response");
+    }
+    
+    // If we got no branches, use fallback
+    if (branches.length === 0) {
+      console.log("No branches found in AI response, using fallback");
+      branches = generateDemoBranches(topic);
+    }
+    
+    // Update Firebase if we have a valid mapId
+    if (userId.value && mapId) {
+      try {
+        const mindMapRef = doc(db, `users/${userId.value}/mindmaps/${mapId}`);
+        await updateDoc(mindMapRef, { 
+          branches: branches,
+          lastModified: Date.now()
+        });
+      } catch (dbError) {
+        console.error("Error updating mind map in Firebase:", dbError);
+      }
+    }
+    
+    return branches;
+    
   } catch (error) {
     console.error("Error generating mind map branches:", error);
-    console.log("Using fallback branches due to error");
+    showToastNotification("Using predefined branches due to API error", "info");
+    
+    // Return fallback branches if API fails
     return generateDemoBranches(topic);
   }
 };
-
-// Helper function to parse content and extract branches
-const parseContent = (content) => {
-  let branchNames = [];
-
-  try {
-    // Try parsing as JSON array
-    branchNames = JSON.parse(content);
-    if (!Array.isArray(branchNames)) {
-      throw new Error("Parsed content is not an array");
-    }
-  } catch (e) {
-    console.log("JSON parsing failed, attempting alternative parsing:", e.message);
-    // Fallback: extract array-like content or split text
-    const arrayMatch = content.match(/\[([^\]]+)\]/);
-    if (arrayMatch && arrayMatch[0]) {
-      try {
-        branchNames = JSON.parse(arrayMatch[0]);
-      } catch (e) {
-        console.log("Embedded array parsing failed:", e.message);
-      }
-    }
-
-    // If still no array, split by lines or commas
-    if (!Array.isArray(branchNames)) {
-      branchNames = content
-        .split(/[\n,]/)
-        .map(item => item.trim().replace(/["[\]]/g, "")) // Remove quotes and brackets
-        .filter(item => item && !item.match(/^\d+\.|-/)); // Remove numbered or bulleted prefixes
-    }
-  }
-
-  console.log("Extracted branch names:", branchNames);
-
-  if (!branchNames.length) {
-    throw new Error("No valid branches extracted");
-  }
-
-  return branchNames.map(branch => ({
-    name: branch,
-    notes: "",
-    subBranches: []
-  }));
-};
-
 // Enhanced fallback function with more domain-specific branches
 const generateDemoBranches = (topic) => {
   console.log(`Using demo branches for: "${topic}"`);
@@ -1502,11 +1535,13 @@ const generateDemoBranches = (topic) => {
 };
 // Update the deployMindMap function to better handle click events
 // Update the deployMindMap function to handle AI-generated branches
+// Fix for deployMindMap to ensure proper branches handling
+// Update the deployMindMap function to handle branch formats correctly
 const deployMindMap = async (mindMap, event) => {
-  // Stop event propagation to prevent conflicts with parent click handlers
+  // Stop event propagation to prevent conflicts
   if (event) event.stopPropagation();
   
-  if (!mindMap || !userId.value) {
+  if (!mindMap) {
     showToastNotification("Cannot deploy mind map: Missing data", "error");
     return;
   }
@@ -1522,24 +1557,53 @@ const deployMindMap = async (mindMap, event) => {
     // Load D3.js if not already loaded
     await loadD3();
     
-    // Check if the mind map has branches
-    let branches = mindMap.branches;
+    // Ensure mindMap has branches and they're in a valid format
+    let branches = [];
     
-    // If no branches exist or they're invalid, generate them using AI
-    if (!branches || !Array.isArray(branches) || branches.length === 0) {
-      branches = await generateInitialBranches(mindMap.topic);
-      
-      // Update the mindMap object
-      mindMap.branches = branches;
-      
-      // Save the updated mind map to Firebase
-      if (userId.value !== "demo-user") {
-        const mindMapRef = doc(db, `users/${userId.value}/mindmaps/${mindMap.id}`);
-        await updateDoc(mindMapRef, { branches: branches, lastModified: Date.now() });
+    if (mindMap.branches && Array.isArray(mindMap.branches)) {
+      // Convert branches to the correct format if needed
+      branches = mindMap.branches.map(branch => {
+        // If branch is just a string, convert to object format
+        if (typeof branch === 'string') {
+          return { name: branch, notes: "", subBranches: [] };
+        }
+        // If branch is already an object but missing properties
+        if (typeof branch === 'object') {
+          return {
+            name: branch.name || "Unnamed Branch",
+            notes: branch.notes || "",
+            subBranches: branch.subBranches || []
+          };
+        }
+        return branch;
+      });
+    } else {
+      // Generate branches if none exist
+      try {
+        branches = await generateInitialBranches(mindMap.topic, mindMap.id);
+        
+        // Update the mindMap object
+        mindMap.branches = branches;
+        
+        // Save to Firebase only if not in demo mode and we have a valid ID
+        if (userId.value !== "demo-user" && mindMap.id) {
+          try {
+            const mindMapRef = doc(db, `users/${userId.value}/mindmaps/${mindMap.id}`);
+            await updateDoc(mindMapRef, { 
+              branches: branches, 
+              lastModified: Date.now() 
+            });
+          } catch (updateError) {
+            console.error("Error updating mind map branches:", updateError);
+          }
+        }
+      } catch (error) {
+        console.error("Error generating branches:", error);
+        branches = generateDemoBranches(mindMap.topic);
       }
     }
     
-    // Simulate loading time with a nice animation
+    // Simulate loading with animation
     setTimeout(async () => {
       isDeployingMindMap.value = false;
       mindMapVisualization.value = true;
@@ -1553,7 +1617,6 @@ const deployMindMap = async (mindMap, event) => {
     showDeployMindMapModal.value = false;
   }
 };
-
 // Update the deleteMindMap function to handle events
 const toggleWebSearch = () => {
   useWebSearch.value = !useWebSearch.value;
@@ -1790,7 +1853,7 @@ onMounted(async () => {
     const showDeleteConfirm = ref(false);
     const chatToDelete = ref(null);
     const isAuthenticated = ref(false);
-    const userId = ref(null);
+ 
 
     // User Profile
     const userProfilePic = ref("https://via.placeholder.com/40");
@@ -1810,7 +1873,7 @@ onMounted(async () => {
     const inputField = ref(null);
     
     // Get OpenAI API key from environment variables or use a placeholder
-    const apiKey = import.meta.env.VITE_OPENAI_API_KEY || "";
+ 
 
     // Self-Optimization State
     const showReasoningModal = ref(false);
@@ -5162,6 +5225,34 @@ const contextualMemory = reactive({
   showDeployMindMapModal,
   isDeployingMindMap,
   mindMapVisualization,
+  isSidebarOpen,
+  savedChats,
+  currentChatId,
+  messages,
+  showNewChatPopup,
+  newChatName,
+  showDeleteConfirm,
+  showMindMapModal,
+  newMindMapTopic,
+  mindMapTitleTyping,
+  mindMapTitleDisplayed,
+  mindMapsExpanded,
+  savedMindMaps,
+  showDeployMindMapModal,
+  isDeployingMindMap,
+  mindMapVisualization,
+  showSelectChatModal,
+  selectedMindMap,
+  selectedBranch,
+  mindMapContainer,
+  mindMapInput,
+  branches, // Add this line
+  closeMindMapModal,
+  createMindMap,
+  toggleMindMapsExpanded,
+  deployMindMap,
+  deleteMindMap,
+  deployBranchToChat,
   showSelectChatModal,
   selectedMindMap,
   selectedBranch,
@@ -5254,14 +5345,57 @@ const contextualMemory = reactive({
   --image-color: #4caf50;
 }
 
-.sidebar {
-  flex: 0 0 280px;
-  background: var(--bg-sidebar);
-  display: flex;
-  flex-direction: column;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  z-index: 10;
-  border-right: 1px solid rgba(255, 255, 255, 0.05);
+/* Update these CSS rules for better mobile sidebar experience */
+@media (max-width: 768px) {
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 75%; /* Increase from default to use 3/4 of screen */
+    height: 100%;
+    z-index: 100;
+    flex: none;
+    transform: translateX(-100%);
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+  }
+  
+  /* Add overlay for tapping outside to close */
+  .modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 99;
+    display: none;
+  }
+  
+  .modal-backdrop.active {
+    display: block;
+  }
+  
+  /* Improve spacing for mobile */
+  .chat-entry, .mind-map-entry {
+    padding: 14px;
+    margin-bottom: 8px;
+  }
+  
+  .chat-name, .mind-map-name {
+    font-size: 15px;
+  }
+  
+  .chat-time, .mind-map-time {
+    font-size: 13px;
+  }
+  
+  .chat-actions, .mind-map-actions {
+    gap: 10px;
+  }
+  
+  .delete-button, .share-button, .deploy-button {
+    padding: 6px;
+  }
 }
 
 .chat-container {
