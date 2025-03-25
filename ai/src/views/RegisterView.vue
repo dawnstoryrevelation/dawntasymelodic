@@ -113,7 +113,7 @@ const register = async () => {
     console.log("🎉 Cosmic registration successful!", user);
 
     // Redirect to the onboarding page
-    window.location.href = 'https://ai.dawntasy.com/onboarding';
+    window.location.href = 'https://ai.dawntasy.com/chat';
   } catch (err) {
     console.error("Registration error:", err);
     // Handle errors based on error codes with detailed logging

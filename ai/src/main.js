@@ -105,8 +105,6 @@ async function initApp() {
     }
   }
 }
-// Add this to your main.js or near the top of your application to check for environment variables
-
 // Environment variable check
 function checkEnvVariables() {
   const requiredVars = [
@@ -139,8 +137,210 @@ function checkEnvVariables() {
     console.log('✅ All environment variables are present');
   }
 }
+// Search query detection and handling
+document.addEventListener('DOMContentLoaded', function() {
+  // Query detection with Natural Language Processing patterns
+  function isSearchQuery(text) {
+    // Advanced detection for search patterns
+    const searchPhrases = [
+      // Question patterns
+      /^what\s+(?:is|are|was|were)/i,
+      /^how\s+(?:to|do|does|can|could|would|should)/i,
+      /^why\s+(?:is|are|does|do|can't|won't|didn't)/i,
+      /^when\s+(?:is|was|will|did|does|do)/i,
+      /^where\s+(?:is|are|can|could|would|should)/i,
+      /^who\s+(?:is|are|was|were|will)/i,
+      /^which\s+(?:is|are|one|type|kind)/i,
+      
+      // Information seeking patterns
+      /^(?:tell|explain|describe|elaborate)\s+(?:me|us)?\s+(?:about|on)/i,
+      /^(?:find|search|look|get|fetch)\s+(?:for|me)?\s+(?:information|data|details)/i,
+      
+      // Ends with question mark (weighted)
+      /\?\s*$/
+    ];
+    
+    return searchPhrases.some(pattern => pattern.test(text)) || text.split(/\s+/).length > 6;
+  }
+  
+  // Intercept send button click to handle search queries
+  const sendButton = document.querySelector('.send-button');
+  const messageInput = document.querySelector('.message-input');
+  
+  if (sendButton && messageInput) {
+    // Preserve original click handler if it exists
+    const originalClickHandler = sendButton.onclick;
+    
+    sendButton.addEventListener('click', async function(e) {
+      const message = messageInput.value.trim();
+      
+      if (isSearchQuery(message)) {
+        e.preventDefault(); // Prevent default send behavior
+        
+        // Add user message to chat
+        addMessageToChat(message, 'user');
+        
+        // Clear input
+        messageInput.value = '';
+        
+        // Show typing indicator
+        showTypingIndicator("Searching the web for you...");
+        
+        try {
+          // Call our backend API that uses OpenAI search
+          const response = await fetch('/api/search', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ query: message })
+          });
+          
+          if (!response.ok) {
+            throw new Error('Search request failed');
+          }
+          
+          const data = await response.json();
+          hideTypingIndicator();
+          
+          // Format the response with the content and sources
+          const formattedResponse = formatSearchResponse(data);
+          addMessageToChat(formattedResponse, 'assistant');
+        } catch (error) {
+          console.error('Search error:', error);
+          hideTypingIndicator();
+          addMessageToChat("I'm sorry, I encountered an error while searching the web. Please try again later.", 'assistant');
+        }
+      } else if (originalClickHandler) {
+        // If not a search query, use original handler
+        originalClickHandler(e);
+      }
+    });
+  }
+  
+  // Format search response with citations
+  function formatSearchResponse(data) {
+    const { content, sources } = data;
+    
+    // If no sources found, just return the content
+    if (!sources || sources.length === 0) {
+      return content;
+    }
+    
+    // Format with sources section
+    return `${content}
 
-// Run the check
+<div class="sources-section">
+  <h4>Search Results:</h4>
+  <div class="sources-list">
+    ${sources.map((source, index) => `
+      <div class="source-item">
+        <span class="source-num">[${index + 1}]</span>
+        <a href="${source.url}" class="source-link" target="_blank">${source.title || source.url}</a>
+      </div>
+    `).join('')}
+  </div>
+</div>`;
+  }
+  
+  // Add message to chat (reused from previous code)
+  function addMessageToChat(content, sender) {
+    const messagesArea = document.querySelector('.messages-area');
+    if (!messagesArea) return;
+    
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message ${sender}`;
+    
+    const messageHeader = document.createElement('div');
+    messageHeader.className = `message-header ${sender}`;
+    messageHeader.textContent = sender === 'user' ? 'You' : 'Assistant';
+    
+    const messageContent = document.createElement('div');
+    messageContent.className = 'message-content';
+    messageContent.innerHTML = content;
+    
+    const messageTime = document.createElement('div');
+    messageTime.className = 'message-time';
+    messageTime.textContent = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+    
+    messageDiv.appendChild(messageHeader);
+    messageDiv.appendChild(messageContent);
+    messageDiv.appendChild(messageTime);
+    messagesArea.appendChild(messageDiv);
+    
+    // Scroll to bottom
+    messagesArea.scrollTop = messagesArea.scrollHeight;
+  }
+  
+  // Show typing indicator
+  function showTypingIndicator(message) {
+    const messagesArea = document.querySelector('.messages-area');
+    if (!messagesArea) return;
+    
+    const loadingDiv = document.createElement('div');
+    loadingDiv.className = 'loading-indicator';
+    loadingDiv.id = 'typing-indicator';
+    
+    loadingDiv.innerHTML = `
+      <div class="spinner">
+        <svg class="spinner-svg" viewBox="0 0 50 50">
+          <circle class="spinner-path" cx="25" cy="25" r="20" fill="none" stroke-width="4"></circle>
+        </svg>
+      </div>
+      <div class="thinking-text">${message || 'Thinking...'}</div>
+    `;
+    
+    messagesArea.appendChild(loadingDiv);
+    messagesArea.scrollTop = messagesArea.scrollHeight;
+  }
+  
+  // Hide typing indicator
+  function hideTypingIndicator() {
+    const indicator = document.getElementById('typing-indicator');
+    if (indicator) {
+      indicator.remove();
+    }
+  }
+});
+
+// Run the check for environment variables
 checkEnvVariables();
 
 initApp();
+
+// Sidebar toggle and modal backdrop handling
+document.addEventListener('DOMContentLoaded', function() {
+  const sidebarToggle = document.querySelector('.sidebar-toggle');
+  const sidebar = document.querySelector('.sidebar');
+  const modalBackdrop = document.createElement('div');
+  modalBackdrop.className = 'modal-backdrop';
+  document.body.appendChild(modalBackdrop);
+  
+  // Toggle sidebar if sidebarToggle exists
+  if (sidebarToggle && sidebar) {
+    sidebarToggle.addEventListener('click', function() {
+      sidebar.style.transform = sidebar.style.transform === 'translateX(0px)'
+        ? 'translateX(-100%)'
+        : 'translateX(0px)';
+      modalBackdrop.classList.toggle('active');
+    });
+  }
+  
+  // Close sidebar when clicking outside
+  modalBackdrop.addEventListener('click', function() {
+    if (sidebar) {
+      sidebar.style.transform = 'translateX(-100%)';
+    }
+    modalBackdrop.classList.remove('active');
+  });
+  
+  // Handle window resize
+  window.addEventListener('resize', function() {
+    if (window.innerWidth > 768) {
+      if (sidebar) {
+        sidebar.style.transform = '';
+      }
+      modalBackdrop.classList.remove('active');
+    }
+  });
+});

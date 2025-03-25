@@ -13,7 +13,8 @@
     "lint:fix": "eslint . --ext .vue,.js,.ts --fix",
     "deploy": "npm run build && firebase deploy",
     "functions:lint": "cd functions && npm run lint",
-    "functions:deploy": "firebase deploy --only \"functions\""
+    "functions:deploy": "firebase deploy --only \"functions\"",
+    "start": "node server.js"
   },
   "dependencies": {
     "@fortawesome/fontawesome-free": "^6.7.2",
@@ -75,5 +76,10 @@
   },
   "engines": {
     "node": "18"
-  }
+  },
+  "main": "babel.config.js",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": ""
 }

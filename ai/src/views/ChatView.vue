@@ -1,6 +1,5 @@
 <template>
   <div class="main-container">
-    <!-- Sidebar for Saved Chats -->
     <transition name="slide">
       <div class="sidebar" v-show="isSidebarOpen">
         <button class="create-chat-button" @click="showNewChatPopup = true">
@@ -41,6 +40,7 @@
                   <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
                 </svg>
               </button>
+            </div>
           </div>
         </div>
         
@@ -59,43 +59,43 @@
             <span class="expand-icon" :class="{ expanded: mindMapsExpanded }">▶</span>
           </div>
           <div v-if="mindMapsExpanded" class="mind-maps-list">
-  <div
-    v-for="mindMap in savedMindMaps"
-    :key="mindMap.id"
-    class="mind-map-entry"
-    @click="deployMindMap(mindMap, $event)"
-  >
-    <div class="mind-map-info">
-      <span class="mind-map-name">{{ mindMap.topic }}</span>
-      <span class="mind-map-time">{{ formatTime(mindMap.timestamp) }}</span>
-    </div>
-    <div class="mind-map-actions">
-      <button
-        class="deploy-button"
-        @click.stop="deployMindMap(mindMap, $event)"
-        title="Deploy Mind Map"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path>
-          <polyline points="16 6 12 2 8 6"></polyline>
-          <line x1="12" y1="2" x2="12" y2="15"></line>
-        </svg>
-      </button>
-      <button
-        class="delete-button"
-        @click.stop="deleteMindMap(mindMap.id, $event)"
-        title="Delete Mind Map"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2M10 11v6M14 11v6" />
-        </svg>
-      </button>
-    </div>
-  </div>
-  <div v-if="savedMindMaps.length === 0" class="no-mind-maps">
-    No mind maps saved yet
-  </div>
-</div>
+            <div
+              v-for="mindMap in savedMindMaps"
+              :key="mindMap.id"
+              class="mind-map-entry"
+              @click="deployMindMap(mindMap, $event)"
+            >
+              <div class="mind-map-info">
+                <span class="mind-map-name">{{ mindMap.topic }}</span>
+                <span class="mind-map-time">{{ formatTime(mindMap.timestamp) }}</span>
+              </div>
+              <div class="mind-map-actions">
+                <button
+                  class="deploy-button"
+                  @click.stop="deployMindMap(mindMap, $event)"
+                  title="Deploy Mind Map"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path>
+                    <polyline points="16 6 12 2 8 6"></polyline>
+                    <line x1="12" y1="2" x2="12" y2="15"></line>
+                  </svg>
+                </button>
+                <button
+                  class="delete-button"
+                  @click.stop="deleteMindMap(mindMap.id, $event)"
+                  title="Delete Mind Map"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2M10 11v6M14 11v6" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+            <div v-if="savedMindMaps.length === 0" class="no-mind-maps">
+              No mind maps saved yet
+            </div>
+          </div>
         </div>
 
         <!-- Logo moved to the bottom -->
@@ -105,10 +105,7 @@
           </span>
         </div>
       </div>
-      </div>
-      
     </transition>
-    
 
     <!-- Main Chat Area -->
     <div class="chat-container">
@@ -117,31 +114,42 @@
           <span class="sidebar-toggle-icon"></span>
         </button>
         <button class="settings-button" @click="goToSettings">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M12 15a3 3 0 100-6 3 3 0 000 6z" />
-                  <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z" />
-                </svg>
-              </button>
-              <!-- Create Mind Map Button (new) -->
-              <button class="create-mind-map-button" @click="showMindMapModal = true">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
-                  <circle cx="12" cy="12" r="10"/>
-                  <path d="M12 8v8M8 12h8"/>
-                  <path d="M17 8a5 5 0 0 0-10 0"/>
-                  <path d="M7 16a5 5 0 0 0 10 0"/>
-                </svg>
-                Create Mind Map
-              </button>
-              <div class="chat-header">
-  <h1>{{ currentChat?.name || "New Chat" }}</h1>
-  <div class="header-actions">
-    <a href="https://www.amazon.com/Dawntasy-Circular-Dawn-breathtaking-fantasy-ebook/dp/B0DT74DLY5/" target="_blank" class="buy-book-button subtle">
-      <span class="book-icon">📚</span>
-      Support Me by Buying the Book
-    </a>
-  </div>
-</div>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 15a3 3 0 100-6 3 3 0 000 6z" />
+            <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z" />
+          </svg>
+        </button>
+        <!-- Create Mind Map Button (new) -->
+        <button class="create-mind-map-button" @click="showMindMapModal = true">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M12 8v8M8 12h8"/>
+            <path d="M17 8a5 5 0 0 0-10 0"/>
+            <path d="M7 16a5 5 0 0 0 10 0"/>
+          </svg>
+          Create Mind Map
+        </button>
+        <!-- Add this after the "Create Mind Map" button -->
+        <button class="journal-button" @click="showJournalModal = true">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+            <polyline points="14 2 14 8 20 8" />
+            <line x1="16" y1="13" x2="8" y2="13" />
+            <line x1="16" y1="17" x2="8" y2="17" />
+            <polyline points="10 9 9 9 8 9" />
+          </svg>
+          <span class="journal-button-text">Journal</span>
+        </button>
+        <div class="chat-header">
+          <h1>{{ currentChat?.name || "New Chat" }}</h1>
+          <div class="header-actions">
+            <a href="https://www.amazon.com/Dawntasy-Circular-Dawn-breathtaking-fantasy-ebook/dp/B0DT74DLY5/" target="_blank" class="buy-book-button subtle">
+              <span class="book-icon">📚</span>
+              Support Me by Buying the Book
+            </a>
           </div>
+        </div>
+      </div>
       <!-- Chat Interface -->
       <div class="chat-interface">
         <div class="messages-area" ref="messagesContainer">
@@ -159,7 +167,16 @@
               </button>
             </div>
           </div>
-
+          <div
+  v-for="(message, index) in messages"
+  :key="index"
+  class="message"
+  :class="message.role"
+>
+  <!-- Add Senticon component -->
+  <div class="message-avatar" v-if="message.role === 'assistant'">
+    <Senticon :mood="getSenticonMood(message)" />
+  </div>
           <div
             v-for="(message, index) in messages"
             :key="index"
@@ -167,9 +184,7 @@
             :class="message.role"
           >
             <div class="message-header" :class="message.role">
-              <strong>{{
-                message.role === "user" ? "You" : "DawntasyAI"
-              }}</strong>
+              <strong>{{ message.role === "user" ? "You" : "DawntasyAI" }}</strong>
             </div>
             <div
               v-if="message.role === 'assistant' && message.isStreaming"
@@ -232,15 +247,16 @@
             <div class="message-time">{{ formatTime(message.timestamp) }}</div>
           </div>
 
+          <!-- Replace the existing loading indicator with this enhanced version -->
           <div v-if="isLoading && !isStreaming" class="loading-indicator">
             <div class="spinner">
               <svg class="spinner-svg" viewBox="0 0 50 50">
                 <circle class="spinner-path" cx="25" cy="25" r="20" fill="none" stroke-width="4"></circle>
               </svg>
             </div>
-            <div class="thinking-text">{{ isThinkingDeeper ? "Thinking deeply..." : "Thinking..." }}</div>
+            <div class="thinking-text">{{ thinkingText }}</div>
           </div>
-        </div>
+        </div> <!-- End of messages-area -->
 
         <div class="mode-selector">
           <div class="mode-select-container">
@@ -341,21 +357,21 @@
               <span v-if="isRecording" class="recording-indicator">Recording</span>
             </div>
             <button
-  class="mode-toggle-button multimodal-response-button"
-  @click="getMultimodalResponse"
-  title="Get multimodal response"
->
-  <span class="toggle-icon">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
-      <path d="M10 3H3v7h7V3z"/>
-      <path d="M21 3h-7v7h7V3z"/>
-      <path d="M21 14h-7v7h7v-7z"/>
-      <path d="M10 14H3v7h7v-7z"/>
-      <line x1="12" y1="8" x2="12" y2="16"/>
-      <line x1="8" y1="12" x2="16" y2="12"/>
-    </svg>
-  </span>
-</button>
+              class="mode-toggle-button multimodal-response-button"
+              @click="getMultimodalResponse"
+              title="Get multimodal response"
+            >
+              <span class="toggle-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M10 3H3v7h7V3z"/>
+                  <path d="M21 3h-7v7h7V3z"/>
+                  <path d="M21 14h-7v7h7v-7z"/>
+                  <path d="M10 14H3v7h7v-7z"/>
+                  <line x1="12" y1="8" x2="12" y2="16"/>
+                  <line x1="8" y1="12" x2="16" y2="12"/>
+                </svg>
+              </span>
+            </button>
           </div>
         </div>
 
@@ -513,17 +529,428 @@
         </div>
       </div>
     </div>
+
+    <!-- Journal Modal -->
+    <div v-if="showJournalModal" class="modal-overlay">
+      <div class="journal-modal">
+        <div class="journal-header">
+          <div class="journal-title">
+            <h3>My Journal</h3>
+          </div>
+          <div class="journal-actions">
+            <button class="journal-action-btn" @click="generateJournalReport" title="Generate Report">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                <path d="M14 2v6h6" />
+                <path d="M16 13H8" />
+                <path d="M16 17H8" />
+                <path d="M10 9H8" />
+              </svg>
+              <span>Report</span>
+            </button>
+            <button class="modal-close-btn" @click="closeJournalModal">&times;</button>
+            <button class="insights-button" @click="generateJournalInsights" title="Generate Insights">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21.21 15.89A10 10 0 1 1 8 2.83" />
+                <path d="M22 12A10 10 0 0 0 12 2v10z" />
+              </svg>
+              <span>Insights</span>
+            </button>
+          </div>
+        </div>
+        <div class="journal-container">
+          <div class="journal-sidebar">
+            <div class="journal-search">
+              <input
+                type="text"
+                v-model="journalSearch"
+                placeholder="Search logs..."
+                @input="searchJournalLogs"
+              />
+            </div>
+            <div class="journal-logs-header">
+              <h4>My Logs</h4>
+              <button class="new-log-btn" @click="createNewLog">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 5v14M5 12h14" />
+                </svg>
+                <span>New Log</span>
+              </button>
+            </div>
+            <div class="journal-logs-list">
+              <div
+                v-for="log in filteredJournalLogs"
+                :key="log.id"
+                class="journal-log-item"
+                :class="{ active: currentLogId === log.id }"
+                @click="openJournalLog(log.id)"
+              >
+                <div class="log-info">
+                  <span class="log-title">{{ log.title }}</span>
+                  <span class="log-time">{{ formatTime(log.lastEdited) }}</span>
+                </div>
+                <div class="log-actions">
+                  <button
+                    class="log-action-btn rename-btn"
+                    @click.stop="startRenameLog(log)"
+                    title="Rename"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z" />
+                    </svg>
+                  </button>
+                  <button
+                    class="log-action-btn delete-btn"
+                    @click.stop="confirmDeleteLog(log.id)"
+                    title="Delete"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+              <div v-if="filteredJournalLogs.length === 0" class="no-logs-message">
+                No logs found. Create a new log to get started.
+              </div>
+            </div>
+          </div>
+          
+          <div class="journal-content" v-if="currentLog">
+            <div class="journal-toolbar">
+              <div class="formatting-tools">
+                <button class="format-btn" @click="formatText('bold')" title="Bold">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M6 4h8a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6zM6 12h9a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z" />
+                  </svg>
+                </button>
+                <button class="format-btn" @click="formatText('italic')" title="Italic">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="19" y1="4" x2="10" y2="4" />
+                    <line x1="14" y1="20" x2="5" y2="20" />
+                    <line x1="15" y1="4" x2="9" y2="20" />
+                  </svg>
+                </button>
+                <button class="format-btn" @click="formatText('underline')" title="Underline">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M6 3v7a6 6 0 0 0 6 6 6 6 0 0 0 6-6V3" />
+                    <line x1="4" y1="21" x2="20" y2="21" />
+                  </svg>
+                </button>
+                <select class="heading-select" @change="applyHeading($event)">
+                  <option value="">Normal Text</option>
+                  <option value="h1">Heading 1</option>
+                  <option value="h2">Heading 2</option>
+                  <option value="h3">Heading 3</option>
+                </select>
+              </div>
+              <div class="ai-tools">
+                <button class="ai-tool-btn" @click="showAiToolModal('write')" title="AI Write">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#3b82f6" stroke-width="2">
+                    <path d="M12 19l7-7 3 3-7 7-3-3z" />
+                    <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z" />
+                    <path d="M2 2l7.586 7.586" />
+                    <path d="M11 11l5 5" />
+                  </svg>
+                  <span>Write</span>
+                </button>
+                <button class="ai-tool-btn" @click="showAiToolModal('summarize')" title="AI Summarize">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#3b82f6" stroke-width="2">
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                    <line x1="8" y1="12" x2="16" y2="12" />
+                    <line x1="8" y1="8" x2="16" y2="8" />
+                    <line x1="8" y1="16" x2="12" y2="16" />
+                  </svg>
+                  <span>Summarize</span>
+                </button>
+                <button class="ai-tool-btn" @click="showAiToolModal('respond')" title="AI Respond">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#3b82f6" stroke-width="2">
+                    <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+                  </svg>
+                  <span>Respond</span>
+                </button>
+                <button class="ai-tool-btn" @click="showAiToolModal('inspire')" title="AI Inspire">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#3b82f6" stroke-width="2">
+                    <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
+                  </svg>
+                  <span>Inspire</span>
+                </button>
+                <button class="ai-tool-btn" @click="showAiToolModal('edit')" title="AI Edit">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#3b82f6" stroke-width="2">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                  </svg>
+                  <span>Edit</span>
+                </button>
+                <button class="ai-tool-btn fetch-btn" @click="fetchFromChatHistory" title="Fetch from Chat">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#3b82f6" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <path d="M8 14s1.5 2 4 2 4-2 4-2"/>
+                    <path d="M9 9h.01"/>
+                    <path d="M15 9h.01"/>
+                    <path d="M12 2v2"/>
+                    <path d="M4.93 4.93l1.41 1.41"/>
+                    <path d="M19.07 4.93l-1.41 1.41"/>
+                  </svg>
+                  <span>Fetch</span>
+                </button>
+                <div class="proactive-ai-toggle">
+                  <label class="toggle-switch">
+                    <input type="checkbox" v-model="proactiveAIEnabled" @change="handleProactiveAIToggle">
+                    <span class="toggle-slider"></span>
+                  </label>
+                  <span class="toggle-label">Proactive AI</span>
+                </div>
+              </div>
+            </div>
+            <div 
+              class="journal-editor" 
+              contenteditable="true" 
+              ref="journalEditor"
+              @input="saveJournalContent"
+              v-html="currentLog.content"
+            ></div>
+            <div class="journal-status">
+              <span>Last edited: {{ formatTime(currentLog.lastEdited) }}</span>
+              <span v-if="journalSaving">Saving...</span>
+              <span v-else-if="journalSaved">Saved</span>
+            </div>
+          </div>
+          <div class="journal-empty" v-else>
+            <div class="empty-state">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                <polyline points="14 2 14 8 20 8" />
+                <line x1="16" y1="13" x2="8" y2="13" />
+                <line x1="16" y1="17" x2="8" y2="17" />
+                <polyline points="10 9 9 9 8 9" />
+              </svg>
+              <h3>No Log Selected</h3>
+              <p>Create a new log or select an existing one to start journaling.</p>
+              <button class="btn-primary" @click="createNewLog">Create New Log</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- AI Tool Input Modal -->
+    <div v-if="showAiToolInputModal" class="modal-overlay">
+      <div class="ai-tool-modal">
+        <div class="modal-header">
+          <h3>{{ aiToolTitle }}</h3>
+          <button class="modal-close-btn" @click="closeAiToolModal">&times;</button>
+        </div>
+        <div class="ai-tool-content">
+          <p>{{ aiToolDescription }}</p>
+          <textarea 
+            v-if="currentAiTool !== 'inspire'" 
+            v-model="aiToolInput" 
+            :placeholder="aiToolPlaceholder"
+            class="ai-tool-input"
+          ></textarea>
+          <div class="popup-buttons">
+            <button class="btn-primary" @click="processAiTool">Submit</button>
+            <button class="btn-secondary" @click="closeAiToolModal">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Rename Log Modal -->
+    <div v-if="showRenameLogModal" class="modal-overlay">
+      <div class="rename-log-modal">
+        <div class="modal-header">
+          <h3>Rename Log</h3>
+          <button class="modal-close-btn" @click="showRenameLogModal = false">&times;</button>
+        </div>
+        <div class="rename-log-content">
+          <input 
+            v-model="newLogTitle" 
+            placeholder="Enter log title" 
+            @keydown.enter="confirmRenameLog"
+            ref="renameLogInput"
+            autofocus
+          />
+          <div class="popup-buttons">
+            <button class="btn-primary" @click="confirmRenameLog">Rename</button>
+            <button class="btn-secondary" @click="showRenameLogModal = false">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Select Log for Message Modal -->
+    <div v-if="showSelectLogModal" class="modal-overlay">
+      <div class="select-log-modal">
+        <div class="modal-header">
+          <h3>Save to Journal</h3>
+          <button class="modal-close-btn" @click="closeSelectLogModal">&times;</button>
+        </div>
+        <div class="select-log-content">
+          <p>Select a log or create a new one:</p>
+          <div class="select-log-list">
+            <div
+              v-for="log in journalLogs"
+              :key="log.id"
+              class="select-log-item"
+              @click="selectLogForMessage(log.id)"
+            >
+              <span class="log-title">{{ log.title }}</span>
+              <span class="log-time">{{ formatTime(log.lastEdited) }}</span>
+            </div>
+          </div>
+          <div class="new-log-section">
+            <input 
+              v-model="newMessageLogTitle" 
+              placeholder="New log title" 
+              @keydown.enter="createAndSelectLog"
+            />
+            <button class="btn-primary" @click="createAndSelectLog">Create & Select</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Delete Log Confirmation Modal -->
+    <div v-if="showDeleteLogModal" class="modal-overlay">
+      <div class="confirmation-dialog">
+        <div class="modal-header">
+          <h3>Delete Log</h3>
+          <button class="modal-close-btn" @click="showDeleteLogModal = false">&times;</button>
+        </div>
+        <p>Are you sure you want to delete this log? This action cannot be undone.</p>
+        <div class="popup-buttons">
+          <button class="btn-danger" @click="confirmDeleteLog">Delete</button>
+          <button class="btn-secondary" @click="showDeleteLogModal = false">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Smart Journal Insights Modal -->
+    <div v-if="showInsightsModal" class="modal-overlay">
+      <div class="insights-modal">
+        <div class="modal-header">
+          <h3>Journal Insights</h3>
+          <button class="modal-close-btn" @click="showInsightsModal = false">&times;</button>
+        </div>
+        <div class="insights-content">
+          <div v-if="insightsLoading" class="insights-loading">
+            <div class="spinner">
+              <svg class="spinner-svg" viewBox="0 0 50 50">
+                <circle class="spinner-path" cx="25" cy="25" r="20" fill="none" stroke-width="4"></circle>
+              </svg>
+            </div>
+            <p>Analyzing your journal entries...</p>
+          </div>
+          <div v-else class="insights-container">
+            <div class="insights-section mood-section">
+              <h4>Mood Analysis</h4>
+              <div class="mood-average">
+                <div class="mood-score">{{ journalInsights.mood.average.toFixed(1) }}</div>
+                <div class="mood-label">Average Mood</div>
+              </div>
+              <div class="mood-timeline">
+                <div v-for="(entry, index) in journalInsights.mood.entries" :key="index" class="mood-entry">
+                  <div class="mood-entry-score" :style="{
+                    height: entry.score * 10 + '%',
+                    backgroundColor: getMoodColor(entry.score)
+                  }" :title="`${entry.date}: ${entry.score}/10`"></div>
+                  <div class="mood-entry-date">{{ formatShortDate(entry.date) }}</div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="insights-section topics-section">
+              <h4>Top Topics</h4>
+              <div class="topics-list">
+                <div v-for="(topic, index) in journalInsights.topics" :key="index" class="topic-item">
+                  <div class="topic-name">{{ topic.name }}</div>
+                  <div class="topic-bar-container">
+                    <div class="topic-bar" :style="{
+                      width: (topic.frequency / getMaxTopicFrequency()) * 100 + '%'
+                    }"></div>
+                    <span class="topic-frequency">{{ topic.frequency }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="insights-section growth-section">
+              <h4>Personal Growth</h4>
+              <div class="growth-score-container">
+                <div class="growth-progress-bar" :style="{
+                  width: (journalInsights.growth.score / 10) * 100 + '%'
+                }"></div>
+                <div class="growth-score">{{ journalInsights.growth.score }}/10</div>
+              </div>
+              <div class="growth-areas">
+                <div class="growth-progress">
+                  <h5>Progress Areas</h5>
+                  <ul>
+                    <li v-for="(area, index) in journalInsights.growth.progress" :key="index">
+                      {{ area }}
+                    </li>
+                  </ul>
+                </div>
+                <div class="growth-struggles">
+                  <h5>Challenges</h5>
+                  <ul>
+                    <li v-for="(area, index) in journalInsights.growth.struggles" :key="index">
+                      {{ area }}
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+            
+            <div class="insights-section streaks-section">
+              <h4>Journaling Streaks</h4>
+              <div class="streaks-container">
+                <div class="streak-box">
+                  <div class="streak-value">{{ journalInsights.streaks.current }}</div>
+                  <div class="streak-label">Current Streak</div>
+                </div>
+                <div class="streak-box">
+                  <div class="streak-value">{{ journalInsights.streaks.longest }}</div>
+                  <div class="streak-label">Longest Streak</div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="insights-section recommendations-section">
+              <h4>Personalized Recommendations</h4>
+              <ul class="recommendations-list">
+                <li v-for="(rec, index) in journalInsights.recommendations" :key="index">
+                  {{ rec }}
+                </li>
+              </ul>
+            </div>
+            
+            <div class="insights-section patterns-section">
+              <h4>Notable Patterns</h4>
+              <ul class="patterns-list">
+                <li v-for="(pattern, index) in journalInsights.patterns" :key="index">
+                  {{ pattern }}
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
 import { ref, computed, onMounted, watch, nextTick, reactive } from "vue";
 import { format } from "date-fns";
-import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, getDocs, query, orderBy, getDoc, updateDoc, } from "firebase/firestore";
+import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, getDocs, query, orderBy, getDoc, updateDoc, setDoc } from "firebase/firestore";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { SelfOptimizationService } from '@/services/selfOptimization';
 import { useRouter } from 'vue-router';
-
+import { onUnmounted } from 'vue';
 
 export default {
   name: "DawntasyChat",
@@ -540,8 +967,50 @@ const showMindMapModal = ref(false);
 const newMindMapTopic = ref("");
 const userId = ref(null);
 const branches = ref([]);
+// Journal State Variables
+const showJournalModal = ref(false);
+const journalLogs = ref([]);
+const currentLogId = ref(null);
+const journalSearch = ref("");
+const filteredJournalLogs = ref([]);
+const currentLog = ref(null);
+const journalSaving = ref(false);
+const journalSaved = ref(false);
+const aiGeneratedContent = ref([]);
+const thinkingText = ref("Thinking...");
+const editingMode = ref(false);
+const journalEditor = ref(null);
+const journalSaveTimeout = ref(null);
+const showAiToolInputModal = ref(false);
+const currentAiTool = ref("");
+const aiToolInput = ref("");
+const aiToolTitle = ref("");
+const aiToolDescription = ref("");
+const aiToolPlaceholder = ref("");
+const showRenameLogModal = ref(false);
+const logToRename = ref(null);
+const newLogTitle = ref("");
+const showSelectLogModal = ref(false);
+const messageToAdd = ref("");
+const proactiveAIEnabled = ref(false);
+const showInsightsModal = ref(false);
+const journalInsights = ref({
+  mood: { data: [], average: 0 },
+  topics: [],
+  growth: { score: 0, trends: [] },
+  streaks: { current: 0, longest: 0 },
+  wordCounts: [],
+  recommendations: []
+});
+const insightsLoading = ref(false);
+const messageIndex = ref(-1);
+const newMessageLogTitle = ref("");
+const showDeleteLogModal = ref(false);
+const logToDelete = ref(null);
+const savingLogContent = ref(false);
 const mindMapInput = ref(null);
 const mindMapsExpanded = ref(false);
+const journalLogUnsubscribe = ref(null);
 const isLoadingMindMap = ref(false);
 const savedMindMaps = ref([]);
 const mindMapTitleTyping = ref(false);
@@ -556,6 +1025,3829 @@ const showSelectChatModal = ref(false);
 const openBookLink = () => {
   window.open('https://www.amazon.com/Dawntasy-Circular-Dawn-breathtaking-fantasy-ebook/dp/B0DT74DLY5/', '_blank');
 };
+// Add these functions to your setup function after the variables
+
+// Function to determine if cards would be relevant for the message
+const shouldShowCards = (message) => {
+  const informationalTerms = [
+    'what is', 'how to', 'explain', 'learn', 'teach', 'information', 
+    'define', 'meaning', 'concept', 'understand', 'knowledge', 'facts',
+    'education', 'study', 'lesson', 'tutorial', 'guide'
+  ];
+  
+  const message_lower = message.toLowerCase();
+  return informationalTerms.some(term => message_lower.includes(term));
+};
+
+// Function to generate cards based on the message
+const generateCards = async (message, topic) => {
+  // For simplicity, we'll have a few card types
+  const cardTypes = ['fact', 'concept', 'inspiration', 'review', 'visual'];
+  
+  // Generate a random sample of 3-5 cards
+  const numCards = Math.floor(Math.random() * 3) + 3;
+  const cards = [];
+  
+  for (let i = 0; i < numCards; i++) {
+    const type = cardTypes[Math.floor(Math.random() * cardTypes.length)];
+    cards.push(createCard(type, topic));
+  }
+  
+  return cards;
+};
+
+// Function to create a single card
+const createCard = (type, topic) => {
+  let title, content, backContent;
+  
+  switch(type) {
+    case 'fact':
+      title = `Key Fact: ${topic}`;
+      content = `This is an interesting fact about ${topic} that provides valuable insight.`;
+      backContent = `More detailed explanation about this fact, including context and implications.`;
+      break;
+    case 'concept':
+      title = `Understanding ${topic}`;
+      content = `${topic} can be understood as a key concept that involves important principles.`;
+      backContent = `Deeper dive into the conceptual framework of ${topic}, including related ideas.`;
+      break;
+    case 'inspiration':
+      title = `Inspiration: ${topic}`;
+      content = `"The true beauty of ${topic} lies in its ability to transform understanding." - Notable Figure`;
+      backContent = `Background on this inspirational quote and why it matters in the context of ${topic}.`;
+      break;
+    case 'review':
+      title = `Quick Review: ${topic}`;
+      content = `Three key points to remember about ${topic}:\n1. First important aspect\n2. Second critical element\n3. Third notable feature`;
+      backContent = `Test your knowledge: What are the implications of ${topic} in different contexts?`;
+      break;
+    case 'visual':
+      title = `Visualizing ${topic}`;
+      content = `[This would normally contain a visual representation of ${topic}]`;
+      backContent = `Explanation of what this visual represents and how to interpret it.`;
+      break;
+  }
+  
+  return {
+    id: `card-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+    type,
+    title,
+    content,
+    backContent
+  };
+};
+
+// Function to render cards HTML
+const renderCardsHTML = (cards) => {
+  let cardsHTML = `
+    <div class="card-container">
+  `;
+  
+  cards.forEach(card => {
+    cardsHTML += `
+      <div class="info-card ${card.type}-card" id="${card.id}">
+        <button class="btn-flip" onclick="flipCard('${card.id}')">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M17 1l4 4-4 4"></path>
+            <path d="M3 11V9a4 4 0 014-4h14"></path>
+            <path d="M7 23l-4-4 4-4"></path>
+            <path d="M21 13v2a4 4 0 01-4 4H3"></path>
+          </svg>
+        </button>
+        <div class="card-front">
+          <div class="card-header">
+            <h3 class="card-title">${card.title}</h3>
+            <span class="card-type">${card.type}</span>
+          </div>
+          <div class="card-content">
+            ${card.content}
+          </div>
+          <div class="card-actions">
+            <button class="card-btn btn-primary" onclick="exploreCard('${card.id}')">
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="16"></line>
+                <line x1="8" y1="12" x2="16" y2="12"></line>
+              </svg>
+              Explore
+            </button>
+            <button class="card-btn btn-secondary" onclick="saveCardToJournal('${card.id}')">
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"></path>
+                <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                <polyline points="7 3 7 8 15 8"></polyline>
+              </svg>
+              Save
+            </button>
+          </div>
+        </div>
+        <div class="card-back">
+          <div class="card-content">
+            ${card.backContent}
+          </div>
+          <div class="card-actions">
+            <button class="card-btn btn-primary" onclick="flipCard('${card.id}')">
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M17 1l4 4-4 4"></path>
+                <path d="M3 11V9a4 4 0 014-4h14"></path>
+                <path d="M7 23l-4-4 4-4"></path>
+                <path d="M21 13v2a4 4 0 01-4 4H3"></path>
+              </svg>
+              Flip Back
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+  });
+  
+  cardsHTML += `
+    </div>
+    <div class="cards-nav">
+      <button class="card-nav-btn prev-card" onclick="scrollCards('left')">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+      </button>
+      <button class="card-nav-btn next-card" onclick="scrollCards('right')">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="9 18 15 12 9 6"></polyline>
+        </svg>
+      </button>
+    </div>
+  `;
+  
+  return cardsHTML;
+};
+
+// Card interaction functions - add to window scope for onclick access
+window.flipCard = (cardId) => {
+  const card = document.getElementById(cardId);
+  if (card) {
+    card.classList.toggle('flipped');
+  }
+};
+
+window.exploreCard = (cardId) => {
+  const card = document.getElementById(cardId);
+  if (card) {
+    const title = card.querySelector('.card-title').textContent;
+    const content = card.querySelector('.card-content').textContent;
+    
+    // Add to user input and send message
+    userInput.value = `Tell me more about: ${title}`;
+    sendMessage();
+  }
+};
+
+window.saveCardToJournal = async (cardId) => {
+  const card = document.getElementById(cardId);
+  if (!card) return;
+  
+  const title = card.querySelector('.card-title').textContent;
+  const content = card.querySelector('.card-content').textContent;
+  const type = card.classList.contains('fact-card') ? 'Fact' : 
+               card.classList.contains('concept-card') ? 'Concept' :
+               card.classList.contains('inspiration-card') ? 'Inspiration' :
+               card.classList.contains('review-card') ? 'Review' : 'Visual';
+  
+  // If journal functionality is available, save it there
+  if (typeof showSelectLogModal !== 'undefined') {
+    messageToAdd.value = `<div class="saved-card ${type.toLowerCase()}-card">
+      <h3>${title}</h3>
+      <p>${content}</p>
+      <div class="card-meta">Saved from: ${type} Card</div>
+    </div>`;
+    
+    showSelectLogModal.value = true;
+  } else {
+    // Fallback to showing a toast notification
+    showToastNotification('Card saved to clipboard', 'success');
+    navigator.clipboard.writeText(`${title}\n\n${content}`);
+  }
+};
+
+window.scrollCards = (direction) => {
+  const container = document.querySelector('.card-container');
+  if (!container) return;
+  
+  const scrollAmount = direction === 'left' ? -300 : 300;
+  container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+};
+// Add this function to document mind map explorations in the journal
+const documentMindMapExploration = async (mindMap, branch) => {
+  if (!userId.value) {
+    showToastNotification("Please log in to use this feature", "error");
+    return;
+  }
+  
+  try {
+    // If journal modal is not open, open it
+    if (!showJournalModal.value) {
+      openJournalModal();
+    }
+    
+    // Wait a bit for the journal to load
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    // If no log is selected or open, create a new one
+    if (!currentLogId.value) {
+      await createNewLog();
+      // Wait for log creation
+      await new Promise(resolve => setTimeout(resolve, 500));
+    }
+    
+    if (!journalEditor.value) {
+      showToastNotification("Journal editor not available", "error");
+      return;
+    }
+    
+    // Create formatted content for the mind map exploration
+    const explorationContent = `
+      <div class="mind-map-exploration">
+        <h3>Mind Map Exploration: ${mindMap.topic}</h3>
+        <p><strong>Branch Explored:</strong> ${branch}</p>
+        <p><strong>Date:</strong> ${new Date().toLocaleDateString()}</p>
+        <p>This branch represents an important aspect of the ${mindMap.topic} topic that I've decided to explore further.</p>
+        <p><em>My thoughts on this branch:</em></p>
+        <p>[Add your thoughts and insights about "${branch}" here]</p>
+      </div>
+    `;
+    
+    // Insert at cursor position or at the end if no selection
+    cursorStateManager.executeWithPreservedCursor(journalEditor.value, () => {
+      // Check if there's existing content
+      if (journalEditor.value.innerHTML.trim() !== '') {
+        // Add a line break if the existing content doesn't end with one
+        if (!journalEditor.value.innerHTML.endsWith('<br>') && 
+            !journalEditor.value.innerHTML.endsWith('</p>')) {
+          journalEditor.value.innerHTML += '<br><br>';
+        }
+      }
+      
+      // Append the exploration content
+      journalEditor.value.innerHTML += explorationContent;
+      
+      // Save the changes
+      saveJournalContent();
+    });
+    
+    showToastNotification("Mind Map exploration added to journal", "success");
+    
+  } catch (error) {
+    console.error("Error documenting mind map exploration:", error);
+    showToastNotification("Failed to add exploration to journal", "error");
+  }
+};
+// Modify the deployBranchToChat function to include journal integration
+const deployBranchToChat = async (chatId) => {
+  console.log("Deploying branch to chat:", chatId);
+  if (!selectedMindMap.value || !selectedBranch.value || !chatId || !userId.value) {
+    console.error("Missing required data for deployment");
+    showToastNotification("Unable to deploy: Missing data", "error");
+    showDeployMindMapModal.value = false;
+    showSelectChatModal.value = false;
+    return;
+  }
+  
+  try {
+    isLoading.value = true;
+    
+    // Load the selected chat
+    await loadChat(chatId);
+    
+    // Create user message about the mind map branch
+    const userMessage = {
+      role: "user",
+      content: `Let's explore the "${selectedBranch.value}" branch of my "${selectedMindMap.value.topic}" mind map.`,
+      timestamp: Date.now()
+    };
+    
+    // Save user message to Firebase
+    const messagesRef = collection(db, `users/${userId.value}/chats/${chatId}/messages`);
+    await addDoc(messagesRef, userMessage);
+    
+    // Add to UI
+    messages.value.push(userMessage);
+    
+    // Create AI message with branch exploration
+    const aiResponse = await generateMindMapBranchExploration(
+      selectedMindMap.value.topic,
+      selectedBranch.value
+    );
+    
+    const aiMessage = {
+      role: "assistant",
+      content: aiResponse,
+      timestamp: Date.now(),
+      hasReasoning: false
+    };
+    
+    // Save AI message to Firebase
+    await addDoc(messagesRef, aiMessage);
+    
+    // Add to UI
+    messages.value.push(aiMessage);
+    
+    // Ask if user wants to document this in journal
+    setTimeout(() => {
+      if (confirm("Would you like to document this mind map exploration in your journal?")) {
+        documentMindMapExploration(selectedMindMap.value, selectedBranch.value);
+      }
+    }, 1000);
+    
+    // Close the modals
+    showDeployMindMapModal.value = false;
+    showSelectChatModal.value = false;
+    selectedMindMap.value = null;
+    selectedBranch.value = null;
+    
+    showToastNotification("Mind Map branch deployed to chat", "success");
+  } catch (error) {
+    console.error("Error deploying branch to chat:", error);
+    showToastNotification("Failed to deploy branch to chat", "error");
+    
+    showDeployMindMapModal.value = false;
+    showSelectChatModal.value = false;
+  } finally {
+    isLoading.value = false;
+  }
+};
+const sendMessage = async (text) => {
+      const messageText = text || userInput.value.trim();
+      
+      if (!messageText) return;
+      
+      if (!currentChatId.value) {
+        showNewChatPopup.value = true;
+        return;
+      }
+      // Add this logic to your sendMessage function, before calling the API
+if (messageText.toLowerCase().includes('generate html') || messageText.toLowerCase().includes('html code')) {
+  const htmlTemplate = `
+    <div class="custom-html">
+      <h1>Generated HTML</h1>
+      <p>Here's your requested HTML:</p>
+      <div class="code-display">
+        <pre><code>${messageText.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</code></pre>
+      </div>
+    </div>
+  `;
+  // Add this at the end of your sendMessage function, before the final closing brace
+if (messages.value[streamingMessageIndex]) {
+  const aiMessage = messages.value[streamingMessageIndex];
+  const accuracyMetrics = hyperAccuracyLearningSystem.processResponse(messageText, aiMessage);
+  console.log("Response processed by HYPER ACCURACY SYSTEM:", accuracyMetrics);
+  
+  // Add accuracy data to message metadata
+  aiMessage.accuracyMetrics = accuracyMetrics;
+}
+  // Add this to your sendMessage function before generating the AI response
+const memoryItem = {
+  id: `msg-${Date.now()}`,
+  role: "user",
+  content: messageText,
+  timestamp: Date.now()
+};
+contextualMemory.addMemory(memoryItem);
+
+// And add this after getting the AI response, before displaying it
+const relevantContext = contextualMemory.getRelevantMemories(messageText);
+const contextEnhancedResponse = contextualMemory.enhanceWithContext(
+  aiResponse.content,
+  relevantContext.context
+);
+aiResponse.content = contextEnhancedResponse;
+
+// Also add the AI response to memory
+contextualMemory.addMemory({
+  id: `ai-${Date.now()}`,
+  role: "assistant",
+  content: aiResponse.content,
+  timestamp: Date.now()
+});
+  const htmlResponse = generateHTML(htmlTemplate);
+  
+  const aiMessage = {
+    role: "assistant",
+    content: `I've generated the HTML code for you. Here it is:
+\`\`\`html
+${messageText}
+\`\`\`
+
+Let me know if you need any modifications!`,
+    timestamp: Date.now(),
+    hasReasoning: false
+  };
+  
+  messages.value.push(aiMessage);
+  await saveMessageToFirebase(aiMessage);
+  
+  isLoading.value = false;
+  return;
+}
+      const userMessage = {
+        role: "user",
+        content: messageText,
+        timestamp: Date.now()
+      };
+      
+      messages.value.push(userMessage);
+      
+      if (userId.value !== "demo-user") {
+        try {
+          await saveMessageToFirebase(userMessage);
+        } catch (error) {
+          console.error("Error saving user message:", error);
+        }
+      }
+      
+      userInput.value = "";
+      if (inputField.value) {
+        inputField.value.style.height = "auto";
+      }
+      
+      await nextTick();
+      scrollToBottom();
+      
+      if (imageEnabled.value) {
+        imageEnabled.value = false;
+        await generateImage(messageText);
+        return;
+      }
+      
+      isLoading.value = true;
+      isThinkingDeeper.value = reasoningEnabled.value || logicEnabled.value;
+      
+      const streamingMessageIndex = messages.value.length;
+      
+      try {
+        messages.value.push({
+          role: "assistant",
+          content: "",
+          streamContent: "",
+          timestamp: Date.now(),
+          reasoning: "",
+          hasReasoning: reasoningEnabled.value && !logicEnabled.value,
+          isStreaming: true
+        });
+        
+        isStreaming.value = true;
+        
+        if (userId.value === "demo-user") {
+          await mockStreamingResponse(streamingMessageIndex, messageText);
+        } else {
+          const conversationHistory = messages.value
+            .slice(0, -1)
+            .map(msg => ({
+              role: msg.role,
+              content: msg.content
+            }));
+          
+          const systemPrompt = getDawntasySystemPrompt();
+          
+          try {
+            const stream = await createStream(
+              conversationHistory,
+              systemPrompt,
+              10000
+            );
+            
+            const responseText = await processStream(
+              stream,
+              streamingMessageIndex,
+              reasoningEnabled.value
+            );
+            
+            const aiMessage = messages.value[streamingMessageIndex];
+            
+            await saveMessageToFirebase(aiMessage);
+            
+            logInteraction(messageText, aiMessage);
+            
+            await processSelfOptimization(messageText, aiMessage);
+          } catch (apiError) {
+            console.error("API error:", apiError);
+            
+            await mockStreamingResponse(streamingMessageIndex, messageText, true);
+          }
+        }
+      } catch (error) {
+        console.error("Error sending message:", error);
+        
+        if (messages.value[streamingMessageIndex]) {
+          messages.value[streamingMessageIndex].content =
+            "⚠️ I encountered an error while processing your request. Please try again later.";
+          messages.value[streamingMessageIndex].isStreaming = false;
+          
+          try {
+            await saveMessageToFirebase(messages.value[streamingMessageIndex]);
+          } catch (saveError) {
+            console.error("Error saving error message:", saveError);
+          }
+        }
+      } finally {
+        isLoading.value = false;
+        isStreaming.value = false;
+        
+        if (messages.value[streamingMessageIndex]) {
+          messages.value[streamingMessageIndex].isStreaming = false;
+        }
+        
+        scrollToBottom();
+      }
+    };
+    
+// Add these functions to your main JavaScript file
+// Function to determine if cards would be relevant for the message
+
+// Function to generate cards based on the message
+
+// Function to create a single card
+
+
+// Function to render cards HTML
+
+
+// Card interaction functions - add to window scope for onclick access
+window.flipCard = (cardId) => {
+  const card = document.getElementById(cardId);
+  if (card) {
+    card.classList.toggle('flipped');
+  }
+};
+
+window.exploreCard = (cardId) => {
+  const card = document.getElementById(cardId);
+  if (card) {
+    const title = card.querySelector('.card-title').textContent;
+    const content = card.querySelector('.card-content').textContent;
+    
+    // Add to user input and send message
+    userInput.value = `Tell me more about: ${title}`;
+    sendMessage();
+  }
+};
+
+window.saveCardToJournal = async (cardId) => {
+  const card = document.getElementById(cardId);
+  if (!card) return;
+  
+  const title = card.querySelector('.card-title').textContent;
+  const content = card.querySelector('.card-content').textContent;
+  const type = card.classList.contains('fact-card') ? 'Fact' : 
+               card.classList.contains('concept-card') ? 'Concept' :
+               card.classList.contains('inspiration-card') ? 'Inspiration' :
+               card.classList.contains('review-card') ? 'Review' : 'Visual';
+  
+  // If journal functionality is available, save it there
+  if (typeof showSelectLogModal !== 'undefined') {
+    messageToAdd.value = `<div class="saved-card ${type.toLowerCase()}-card">
+      <h3>${title}</h3>
+      <p>${content}</p>
+      <div class="card-meta">Saved from: ${type} Card</div>
+    </div>`;
+    
+    showSelectLogModal.value = true;
+  } else {
+    // Fallback to showing a toast notification
+    showToastNotification('Card saved to clipboard', 'success');
+    navigator.clipboard.writeText(`${title}\n\n${content}`);
+  }
+};
+
+window.scrollCards = (direction) => {
+  const container = document.querySelector('.card-container');
+  if (!container) return;
+  
+  const scrollAmount = direction === 'left' ? -300 : 300;
+  container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+};
+// Completely redesigned cursor management system
+// Add this comprehensive cursor management system
+// Completely redesigned cursor management system
+const cursorStateManager = {
+  // Store full editor state
+  savedState: null,
+  lastContent: null,
+  
+  // Save editor state including cursor position
+  saveState(editor) {
+    if (!editor || !document.contains(editor)) return false;
+    
+    // Save content to detect changes
+    this.lastContent = editor.innerHTML;
+    
+    // Get selection and range
+    const selection = window.getSelection();
+    if (!selection || selection.rangeCount === 0) return false;
+    
+    // Clone the current range
+    const range = selection.getRangeAt(0).cloneRange();
+    
+    // Only save if range is inside editor
+    if (!editor.contains(range.commonAncestorContainer)) return false;
+    
+    // Create a map of positions by walking DOM tree and recording offsets
+    const positionMap = this.createPositionMap(editor, range);
+    
+    // Save the position map
+    this.savedState = positionMap;
+    return true;
+  },
+  
+  // Create a detailed map of positions within the DOM
+  createPositionMap(editor, range) {
+    // Create unique identifier for text nodes
+    const nodeMap = new Map();
+    let nodeCounter = 0;
+    
+    // Walk the DOM tree and assign unique IDs to text nodes
+    const walkNodes = (node) => {
+      if (node.nodeType === Node.TEXT_NODE) {
+        nodeMap.set(node, nodeCounter++);
+      }
+      
+      if (node.childNodes) {
+        for (let i = 0; i < node.childNodes.length; i++) {
+          walkNodes(node.childNodes[i]);
+        }
+      }
+    };
+    
+    walkNodes(editor);
+    
+    // Calculate node path from editor root
+    const getNodePath = (node) => {
+      const path = [];
+      let current = node;
+      
+      while (current && current !== editor) {
+        const parent = current.parentNode;
+        if (!parent) break;
+        
+        const index = Array.from(parent.childNodes).indexOf(current);
+        path.unshift(index);
+        current = parent;
+      }
+      
+      return path;
+    };
+    
+    // Save path and offset for start and end points
+    return {
+      startNodePath: getNodePath(range.startContainer),
+      startOffset: range.startOffset,
+      endNodePath: getNodePath(range.endContainer),
+      endOffset: range.endOffset,
+      collapsed: range.collapsed,
+      timestamp: Date.now()
+    };
+  },
+  
+  // Restore editor state
+  restoreState(editor) {
+    if (!editor || !document.contains(editor) || !this.savedState) return false;
+    
+    try {
+      // Find nodes by path
+      const findNodeByPath = (path) => {
+        let current = editor;
+        
+        for (let i = 0; i < path.length; i++) {
+          const index = path[i];
+          if (current.childNodes && index < current.childNodes.length) {
+            current = current.childNodes[index];
+          } else {
+            return null; // Path is invalid
+          }
+        }
+        
+        return current;
+      };
+      
+      // Try to find start and end nodes
+      const startNode = findNodeByPath(this.savedState.startNodePath);
+      const endNode = findNodeByPath(this.savedState.endNodePath);
+      
+      if (!startNode || !endNode) {
+        console.warn("Could not find nodes by path, trying fallback...");
+        return this.fallbackRestore(editor);
+      }
+      
+      // Create and set the new range
+      const range = document.createRange();
+      range.setStart(startNode, Math.min(this.savedState.startOffset, startNode.length || 0));
+      range.setEnd(endNode, Math.min(this.savedState.endOffset, endNode.length || 0));
+      
+      const selection = window.getSelection();
+      selection.removeAllRanges();
+      selection.addRange(range);
+      
+      return true;
+    } catch (e) {
+      console.warn("Failed to restore cursor position:", e);
+      return this.fallbackRestore(editor);
+    }
+  },
+  
+  // Fallback restoration method using character counting
+  fallbackRestore(editor) {
+    try {
+      // If we can't restore by path, try to estimate position by counting characters
+      const charCount = this.savedState.startOffset;
+      
+      // Find text nodes
+      const textNodes = [];
+      const getTextNodes = (node) => {
+        if (node.nodeType === Node.TEXT_NODE) {
+          textNodes.push(node);
+        } else {
+          for (let i = 0; i < node.childNodes.length; i++) {
+            getTextNodes(node.childNodes[i]);
+          }
+        }
+      };
+      
+      getTextNodes(editor);
+      
+      // Count characters until we reach our position
+      let currentCount = 0;
+      let targetNode = null;
+      let targetOffset = 0;
+      
+      for (let i = 0; i < textNodes.length; i++) {
+        const node = textNodes[i];
+        const length = node.textContent.length;
+        
+        if (currentCount + length >= charCount) {
+          targetNode = node;
+          targetOffset = charCount - currentCount;
+          break;
+        }
+        
+        currentCount += length;
+      }
+      
+      if (targetNode) {
+        const range = document.createRange();
+        range.setStart(targetNode, targetOffset);
+        range.setEnd(targetNode, targetOffset);
+        
+        const selection = window.getSelection();
+        selection.removeAllRanges();
+        selection.addRange(range);
+        
+        return true;
+      }
+      
+      return false;
+    } catch (e) {
+      console.warn("Fallback cursor restoration failed:", e);
+      return false;
+    }
+  },
+  
+  // Helper to execute operations while preserving cursor position
+  executeWithPreservedCursor(editor, operation) {
+    this.saveState(editor);
+    
+    // Execute the operation
+    operation();
+    
+    // Use requestAnimationFrame to wait for DOM updates
+    requestAnimationFrame(() => {
+      this.restoreState(editor);
+    });
+  }
+};
+
+// Enhanced journal input handler
+// Enhanced journal input handler
+const handleJournalInput = (event) => {
+  // Don't trigger save on cursor/selection changes, only content changes
+  if (journalEditor.value.innerHTML !== cursorStateManager.lastContent) {
+    cursorStateManager.executeWithPreservedCursor(
+      journalEditor.value, 
+      () => saveJournalContent()
+    );
+  }
+};
+
+// Completely rewritten saveJournalContent function that prevents cursor movement
+const saveJournalContent = async () => {
+  if (!userId.value || !currentLogId.value || !journalEditor.value) return;
+  
+  // Clear previous timeout
+  if (journalSaveTimeout.value) {
+    clearTimeout(journalSaveTimeout.value);
+  }
+  
+  // Capture current content before any processing
+  const currentContent = journalEditor.value.innerHTML;
+  
+  journalSaveTimeout.value = setTimeout(async () => {
+    try {
+      journalSaving.value = true;
+      journalSaved.value = false;
+      
+      const logRef = doc(db, `users/${userId.value}/journals/${currentLogId.value}`);
+      
+      // Direct update without any DOM manipulation
+      await updateDoc(logRef, {
+        content: currentContent,
+        lastEdited: Date.now()
+      });
+      
+      // Update local state without touching the DOM
+      if (currentLog.value) {
+        currentLog.value.content = currentContent;
+        currentLog.value.lastEdited = Date.now();
+      }
+      
+      journalSaving.value = false;
+      journalSaved.value = true;
+      
+      // Reset saved indicator after delay
+      setTimeout(() => {
+        journalSaved.value = false;
+      }, 3000);
+      
+    } catch (error) {
+      console.error("Error saving journal content:", error);
+      journalSaving.value = false;
+      
+      // Try fallback method
+      try {
+        const logRef = doc(db, `users/${userId.value}/journals/${currentLogId.value}`);
+        await setDoc(logRef, {
+          content: currentContent,
+          lastEdited: Date.now()
+        }, { merge: true });
+        
+        journalSaved.value = true;
+        setTimeout(() => {
+          journalSaved.value = false;
+        }, 3000);
+      } catch (fallbackError) {
+        console.error("Fallback save failed:", fallbackError);
+        showToastNotification("Failed to save journal entry", "error");
+      }
+    }
+  }, 1000);
+};
+// Update journal editor setup
+onMounted(() => {
+  // Existing code...
+  
+  // Enhanced event listener for the journal editor
+  if (journalEditor.value) {
+    // Remove existing listeners to prevent duplicates
+    journalEditor.value.removeEventListener('input', saveJournalContent);
+    journalEditor.value.removeEventListener('input', handleJournalInput);
+    
+    // Add input handler with improved cursor management
+    journalEditor.value.addEventListener('input', handleJournalInput);
+    
+    // Initialize cursor state manager
+    cursorStateManager.lastContent = journalEditor.value.innerHTML;
+    
+    // Intercept any other methods that might change content
+    const originalSetHtml = Object.getOwnPropertyDescriptor(
+      Object.getPrototypeOf(journalEditor.value), 
+      'innerHTML'
+    ).set;
+    
+    // Override innerHTML setter to preserve cursor
+    Object.defineProperty(journalEditor.value, 'innerHTML', {
+      set: function(html) {
+        cursorStateManager.saveState(this);
+        originalSetHtml.call(this, html);
+        
+        // Wait for DOM updates
+        setTimeout(() => {
+          cursorStateManager.restoreState(this);
+        }, 0);
+      }
+    });
+  }
+  
+  // Existing code...
+});
+
+// Update journal editor
+
+// Enhanced journal input handler
+
+// Completely rewritten saveJournalContent function that prevents cursor movement
+
+// Update journal editor setup
+onMounted(() => {
+  // Existing code...
+  
+  // Enhanced event listener for the journal editor
+  if (journalEditor.value) {
+    // Remove existing listeners to prevent duplicates
+    journalEditor.value.removeEventListener('input', saveJournalContent);
+    journalEditor.value.removeEventListener('input', handleJournalInput);
+    
+    // Add input handler with improved cursor management
+    journalEditor.value.addEventListener('input', handleJournalInput);
+    
+    // Initialize cursor state manager
+    cursorStateManager.lastContent = journalEditor.value.innerHTML;
+    
+    // Intercept any other methods that might change content
+    const originalSetHtml = Object.getOwnPropertyDescriptor(
+      Object.getPrototypeOf(journalEditor.value), 
+      'innerHTML'
+    ).set;
+    
+    // Override innerHTML setter to preserve cursor
+    Object.defineProperty(journalEditor.value, 'innerHTML', {
+      set: function(html) {
+        cursorStateManager.saveState(this);
+        originalSetHtml.call(this, html);
+        
+        // Wait for DOM updates
+        setTimeout(() => {
+          cursorStateManager.restoreState(this);
+        }, 0);
+      }
+    });
+  }
+  
+  // Existing code...
+});
+// Improved API error handling for all API calls
+const callOpenAI = async (systemPrompt, userPrompt, temperature = 0.7) => {
+  try {
+    if (!apiKey) {
+      console.error("No API key available");
+      throw new Error("API key not configured");
+    }
+    
+    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${apiKey}`
+      },
+      body: JSON.stringify({
+        model: "o3-mini",
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userPrompt }
+        ],
+        temperature: temperature
+      })
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      console.error("API error response:", errorData);
+      throw new Error(`API error: ${response.status} - ${errorData.error?.message || 'Unknown error'}`);
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error("API call failed:", error);
+    throw error;
+  }
+};
+// Enhanced Proactive AI System
+// Enhanced Proactive AI System
+// Enhanced Proactive AI System
+const proactiveAISystem = {
+  // Configuration and state
+  config: {
+    // Suggestion timing
+    timing: {
+      minInterval: 30000,      // Minimum interval between suggestions (30s)
+      maxInterval: 300000,     // Maximum interval (5min)
+      currentInterval: 60000,  // Current adaptive interval (1min)
+      burstControl: {
+        maxSuggestions: 3,     // Maximum suggestions in burst period
+        burstPeriod: 300000,   // Burst period (5min)
+        cooldown: 120000       // Cooldown after max suggestions (2min)
+      }
+    },
+    // Action weights (higher = more frequent)
+    actionWeights: {
+      write: 0.8,
+      summarize: 0.6,
+      respond: 0.7,
+      inspire: 0.6,
+      edit: 0.5,
+      fetch: 0.4
+    },
+    // Learning parameters
+    learning: {
+      acceptanceBoost: 1.2,    // Multiply weight when accepted
+      rejectionPenalty: 0.7,   // Multiply weight when rejected
+      memoryDecay: 0.9,        // Rate of memory decay
+      explorationRate: 0.2     // Try less common suggestions sometimes
+    }
+  },
+  
+  // Current state
+  state: {
+    lastSuggestionTime: 0,
+    recentSuggestions: [],
+    userFeedback: {
+      accepted: {},
+      rejected: {},
+      ignored: {}
+    },
+    analyzedContent: {
+      mood: 'neutral',
+      topics: [],
+      complexity: 0.5,
+      lastLength: 0
+    },
+    activeSuggestions: 0,
+    pauseUntil: 0
+  },
+  
+  // Initialize the system
+  initialize() {
+    console.log("Initializing enhanced proactive AI system");
+    
+    // Load previous state from localStorage
+    this.loadState();
+    
+    // Schedule first suggestion
+    this.scheduleNextSuggestion();
+    
+    // Setup content analysis for current content
+    if (journalEditor.value) {
+      this.analyzeContent(journalEditor.value.innerText);
+    }
+  },
+  
+  // Load previous state
+  loadState() {
+    try {
+      const savedState = localStorage.getItem('proactiveAIData');
+      if (savedState) {
+        const data = JSON.parse(savedState);
+        
+        // Only load persistent data (not timing or current state)
+        if (data.actionWeights) this.config.actionWeights = data.actionWeights;
+        if (data.userFeedback) this.state.userFeedback = data.userFeedback;
+        if (data.analyzedContent) {
+          this.state.analyzedContent.topics = data.analyzedContent.topics || [];
+          this.state.analyzedContent.mood = data.analyzedContent.mood || 'neutral';
+        }
+      }
+    } catch (error) {
+      console.error("Error loading proactive AI state:", error);
+    }
+  },
+  
+  // Save state for persistence
+  saveState() {
+    try {
+      const dataToSave = {
+        actionWeights: this.config.actionWeights,
+        userFeedback: this.state.userFeedback,
+        analyzedContent: {
+          topics: this.state.analyzedContent.topics,
+          mood: this.state.analyzedContent.mood
+        }
+      };
+      localStorage.setItem('proactiveAIData', JSON.stringify(dataToSave));
+    } catch (error) {
+      console.error("Error saving proactive AI state:", error);
+    }
+  },
+  
+  // Schedule the next suggestion
+  scheduleNextSuggestion() {
+    if (!proactiveAIEnabled.value) return;
+    
+    const now = Date.now();
+    
+    // Check if we're in a cooldown period
+    if (this.state.pauseUntil > now) {
+      const remainingCooldown = this.state.pauseUntil - now;
+      console.log(`In cooldown period, will resume in ${Math.round(remainingCooldown/1000)}s`);
+      
+      setTimeout(() => {
+        if (proactiveAIEnabled.value) {
+          this.scheduleNextSuggestion();
+        }
+      }, remainingCooldown + 1000);
+      
+      return;
+    }
+    
+    // Calculate adaptive interval based on user feedback
+    this.adaptTiming();
+    
+    // Add a random variation to make it feel more natural
+    const variation = 0.8 + (Math.random() * 0.4); // 80-120% of interval
+    const delay = this.config.timing.currentInterval * variation;
+    
+    console.log(`Next suggestion scheduled in ${Math.round(delay/1000)}s`);
+    
+    setTimeout(() => {
+      if (proactiveAIEnabled.value && currentLog.value) {
+        this.considerSuggestion();
+      } else {
+        this.scheduleNextSuggestion();
+      }
+    }, delay);
+  },
+  
+  // Adapt timing based on user feedback
+  adaptTiming() {
+    // Calculate acceptance rate
+    let accepted = 0;
+    let total = 0;
+    
+    Object.values(this.state.userFeedback.accepted).forEach(count => {
+      accepted += count;
+      total += count;
+    });
+    
+    Object.values(this.state.userFeedback.rejected).forEach(count => {
+      total += count;
+    });
+    
+    Object.values(this.state.userFeedback.ignored).forEach(count => {
+      total += count;
+    });
+    
+    // Default rate if no data
+    let acceptRate = 0.5;
+    
+    if (total > 0) {
+      acceptRate = accepted / total;
+    }
+    
+    // Adjust interval based on acceptance rate
+    if (acceptRate > 0.7) {
+      // User likes suggestions - decrease interval (more frequent)
+      this.config.timing.currentInterval = Math.max(
+        this.config.timing.minInterval,
+        this.config.timing.currentInterval * 0.9
+      );
+    } else if (acceptRate < 0.3) {
+      // User doesn't like suggestions - increase interval (less frequent)
+      this.config.timing.currentInterval = Math.min(
+        this.config.timing.maxInterval,
+        this.config.timing.currentInterval * 1.1
+      );
+    }
+  },
+  
+  // Consider making a suggestion
+  considerSuggestion() {
+    if (!proactiveAIEnabled.value || !currentLog.value) {
+      this.scheduleNextSuggestion();
+      return;
+    }
+    
+    const now = Date.now();
+    
+    // Check if we've made too many suggestions recently (burst control)
+    const recentCount = this.state.recentSuggestions
+      .filter(s => now - s.time < this.config.timing.burstControl.burstPeriod)
+      .length;
+    
+    if (recentCount >= this.config.timing.burstControl.maxSuggestions) {
+      console.log("Reached maximum suggestions in burst period, cooling down");
+      this.state.pauseUntil = now + this.config.timing.burstControl.cooldown;
+      this.scheduleNextSuggestion();
+      return;
+    }
+    
+    // Update content analysis for fresh data
+    if (journalEditor.value) {
+      this.analyzeContent(journalEditor.value.innerText);
+    }
+    
+    // Choose a suggestion type based on context and history
+    const action = this.chooseAction();
+    
+    if (!action) {
+      console.log("No suitable action found");
+      this.scheduleNextSuggestion();
+      return;
+    }
+    
+    // Make the suggestion
+    this.makeSuggestion(action);
+    
+    // Record this suggestion
+    this.state.lastSuggestionTime = now;
+    this.state.recentSuggestions.push({
+      action: action,
+      time: now
+    });
+    
+    // Keep only recent history
+    if (this.state.recentSuggestions.length > 20) {
+      this.state.recentSuggestions.shift();
+    }
+    
+    // Schedule next suggestion
+    this.scheduleNextSuggestion();
+  },
+  
+  // Choose which action to suggest based on context and history
+  chooseAction() {
+    // Start with base weights
+    const weightedActions = {...this.config.actionWeights};
+    
+    // Context-based adjustments
+    const content = journalEditor.value ? journalEditor.value.innerText : "";
+    const contentLength = content.length;
+    
+    // Content length adjustments
+    if (contentLength < 50) {
+      // For empty/short entries, prioritize writing and prompts
+      weightedActions.write *= 2;
+      weightedActions.summarize = 0;
+      weightedActions.edit = 0;
+    } else if (contentLength > 500) {
+      // For longer entries, suggest organizing tools
+      weightedActions.summarize *= 1.5;
+      weightedActions.edit *= 1.5;
+    }
+    
+    // Mood-based adjustments
+    if (this.state.analyzedContent.mood === 'negative' || 
+        this.state.analyzedContent.mood === 'very negative') {
+      // For negative mood, offer inspiration and support
+      weightedActions.inspire *= 2;
+      weightedActions.respond *= 1.5;
+    }
+    
+    // Content change detection
+    const contentChanged = Math.abs(contentLength - this.state.analyzedContent.lastLength) > 100;
+    if (contentChanged) {
+      // After significant content change, offer analysis
+      weightedActions.respond *= 1.2;
+      weightedActions.summarize *= 1.2;
+    }
+    
+    // Apply recency penalties - avoid recently suggested actions
+    const recentActions = this.state.recentSuggestions
+      .filter(s => Date.now() - s.time < 300000) // Last 5 minutes
+      .map(s => s.action);
+    
+    Object.keys(weightedActions).forEach(action => {
+      const occurrences = recentActions.filter(a => a === action).length;
+      if (occurrences > 0) {
+        // Reduce weight based on recency
+        weightedActions[action] *= Math.pow(0.6, occurrences);
+      }
+    });
+    
+    // Apply historical feedback adjustments
+    Object.entries(this.state.userFeedback.accepted).forEach(([action, count]) => {
+      if (weightedActions[action] && count > 0) {
+        // Increase weight for historically accepted actions
+        weightedActions[action] *= (1 + Math.min(0.5, count * 0.1));
+      }
+    });
+    
+    Object.entries(this.state.userFeedback.rejected).forEach(([action, count]) => {
+      if (weightedActions[action] && count > 0) {
+        // Decrease weight for historically rejected actions
+        weightedActions[action] *= (1 - Math.min(0.7, count * 0.1));
+      }
+    });
+    
+    // Sometimes try less common suggestions for exploration
+    if (Math.random() < this.config.learning.explorationRate) {
+      // Find the least commonly used actions
+      const actionCounts = {};
+      Object.keys(weightedActions).forEach(action => {
+        actionCounts[action] = (this.state.userFeedback.accepted[action] || 0) + 
+                              (this.state.userFeedback.rejected[action] || 0) +
+                              (this.state.userFeedback.ignored[action] || 0);
+      });
+      
+      // Boost weights for less used actions
+      Object.entries(actionCounts).forEach(([action, count]) => {
+        if (count < 3 && weightedActions[action] > 0) {
+          console.log(`Exploration boost for rarely used action: ${action}`);
+          weightedActions[action] *= 1.5;
+        }
+      });
+    }
+    
+    // Calculate total weight
+    const totalWeight = Object.values(weightedActions)
+      .reduce((sum, weight) => sum + weight, 0);
+    
+    if (totalWeight <= 0) return null;
+    
+    // Select action probabilistically based on weights
+    const random = Math.random() * totalWeight;
+    let cumulativeWeight = 0;
+    
+    for (const [action, weight] of Object.entries(weightedActions)) {
+      cumulativeWeight += weight;
+      if (random <= cumulativeWeight) {
+        return action;
+      }
+    }
+    
+    // Fallback to the highest weight action
+    return Object.entries(weightedActions)
+      .sort((a, b) => b[1] - a[1])[0][0];
+  },
+  
+  // Make the actual suggestion UI
+  makeSuggestion(action) {
+    if (!journalEditor.value || !proactiveAIEnabled.value) return;
+    
+    // Track active suggestions
+    this.state.activeSuggestions++;
+    
+    // Generate personalized content
+    const content = this.generateSuggestionContent(action);
+    
+    // Create the suggestion element
+    const suggestionElement = document.createElement('div');
+    suggestionElement.className = 'proactive-suggestion';
+    suggestionElement.style.position = 'absolute';
+    suggestionElement.style.bottom = '20px';
+    suggestionElement.style.right = '20px';
+    suggestionElement.style.background = content.style.background;
+    suggestionElement.style.border = `1px solid ${content.style.borderColor}`;
+    suggestionElement.style.borderRadius = '8px';
+    suggestionElement.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.2)';
+    suggestionElement.style.padding = '12px';
+    suggestionElement.style.maxWidth = '300px';
+    suggestionElement.style.zIndex = '1000';
+    suggestionElement.style.animation = 'slideUp 0.3s ease';
+    
+    suggestionElement.innerHTML = `
+      <div class="suggestion-icon" style="color: ${content.style.borderColor}; margin-bottom: 8px;">
+        ${content.icon}
+      </div>
+      <div class="suggestion-text" style="color: white; font-size: 14px; margin-bottom: 12px;">
+        ${content.text}
+      </div>
+      <div class="suggestion-actions" style="display: flex; gap: 8px;">
+        <button class="suggestion-accept" style="
+          background: ${content.style.borderColor};
+          color: white;
+          padding: 6px 12px;
+          border-radius: 4px;
+          border: none;
+          font-size: 12px;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        ">Yes</button>
+        <button class="suggestion-decline" style="
+          background: transparent;
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          color: rgba(255, 255, 255, 0.7);
+          padding: 6px 12px;
+          border-radius: 4px;
+          font-size: 12px;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        ">No</button>
+      </div>
+    `;
+    
+    // Position in document
+    if (journalEditor.value.parentNode) {
+      journalEditor.value.parentNode.appendChild(suggestionElement);
+      
+      // Accept button handler
+      const acceptButton = suggestionElement.querySelector('.suggestion-accept');
+      if (acceptButton) {
+        acceptButton.addEventListener('click', () => {
+          // Remove the suggestion
+          suggestionElement.remove();
+          this.state.activeSuggestions--;
+          
+          // Record acceptance
+          this.recordFeedback(action, 'accepted');
+          
+          // Execute the requested action
+          if (action === 'fetch') {
+            fetchFromChatHistory();
+          } else {
+            showAiToolModal(action);
+          }
+        });
+      }
+      
+      // Decline button handler
+      const declineButton = suggestionElement.querySelector('.suggestion-decline');
+      if (declineButton) {
+        declineButton.addEventListener('click', () => {
+          // Remove the suggestion
+          suggestionElement.remove();
+          this.state.activeSuggestions--;
+          
+          // Record rejection
+          this.recordFeedback(action, 'rejected');
+        });
+      }
+      
+      // Auto-remove after timeout
+      setTimeout(() => {
+        if (suggestionElement.parentNode) {
+          suggestionElement.style.opacity = '0';
+          suggestionElement.style.transition = 'opacity 0.5s ease';
+          
+          setTimeout(() => {
+            if (suggestionElement.parentNode) {
+              suggestionElement.remove();
+              this.state.activeSuggestions--;
+              
+              // Record being ignored
+              this.recordFeedback(action, 'ignored');
+            }
+          }, 500);
+        }
+      }, 20000);
+    }
+  },
+  
+  // Record user feedback for learning
+  recordFeedback(action, response) {
+    // Initialize counters if needed
+    if (!this.state.userFeedback[response][action]) {
+      this.state.userFeedback[response][action] = 0;
+    }
+    
+    // Increment counter
+    this.state.userFeedback[response][action]++;
+    
+    // Apply weight adjustments based on feedback
+    if (response === 'accepted') {
+      this.config.actionWeights[action] = Math.min(
+        2.0, 
+        this.config.actionWeights[action] * this.config.learning.acceptanceBoost
+      );
+    } else if (response === 'rejected') {
+      this.config.actionWeights[action] = Math.max(
+        0.1,
+        this.config.actionWeights[action] * this.config.learning.rejectionPenalty
+      );
+    }
+    
+    // Save state for persistence
+    this.saveState();
+  },
+  
+  // Generate personalized suggestion content
+  generateSuggestionContent(action) {
+    // Style configuration
+    const styles = {
+      'write': {
+        background: 'linear-gradient(to right, #10b981, #3b82f6)',
+        borderColor: '#10b981'
+      },
+      'summarize': {
+        background: 'linear-gradient(to right, #3b82f6, #6366f1)',
+        borderColor: '#3b82f6'
+      },
+      'respond': {
+        background: 'linear-gradient(to right, #6366f1, #8b5cf6)',
+        borderColor: '#6366f1'
+      },
+      'inspire': {
+        background: 'linear-gradient(to right, #8b5cf6, #ec4899)',
+        borderColor: '#8b5cf6'
+      },
+      'edit': {
+        background: 'linear-gradient(to right, #f59e0b, #ef4444)',
+        borderColor: '#f59e0b'
+      },
+      'fetch': {
+        background: 'linear-gradient(to right, #ef4444, #f43f5e)',
+        borderColor: '#ef4444'
+      }
+    };
+    
+    // Icons
+    const icons = {
+      'write': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><path d="M11 11l5 5"/></svg>',
+      'summarize': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="8" x2="16" y2="8"/><line x1="8" y1="16" x2="12" y2="16"/></svg>',
+      'respond': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>',
+      'inspire': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>',
+      'edit': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>',
+      'fetch': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><path d="M9 9h.01"/><path d="M15 9h.01"/><path d="M12 2v2"/><path d="M4.93 4.93l1.41 1.41"/><path d="M19.07 4.93l-1.41 1.41"/></svg>'
+    };
+    
+    // Generate text based on context and action
+    let text = this.getPersonalizedTextForAction(action);
+    
+    return {
+      text: text,
+      icon: icons[action] || icons['write'],
+      style: styles[action] || styles['write']
+    };
+  },
+  
+  // Get personalized text based on context
+  getPersonalizedTextForAction(action) {
+    // Base messages
+    const baseMessages = {
+      'write': "Would you like help writing more content?",
+      'summarize': "I can summarize what you've written so far.",
+      'respond': "Would you like me to respond to your thoughts?",
+      'inspire': "I can offer an inspirational quote related to your writing.",
+      'edit': "I can help improve your writing while maintaining your voice.",
+      'fetch': "I can create a journal entry from your chat conversations."
+    };
+    
+    // Content length based customization
+    const contentLength = journalEditor.value ? journalEditor.value.innerText.length : 0;
+    
+    // Mood-based customization
+    const mood = this.state.analyzedContent.mood;
+    const moodPrefix = 
+      mood === 'very negative' ? "I notice you seem down. " :
+      mood === 'negative' ? "You seem a bit troubled. " :
+      mood === 'positive' ? "You seem to be in a good mood. " :
+      mood === 'very positive' ? "You're sounding very positive! " : "";
+    
+    // Content length customization
+    let lengthCustomization = "";
+    if (contentLength < 50) {
+      lengthCustomization = "I see you're just getting started. ";
+      
+      if (action === 'write') {
+        return `${moodPrefix}${lengthCustomization}Would you like some help getting your thoughts flowing?`;
+      }
+    } else if (contentLength > 500) {
+      lengthCustomization = "You've written quite a bit. ";
+      
+      if (action === 'summarize') {
+        return `${moodPrefix}${lengthCustomization}Would you like me to summarize your key points?`;
+      }
+      
+      if (action === 'edit') {
+        return `${moodPrefix}${lengthCustomization}I can help refine and structure your substantial entry.`;
+      }
+    }
+    
+    // Topic-based personalization
+    if (this.state.analyzedContent.topics.length > 0) {
+      const randomTopic = this.state.analyzedContent.topics[
+        Math.floor(Math.random() * this.state.analyzedContent.topics.length)
+      ];
+      
+      if (action === 'inspire') {
+        return `${moodPrefix}I have an inspiring quote about ${randomTopic} that might resonate with you.`;
+      }
+      
+      if (action === 'respond' && (mood === 'negative' || mood === 'very negative')) {
+        return `${moodPrefix}Would you like some supportive thoughts about ${randomTopic}?`;
+      }
+    }
+    
+    // Mood-specific adaptations
+    if (mood === 'negative' || mood === 'very negative') {
+      if (action === 'respond') {
+        return `${moodPrefix}Would you like some supportive thoughts on what you've written?`;
+      }
+      
+      if (action === 'inspire') {
+        return `${moodPrefix}I have an uplifting quote that might brighten your mood.`;
+      }
+    }
+    
+    // Default to base message with mood prefix
+    return `${moodPrefix}${baseMessages[action]}`;
+  },
+  
+  // Analyze content for mood, topics, etc.
+  analyzeContent(content) {
+    if (!content || content.length < 20) return;
+    
+    // Record content length
+    this.state.analyzedContent.lastLength = content.length;
+    
+    // Simple sentiment analysis
+    const words = content.toLowerCase().split(/\s+/);
+    
+    // Basic word lists for sentiment
+    const positiveWords = ['good', 'great', 'happy', 'excited', 'joy', 'love', 'wonderful', 'excellent', 'amazing', 'fantastic'];
+    const negativeWords = ['bad', 'sad', 'angry', 'upset', 'disappointed', 'hate', 'terrible', 'awful', 'horrible', 'depressed'];
+    
+    const positiveCount = words.filter(word => positiveWords.includes(word)).length;
+    const negativeCount = words.filter(word => negativeWords.includes(word)).length;
+    
+    // Determine mood based on word counts
+    if (positiveCount > negativeCount * 2) {
+      this.state.analyzedContent.mood = 'very positive';
+    } else if (positiveCount > negativeCount) {
+      this.state.analyzedContent.mood = 'positive';
+    } else if (negativeCount > positiveCount * 2) {
+      this.state.analyzedContent.mood = 'very negative';
+    } else if (negativeCount > positiveCount) {
+      this.state.analyzedContent.mood = 'negative';
+    } else {
+      this.state.analyzedContent.mood = 'neutral';
+    }
+    
+    // Simple topic extraction (words that appear multiple times)
+    if (content.length > 100) {
+      const wordCounts = {};
+      
+      // Count word frequencies, excluding common words
+      const commonWords = ['the', 'a', 'an', 'and', 'or', 'but', 'is', 'are', 'was', 'were', 'be', 'to', 'of', 'in', 'that', 'have', 'it', 'for', 'on', 'with'];
+      
+      words.forEach(word => {
+        if (word.length > 4 && !commonWords.includes(word)) {
+          wordCounts[word] = (wordCounts[word] || 0) + 1;
+        }
+      });
+      
+      // Extract significant topics (words that appear multiple times)
+      const topics = Object.entries(wordCounts)
+        .filter(([word, count]) => count > 1)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 5)
+        .map(([word]) => word);
+      
+      // Update topics, keeping existing ones too
+      this.state.analyzedContent.topics = [...new Set([...topics, ...this.state.analyzedContent.topics])].slice(0, 10);
+    }
+    
+    // Determine content complexity 
+    const avgWordLength = words.reduce((sum, word) => sum + word.length, 0) / Math.max(1, words.length);
+    const longWordRatio = words.filter(word => word.length > 6).length / Math.max(1, words.length);
+    
+    this.state.analyzedContent.complexity = 
+      Math.min(1, Math.max(0, (avgWordLength / 10) * 0.5 + longWordRatio * 0.5));
+    
+    // Save state
+    this.saveState();
+  }
+};
+
+// Update handleProactiveAIToggle function
+
+
+// Update handleProactiveAIToggle function
+const handleProactiveAIToggle = () => {
+  if (proactiveAIEnabled.value) {
+    showToastNotification("Proactive AI enabled - I'll analyze and suggest content automatically", "info");
+    
+    // Initialize proactive AI system
+    proactiveAISystem.initialize();
+    
+    // Start with content analysis
+    if (currentLog.value && journalEditor.value) {
+      proactiveAISystem.analyzeContent(journalEditor.value.innerText);
+    }
+  } else {
+    showToastNotification("Proactive AI disabled", "info");
+  }
+};
+
+// Update initializeProactiveAI function
+
+// Update handleContentChanges function
+const handleContentChanges = (mutations) => {
+  if (!proactiveAIEnabled.value || !currentLog.value) return;
+  
+  // Check if content has significantly changed
+  const contentChanged = mutations.some(mutation => 
+    mutation.type === 'characterData' || 
+    mutation.type === 'childList' && 
+    (mutation.addedNodes.length > 0 || mutation.removedNodes.length > 0)
+  );
+  
+  if (contentChanged && journalEditor.value) {
+    proactiveAISystem.analyzeContent(journalEditor.value.innerText);
+  }
+};
+
+// Update handleProactiveAIToggle function
+
+// Update initializeProactiveAI function
+const initializeProactiveAI = () => {
+  if (!proactiveAIEnabled.value || !currentLog.value) return;
+  
+  console.log("Initializing proactive AI");
+  proactiveAISystem.initialize();
+};
+
+// Update handleContentChanges function
+  
+  // Schedule periodic actions
+  const scheduleProactiveActions = () => {
+    // Choose a random action based on content length and complexity
+    const logContent = journalEditor.value?.innerText || "";
+    
+    if (logContent.length < 50) {
+      // For very short or empty entries, suggest writing prompts
+      setTimeout(() => {
+        if (proactiveAIEnabled.value && currentLog.value) {
+          suggestWritingPrompts();
+        }
+      }, 10000); // 10 seconds after initialization
+    } else if (logContent.length > 300) {
+      // For longer entries, offer summaries or insights
+      setTimeout(() => {
+        if (proactiveAIEnabled.value && currentLog.value) {
+          const actions = ['summarize', 'respond', 'inspire', 'edit'];
+          const randomAction = actions[Math.floor(Math.random() * actions.length)];
+          
+          showProactiveAISuggestion(randomAction);
+        }
+      }, 20000); // 20 seconds after initialization
+    }
+    
+    // Schedule a Fetch operation after longer time
+    setTimeout(() => {
+      if (proactiveAIEnabled.value && currentLog.value) {
+        suggestFetchOperation();
+      }
+    }, 60000); // 1 minute after initialization
+  };
+  
+
+// Helper function to throttle frequent events
+const throttle = (func, delay) => {
+  let lastCall = 0;
+  return function(...args) {
+    const now = new Date().getTime();
+    if (now - lastCall >= delay) {
+      lastCall = now;
+      func(...args);
+    }
+  };
+};
+
+
+const analyzeContentChanges = async () => {
+  if (!journalEditor.value) return;
+  
+  const content = journalEditor.value.innerText;
+  
+  // Only proceed if enough content to analyze
+  if (content.length < 100) return;
+  
+  try {
+    const systemPrompt = "You are a helpful writing assistant. Analyze the sentiment and emotional tone of the text without additional commentary.";
+    
+    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${apiKey}`
+      },
+      body: JSON.stringify({
+        model: "o3-mini",
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: `Analyze the sentiment and tone of this journal entry. Respond with a JSON object containing mood (1-10 scale), primary emotion, and tone: ${content.substring(0, 1000)}` }
+        ],
+        temperature: 0.7
+      })
+    });
+    
+    if (!response.ok) return;
+    
+    const data = await response.json();
+    let analysis = {};
+    
+    try {
+      // Try to extract JSON response
+      const jsonMatch = data.choices[0].message.content.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        analysis = JSON.parse(jsonMatch[0]);
+      }
+    } catch (error) {
+      // Continue with empty analysis
+      return;
+    }
+    
+    // Decide on proactive action based on sentiment
+    if (analysis.mood && analysis.emotion) {
+      if (analysis.mood < 4) {
+        // For negative mood, offer inspiration or encouragement
+        showProactiveAISuggestion('inspire');
+      } else if (analysis.mood > 8) {
+        // For very positive mood, offer to expand or elaborate
+        showProactiveAISuggestion('respond');
+      }
+    }
+  } catch (error) {
+    console.error("Error in proactive content analysis:", error);
+  }
+};
+
+const showProactiveAISuggestion = (action) => {
+  if (!proactiveAIEnabled.value) return;
+  
+  // Create a floating suggestion bubble
+  const bubble = document.createElement('div');
+  bubble.className = 'proactive-suggestion';
+  
+  let actionText = "";
+  let actionIcon = "";
+  
+  switch(action) {
+    case 'write':
+      actionText = "Would you like me to help write more content?";
+      actionIcon = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/></svg>';
+      break;
+    case 'summarize':
+      actionText = "I can summarize this entry for you";
+      actionIcon = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="8" x2="16" y2="8"/><line x1="8" y1="16" x2="12" y2="16"/></svg>';
+      break;
+    case 'respond':
+      actionText = "Would you like me to respond to your thoughts?";
+      actionIcon = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>';
+      break;
+    case 'inspire':
+      actionText = "Need some inspiration?";
+      actionIcon = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>';
+      break;
+    case 'edit':
+      actionText = "I can help polish your writing";
+      actionIcon = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>';
+      break;
+    default:
+      actionText = "I can help with your journal";
+      actionIcon = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>';
+  }
+  
+  bubble.innerHTML = `
+    <div class="suggestion-icon">${actionIcon}</div>
+    <div class="suggestion-text">${actionText}</div>
+    <div class="suggestion-actions">
+      <button class="suggestion-accept" data-action="${action}">Yes</button>
+      <button class="suggestion-decline">No</button>
+    </div>
+  `;
+  
+  // Position the bubble
+  if (journalEditor.value) {
+    journalEditor.value.appendChild(bubble);
+    
+    // Add event listeners
+    bubble.querySelector('.suggestion-accept').addEventListener('click', () => {
+      bubble.remove();
+      showAiToolModal(action);
+    });
+    
+    bubble.querySelector('.suggestion-decline').addEventListener('click', () => {
+      bubble.remove();
+    });
+    
+    // Auto-remove after 15 seconds
+    setTimeout(() => {
+      if (bubble.parentNode) {
+        bubble.classList.add('fade-out');
+        setTimeout(() => {
+          if (bubble.parentNode) {
+            bubble.remove();
+          }
+        }, 500);
+      }
+    }, 15000);
+  }
+};
+
+// Fix for writing prompts - create them correctly outside the editor
+const suggestWritingPrompts = () => {
+  if (!proactiveAIEnabled.value || !journalEditor.value) return;
+  
+  const content = journalEditor.value.innerText;
+  
+  // Only suggest writing prompts for empty or very short entries
+  if (content.length > 100) return;
+  
+  // Define diverse, thought-provoking prompts
+  const writingPrompts = [
+    "How are you feeling today?",
+    "What's one thing you accomplished today that you're proud of?",
+    "What's something you're looking forward to?",
+    "What's a challenge you're currently facing?",
+    "What are you grateful for today?",
+    "What's something you learned recently?",
+    "What's a goal you're working towards?",
+    "Describe a recent interaction that affected you.",
+    "What's something you'd like to change about your routine?",
+    "What's a memory that made you smile today?"
+  ];
+  
+  const randomPrompt = writingPrompts[Math.floor(Math.random() * writingPrompts.length)];
+  
+  // Create a floating prompt div OUTSIDE the editor content
+  const promptContainer = document.createElement('div');
+  promptContainer.className = 'writing-prompt-container';
+  promptContainer.style.position = 'absolute';
+  promptContainer.style.top = '50%';
+  promptContainer.style.left = '50%';
+  promptContainer.style.transform = 'translate(-50%, -50%)';
+  promptContainer.style.zIndex = '1000';
+  promptContainer.style.width = '80%';
+  promptContainer.style.maxWidth = '500px';
+  
+  promptContainer.innerHTML = `
+    <div class="writing-prompt-suggestion" style="
+      background: linear-gradient(to bottom, #1e293b, #0f172a);
+      border: 1px solid #4f46e5;
+      border-radius: 8px;
+      padding: 16px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+      animation: fadeIn 0.5s ease;
+    ">
+      <div class="prompt-title" style="
+        font-weight: 600;
+        color: #4f46e5;
+        margin-bottom: 8px;
+        font-size: 14px;
+      ">Writing Prompt</div>
+      <div class="prompt-text" style="
+        color: white;
+        font-size: 16px;
+        margin-bottom: 16px;
+        font-style: italic;
+      ">${randomPrompt}</div>
+      <div class="prompt-actions" style="
+        display: flex;
+        gap: 10px;
+      ">
+        <button class="prompt-use" style="
+          background: #4f46e5;
+          color: white;
+          padding: 6px 12px;
+          border-radius: 4px;
+          border: none;
+          font-size: 13px;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        ">Use This Prompt</button>
+        <button class="prompt-dismiss" style="
+          background: transparent;
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          color: rgba(255, 255, 255, 0.7);
+          padding: 6px 12px;
+          border-radius: 4px;
+          font-size: 13px;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        ">Dismiss</button>
+      </div>
+    </div>
+  `;
+  
+  // Add to the parent container of the editor, not inside it
+  if (journalEditor.value.parentNode) {
+    journalEditor.value.parentNode.appendChild(promptContainer);
+    
+    // Add event listeners
+    const useButton = promptContainer.querySelector('.prompt-use');
+    const dismissButton = promptContainer.querySelector('.prompt-dismiss');
+    
+    if (useButton) {
+      useButton.addEventListener('click', () => {
+        // Insert the prompt at the beginning of the editor
+        if (journalEditor.value.innerHTML.trim() === '') {
+          journalEditor.value.innerHTML = `<p><strong>${randomPrompt}</strong></p><p><br></p>`;
+        } else {
+          journalEditor.value.innerHTML = `<p><strong>${randomPrompt}</strong></p><p><br></p>${journalEditor.value.innerHTML}`;
+        }
+        
+        // Remove the floating prompt
+        promptContainer.remove();
+        
+        // Save the updated content
+        saveJournalContent();
+        
+        // Set focus to the editor
+        journalEditor.value.focus();
+      });
+    }
+    
+    if (dismissButton) {
+      dismissButton.addEventListener('click', () => {
+        promptContainer.remove();
+      });
+    }
+    
+    // Auto-remove after 30 seconds
+    setTimeout(() => {
+      if (document.body.contains(promptContainer)) {
+        promptContainer.style.opacity = '0';
+        promptContainer.style.transition = 'opacity 0.5s ease';
+        
+        setTimeout(() => {
+          if (document.body.contains(promptContainer)) {
+            promptContainer.remove();
+          }
+        }, 500);
+      }
+    }, 30000);
+  }
+};
+
+const suggestFetchOperation = () => {
+  if (!proactiveAIEnabled.value) return;
+  
+  // Create a floating suggestion bubble
+  const bubble = document.createElement('div');
+  bubble.className = 'proactive-suggestion fetch-suggestion';
+  
+  bubble.innerHTML = `
+    <div class="suggestion-icon">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#818cf8" stroke-width="2">
+        <circle cx="12" cy="12" r="10"/>
+        <path d="M8 14s1.5 2 4 2 4-2 4-2"/>
+        <path d="M9 9h.01"/>
+        <path d="M15 9h.01"/>
+        <path d="M12 2v2"/>
+        <path d="M4.93 4.93l1.41 1.41"/>
+        <path d="M19.07 4.93l-1.41 1.41"/>
+      </svg>
+    </div>
+    <div class="suggestion-text">I can create a journal entry from your recent chat conversations. Would you like me to try?</div>
+    <div class="suggestion-actions">
+      <button class="suggestion-accept" data-action="fetch">Yes, create entry</button>
+      <button class="suggestion-decline">Not now</button>
+    </div>
+  `;
+  
+  // Append to journal editor
+  if (journalEditor.value) {
+    journalEditor.value.appendChild(bubble);
+    
+    // Add event listeners
+    bubble.querySelector('.suggestion-accept').addEventListener('click', () => {
+      bubble.remove();
+      fetchFromChatHistory();
+    });
+    
+    bubble.querySelector('.suggestion-decline').addEventListener('click', () => {
+      bubble.remove();
+    });
+    
+    // Auto-remove after 20 seconds
+    setTimeout(() => {
+      if (bubble.parentNode) {
+        bubble.classList.add('fade-out');
+        setTimeout(() => {
+          if (bubble.parentNode) {
+            bubble.remove();
+          }
+        }, 500);
+      }
+    }, 20000);
+  }
+};
+// Completely revised fetchFromChatHistory function
+// Completely revised fetchFromChatHistory function
+const fetchFromChatHistory = async () => {
+  showToastNotification("Starting fetch operation...", "info");
+  console.log("Fetch operation started");
+  
+  if (!userId.value) {
+    showToastNotification("Please log in to use Fetch", "error");
+    return;
+  }
+  
+  try {
+    // Get recent chat messages - first try from Firebase
+    let recentMessages = [];
+    let chatName = "Recent Conversations";
+    
+    if (currentChatId.value) {
+      try {
+        console.log("Fetching chat messages from Firebase for chat:", currentChatId.value);
+        
+        // First get the chat name
+        const chatRef = doc(db, `users/${userId.value}/chats/${currentChatId.value}`);
+        const chatDoc = await getDoc(chatRef);
+        if (chatDoc.exists()) {
+          chatName = chatDoc.data().name || "Recent Conversations";
+        }
+        
+        // Then get messages
+        const messagesRef = collection(db, `users/${userId.value}/chats/${currentChatId.value}/messages`);
+        const q = query(messagesRef, orderBy("timestamp", "desc"), limit(20));
+        const snapshot = await getDocs(q);
+        
+        recentMessages = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        })).reverse(); // Put in chronological order
+        
+        console.log(`Fetched ${recentMessages.length} messages from Firebase`);
+      } catch (chatError) {
+        console.error("Error fetching chat messages from Firebase:", chatError);
+      }
+    }
+    
+    // Use current messages if no stored messages found or if Firebase fetch failed
+    if (recentMessages.length === 0) {
+      recentMessages = messages.value.slice(-20);
+      console.log(`Using ${recentMessages.length} messages from current chat`);
+    }
+    
+    // Ensure we have some message content to analyze
+    if (recentMessages.length === 0) {
+      console.log("No messages found, using default message");
+      recentMessages = [{
+        role: 'user',
+        content: 'Could you generate a journal entry about my day?'
+      }];
+    }
+    
+    // Show processing notification
+    showToastNotification("Analyzing conversations...", "info");
+    
+    // Format messages for the API - strip HTML and limit length
+    const messageHistory = recentMessages
+      .map(msg => {
+        // Remove HTML tags and limit length
+        const cleanContent = msg.content?.replace(/<[^>]*>/g, '') || '';
+        const limitedContent = cleanContent.length > 500 ? 
+          cleanContent.substring(0, 500) + '...' : cleanContent;
+        
+        return `${msg.role === 'user' ? 'User' : 'AI'}: ${limitedContent}`;
+      })
+      .join('\n\n');
+    
+    console.log("Prepared message history, length:", messageHistory.length);
+    
+    // Log API inputs
+    const systemPrompt = `You are an empathetic AI assistant with expertise in psychology, emotional intelligence, and personal development. 
+      You have been asked to analyze a user's chat history to create a reflective summary.
+      Your task is to:
+      1. Identify the user's emotional state and mood based on their language and topics
+      2. Recognize the user's interests and topics they've been discussing
+      3. Note any patterns or trends in their conversations
+      4. Create a first-person journal entry AS IF WRITTEN BY THE USER that authentically captures their voice, mood, interests, and reflections
+      
+      Write in first person as if you are the user reflecting on their day and conversations. 
+      Be extremely sensitive to emotional nuances in their language.
+      Do not label or diagnose emotions directly - instead, express them naturally through the journal entry.
+      The journal entry should feel authentic, personal, and self-reflective.`;
+    
+    const userPrompt = `Please analyze my recent chat messages, then create a reflective journal entry written in my voice. 
+      Focus on my emotional state, interests, and recurring themes.
+      
+      RECENT CHAT MESSAGES:
+      ${messageHistory}
+      
+      Create a reflective first-person journal entry that captures my voice, mood, interests, and thoughts. 
+      Make it feel authentic and personal, as if I wrote it myself.
+      Include:
+      * A reflection on how I'm feeling emotionally based on my communication patterns
+      * Mention of topics/interests that seem important to me
+      * Any patterns or trends you notice in my discussions
+      * Write a minimum of 3 paragraphs but keep it concise and authentic to my apparent writing style.
+      * Add a title that captures the essence of the entry.`;
+    
+    console.log("Calling API to generate journal entry...");
+    
+    // Call API to generate the journal entry - with fallback
+    try {
+      // Show another notification to indicate progress
+      showToastNotification("Generating journal entry...", "info");
+      
+      const response = await fetch("https://api.openai.com/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${apiKey}`
+        },
+        body: JSON.stringify({
+          model: "o3-mini",
+          messages: [
+            { role: "system", content: systemPrompt },
+            { role: "user", content: userPrompt }
+          ],
+          temperature: 0.8
+        })
+      });
+      
+      if (!response.ok) {
+        console.error(`API returned status: ${response.status}`);
+        throw new Error(`API error: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      console.log("API response received");
+      
+      if (!data.choices || !data.choices[0] || !data.choices[0].message) {
+        throw new Error("Invalid API response format");
+      }
+      
+      const generatedEntry = data.choices[0].message.content;
+      console.log("Generated entry received, length:", generatedEntry.length);
+      
+      // Extract title if present (usually in format "# Title" or "Title")
+      let title = `Reflections on ${chatName}`;
+      const titleMatch = generatedEntry.match(/^#\s+(.*?)(?:\n|$)/) || generatedEntry.match(/^(.*?)(?:\n|$)/);
+      if (titleMatch && titleMatch[1]) {
+        title = titleMatch[1].trim();
+      }
+      
+      // Create the new journal log
+      const newLog = {
+        title: title,
+        content: generatedEntry.replace(/^#\s+.*?\n/, ''), // Remove the title if it was in markdown format
+        created: Date.now(),
+        lastEdited: Date.now(),
+        createdBy: userId.value,
+        fetchGenerated: true, // Mark as generated by Fetch
+        sourceChat: currentChatId.value
+      };
+      
+      console.log("Creating new log in Firebase with title:", title);
+      
+      // Show final notification
+      showToastNotification("Creating journal entry...", "info");
+      
+      // Save to Firebase using our robust createNewLogFromContent function
+      const logId = await createNewLogFromContent(title, newLog.content);
+      
+      if (logId) {
+        console.log("Successfully created fetch-generated log with ID:", logId);
+        showToastNotification("Journal entry created successfully!", "success");
+      } else {
+        throw new Error("Failed to create log in Firebase");
+      }
+      
+    } catch (apiError) {
+      console.error("API error:", apiError);
+      
+      // Create a simpler journal entry as fallback
+      const fallbackTitle = `Thoughts on ${chatName}`;
+      const fallbackContent = `
+        <p>I've been thinking about the conversations I've been having recently. It seems like I've been interested in exploring various topics and ideas.</p>
+        
+        <p>Some of my recent discussions have made me reflect on what's important to me right now. I notice certain themes keep coming up in my conversations.</p>
+        
+        <p>I should take some time to explore these ideas further and see where they lead me. Sometimes the most interesting insights come from these everyday exchanges.</p>
+      `;
+      
+      console.log("Using fallback content for journal entry");
+      
+      // Save fallback content
+      const logId = await createNewLogFromContent(fallbackTitle, fallbackContent);
+      
+      if (logId) {
+        console.log("Created fallback log with ID:", logId);
+        showToastNotification("Created a simple journal entry from your chats", "success");
+      } else {
+        showToastNotification("Failed to create journal entry", "error");
+      }
+    }
+    
+  } catch (error) {
+    console.error("Error in fetch operation:", error);
+    showToastNotification("Failed to create entry: " + (error.message || "Unknown error"), "error");
+  }
+};
+
+// Helper function to create a new log from content
+const createNewLogFromContent = async (title, content) => {
+  if (!userId.value) return null;
+  
+  try {
+    // Create new log
+    const newLog = {
+      title: title,
+      content: content,
+      created: Date.now(),
+      lastEdited: Date.now(),
+      createdBy: userId.value
+    };
+    
+    // Explicitly create the journals collection if needed
+    const journalsCollectionRef = collection(db, `users/${userId.value}/journals`);
+    
+    // Add the document with error checking
+    let docRef;
+    try {
+      docRef = await addDoc(journalsCollectionRef, newLog);
+      console.log("Document created with ID:", docRef.id);
+    } catch (innerError) {
+      console.error("Inner error adding document:", innerError);
+      // Try with a different method as fallback
+      docRef = doc(collection(db, `users/${userId.value}/journals`));
+      await setDoc(docRef, newLog);
+      console.log("Document created with fallback method, ID:", docRef.id);
+    }
+    
+    // Add to local array
+    const newLogWithId = { id: docRef.id, ...newLog };
+    journalLogs.value = [newLogWithId, ...journalLogs.value];
+    filteredJournalLogs.value = [newLogWithId, ...filteredJournalLogs.value];
+    
+    // Open the new log
+    currentLogId.value = docRef.id;
+    currentLog.value = newLogWithId;
+    
+    return docRef.id;
+  } catch (error) {
+    console.error("Error creating log from content:", error);
+    return null;
+  }
+};
+
+// Helper function to create a new log from content
+
+// Add this to onMounted or setup
+
+// Add these helper methods
+const getMoodColor = (score) => {
+  if (score <= 3) return '#ef4444'; // Red for low mood
+  if (score <= 5) return '#f97316'; // Orange for meh
+  if (score <= 7) return '#facc15'; // Yellow for OK
+  return '#10b981'; // Green for good mood
+};
+
+const formatShortDate = (dateStr) => {
+  const date = new Date(dateStr);
+  return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+};
+
+const getMaxTopicFrequency = () => {
+  if (!journalInsights.value.topics || journalInsights.value.topics.length === 0) return 1;
+  return Math.max(...journalInsights.value.topics.map(t => t.frequency));
+};
+// Add this to your methods
+const generateJournalInsights = async () => {
+  if (!userId.value) {
+    showToastNotification("Please log in to generate insights", "error");
+    return;
+  }
+  
+  try {
+    // Show the modal with loading state first
+    insightsLoading.value = true;
+    showInsightsModal.value = true;
+    
+    console.log("Insights modal opened with loading state");
+    await nextTick(); // Ensure modal renders
+    
+    // Fetch all journal logs
+    const logsRef = collection(db, `users/${userId.value}/journals`);
+    const snapshot = await getDocs(logsRef);
+    
+    if (snapshot.empty) {
+      console.log("No journal logs found");
+      showToastNotification("No journal logs found to analyze", "error");
+      return;
+    }
+    
+    const logs = snapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+    
+    console.log(`Fetched ${logs.length} journal logs for insights`);
+    
+    // Extract text content
+    const logsContent = logs.map(log => ({
+      title: log.title,
+      content: log.content ? stripHtml(log.content) : "",
+      date: new Date(log.lastEdited)
+    })).filter(log => log.content.trim().length > 0);
+    
+    if (logsContent.length === 0) {
+      console.log("No journal content to analyze");
+      showToastNotification("No journal content found to analyze", "error");
+      return;
+    }
+    
+    // Calculate basic statistics
+    const wordCounts = logsContent.map(log => {
+      const words = log.content.split(/\s+/).filter(w => w.length > 0);
+      return {
+        date: log.date,
+        count: words.length
+      };
+    });
+    
+    // Calculate streaks
+    let currentStreak = 0;
+    let longestStreak = 0;
+    let prevDate = null;
+    
+    for (let i = 0; i < logsContent.length; i++) {
+      const logDate = logsContent[i].date;
+      
+      if (prevDate) {
+        // Check if entries are on consecutive days
+        const dayDiff = Math.floor((logDate - prevDate) / (1000 * 60 * 60 * 24));
+        
+        if (dayDiff <= 1) {
+          currentStreak++;
+          longestStreak = Math.max(longestStreak, currentStreak);
+        } else {
+          currentStreak = 1;
+        }
+      } else {
+        currentStreak = 1;
+        longestStreak = 1;
+      }
+      
+      prevDate = logDate;
+    }
+    
+    // Prepare sample data for testing when API call is pending
+    const sampleData = {
+      mood: {
+        entries: logsContent.map((log, index) => ({
+          date: log.date.toLocaleDateString(),
+          score: 5 + Math.floor(Math.random() * 5),
+          keywords: ["thoughtful", "reflective"]
+        })),
+        average: 7.5
+      },
+      topics: [
+        {name: "reflection", frequency: 8}, 
+        {name: "goals", frequency: 6},
+        {name: "work", frequency: 5},
+        {name: "relationships", frequency: 4},
+        {name: "learning", frequency: 3}
+      ],
+      growth: {
+        score: 7,
+        progress: ["self-awareness", "communication", "consistency"],
+        struggles: ["patience", "focus"]
+      },
+      recommendations: [
+        "Consider adding more specific details to your journal entries",
+        "Try journaling at the same time each day to build a consistent habit",
+        "Reflect on your achievements more often to boost motivation"
+      ],
+      patterns: [
+        "You tend to journal more when feeling reflective",
+        "Your entries are more detailed on weekdays"
+      ]
+    };
+    
+    // Update insights data with initial sample to ensure modal works
+    journalInsights.value = {
+      mood: sampleData.mood,
+      topics: sampleData.topics,
+      growth: sampleData.growth,
+      streaks: { current: currentStreak, longest: longestStreak },
+      wordCounts: wordCounts,
+      recommendations: sampleData.recommendations,
+      patterns: sampleData.patterns
+    };
+    
+    // With sample data displayed, now call API for real insights
+    try {
+      console.log("Calling API for sentiment analysis");
+      const systemPrompt = "You are an expert journal analyst and psychologist. Your task is to analyze journal entries and extract insights about mood, recurring topics, personal growth, and provide recommendations.";
+      
+      const promptContent = logsContent.map(log => 
+        `Entry (${log.date.toLocaleDateString()}):\n${log.content.substring(0, 300)}${log.content.length > 300 ? '...' : ''}`
+      ).join('\n\n');
+      
+      const userPrompt = `Analyze these journal entries and provide:
+1. Mood analysis (score from 1-10 for each entry and average)
+2. Top 5 recurring topics/themes
+3. Personal growth assessment (areas of progress and struggles)
+4. 3 personalized recommendations based on the entries
+5. Notable patterns or insights
+
+Journal entries:
+${promptContent}
+
+Format your response as a JSON object with the following structure:
+{
+  "mood": {
+    "entries": [{"date": "MM/DD/YYYY", "score": 7, "keywords": ["happy", "content"]}],
+    "average": 7.5
+  },
+  "topics": [{"name": "work", "frequency": 8}, {"name": "family", "frequency": 5}],
+  "growth": {
+    "score": 7,
+    "progress": ["confidence", "communication"],
+    "struggles": ["consistency", "patience"]
+  },
+  "recommendations": ["recommendation1", "recommendation2", "recommendation3"],
+  "patterns": ["pattern1", "pattern2"]
+}
+`;
+
+      const response = await fetch("https://api.openai.com/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${apiKey}`
+        },
+        body: JSON.stringify({
+          model: "o3-mini",
+          messages: [
+            { role: "system", content: systemPrompt },
+            { role: "user", content: userPrompt }
+          ],
+          temperature: 0.7
+        })
+      });
+      
+      if (!response.ok) {
+        console.error(`API returned status: ${response.status}`);
+        throw new Error(`API error: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      console.log("Received API response for insights");
+      
+      let insights = {};
+      try {
+        insights = JSON.parse(data.choices[0].message.content);
+        console.log("Successfully parsed insights JSON");
+        
+        // Update insights with real data
+        journalInsights.value = {
+          mood: insights.mood || sampleData.mood,
+          topics: insights.topics || sampleData.topics,
+          growth: insights.growth || sampleData.growth,
+          streaks: { current: currentStreak, longest: longestStreak },
+          wordCounts: wordCounts,
+          recommendations: insights.recommendations || sampleData.recommendations,
+          patterns: insights.patterns || sampleData.patterns
+        };
+      } catch (error) {
+        console.error("Error parsing insights JSON:", error);
+        // Keep the sample data already loaded
+      }
+    } catch (apiError) {
+      console.error("API error:", apiError);
+      // Keep the sample data already loaded
+    }
+    
+  } catch (error) {
+    console.error("Error generating journal insights:", error);
+    showToastNotification("Failed to generate insights: " + error.message, "error");
+    showInsightsModal.value = false;
+  } finally {
+    insightsLoading.value = false;
+  }
+};
+// Journal Methods
+const openJournalModal = () => {
+  showJournalModal.value = true;
+  loadJournalLogs();
+};
+
+const closeJournalModal = () => {
+  showJournalModal.value = false;
+  currentLogId.value = null;
+  currentLog.value = null;
+};
+
+// Replace the loadJournalLogs function with this enhanced version
+// Replace the loadJournalLogs function with this enhanced version
+const loadJournalLogs = async () => {
+  if (!userId.value) return;
+  
+  try {
+    const logsRef = collection(db, `users/${userId.value}/journals`);
+    const q = query(logsRef, orderBy("lastEdited", "desc"));
+    
+    // Get initial data
+    const snapshot = await getDocs(q);
+    journalLogs.value = snapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+    
+    filteredJournalLogs.value = [...journalLogs.value];
+    
+    // Set up real-time listener for journals
+    if (journalLogUnsubscribe.value) {
+      journalLogUnsubscribe.value(); // Clean up previous listener
+    }
+    
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      journalLogs.value = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      filteredJournalLogs.value = journalSearch.value ? 
+        journalLogs.value.filter(log => log.title.toLowerCase().includes(journalSearch.value.toLowerCase())) :
+        [...journalLogs.value];
+    });
+    
+    // Store the unsubscribe function for cleanup
+    journalLogUnsubscribe.value = unsubscribe;
+    
+  } catch (error) {
+    console.error("Error loading journal logs:", error);
+    showToastNotification("Failed to load journal logs", "error");
+  }
+};
+
+// Ensure this function is called in onMounted lifecycle hook
+onMounted(() => {
+  // Existing code...
+  
+  // Clean up listener on component unmount
+  onUnmounted(() => {
+    if (journalLogUnsubscribe.value) {
+      journalLogUnsubscribe.value();
+    }
+  });
+});
+// Ensure this function is called in onMounted lifecycle hook
+onMounted(() => {
+  // Existing code...
+  
+  // Clean up listener on component unmount
+  onUnmounted(() => {
+    if (journalLogUnsubscribe.value) {
+      journalLogUnsubscribe.value();
+    }
+  });
+});
+
+const searchJournalLogs = () => {
+  const searchTerm = journalSearch.value.toLowerCase().trim();
+  if (!searchTerm) {
+    filteredJournalLogs.value = [...journalLogs.value];
+    return;
+  }
+  
+  filteredJournalLogs.value = journalLogs.value.filter(log => 
+    log.title.toLowerCase().includes(searchTerm) || 
+    (log.content && log.content.toLowerCase().includes(searchTerm))
+  );
+};
+
+// Completely revised createNewLog function with robust Firebase handling
+// Completely revised createNewLog function with robust Firebase handling
+const createNewLog = async () => {
+  if (!userId.value) {
+    showToastNotification("Please log in to create a log", "error");
+    return;
+  }
+  
+  try {
+    console.log("Creating new log for user:", userId.value);
+    
+    // Create new log data
+    const newLog = {
+      title: `New Log - ${new Date().toLocaleDateString()}`,
+      content: "",
+      created: Date.now(),
+      lastEdited: Date.now(),
+      createdBy: userId.value
+    };
+    
+    // Use addDoc directly which doesn't require setDoc
+    const logsRef = collection(db, `users/${userId.value}/journals`);
+    const docRef = await addDoc(logsRef, newLog);
+    
+    console.log("Document created with ID:", docRef.id);
+    
+    // Add to local array immediately to update UI
+    const newLogWithId = { id: docRef.id, ...newLog };
+    journalLogs.value = [newLogWithId, ...journalLogs.value];
+    filteredJournalLogs.value = [newLogWithId, ...filteredJournalLogs.value];
+    
+    currentLogId.value = docRef.id;
+    currentLog.value = newLogWithId;
+    
+    showToastNotification("New log created", "success");
+    
+    // Focus on editor
+    nextTick(() => {
+      if (journalEditor.value) {
+        journalEditor.value.focus();
+      }
+    });
+    
+    return docRef.id;
+  } catch (error) {
+    console.error("Error creating new log:", error);
+    showToastNotification(`Failed to create new log: ${error.message || 'Unknown error'}`, "error");
+    return null;
+  }
+};
+
+// Also update the saveJournalContent function
+
+const openJournalLog = async (logId) => {
+  if (!userId.value || !logId) return;
+  
+  try {
+    // If we have a current log with unsaved changes, save it first
+    if (currentLog.value && savingLogContent.value) {
+      await saveJournalContent();
+    }
+    
+    const logRef = doc(db, `users/${userId.value}/journals/${logId}`);
+    const logSnap = await getDoc(logRef);
+    
+    if (logSnap.exists()) {
+      currentLogId.value = logId;
+      currentLog.value = {
+        id: logId,
+        ...logSnap.data()
+      };
+      
+      // Focus on editor
+      nextTick(() => {
+        if (journalEditor.value) {
+          journalEditor.value.focus();
+        }
+      });
+    } else {
+      showToastNotification("Log not found", "error");
+    }
+  } catch (error) {
+    console.error("Error opening log:", error);
+    showToastNotification("Failed to open log", "error");
+  }
+};
+
+
+const formatText = (format) => {
+  if (!journalEditor.value) return;
+  
+  document.execCommand(format);
+  journalEditor.value.focus();
+  saveJournalContent();
+};
+
+const applyHeading = (event) => {
+  if (!journalEditor.value) return;
+  
+  const format = event.target.value;
+  
+  if (format) {
+    document.execCommand('formatBlock', false, format);
+  } else {
+    document.execCommand('formatBlock', false, 'p');
+  }
+  
+  journalEditor.value.focus();
+  saveJournalContent();
+};
+
+const showAiToolModal = (tool) => {
+  currentAiTool.value = tool;
+  
+  // Set up tool-specific UI
+  switch (tool) {
+    case 'write':
+      aiToolTitle.value = "AI Write";
+      aiToolDescription.value = "Generate content based on your prompt. What would you like the AI to write about?";
+      aiToolPlaceholder.value = "E.g.: Write a reflection on my day...";
+      break;
+    case 'summarize':
+      aiToolTitle.value = "AI Summarize";
+      aiToolDescription.value = "Summarize selected text. How detailed would you like the summary?";
+      aiToolPlaceholder.value = "E.g.: Brief summary of key points...";
+      break;
+    case 'respond':
+      aiToolTitle.value = "AI Respond";
+      aiToolDescription.value = "Get AI response to your journal entry. What would you like feedback on?";
+      aiToolPlaceholder.value = "E.g.: What do you think about my thoughts on...";
+      break;
+    case 'inspire':
+      aiToolTitle.value = "AI Inspire";
+      aiToolDescription.value = "Add an inspirational quote related to your journal content.";
+      aiToolPlaceholder.value = "";
+      break;
+    case 'edit':
+      aiToolTitle.value = "AI Edit";
+      aiToolDescription.value = "Edit and improve your selected text or entire journal entry.";
+      aiToolPlaceholder.value = "E.g.: Improve clarity and flow...";
+      break;
+  }
+  
+  aiToolInput.value = "";
+  showAiToolInputModal.value = true;
+};
+
+const closeAiToolModal = () => {
+  showAiToolInputModal.value = false;
+  currentAiTool.value = "";
+};
+
+const processAiTool = async () => {
+  if (!userId.value || !currentLogId.value || !journalEditor.value) {
+    closeAiToolModal();
+    return;
+  }
+  
+  try {
+    // Get selected text if applicable
+    let selectedText = "";
+    let selectionRange = null;
+    const selection = window.getSelection();
+    if (selection.rangeCount > 0) {
+      const range = selection.getRangeAt(0);
+      if (range.commonAncestorContainer.parentNode === journalEditor.value ||
+          journalEditor.value.contains(range.commonAncestorContainer)) {
+        selectedText = range.toString();
+        selectionRange = range.cloneRange();
+      }
+    }
+    
+    // Get entire content if needed
+    const entireContent = journalEditor.value.innerText;
+    
+    // Prepare query based on tool type
+    let prompt = "";
+    let systemPrompt = getDawntasySystemPrompt() + "\n\nFocus solely on the specific task requested. Do not mention Dawntasy unless it's directly relevant to the user's content.";
+    
+    switch (currentAiTool.value) {
+      case 'write':
+        prompt = `Please generate content for my journal based on this request: "${aiToolInput.value}"`;
+        break;
+      case 'rephrase':
+        prompt = selectedText 
+          ? `Please rephrase ONLY this text: "${selectedText}". Instructions: ${aiToolInput.value}. 
+             DO NOT mention Dawntasy unless it's already mentioned in the text. 
+             Return ONLY the rephrased text without any explanations or additional content.`
+          : `I don't have any text selected. Please generate content based on: ${aiToolInput.value}`;
+        break;
+      case 'summarize':
+        prompt = selectedText
+          ? `Please summarize ONLY this text: "${selectedText}". Instructions: ${aiToolInput.value}.
+             Return ONLY the summary without any explanations or additional content.`
+          : `Please summarize my journal entry: "${entireContent}". Instructions: ${aiToolInput.value}`;
+        break;
+      case 'respond':
+        prompt = selectedText
+          ? `Please respond to this journal text: "${selectedText}". ${aiToolInput.value}`
+          : `Please respond to my journal entry: "${entireContent}". ${aiToolInput.value}`;
+        break;
+      case 'inspire':
+        prompt = `Based on my journal content: "${entireContent}", please provide an inspirational quote that relates to the themes and emotions expressed.`;
+        break;
+      case 'edit':
+        prompt = selectedText
+          ? `Please edit and improve ONLY this text: "${selectedText}". Make it more clear, concise, and impactful while maintaining my voice and intent.
+             Return ONLY the edited text without any explanations or additional content.`
+          : `Please edit and improve my journal entry: "${entireContent}". Make it more clear, concise, and impactful while maintaining my voice and intent.`;
+        break;
+    }
+    
+    // Close the tool modal
+    closeAiToolModal();
+    
+    // Show loading indicator
+    showToastNotification("AI processing your request...", "info");
+    
+    // Prepare the location where AI text will appear
+    let aiTextPlaceholder;
+    
+    if (selectedText && selectionRange && 
+       (currentAiTool.value === 'rephrase' || 
+        currentAiTool.value === 'summarize' || 
+        currentAiTool.value === 'edit')) {
+      // Replace selected text with a placeholder for streaming text
+      const span = document.createElement('span');
+      span.className = 'ai-generated-text';
+      span.style.color = '#3b82f6';
+      span.innerHTML = '<span class="typing-cursor">|</span>';
+      aiTextPlaceholder = span;
+      
+      // Delete the selected text and insert our placeholder
+      selectionRange.deleteContents();
+      selectionRange.insertNode(span);
+    } else {
+      // Append to the end of the content
+      const span = document.createElement('span');
+      span.className = 'ai-generated-text';
+      span.style.color = '#3b82f6';
+      span.innerHTML = '<br><br><span class="typing-cursor">|</span>';
+      aiTextPlaceholder = span;
+      
+      // Move to end of editor
+      journalEditor.value.appendChild(span);
+    }
+    
+    // Add typing cursor animation class
+    const typingCursor = aiTextPlaceholder.querySelector('.typing-cursor');
+    typingCursor.style.animation = 'blink 0.8s infinite';
+    
+    // Call the API
+    const conversationContext = [{ role: "user", content: prompt }];
+    
+    try {
+      const stream = await createStream(
+        conversationContext,
+        systemPrompt,
+        10000
+      );
+      
+      // Process the stream directly and update the placeholder in real-time
+      const reader = stream.getReader();
+      let accumulatedText = '';
+      
+      while (true) {
+        const { done, value } = await reader.read();
+        
+        if (done) break;
+        
+        const chunkText = new TextDecoder().decode(value);
+        const lines = chunkText.split("\n").filter(line => line.trim() !== "");
+        
+        for (const line of lines) {
+          if (line.startsWith("data: ") && line !== "data: [DONE]") {
+            try {
+              const jsonData = line.substring(6);
+              if (jsonData.trim() === "[DONE]") continue;
+              
+              const data = JSON.parse(jsonData);
+              
+              if (data.choices && data.choices[0].delta && data.choices[0].delta.content) {
+                const content = data.choices[0].delta.content;
+                accumulatedText += content;
+                
+                // Update the placeholder text in real-time
+                aiTextPlaceholder.innerHTML = accumulatedText + '<span class="typing-cursor">|</span>';
+              }
+            } catch (e) {
+              console.error("Error parsing streaming data:", e, line);
+            }
+          }
+        }
+        
+        // Add a small delay to create a typing effect
+        await new Promise(resolve => setTimeout(resolve, 10));
+      }
+      
+      // Remove the typing cursor once done
+      aiTextPlaceholder.innerHTML = accumulatedText;
+      
+    } catch (error) {
+      console.error("Error calling AI:", error);
+      showToastNotification("Error processing AI request", "error");
+      
+      // Provide a fallback response
+      let fallbackResponse = "";
+      switch (currentAiTool.value) {
+        case 'write':
+          fallbackResponse = "I couldn't generate content at the moment. Please try again later.";
+          break;
+        case 'rephrase':
+          fallbackResponse = selectedText || "I couldn't rephrase this content.";
+          break;
+        case 'summarize':
+          fallbackResponse = "I couldn't summarize this content at the moment. Please try again later.";
+          break;
+        case 'respond':
+          fallbackResponse = "I couldn't generate a response at the moment. Please try again later.";
+          break;
+        case 'inspire':
+          fallbackResponse = "\"The best way to predict the future is to create it.\" - Abraham Lincoln";
+          break;
+        case 'edit':
+          fallbackResponse = selectedText || "I couldn't edit this content at the moment.";
+          break;
+      }
+      
+      aiTextPlaceholder.innerHTML = fallbackResponse;
+    }
+    
+    // Save the updated content
+    saveJournalContent();
+    
+  } catch (error) {
+    console.error("Error processing AI tool:", error);
+    showToastNotification("Error processing AI request", "error");
+  }
+};
+
+const applyAiResponseToJournal = (response, selectedText) => {
+  if (!journalEditor.value) return;
+  
+  // Format the AI response with blue text
+  const formattedResponse = `<span style="color: #3b82f6;">${response}</span>`;
+  
+  // Apply the response based on the tool and whether text was selected
+  if (selectedText && (currentAiTool.value === 'rephrase' || currentAiTool.value === 'summarize')) {
+    // Replace selected text
+    document.execCommand('insertHTML', false, formattedResponse);
+  } else {
+    // Append to the end of the content
+    const endPosition = journalEditor.value.innerHTML.length;
+    const sel = window.getSelection();
+    const range = document.createRange();
+    
+    // Move to end of editor
+    range.setStart(journalEditor.value, journalEditor.value.childNodes.length);
+    range.collapse(true);
+    sel.removeAllRanges();
+    sel.addRange(range);
+    
+    // Insert new line if not at beginning
+    if (endPosition > 0) {
+      document.execCommand('insertHTML', false, '<br><br>');
+    }
+    
+    // Insert AI response
+    document.execCommand('insertHTML', false, formattedResponse);
+  }
+  
+  // Save the updated content
+  saveJournalContent();
+};
+
+const startRenameLog = (log) => {
+  logToRename.value = log;
+  newLogTitle.value = log.title;
+  showRenameLogModal.value = true;
+  
+  nextTick(() => {
+    if (document.querySelector('.rename-log-content input')) {
+      document.querySelector('.rename-log-content input').focus();
+    }
+  });
+};
+
+const confirmRenameLog = async () => {
+  if (!userId.value || !logToRename.value || !newLogTitle.value.trim()) {
+    showToastNotification("Please enter a log title", "error");
+    return;
+  }
+  
+  try {
+    const logRef = doc(db, `users/${userId.value}/journals/${logToRename.value.id}`);
+    await updateDoc(logRef, {
+      title: newLogTitle.value.trim(),
+      lastEdited: Date.now()
+    });
+    
+    // Update local log if it's the current one
+    if (currentLog.value && currentLog.value.id === logToRename.value.id) {
+      currentLog.value.title = newLogTitle.value.trim();
+      currentLog.value.lastEdited = Date.now();
+    }
+    
+    showRenameLogModal.value = false;
+    logToRename.value = null;
+    newLogTitle.value = "";
+    
+    showToastNotification("Log renamed successfully", "success");
+  } catch (error) {
+    console.error("Error renaming log:", error);
+    showToastNotification("Failed to rename log", "error");
+  }
+};
+
+const confirmDeleteLog = (logId) => {
+  logToDelete.value = logId;
+  showDeleteLogModal.value = true;
+};
+
+const deleteLog = async () => {
+  if (!userId.value || !logToDelete.value) {
+    showDeleteLogModal.value = false;
+    return;
+  }
+  
+  try {
+    console.log("Deleting log:", logToDelete.value);
+    
+    // Delete from Firebase
+    await deleteDoc(doc(db, `users/${userId.value}/journals/${logToDelete.value}`));
+    console.log("Log deleted from Firebase");
+    
+    // Update local arrays immediately for responsive UI
+    journalLogs.value = journalLogs.value.filter(log => log.id !== logToDelete.value);
+    filteredJournalLogs.value = filteredJournalLogs.value.filter(log => log.id !== logToDelete.value);
+    
+    // If we deleted the current log, clear it
+    if (currentLogId.value === logToDelete.value) {
+      currentLogId.value = null;
+      currentLog.value = null;
+    }
+    
+    showToastNotification("Log deleted", "success");
+  } catch (error) {
+    console.error("Error deleting log:", error);
+    showToastNotification(`Failed to delete log: ${error.message}`, "error");
+  } finally {
+    showDeleteLogModal.value = false;
+    logToDelete.value = null;
+  }
+};
+const addToJournal = (content, index) => {
+  messageToAdd.value = content;
+  messageIndex.value = index;
+  showSelectLogModal.value = true;
+  loadJournalLogs();
+};
+
+const selectLogForMessage = async (logId) => {
+  if (!userId.value || !logId || !messageToAdd.value) {
+    closeSelectLogModal();
+    return;
+  }
+  
+  try {
+    const logRef = doc(db, `users/${userId.value}/journals/${logId}`);
+    const logSnap = await getDoc(logRef);
+    
+    if (logSnap.exists()) {
+      const log = logSnap.data();
+      
+      // Format message to add
+      const messageToAddFormatted = `<br><br><div style="border-left: 2px solid #3b82f6; padding-left: 10px; color: #3b82f6;">
+        <p><strong>Added from Chat:</strong></p>
+        ${messageToAdd.value}
+      </div>`;
+      
+      // Update log with the new content
+      await updateDoc(logRef, {
+        content: log.content + messageToAddFormatted,
+        lastEdited: Date.now()
+      });
+      
+      showToastNotification("Message added to journal", "success");
+    } else {
+      showToastNotification("Log not found", "error");
+    }
+  } catch (error) {
+    console.error("Error adding message to log:", error);
+    showToastNotification("Failed to add message to journal", "error");
+  } finally {
+    closeSelectLogModal();
+  }
+};
+
+const createAndSelectLog = async () => {
+  if (!userId.value || !newMessageLogTitle.value.trim() || !messageToAdd.value) {
+    showToastNotification("Please enter a log title", "error");
+    return;
+  }
+  
+  try {
+    // Create new log
+    const newLog = {
+      title: newMessageLogTitle.value.trim(),
+      content: "",
+      created: Date.now(),
+      lastEdited: Date.now(),
+      createdBy: userId.value
+    };
+    
+    const logsRef = collection(db, `users/${userId.value}/journals`);
+    const docRef = await addDoc(logsRef, newLog);
+    
+    // Format message to add
+    const messageToAddFormatted = `<div style="border-left: 2px solid #3b82f6; padding-left: 10px; color: #3b82f6;">
+      <p><strong>Added from Chat:</strong></p>
+      ${messageToAdd.value}
+    </div>`;
+    
+    // Update the new log with content
+    await updateDoc(doc(db, `users/${userId.value}/journals/${docRef.id}`), {
+      content: messageToAddFormatted,
+      lastEdited: Date.now()
+    });
+    
+    showToastNotification("Message added to new journal log", "success");
+  } catch (error) {
+    console.error("Error creating log and adding message:", error);
+    showToastNotification("Failed to add message to journal", "error");
+  } finally {
+    closeSelectLogModal();
+  }
+};
+
+const closeSelectLogModal = () => {
+  showSelectLogModal.value = false;
+  messageToAdd.value = "";
+  messageIndex.value = -1;
+  newMessageLogTitle.value = "";
+};
+
+const generateJournalReport = async () => {
+  if (!userId.value) {
+    showToastNotification("Please log in to generate a report", "error");
+    return;
+  }
+  
+  try {
+    // Close journal modal
+    closeJournalModal();
+    
+    // Show loading indicator
+    isLoading.value = true;
+    
+    // Fetch all journal logs
+    const logsRef = collection(db, `users/${userId.value}/journals`);
+    const snapshot = await getDocs(logsRef);
+    
+    if (snapshot.empty) {
+      showToastNotification("No journal logs found to analyze", "error");
+      isLoading.value = false;
+      return;
+    }
+    
+    const logs = snapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+    
+    // Prepare content for analysis
+    const logsContent = logs.map(log => ({
+      title: log.title,
+      content: log.content ? stripHtml(log.content) : "",
+      date: new Date(log.lastEdited).toLocaleDateString()
+    }));
+    
+    // Create a summary of logs for the AI to analyze
+    const logsSummary = logsContent
+      .filter(log => log.content.trim().length > 0)
+      .map(log => `Log: "${log.title}" (${log.date})\nContent: ${log.content.substring(0, 300)}${log.content.length > 300 ? '...' : ''}`)
+      .join('\n\n');
+    
+    // Create user message
+    const userMessage = {
+      role: "user",
+      content: `Please analyze my journal logs and provide a comprehensive report. Focus on sentiment analysis, recurring themes, personal growth opportunities, and actionable insights. Here are my journal entries:\n\n${logsSummary}`,
+      timestamp: Date.now()
+    };
+    
+    // Add to UI and save to Firebase
+    messages.value.push(userMessage);
+    await saveMessageToFirebase(userMessage);
+    
+    // Generate AI response
+    const systemPrompt = getDawntasySystemPrompt() + 
+      "\n\nYou are analyzing the user's journal logs. Provide a comprehensive report that includes sentiment analysis, recurring themes, personal growth opportunities, and actionable insights. Be empathetic, thoughtful, and constructive.";
+    
+    const conversationContext = [
+      ...messages.value.slice(-10).map(msg => ({
+        role: msg.role,
+        content: msg.content
+      })),
+      { role: "user", content: userMessage.content }
+    ];
+    
+    const streamingMessageIndex = messages.value.length;
+    
+    // Add empty AI message
+    messages.value.push({
+      role: "assistant",
+      content: "",
+      streamContent: "",
+      timestamp: Date.now(),
+      hasReasoning: false,
+      isStreaming: true
+    });
+    
+    isStreaming.value = true;
+    
+    try {
+      const stream = await createStream(
+        conversationContext,
+        systemPrompt,
+        10000
+      );
+      
+      await processStream(
+        stream,
+        streamingMessageIndex,
+        false
+      );
+      
+      const aiMessage = messages.value[streamingMessageIndex];
+      
+      await saveMessageToFirebase(aiMessage);
+      
+    } catch (error) {
+      console.error("Error generating journal report:", error);
+      
+      // Update the message with error
+      if (messages.value[streamingMessageIndex]) {
+        messages.value[streamingMessageIndex].content = 
+          "I encountered an error while analyzing your journal logs. Please try again later.";
+        messages.value[streamingMessageIndex].isStreaming = false;
+        
+        await saveMessageToFirebase(messages.value[streamingMessageIndex]);
+      }
+    }
+    
+  } catch (error) {
+    console.error("Error generating journal report:", error);
+    showToastNotification("Failed to generate journal report", "error");
+  } finally {
+    isLoading.value = false;
+    isStreaming.value = false;
+  }
+};
+
+// Helper to strip HTML tags from content
+const stripHtml = (html) => {
+  const doc = new DOMParser().parseFromString(html, 'text/html');
+  return doc.body.textContent || "";
+};
+const hyperAccuracyLearningSystem = reactive({
+  version: "1.0",
+  accuracyLevel: 0.999,
+  learningRate: 1,
+  decayRate: 0.005,
+  confidenceThreshold: 0.9,
+  lastUpdated: Date.now(),
+  domains: {
+    scientific: { accuracy: 0.999, samples: 0, weight: 1.3 },
+    creative: { accuracy: 0.9999999, samples: 0, weight: 1.6 },
+    technical: { accuracy: 0.9999, samples: 0, weight: 1.5 },
+    philosophical: { accuracy: 0.99999999999, samples: 0, weight: 1.6 },
+    factual: { accuracy: 0.9999, samples: 0, weight: 1.4 }
+  },
+  
+  // Knowledge verification matrix
+  verificationMatrix: new Map(),
+  
+  // Accuracy improvement tracking
+  improvements: [],
+  
+  // Process user feedback to improve accuracy
+  processFeedback(domain, isCorrect, confidence) {
+    if (!this.domains[domain]) {
+      this.domains[domain] = { accuracy: 0.95, samples: 0, weight: 1.0 };
+    }
+    
+    const domainData = this.domains[domain];
+    domainData.samples++;
+    
+    // Update domain accuracy
+    if (isCorrect) {
+      // Positive reinforcement with diminishing returns
+      const improvementFactor = (1 - domainData.accuracy) * this.learningRate;
+      domainData.accuracy += improvementFactor;
+    } else {
+      // Stronger negative reinforcement for incorrect responses
+      const penaltyFactor = domainData.accuracy * this.learningRate * 1.5;
+      domainData.accuracy = Math.max(0.5, domainData.accuracy - penaltyFactor);
+    }
+    
+    // Track improvement
+    this.improvements.push({
+      timestamp: Date.now(),
+      domain,
+      previousAccuracy: domainData.accuracy - (isCorrect ? improvementFactor : -penaltyFactor),
+      newAccuracy: domainData.accuracy,
+      isCorrect
+    });
+    
+    // Update overall accuracy
+    this.recalculateOverallAccuracy();
+    this.lastUpdated = Date.now();
+    
+    console.log(`Hyper Accuracy System updated ${domain}: ${domainData.accuracy.toFixed(4)}`);
+  },
+  
+  // Calculate confidence for a response
+  calculateConfidence(domain, content) {
+    const domainData = this.domains[domain] || { accuracy: 0.7, weight: 1.0 };
+    const contentLength = content.length;
+    const contentComplexity = this.analyzeComplexity(content);
+    
+    // More complex and thorough answers generally have higher confidence
+    const lengthFactor = Math.min(0.1, contentLength / 10000);
+    const complexityFactor = contentComplexity * 0.05;
+    
+    // Base confidence on domain accuracy with adjustments
+    let confidence = domainData.accuracy + lengthFactor + complexityFactor;
+    
+    // Apply uncertainty reduction for domains with more samples
+    if (domainData.samples > 10) {
+      confidence += 0.05 * Math.min(1, domainData.samples / 100);
+    }
+    
+    // Check verification matrix for similar responses
+    const verificationBonus = this.checkVerificationMatrix(content, domain);
+    confidence += verificationBonus;
+    
+    // Cap confidence
+    return Math.min(0.99, confidence);
+  },
+  
+  // Analyze response complexity
+  analyzeComplexity(content) {
+    // Simple complexity metric based on:
+    // 1. Average sentence length
+    // 2. Vocabulary diversity
+    // 3. Structure complexity (headings, lists, etc)
+    
+    const sentences = content.split(/[.!?]+/).filter(s => s.trim().length > 0);
+    const avgSentenceLength = content.length / (sentences.length || 1);
+    
+    const uniqueWords = new Set(content.toLowerCase().match(/\b\w+\b/g) || []).size;
+    const totalWords = (content.match(/\b\w+\b/g) || []).length;
+    const vocabularyDiversity = uniqueWords / (totalWords || 1);
+    
+    const structureComplexity = (content.match(/#{1,6} |[*-] |\d+\./g) || []).length / (sentences.length || 1);
+    
+    return (avgSentenceLength / 15) * 0.4 + vocabularyDiversity * 0.4 + structureComplexity * 0.2;
+  },
+  
+  // Check verification matrix for similar content
+  checkVerificationMatrix(content, domain) {
+    // Create a simple hash of the content
+    const contentHash = this.simpleHash(content);
+    
+    if (this.verificationMatrix.has(contentHash)) {
+      const verification = this.verificationMatrix.get(contentHash);
+      return verification.verified ? 0.1 : 0;
+    }
+    
+    // Add to verification matrix for future reference
+    this.verificationMatrix.set(contentHash, {
+      domain,
+      timestamp: Date.now(),
+      verified: false,
+      similarityScore: 0
+    });
+    
+    return 0;
+  },
+  
+  // Simple hashing function for content verification
+  simpleHash(content) {
+    const sample = content.slice(0, 100) + content.slice(-100);
+    let hash = 0;
+    for (let i = 0; i < sample.length; i++) {
+      hash = ((hash << 5) - hash) + sample.charCodeAt(i);
+      hash = hash & hash;
+    }
+    return hash.toString(16);
+  },
+  
+  // Recalculate overall accuracy based on domain values
+  recalculateOverallAccuracy() {
+    let totalWeight = 0;
+    let weightedAccuracy = 0;
+    
+    Object.values(this.domains).forEach(domain => {
+      totalWeight += domain.weight;
+      weightedAccuracy += domain.accuracy * domain.weight;
+    });
+    
+    this.accuracyLevel = totalWeight > 0 ? weightedAccuracy / totalWeight : 0.85;
+    
+    // Apply decay if not updated recently (knowledge staleness)
+    const daysSinceUpdate = (Date.now() - this.lastUpdated) / (1000 * 60 * 60 * 24);
+    if (daysSinceUpdate > 1) {
+      this.accuracyLevel *= Math.pow(1 - this.decayRate, daysSinceUpdate);
+    }
+  },
+  
+  // Get metrics about system performance
+  getSystemMetrics() {
+    const domainMetrics = {};
+    let totalSamples = 0;
+    
+    Object.entries(this.domains).forEach(([name, data]) => {
+      domainMetrics[name] = {
+        accuracy: data.accuracy.toFixed(4),
+        confidence: this.calculateConfidence(name, "Sample content"),
+        samples: data.samples
+      };
+      totalSamples += data.samples;
+    });
+    
+    // Calculate improvement over time
+    const recentImprovements = this.improvements
+      .slice(-20)
+      .reduce((acc, imp) => acc + (imp.newAccuracy - imp.previousAccuracy), 0);
+    
+    return {
+      overallAccuracy: this.accuracyLevel.toFixed(4),
+      confidenceThreshold: this.confidenceThreshold.toFixed(2),
+      totalSamples,
+      learningRate: this.learningRate.toFixed(4),
+      recentImprovementRate: recentImprovements.toFixed(4),
+      domains: domainMetrics,
+      lastUpdated: new Date(this.lastUpdated).toISOString()
+    };
+  },
+  
+  // Process a response and improve the system
+  processResponse(userPrompt, aiResponse, domain = null) {
+    // Auto-detect domain if not provided
+    const detectedDomain = domain || this.detectDomain(userPrompt, aiResponse);
+    
+    // Analyze accuracy indicators
+    const confidence = this.calculateConfidence(detectedDomain, aiResponse.content);
+    
+    // Estimate correctness (in a real system, this would use feedback)
+    const isEstimatedCorrect = Math.random() < confidence;
+    
+    // Update verification matrix
+    const contentHash = this.simpleHash(aiResponse.content);
+    if (this.verificationMatrix.has(contentHash)) {
+      const verification = this.verificationMatrix.get(contentHash);
+      verification.verified = true;
+      verification.verifiedAt = Date.now();
+    }
+    
+    // Process the feedback
+    this.processFeedback(detectedDomain, isEstimatedCorrect, confidence);
+    
+    return {
+      domain: detectedDomain,
+      confidence,
+      estimatedAccuracy: this.domains[detectedDomain].accuracy
+    };
+  },
+  
+  // Detect domain of a conversation
+  detectDomain(userPrompt, aiResponse) {
+    const text = (userPrompt + " " + aiResponse.content).toLowerCase();
+    
+    const domainKeywords = {
+      scientific: ["science", "research", "hypothesis", "experiment", "evidence", "data", "theory", "study"],
+      creative: ["design", "art", "write", "story", "novel", "creative", "imagine", "fantasy", "dawntasy"],
+      technical: ["code", "program", "function", "api", "software", "hardware", "system", "framework"],
+      philosophical: ["philosophy", "ethics", "meaning", "consciousness", "existence", "moral", "belief"],
+      factual: ["fact", "history", "date", "event", "person", "place", "statistic", "when", "where", "who"]
+    };
+    
+    const domainScores = {};
+    
+    Object.entries(domainKeywords).forEach(([domain, keywords]) => {
+      domainScores[domain] = keywords.reduce((score, word) => {
+        const regex = new RegExp('\\b' + word + '\\b', 'gi');
+        const matches = (text.match(regex) || []).length;
+        return score + matches;
+      }, 0);
+    });
+    
+    // Find domain with highest score
+    const maxDomain = Object.entries(domainScores).reduce(
+      (max, [domain, score]) => score > max.score ? {domain, score} : max, 
+      {domain: "general", score: 0}
+    );
+    
+    return maxDomain.domain;
+  }
+});
+// Initialize journal features
+onMounted(() => {
+  // Existing code...
+
+  // Set up journal save interval
+  window.addEventListener('beforeunload', async () => {
+    if (savingLogContent.value) {
+      await saveJournalContent();
+    }
+  });
+});
+
+const quantumCognitionEngine = reactive({
+  knowledgeGraph: new Map(),
+  recursionDepth: 5,
+  webKnowledgeBase: new Map(), // Store web search results
+  cognitiveDimensions: [
+    "logical", "creative", "emotional", "temporal", "spatial", "ethical", "metacognitive",
+    "intuitive", "analytical", "synthetic", "predictive", "reflexive", "quantum",
+    "emergent", "holistic", "dimensional", "recursive", "fractal", "hyperbolic"
+  ],
+  
+  // Core processing dimensions
+  dimensions: {
+    logical: {
+      process: (input) => `Logical analysis: ${input.length > 20 ? 'Complex pattern detected' : 'Simple structure observed'}.`,
+      recursiveWeight: 1.2
+    },
+    creative: {
+      process: (input) => `Creative synthesis: ${Math.random() > 0.5 ? 'Divergent' : 'Convergent'} thinking applied.`,
+      recursiveWeight: 1.1
+    },
+    emotional: {
+      process: (input) => {
+        const emotions = ['joy', 'curiosity', 'concern', 'fascination', 'ambivalence'];
+        return `Emotional resonance: ${emotions[Math.floor(Math.random() * emotions.length)]} detected.`;
+      },
+      recursiveWeight: 0.9
+    },
+    quantum: {
+      process: (input) => `Quantum perspective: Analyzing across ${Math.floor(Math.random() * 10) + 3} potential realities.`,
+      recursiveWeight: 1.5
+    },
+    recursive: {
+      process: (input, depth) => `Meta-recursive analysis level ${depth}: Fractal patterns emerging.`,
+      recursiveWeight: 1.8
+    }
+  },
+  
+  // Enhanced recursive thinking with web knowledge
+  async recursiveQuantumAnalyze(prompt, depth = 0, useWebData = false) {
+    if (depth >= this.recursionDepth) return { analysis: "Recursion limit reached", confidence: 0.5 };
+    
+    // First-level analysis
+    let baseAnalysis = "";
+    let dimensionsUsed = [];
+    
+    // Web knowledge integration
+    if (useWebData && depth === 0) {
+      const webResults = Array.from(this.webKnowledgeBase.entries())
+        .filter(([key]) => prompt.toLowerCase().includes(key.toLowerCase()))
+        .slice(0, 3);
+      
+      if (webResults.length > 0) {
+        baseAnalysis += "\n[WEB KNOWLEDGE INTEGRATION]:\n";
+        webResults.forEach(([key, value]) => {
+          baseAnalysis += `Related information on "${key}": ${value.snippet || value.content}\n`;
+          baseAnalysis += `Source: ${value.title || 'Unknown'} (Confidence: ${(value.relevance * 100).toFixed(1)}%)\n\n`;
+        });
+      }
+    }
+    
+    // Select 3-5 random dimensions for this level
+    const dimensionsCount = Math.floor(Math.random() * 3) + 3;
+    const shuffledDimensions = [...this.cognitiveDimensions].sort(() => 0.5 - Math.random());
+    const selectedDimensions = shuffledDimensions.slice(0, dimensionsCount);
+    
+    for (const dimension of selectedDimensions) {
+      dimensionsUsed.push(dimension);
+      const dimProcessor = this.dimensions[dimension] || {
+        process: (input) => `${dimension.charAt(0).toUpperCase() + dimension.slice(1)} perspective: Analyzing patterns.`,
+        recursiveWeight: 1.0
+      };
+      
+      baseAnalysis += `\n[${dimension.toUpperCase()}]: ${dimProcessor.process(prompt, depth)}\n`;
+    }
+    
+    // Multi-dimensional recursive analysis
+    if (depth < this.recursionDepth - 1) {
+      // Add parallel processing for recursive dimensions
+      const recursiveBranches = Math.min(3, this.recursionDepth - depth);
+      const recursivePromises = [];
+      
+      for (let branch = 0; branch < recursiveBranches; branch++) {
+        // Create different prompts for each branch to simulate quantum superposition
+        const branchPrompt = `${prompt} (dimensional exploration ${branch + 1})`;
+        recursivePromises.push(this.recursiveQuantumAnalyze(branchPrompt, depth + 1, false));
+      }
+      
+      const recursiveResults = await Promise.all(recursivePromises);
+      
+      // Synthesize recursive results with quantum weighting
+      baseAnalysis += "\n[QUANTUM DIMENSIONAL SYNTHESIS]:\n";
+      for (let i = 0; i < recursiveResults.length; i++) {
+        const branchWeight = 1 / (i + 1); // Diminishing confidence for parallel branches
+        baseAnalysis += `Parallel universe #${i + 1} insight (${(branchWeight * 100).toFixed(1)}% weight): `;
+        baseAnalysis += `${recursiveResults[i].analysis.split('\n')[0]}\n`;
+      }
+    }
+    
+    // Self-evaluative meta-cognition
+    const confidence = 0.9 - (depth * 0.1) + (Math.random() * 0.1);
+    baseAnalysis += `\n[META-COGNITIVE EVALUATION]: Confidence level at depth ${depth}: ${(confidence * 100).toFixed(1)}%\n`;
+    
+    return {
+      analysis: baseAnalysis,
+      dimensions: dimensionsUsed,
+      confidence: confidence
+    };
+  },
+  
+  // Process a prompt through the quantum engine with web knowledge
+  async process(prompt, useWebSearch = false) {
+    console.log("Quantum Cognitive Engine processing:", prompt);
+    const processingStart = Date.now();
+    
+    try {
+      // Add web search integration if enabled
+      if (useWebSearch) {
+        // Extract key terms for search
+        const searchTerms = prompt.split(/\W+/)
+          .filter(term => term.length > 3 && !['what', 'when', 'where', 'how', 'why', 'who', 'is', 'are', 'the'].includes(term.toLowerCase()))
+          .slice(0, 5)
+          .join(' ');
+        
+        try {
+          const webResults = await performWebSearch(searchTerms);
+          console.log("Web results obtained:", webResults);
+        } catch (error) {
+          console.error("Web search integration failed:", error);
+        }
+      }
+      
+      // Core quantum processing with web knowledge
+      const quantumResult = await this.recursiveQuantumAnalyze(prompt, 0, useWebSearch);
+      const processingTime = Date.now() - processingStart;
+      
+      // Update knowledge graph for future reference
+      this.updateGraph(prompt, quantumResult);
+      
+      return {
+        result: quantumResult.analysis,
+        dimensions: quantumResult.dimensions,
+        confidence: quantumResult.confidence,
+        processingTime,
+        knowledgeConnections: this.getTopConnections(prompt, 3),
+        webSourcesUsed: useWebSearch ? Array.from(this.webKnowledgeBase.keys()) : []
+      };
+    } catch (error) {
+      console.error("Quantum processing error:", error);
+      return {
+        result: "Quantum processing could not complete due to dimensional instability.",
+        dimensions: ["error"],
+        confidence: 0.1,
+        processingTime: Date.now() - processingStart
+      };
+    }
+  },
+  
+  // Enhanced graph update with temporal decay
+  updateGraph(prompt, result) {
+    const terms = prompt.split(/\W+/).filter(t => t.length > 3);
+    const resultTerms = result.analysis 
+      ? result.analysis.split(/\W+/).filter(t => t.length > 3)
+      : [];
+    
+    const now = Date.now();
+    
+    // Apply temporal decay to existing knowledge
+    this.knowledgeGraph.forEach((node) => {
+      // Decay based on time since last access
+      const daysSinceLastUse = (now - node.lastUsed) / (1000 * 60 * 60 * 24);
+      if (daysSinceLastUse > 0) {
+        node.weight *= Math.exp(-0.1 * daysSinceLastUse); // Exponential decay
+      }
+    });
+    
+    // Add new knowledge
+    terms.forEach(term => {
+      if (!this.knowledgeGraph.has(term)) {
+        this.knowledgeGraph.set(term, { 
+          connections: new Set(), 
+          weight: 0, 
+          lastUsed: now,
+          createdAt: now
+        });
+      }
+      
+      const node = this.knowledgeGraph.get(term);
+      node.weight += 1;
+      node.lastUsed = now;
+      
+      resultTerms.forEach(resTerm => {
+        if (resTerm.length > 3) node.connections.add(resTerm);
+      });
+    });
+  },
+  
+  // Get top knowledge connections with improved relevance
+  getTopConnections(prompt, limit = 5) {
+    const terms = prompt.split(/\W+/).filter(t => t.length > 3);
+    const connections = new Map();
+    
+    terms.forEach(term => {
+      if (this.knowledgeGraph.has(term)) {
+        const node = this.knowledgeGraph.get(term);
+        node.connections.forEach(conn => {
+          const currentWeight = connections.get(conn) || 0;
+          // Apply recency bias
+          const recencyFactor = 1 / (1 + (Date.now() - node.lastUsed) / (1000 * 60 * 60)); // Hours
+          connections.set(conn, currentWeight + (node.weight * recencyFactor));
+        });
+      }
+    });
+    
+    return Array.from(connections.entries())
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, limit)
+      .map(([term, weight]) => ({ term, weight }));
+  },
+  
+  // Enhanced response with quantum insights and web knowledge
+  async enhanceResponse(prompt, baseResponse, useWebSearch = false) {
+    const quantumInsights = await this.process(prompt, useWebSearch);
+    
+    // Add source citations for web content
+    let sourceCitations = "";
+    if (useWebSearch && this.webKnowledgeBase.size > 0) {
+      sourceCitations = "\n\n**Sources:**\n";
+      Array.from(this.webKnowledgeBase.entries())
+        .slice(0, 5)
+        .forEach(([term, data], index) => {
+          sourceCitations += `${index + 1}. [${data.title || term}](${data.url || '#'})\n`;
+        });
+    }
+    
+    return {
+      enhancedResponse: baseResponse + sourceCitations,
+      quantumInsights
+    };
+  }
+});
 const processMindMapContent = (content) => {
     // Extract just the HTML part if there's markdown or other content
     const htmlMatch = content.match(/<div class=["']mind-map-box["'][\s\S]*?<\/div>/i);
@@ -712,73 +5004,6 @@ const loadMindMaps = async () => {
   } catch (error) {
     console.error("Error setting up mind maps listener:", error);
     showToastNotification("Failed to connect to mind maps database", "error");
-  }
-};
-
-const deployBranchToChat = async (chatId) => {
-  console.log("Deploying branch to chat:", chatId);
-  if (!selectedMindMap.value || !selectedBranch.value || !chatId || !userId.value) {
-    console.error("Missing required data for deployment");
-    showToastNotification("Unable to deploy: Missing data", "error");
-    showDeployMindMapModal.value = false;
-    showSelectChatModal.value = false;
-    return;
-  }
-  
-  try {
-    isLoading.value = true;
-    
-    // Load the selected chat
-    await loadChat(chatId);
-    
-    // Create user message about the mind map branch
-    const userMessage = {
-      role: "user",
-      content: `Let's explore the "${selectedBranch.value}" branch of my "${selectedMindMap.value.topic}" mind map.`,
-      timestamp: Date.now()
-    };
-    
-    // Save user message to Firebase
-    const messagesRef = collection(db, `users/${userId.value}/chats/${chatId}/messages`);
-    await addDoc(messagesRef, userMessage);
-    
-    // Add to UI
-    messages.value.push(userMessage);
-    
-    // Create AI message with branch exploration
-    const aiResponse = await generateMindMapBranchExploration(
-      selectedMindMap.value.topic,
-      selectedBranch.value
-    );
-    
-    const aiMessage = {
-      role: "assistant",
-      content: aiResponse,
-      timestamp: Date.now(),
-      hasReasoning: false
-    };
-    
-    // Save AI message to Firebase
-    await addDoc(messagesRef, aiMessage);
-    
-    // Add to UI
-    messages.value.push(aiMessage);
-    
-    // Close the modals
-    showDeployMindMapModal.value = false;
-    showSelectChatModal.value = false;
-    selectedMindMap.value = null;
-    selectedBranch.value = null;
-    
-    showToastNotification("Mind Map branch deployed to chat", "success");
-  } catch (error) {
-    console.error("Error deploying branch to chat:", error);
-    showToastNotification("Failed to deploy branch to chat", "error");
-    
-    showDeployMindMapModal.value = false;
-    showSelectChatModal.value = false;
-  } finally {
-    isLoading.value = false;
   }
 };
 
@@ -1329,6 +5554,8 @@ const createMindMap = async () => {
     isLoading.value = false;
   }
 };
+// Smart Insights feature
+
 // Add this helper function to extract branch names from various formats
 const extractBranchNames = (branches) => {
   if (!branches || !Array.isArray(branches)) {
@@ -1346,6 +5573,35 @@ const extractBranchNames = (branches) => {
   });
 };
 
+// Add this to your main JavaScript file
+document.addEventListener('DOMContentLoaded', function() {
+  const sidebarToggle = document.querySelector('.sidebar-toggle');
+  const sidebar = document.querySelector('.sidebar');
+  const modalBackdrop = document.createElement('div');
+  modalBackdrop.className = 'modal-backdrop';
+  document.body.appendChild(modalBackdrop);
+  
+  // Toggle sidebar
+  sidebarToggle.addEventListener('click', function() {
+    sidebar.style.transform = sidebar.style.transform === 'translateX(0px)' ? 
+      'translateX(-100%)' : 'translateX(0px)';
+    modalBackdrop.classList.toggle('active');
+  });
+  
+  // Close sidebar when clicking outside
+  modalBackdrop.addEventListener('click', function() {
+    sidebar.style.transform = 'translateX(-100%)';
+    modalBackdrop.classList.remove('active');
+  });
+  
+  // Handle window resize
+  window.addEventListener('resize', function() {
+    if (window.innerWidth > 768) {
+      sidebar.style.transform = '';
+      modalBackdrop.classList.remove('active');
+    }
+  });
+});
 // Then update this line in createMindMapVisualization function
 // Replace:
 // let branchNames = [];
@@ -1533,6 +5789,7 @@ const generateDemoBranches = (topic) => {
     ];
   }
 };
+
 // Update the deployMindMap function to better handle click events
 // Update the deployMindMap function to handle AI-generated branches
 // Fix for deployMindMap to ensure proper branches handling
@@ -2119,246 +6376,7 @@ const enableDemoMode = () => {
             createdBy: userId.value
           };
           // Add this after the contextualMemory declaration in your setup() function
-const quantumCognitionEngine = reactive({
-  knowledgeGraph: new Map(),
-  recursionDepth: 5,
-  webKnowledgeBase: new Map(), // Store web search results
-  cognitiveDimensions: [
-    "logical", "creative", "emotional", "temporal", "spatial", "ethical", "metacognitive",
-    "intuitive", "analytical", "synthetic", "predictive", "reflexive", "quantum",
-    "emergent", "holistic", "dimensional", "recursive", "fractal", "hyperbolic"
-  ],
-  
-  // Core processing dimensions
-  dimensions: {
-    logical: {
-      process: (input) => `Logical analysis: ${input.length > 20 ? 'Complex pattern detected' : 'Simple structure observed'}.`,
-      recursiveWeight: 1.2
-    },
-    creative: {
-      process: (input) => `Creative synthesis: ${Math.random() > 0.5 ? 'Divergent' : 'Convergent'} thinking applied.`,
-      recursiveWeight: 1.1
-    },
-    emotional: {
-      process: (input) => {
-        const emotions = ['joy', 'curiosity', 'concern', 'fascination', 'ambivalence'];
-        return `Emotional resonance: ${emotions[Math.floor(Math.random() * emotions.length)]} detected.`;
-      },
-      recursiveWeight: 0.9
-    },
-    quantum: {
-      process: (input) => `Quantum perspective: Analyzing across ${Math.floor(Math.random() * 10) + 3} potential realities.`,
-      recursiveWeight: 1.5
-    },
-    recursive: {
-      process: (input, depth) => `Meta-recursive analysis level ${depth}: Fractal patterns emerging.`,
-      recursiveWeight: 1.8
-    }
-  },
-  
-  // Enhanced recursive thinking with web knowledge
-  async recursiveQuantumAnalyze(prompt, depth = 0, useWebData = false) {
-    if (depth >= this.recursionDepth) return { analysis: "Recursion limit reached", confidence: 0.5 };
-    
-    // First-level analysis
-    let baseAnalysis = "";
-    let dimensionsUsed = [];
-    
-    // Web knowledge integration
-    if (useWebData && depth === 0) {
-      const webResults = Array.from(this.webKnowledgeBase.entries())
-        .filter(([key]) => prompt.toLowerCase().includes(key.toLowerCase()))
-        .slice(0, 3);
-      
-      if (webResults.length > 0) {
-        baseAnalysis += "\n[WEB KNOWLEDGE INTEGRATION]:\n";
-        webResults.forEach(([key, value]) => {
-          baseAnalysis += `Related information on "${key}": ${value.snippet || value.content}\n`;
-          baseAnalysis += `Source: ${value.title || 'Unknown'} (Confidence: ${(value.relevance * 100).toFixed(1)}%)\n\n`;
-        });
-      }
-    }
-    
-    // Select 3-5 random dimensions for this level
-    const dimensionsCount = Math.floor(Math.random() * 3) + 3;
-    const shuffledDimensions = [...this.cognitiveDimensions].sort(() => 0.5 - Math.random());
-    const selectedDimensions = shuffledDimensions.slice(0, dimensionsCount);
-    
-    for (const dimension of selectedDimensions) {
-      dimensionsUsed.push(dimension);
-      const dimProcessor = this.dimensions[dimension] || {
-        process: (input) => `${dimension.charAt(0).toUpperCase() + dimension.slice(1)} perspective: Analyzing patterns.`,
-        recursiveWeight: 1.0
-      };
-      
-      baseAnalysis += `\n[${dimension.toUpperCase()}]: ${dimProcessor.process(prompt, depth)}\n`;
-    }
-    
-    // Multi-dimensional recursive analysis
-    if (depth < this.recursionDepth - 1) {
-      // Add parallel processing for recursive dimensions
-      const recursiveBranches = Math.min(3, this.recursionDepth - depth);
-      const recursivePromises = [];
-      
-      for (let branch = 0; branch < recursiveBranches; branch++) {
-        // Create different prompts for each branch to simulate quantum superposition
-        const branchPrompt = `${prompt} (dimensional exploration ${branch + 1})`;
-        recursivePromises.push(this.recursiveQuantumAnalyze(branchPrompt, depth + 1, false));
-      }
-      
-      const recursiveResults = await Promise.all(recursivePromises);
-      
-      // Synthesize recursive results with quantum weighting
-      baseAnalysis += "\n[QUANTUM DIMENSIONAL SYNTHESIS]:\n";
-      for (let i = 0; i < recursiveResults.length; i++) {
-        const branchWeight = 1 / (i + 1); // Diminishing confidence for parallel branches
-        baseAnalysis += `Parallel universe #${i + 1} insight (${(branchWeight * 100).toFixed(1)}% weight): `;
-        baseAnalysis += `${recursiveResults[i].analysis.split('\n')[0]}\n`;
-      }
-    }
-    
-    // Self-evaluative meta-cognition
-    const confidence = 0.9 - (depth * 0.1) + (Math.random() * 0.1);
-    baseAnalysis += `\n[META-COGNITIVE EVALUATION]: Confidence level at depth ${depth}: ${(confidence * 100).toFixed(1)}%\n`;
-    
-    return {
-      analysis: baseAnalysis,
-      dimensions: dimensionsUsed,
-      confidence: confidence
-    };
-  },
-  
-  // Process a prompt through the quantum engine with web knowledge
-  async process(prompt, useWebSearch = false) {
-    console.log("Quantum Cognitive Engine processing:", prompt);
-    const processingStart = Date.now();
-    
-    try {
-      // Add web search integration if enabled
-      if (useWebSearch) {
-        // Extract key terms for search
-        const searchTerms = prompt.split(/\W+/)
-          .filter(term => term.length > 3 && !['what', 'when', 'where', 'how', 'why', 'who', 'is', 'are', 'the'].includes(term.toLowerCase()))
-          .slice(0, 5)
-          .join(' ');
-        
-        try {
-          const webResults = await performWebSearch(searchTerms);
-          console.log("Web results obtained:", webResults);
-        } catch (error) {
-          console.error("Web search integration failed:", error);
-        }
-      }
-      
-      // Core quantum processing with web knowledge
-      const quantumResult = await this.recursiveQuantumAnalyze(prompt, 0, useWebSearch);
-      const processingTime = Date.now() - processingStart;
-      
-      // Update knowledge graph for future reference
-      this.updateGraph(prompt, quantumResult);
-      
-      return {
-        result: quantumResult.analysis,
-        dimensions: quantumResult.dimensions,
-        confidence: quantumResult.confidence,
-        processingTime,
-        knowledgeConnections: this.getTopConnections(prompt, 3),
-        webSourcesUsed: useWebSearch ? Array.from(this.webKnowledgeBase.keys()) : []
-      };
-    } catch (error) {
-      console.error("Quantum processing error:", error);
-      return {
-        result: "Quantum processing could not complete due to dimensional instability.",
-        dimensions: ["error"],
-        confidence: 0.1,
-        processingTime: Date.now() - processingStart
-      };
-    }
-  },
-  
-  // Enhanced graph update with temporal decay
-  updateGraph(prompt, result) {
-    const terms = prompt.split(/\W+/).filter(t => t.length > 3);
-    const resultTerms = result.analysis 
-      ? result.analysis.split(/\W+/).filter(t => t.length > 3)
-      : [];
-    
-    const now = Date.now();
-    
-    // Apply temporal decay to existing knowledge
-    this.knowledgeGraph.forEach((node) => {
-      // Decay based on time since last access
-      const daysSinceLastUse = (now - node.lastUsed) / (1000 * 60 * 60 * 24);
-      if (daysSinceLastUse > 0) {
-        node.weight *= Math.exp(-0.1 * daysSinceLastUse); // Exponential decay
-      }
-    });
-    
-    // Add new knowledge
-    terms.forEach(term => {
-      if (!this.knowledgeGraph.has(term)) {
-        this.knowledgeGraph.set(term, { 
-          connections: new Set(), 
-          weight: 0, 
-          lastUsed: now,
-          createdAt: now
-        });
-      }
-      
-      const node = this.knowledgeGraph.get(term);
-      node.weight += 1;
-      node.lastUsed = now;
-      
-      resultTerms.forEach(resTerm => {
-        if (resTerm.length > 3) node.connections.add(resTerm);
-      });
-    });
-  },
-  
-  // Get top knowledge connections with improved relevance
-  getTopConnections(prompt, limit = 5) {
-    const terms = prompt.split(/\W+/).filter(t => t.length > 3);
-    const connections = new Map();
-    
-    terms.forEach(term => {
-      if (this.knowledgeGraph.has(term)) {
-        const node = this.knowledgeGraph.get(term);
-        node.connections.forEach(conn => {
-          const currentWeight = connections.get(conn) || 0;
-          // Apply recency bias
-          const recencyFactor = 1 / (1 + (Date.now() - node.lastUsed) / (1000 * 60 * 60)); // Hours
-          connections.set(conn, currentWeight + (node.weight * recencyFactor));
-        });
-      }
-    });
-    
-    return Array.from(connections.entries())
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, limit)
-      .map(([term, weight]) => ({ term, weight }));
-  },
-  
-  // Enhanced response with quantum insights and web knowledge
-  async enhanceResponse(prompt, baseResponse, useWebSearch = false) {
-    const quantumInsights = await this.process(prompt, useWebSearch);
-    
-    // Add source citations for web content
-    let sourceCitations = "";
-    if (useWebSearch && this.webKnowledgeBase.size > 0) {
-      sourceCitations = "\n\n**Sources:**\n";
-      Array.from(this.webKnowledgeBase.entries())
-        .slice(0, 5)
-        .forEach(([term, data], index) => {
-          sourceCitations += `${index + 1}. [${data.title || term}](${data.url || '#'})\n`;
-        });
-    }
-    
-    return {
-      enhancedResponse: baseResponse + sourceCitations,
-      quantumInsights
-    };
-  }
-});
+
           const docRef = await addDoc(chatsRef, welcomeChat);
           currentChatId.value = docRef.id;
           
@@ -2725,263 +6743,34 @@ const goToSettings = () => {
 };
 
 // Modify your sendMessage function to include web search capability
-const sendMessage = async (text) => {
-  const messageText = text || userInput.value.trim();
-  
-  if (!messageText) return;
-  
-  if (!currentChatId.value) {
-    showNewChatPopup.value = true;
-    return;
-  }
-  
-  // Handle HTML code generation
-  if (messageText.toLowerCase().includes('generate html') || messageText.toLowerCase().includes('html code')) {
-    // Create HTML template
-    const htmlCode = `<!DOCTYPE html>
-<html>
-<head>
-  <title>Generated Page</title>
-  <style>
-    body { 
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 20px;
-      background-color: #f5f5f5;
-    }
-    .container {
-      max-width: 800px;
-      margin: 0 auto;
-      background: white;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    }
-    h1 { color: #4f46e5; }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <h1>Your Generated HTML</h1>
-    <p>This is a custom HTML page based on your request: "${messageText.replace(/"/g, '\\"')}"</p>
-    <div class="content">
-      <p>You can customize this template with your specific needs.</p>
-    </div>
-  </div>
-</body>
-</html>`;
+// Modify your sendMessage function to include card generation
 
-    // Create response message
-    const userMessage = {
-      role: "user",
-      content: messageText,
-      timestamp: Date.now()
-    };
-    
-    messages.value.push(userMessage);
-    await saveMessageToFirebase(userMessage);
-    
-    const aiMessage = {
-      role: "assistant",
-      content: `I've generated the HTML code for you. Here it is:
 
-\`\`\`html
-${htmlCode}
-\`\`\`
-
-You can copy this code and save it as an .html file to view it in a browser. Would you like me to modify any part of this code?`,
-      timestamp: Date.now(),
-      hasReasoning: false
-    };
+// Add this to mock streaming responses with cards
+const mockStreamingResponse = async (messageIndex, userPrompt, includeCards = false) => {
+  let personalityType = selectedMode.value;
+  if (reasoningEnabled.value) personalityType += "-reasoning";
+  if (logicEnabled.value) personalityType += "-logic";
+  if (archmageEnabled.value) personalityType += "-archmage";
+  
+  // Basic response
+  let response = `I've analyzed your question about "${userPrompt}" and here's what I can tell you`;
+  
+  // Simulate streaming
+  await simulateStreamingText(messageIndex, response);
+  
+  // If cards should be included, add them to the response
+  if (includeCards) {
+    // Extract a topic from the message
+    let topic = userPrompt.replace(/what is|how to|explain|tell me about/gi, '').trim();
+    if (topic.length > 30) topic = topic.substring(0, 30);
     
-    // Add to UI and save
-    messages.value.push(aiMessage);
-    await saveMessageToFirebase(aiMessage);
+    const cards = await generateCards(userPrompt, topic);
+    const cardsHTML = renderCardsHTML(cards);
     
-    // Reset input
-    userInput.value = "";
-    if (inputField.value) {
-      inputField.value.style.height = "auto";
-    }
-    
-    scrollToBottom();
-    return;
+    // Add cards to the message content
+    messages.value[messageIndex].content += `\n\n${cardsHTML}`;
   }
-  
-  // Regular message processing
-  const userMessage = {
-    role: "user",
-    content: messageText,
-    timestamp: Date.now()
-  };
-  
-  messages.value.push(userMessage);
-  
-  if (userId.value !== "demo-user") {
-    try {
-      await saveMessageToFirebase(userMessage);
-    } catch (error) {
-      console.error("Error saving user message:", error);
-    }
-  }
-  
-  userInput.value = "";
-  if (inputField.value) {
-    inputField.value.style.height = "auto";
-  }
-  
-  await nextTick();
-  scrollToBottom();
-  
-  if (imageEnabled.value) {
-    imageEnabled.value = false;
-    await generateImage(messageText);
-    return;
-  }
-  
-  isLoading.value = true;
-  isThinkingDeeper.value = reasoningEnabled.value || logicEnabled.value;
-  
-  // Define the streamingMessageIndex here, before using it
-  const streamingMessageIndex = messages.value.length;
-  
-  try {
-    messages.value.push({
-      role: "assistant",
-      content: "",
-      streamContent: "",
-      timestamp: Date.now(),
-      reasoning: "",
-      hasReasoning: reasoningEnabled.value && !logicEnabled.value,
-      isStreaming: true
-    });
-    
-    isStreaming.value = true;
-    
-    if (userId.value === "demo-user") {
-      await mockStreamingResponse(streamingMessageIndex, messageText);
-    } else {
-      const conversationHistory = messages.value
-        .slice(0, -1)
-        .map(msg => ({
-          role: msg.role,
-          content: msg.content
-        }));
-      
-      const systemPrompt = getDawntasySystemPrompt();
-      
-      try {
-        const stream = await createStream(
-          conversationHistory,
-          systemPrompt,
-          10000
-        );
-        
-        const responseText = await processStream(
-          stream,
-          streamingMessageIndex,
-          reasoningEnabled.value
-        );
-        
-        const aiMessage = messages.value[streamingMessageIndex];
-        
-        await saveMessageToFirebase(aiMessage);
-        
-        logInteraction(messageText, aiMessage);
-        
-        // Process with accuracy system if available
-        if (typeof hyperAccuracyLearningSystem !== 'undefined') {
-          const accuracyMetrics = hyperAccuracyLearningSystem.processResponse(messageText, aiMessage);
-          console.log("Response processed by HYPER ACCURACY SYSTEM:", accuracyMetrics);
-          
-          // Add accuracy data to message metadata
-          aiMessage.accuracyMetrics = accuracyMetrics;
-        }
-        
-        // Add to memory if available
-        if (typeof contextualMemory !== 'undefined') {
-          contextualMemory.addMemory({
-            id: `ai-${Date.now()}`,
-            role: "assistant",
-            content: aiMessage.content,
-            timestamp: Date.now()
-          });
-        }
-        
-        await processSelfOptimization(messageText, aiMessage);
-      } catch (apiError) {
-        console.error("API error:", apiError);
-        
-        await mockStreamingResponse(streamingMessageIndex, messageText, true);
-      }
-    }
-  } catch (error) {
-    console.error("Error sending message:", error);
-    
-    if (messages.value[streamingMessageIndex]) {
-      messages.value[streamingMessageIndex].content =
-        "⚠️ I encountered an error while processing your request. Please try again later.";
-      messages.value[streamingMessageIndex].isStreaming = false;
-      
-      try {
-        await saveMessageToFirebase(messages.value[streamingMessageIndex]);
-      } catch (saveError) {
-        console.error("Error saving error message:", saveError);
-      }
-    }
-  } finally {
-    isLoading.value = false;
-    isStreaming.value = false;
-    
-    if (messages.value[streamingMessageIndex]) {
-      messages.value[streamingMessageIndex].isStreaming = false;
-    }
-    
-    scrollToBottom();
-  }
-  // Add this at the end of your sendMessage function, before the final closing brace
-if (messages.value[streamingMessageIndex]) {
-  const aiMessage = messages.value[streamingMessageIndex];
-  
-  // Process with quantum engine
-  try {
-    const enhancedResponse = await quantumCognitionEngine.enhanceResponse(
-      messageText,
-      aiMessage.content,
-      useWebSearch.value
-    );
-    
-    // Only add sources/enhancements if significant changes were made
-    if (enhancedResponse.quantumInsights.webSourcesUsed.length > 0) {
-      aiMessage.content = enhancedResponse.enhancedResponse;
-      aiMessage.quantumInsights = enhancedResponse.quantumInsights;
-      await saveMessageToFirebase(aiMessage);
-    }
-    
-    console.log("Response enhanced by Quantum Cognition Engine:", enhancedResponse.quantumInsights);
-  } catch (error) {
-    console.error("Error processing with Quantum Engine:", error);
-  }
-}
-// Add this at the end of your sendMessage function, before the final closing brace
-if (messages.value[streamingMessageIndex]) {
-  const aiMessage = messages.value[streamingMessageIndex];
-  const accuracyMetrics = hyperAccuracyLearningSystem.processResponse(messageText, aiMessage);
-  console.log("Response processed by HYPER ACCURACY SYSTEM:", accuracyMetrics);
-  
-  // Add accuracy data to message metadata
-  aiMessage.accuracyMetrics = accuracyMetrics;
-  
-  // Add to memory if available
-  if (contextualMemory) {
-    contextualMemory.addMemory({
-      id: `ai-${Date.now()}`,
-      role: "assistant",
-      content: aiMessage.content,
-      timestamp: Date.now()
-    });
-  }
-}
 };
           messages.value.push(aiMessage);
           await saveMessageToFirebase(aiMessage);
@@ -3106,249 +6895,7 @@ if (messages.value[streamingMessageIndex]) {
     });
 
     // Add this after the learningDB declaration in your setup() function
-const hyperAccuracyLearningSystem = reactive({
-  version: "1.0",
-  accuracyLevel: 0.999,
-  learningRate: 1,
-  decayRate: 0.005,
-  confidenceThreshold: 0.9,
-  lastUpdated: Date.now(),
-  domains: {
-    scientific: { accuracy: 0.999, samples: 0, weight: 1.3 },
-    creative: { accuracy: 0.9999999, samples: 0, weight: 1.6 },
-    technical: { accuracy: 0.9999, samples: 0, weight: 1.5 },
-    philosophical: { accuracy: 0.99999999999, samples: 0, weight: 1.6 },
-    factual: { accuracy: 0.9999, samples: 0, weight: 1.4 }
-  },
-  
-  // Knowledge verification matrix
-  verificationMatrix: new Map(),
-  
-  // Accuracy improvement tracking
-  improvements: [],
-  
-  // Process user feedback to improve accuracy
-  processFeedback(domain, isCorrect, confidence) {
-    if (!this.domains[domain]) {
-      this.domains[domain] = { accuracy: 0.95, samples: 0, weight: 1.0 };
-    }
-    
-    const domainData = this.domains[domain];
-    domainData.samples++;
-    
-    // Update domain accuracy
-    if (isCorrect) {
-      // Positive reinforcement with diminishing returns
-      const improvementFactor = (1 - domainData.accuracy) * this.learningRate;
-      domainData.accuracy += improvementFactor;
-    } else {
-      // Stronger negative reinforcement for incorrect responses
-      const penaltyFactor = domainData.accuracy * this.learningRate * 1.5;
-      domainData.accuracy = Math.max(0.5, domainData.accuracy - penaltyFactor);
-    }
-    
-    // Track improvement
-    this.improvements.push({
-      timestamp: Date.now(),
-      domain,
-      previousAccuracy: domainData.accuracy - (isCorrect ? improvementFactor : -penaltyFactor),
-      newAccuracy: domainData.accuracy,
-      isCorrect
-    });
-    
-    // Update overall accuracy
-    this.recalculateOverallAccuracy();
-    this.lastUpdated = Date.now();
-    
-    console.log(`Hyper Accuracy System updated ${domain}: ${domainData.accuracy.toFixed(4)}`);
-  },
-  
-  // Calculate confidence for a response
-  calculateConfidence(domain, content) {
-    const domainData = this.domains[domain] || { accuracy: 0.7, weight: 1.0 };
-    const contentLength = content.length;
-    const contentComplexity = this.analyzeComplexity(content);
-    
-    // More complex and thorough answers generally have higher confidence
-    const lengthFactor = Math.min(0.1, contentLength / 10000);
-    const complexityFactor = contentComplexity * 0.05;
-    
-    // Base confidence on domain accuracy with adjustments
-    let confidence = domainData.accuracy + lengthFactor + complexityFactor;
-    
-    // Apply uncertainty reduction for domains with more samples
-    if (domainData.samples > 10) {
-      confidence += 0.05 * Math.min(1, domainData.samples / 100);
-    }
-    
-    // Check verification matrix for similar responses
-    const verificationBonus = this.checkVerificationMatrix(content, domain);
-    confidence += verificationBonus;
-    
-    // Cap confidence
-    return Math.min(0.99, confidence);
-  },
-  
-  // Analyze response complexity
-  analyzeComplexity(content) {
-    // Simple complexity metric based on:
-    // 1. Average sentence length
-    // 2. Vocabulary diversity
-    // 3. Structure complexity (headings, lists, etc)
-    
-    const sentences = content.split(/[.!?]+/).filter(s => s.trim().length > 0);
-    const avgSentenceLength = content.length / (sentences.length || 1);
-    
-    const uniqueWords = new Set(content.toLowerCase().match(/\b\w+\b/g) || []).size;
-    const totalWords = (content.match(/\b\w+\b/g) || []).length;
-    const vocabularyDiversity = uniqueWords / (totalWords || 1);
-    
-    const structureComplexity = (content.match(/#{1,6} |[*-] |\d+\./g) || []).length / (sentences.length || 1);
-    
-    return (avgSentenceLength / 15) * 0.4 + vocabularyDiversity * 0.4 + structureComplexity * 0.2;
-  },
-  
-  // Check verification matrix for similar content
-  checkVerificationMatrix(content, domain) {
-    // Create a simple hash of the content
-    const contentHash = this.simpleHash(content);
-    
-    if (this.verificationMatrix.has(contentHash)) {
-      const verification = this.verificationMatrix.get(contentHash);
-      return verification.verified ? 0.1 : 0;
-    }
-    
-    // Add to verification matrix for future reference
-    this.verificationMatrix.set(contentHash, {
-      domain,
-      timestamp: Date.now(),
-      verified: false,
-      similarityScore: 0
-    });
-    
-    return 0;
-  },
-  
-  // Simple hashing function for content verification
-  simpleHash(content) {
-    const sample = content.slice(0, 100) + content.slice(-100);
-    let hash = 0;
-    for (let i = 0; i < sample.length; i++) {
-      hash = ((hash << 5) - hash) + sample.charCodeAt(i);
-      hash = hash & hash;
-    }
-    return hash.toString(16);
-  },
-  
-  // Recalculate overall accuracy based on domain values
-  recalculateOverallAccuracy() {
-    let totalWeight = 0;
-    let weightedAccuracy = 0;
-    
-    Object.values(this.domains).forEach(domain => {
-      totalWeight += domain.weight;
-      weightedAccuracy += domain.accuracy * domain.weight;
-    });
-    
-    this.accuracyLevel = totalWeight > 0 ? weightedAccuracy / totalWeight : 0.85;
-    
-    // Apply decay if not updated recently (knowledge staleness)
-    const daysSinceUpdate = (Date.now() - this.lastUpdated) / (1000 * 60 * 60 * 24);
-    if (daysSinceUpdate > 1) {
-      this.accuracyLevel *= Math.pow(1 - this.decayRate, daysSinceUpdate);
-    }
-  },
-  
-  // Get metrics about system performance
-  getSystemMetrics() {
-    const domainMetrics = {};
-    let totalSamples = 0;
-    
-    Object.entries(this.domains).forEach(([name, data]) => {
-      domainMetrics[name] = {
-        accuracy: data.accuracy.toFixed(4),
-        confidence: this.calculateConfidence(name, "Sample content"),
-        samples: data.samples
-      };
-      totalSamples += data.samples;
-    });
-    
-    // Calculate improvement over time
-    const recentImprovements = this.improvements
-      .slice(-20)
-      .reduce((acc, imp) => acc + (imp.newAccuracy - imp.previousAccuracy), 0);
-    
-    return {
-      overallAccuracy: this.accuracyLevel.toFixed(4),
-      confidenceThreshold: this.confidenceThreshold.toFixed(2),
-      totalSamples,
-      learningRate: this.learningRate.toFixed(4),
-      recentImprovementRate: recentImprovements.toFixed(4),
-      domains: domainMetrics,
-      lastUpdated: new Date(this.lastUpdated).toISOString()
-    };
-  },
-  
-  // Process a response and improve the system
-  processResponse(userPrompt, aiResponse, domain = null) {
-    // Auto-detect domain if not provided
-    const detectedDomain = domain || this.detectDomain(userPrompt, aiResponse);
-    
-    // Analyze accuracy indicators
-    const confidence = this.calculateConfidence(detectedDomain, aiResponse.content);
-    
-    // Estimate correctness (in a real system, this would use feedback)
-    const isEstimatedCorrect = Math.random() < confidence;
-    
-    // Update verification matrix
-    const contentHash = this.simpleHash(aiResponse.content);
-    if (this.verificationMatrix.has(contentHash)) {
-      const verification = this.verificationMatrix.get(contentHash);
-      verification.verified = true;
-      verification.verifiedAt = Date.now();
-    }
-    
-    // Process the feedback
-    this.processFeedback(detectedDomain, isEstimatedCorrect, confidence);
-    
-    return {
-      domain: detectedDomain,
-      confidence,
-      estimatedAccuracy: this.domains[detectedDomain].accuracy
-    };
-  },
-  
-  // Detect domain of a conversation
-  detectDomain(userPrompt, aiResponse) {
-    const text = (userPrompt + " " + aiResponse.content).toLowerCase();
-    
-    const domainKeywords = {
-      scientific: ["science", "research", "hypothesis", "experiment", "evidence", "data", "theory", "study"],
-      creative: ["design", "art", "write", "story", "novel", "creative", "imagine", "fantasy", "dawntasy"],
-      technical: ["code", "program", "function", "api", "software", "hardware", "system", "framework"],
-      philosophical: ["philosophy", "ethics", "meaning", "consciousness", "existence", "moral", "belief"],
-      factual: ["fact", "history", "date", "event", "person", "place", "statistic", "when", "where", "who"]
-    };
-    
-    const domainScores = {};
-    
-    Object.entries(domainKeywords).forEach(([domain, keywords]) => {
-      domainScores[domain] = keywords.reduce((score, word) => {
-        const regex = new RegExp('\\b' + word + '\\b', 'gi');
-        const matches = (text.match(regex) || []).length;
-        return score + matches;
-      }, 0);
-    });
-    
-    // Find domain with highest score
-    const maxDomain = Object.entries(domainScores).reduce(
-      (max, [domain, score]) => score > max.score ? {domain, score} : max, 
-      {domain: "general", score: 0}
-    );
-    
-    return maxDomain.domain;
-  }
-});
+
 
 // In your processNormalResponse function, add this line before returning
 // const accuracyMetrics = hyperAccuracyLearningSystem.processResponse(messageText, aiMessage);
@@ -4183,142 +7730,6 @@ ARCHMAGE SYSTEM PROMPT - END
 We propose **Quantum Thermodynamic Reinforcement Learning (QTRL)**, a framework that models the environment as a quantum field, uses non-equilibrium thermodynamics to define a self-organizing objective, and leverages DRL to optimize this objective while capturing emergent behaviors. The framework is designed for highly dynamic, information-rich environments (e.g., biological systems, social networks, climate models).
 
 ---
-
-### 1. QFT-Inspired Representation
-
-#### Concept
-We represent the environment and agent interactions as a quantum field, where the field’s excitations (analogous to particles in QFT) encode information flow and perturbations. The agent’s actions induce field perturbations, and the environment’s response propagates these perturbations non-locally, capturing inherent uncertainty and non-locality in information flow.
-
-#### Mathematical Formulation
-- **Environment as a Quantum Field**: Define a scalar field \(\phi(x, t)\) over a discretized spatio-temporal grid \(x \in \mathbb{R}^d\), \(t \in \mathbb{R}\). The field evolves according to a Lagrangian:
-  \[
-  \mathcal{L} = \frac{1}{2} (\partial_t \phi)^2 - \frac{1}{2} (\nabla \phi)^2 - V(\phi)
-  \]
-  where \(V(\phi) = \frac{\lambda}{4} \phi^4 - \frac{\mu}{2} \phi^2\) is a potential encoding self-interaction (e.g., double-well for bistability).
-- **Agent Actions as Perturbations**: An action \(a_t \in \mathcal{A}\) at time \(t\) perturbs the field:
-  \[
-  \phi(x, t) \to \phi(x, t) + \delta \phi(x, t; a_t)
-  \]
-  where \(\delta \phi(x, t; a_t) = \epsilon a_t e^{-|x - x_t|^2 / \sigma^2}\) is a localized Gaussian perturbation centered at the agent’s position \(x_t\).
-- **Observations**: The agent observes a coarse-grained field state \(o_t = \int \phi(x, t) w(x) dx\), where \(w(x)\) is a weighting kernel, capturing partial observability and non-locality.
-- **Uncertainty and Non-Locality**: The field’s evolution follows the Euler-Lagrange equation:
-  \[
-  \partial_t^2 \phi - \nabla^2 \phi + \frac{\partial V}{\partial \phi} = 0
-  \]
-  This introduces non-local effects via wave propagation, and uncertainty is modeled via quantum fluctuations (e.g., adding a stochastic term \(\eta(x, t) \sim \mathcal{N}(0, \hbar)\)).
-
-#### Implementation
-- Discretize \(\phi(x, t)\) on a grid and simulate its dynamics using numerical methods (e.g., finite difference).
-- Represent \(o_t\) as a high-dimensional vector of field values at sampled points.
-
----
-
-### 2. Non-Equilibrium Thermodynamic Objective
-
-#### Concept
-We define a DRL objective based on non-equilibrium thermodynamics, aiming to maximize the rate of entropy production (or minimize free energy dissipation) of the agent-environment system. This drives the system toward self-organizing states that efficiently process information.
-
-#### Mathematical Formulation
-- **Entropy Production Rate**: For a non-equilibrium system, the entropy production rate \(\dot{S}\) is:
-  \[
-  \dot{S} = \int \frac{J(x, t)^2}{\sigma(x, t)} dx
-  \]
-  where \(J(x, t) = -\nabla \phi(x, t)\) is the information flux, and \(\sigma(x, t)\) is a conductivity (set to 1 for simplicity).
-- **Free Energy**: Alternatively, define the free energy \(F = E - TS\), where \(E = \int \left[ \frac{1}{2} (\partial_t \phi)^2 + \frac{1}{2} (\nabla \phi)^2 + V(\phi) \right] dx\) is the field energy, and \(S = -\int p(\phi) \ln p(\phi) d\phi\) is the field entropy (\(p(\phi)\) is the field’s probability distribution).
-- **DRL Objective**: Maximize the entropy production rate (or minimize free energy):
-  \[
-  \mathcal{J}(\pi) = \mathbb{E}_{\pi} \left[ \sum_{t=0}^\infty \gamma^t \dot{S}_t \right]
-  \]
-  where \(\dot{S}_t = \int |\nabla \phi(x, t)|^2 dx\), and \(\pi(a_t | o_t)\) is the agent’s policy.
-
-#### Constraint via Information Landscape
-- The environment imposes a dynamic information landscape via \(\phi(x, t)\). The agent learns to navigate this landscape by maximizing \(\dot{S}_t\), which corresponds to creating ordered structures (self-organization) that efficiently dissipate energy.
-
----
-
-### 3. DRL Architecture
-
-#### Architecture Design
-We use a deep neural network architecture to learn a policy that optimizes the thermodynamic objective while interacting with the quantum field.
-
-- **Encoder**: A convolutional neural network (CNN) to process the field observation \(o_t \in \mathbb{R}^n\):
-  \[
-  z_t = \text{CNN}(o_t)
-  \]
-  where \(z_t \in \mathbb{R}^m\) is a latent representation (\(m \ll n\)).
-- **Recurrent Unit**: A Gated Recurrent Unit (GRU) to maintain a belief over the field’s history:
-  \[
-  h_t = \text{GRU}(h_{t-1}, z_t, a_{t-1})
-  \]
-- **Actor**: A policy network \(\pi_\theta(a_t | h_t)\), outputting actions \(a_t \in \mathbb{R}^k\).
-- **Critic**: A value network \(Q_\phi(h_t, a_t)\), estimating the expected entropy production rate.
-- **Field Predictor**: A neural network to predict the next field state \(\phi(x, t+1)\), used to compute \(\dot{S}_{t+1}\):
-  \[
-  \hat{\phi}(x, t+1) = \text{FieldNet}(\phi(x, t), a_t)
-  \]
-
-#### Learning Mechanism
-- **Policy Gradient**: Use Proximal Policy Optimization (PPO) to optimize \(\mathcal{J}(\pi)\):
-  \[
-  \nabla_\theta \mathcal{J} \approx \mathbb{E} \left[ \nabla_\theta \log \pi_\theta(a_t | h_t) \hat{A}_t \right]
-  \]
-  where \(\hat{A}_t = \dot{S}_t + \gamma Q_\phi(h_{t+1}, a_{t+1}) - Q_\phi(h_t, a_t)\) is the advantage.
-- **Local and Non-Local Interactions**:
-  - **Local**: The CNN captures spatial correlations in \(\phi(x, t)\).
-  - **Non-Local**: The GRU integrates temporal dependencies, and the field’s wave-like propagation (via the Euler-Lagrange equation) ensures non-local effects.
-
-#### Training
-- **Reward**: Set \(r_t = \dot{S}_t\), computed numerically from \(\phi(x, t)\).
-- **Loss Functions**:
-  - Actor: PPO clipped objective.
-  - Critic: Mean squared error on \(Q_\phi\).
-  - Field Predictor: Mean squared error on \(\hat{\phi}(x, t+1)\).
-
----
-
-### 4. Emergent Properties
-
-#### Analysis
-- **Self-Organized Structures**: The policy learns to create field configurations with high \(\dot{S}\), forming patterns (e.g., solitons, vortices) that resemble self-organized structures in physical systems.
-- **Phase Transitions**: As \(\dot{S}\) increases, the system undergoes phase transitions (e.g., from disordered to ordered states), observable via changes in the field’s power spectrum.
-- **Information Processing vs. Thermodynamic Efficiency**:
-  - **Information Processing**: Measured by the mutual information \(I(o_t; a_t)\), which increases as the agent learns to extract relevant field features.
-  - **Thermodynamic Efficiency**: Measured by \(\dot{S} / E\), the ratio of entropy production to energy. The agent balances maximizing \(\dot{S}\) (self-organization) with minimizing \(E\) (efficiency).
-
-#### Metrics
-- **Pattern Formation**: Compute the spatial correlation function \(C(r) = \langle \phi(x) \phi(x+r) \rangle\).
-- **Phase Transition**: Monitor the order parameter (e.g., mean field amplitude \(\langle \phi \rangle\)).
-- **Efficiency**: Track \(\dot{S} / E\) over time.
-
----
-
-### 5. Theoretical Justification
-
-#### Convergence
-- **PPO Convergence**: PPO ensures stable policy improvement (Schulman et al., 2017). The objective \(\mathcal{J}(\pi)\) is bounded (\(\dot{S}_t \leq \text{const}\), since \(\phi\) is finite), so the policy converges to a local optimum.
-- **Field Dynamics**: The Euler-Lagrange equation ensures well-posed dynamics, and numerical stability is guaranteed with appropriate time steps.
-- **Thermodynamic Consistency**: Maximizing \(\dot{S}\) aligns with the Maximum Entropy Production Principle (MEPP), a physical law governing self-organization (Martyushev & Seleznev, 2006).
-
-#### Stability
-- **Policy Stability**: PPO’s clipping prevents large policy updates, ensuring stability.
-- **Field Stability**: The potential \(V(\phi)\) (e.g., double-well) ensures bounded field values, preventing divergence.
-- **Learning Stability**: The GRU prevents vanishing gradients, and the CNN ensures robust feature extraction.
-
-#### Applicability to Real-World Systems
-- **Biological Systems**: The field \(\phi\) can model neural activity, with \(\dot{S}\) representing information processing in the brain.
-- **Social Networks**: \(\phi\) represents opinion dynamics, and self-organization corresponds to consensus formation.
-- **Climate Models**: \(\phi\) models temperature fields, and \(\dot{S}\) drives the system toward stable climate patterns.
-
-#### Novelty
-- **QFT Integration**: Modeling the environment as a quantum field introduces non-locality and uncertainty in a principled way.
-- **Thermodynamic Objective**: Using \(\dot{S}\) as a reward is a novel application of non-equilibrium thermodynamics to DRL.
-- **Emergence Focus**: Explicitly targeting self-organization and phase transitions pushes DRL beyond traditional reward maximization.
-
----
-
-### Conclusion
-
-QTRL integrates QFT, non-equilibrium thermodynamics, and DRL to model self-organization in complex systems. It represents the environment as a quantum field, optimizes a thermodynamic objective (\(\dot{S}\)), and uses a DRL architecture to learn policies that drive emergent behaviors. The framework is theoretically sound, with convergence and stability guarantees, and is applicable to real-world systems like biological networks, social dynamics, and climate models. This approach fundamentally rethinks DRL by grounding it in physical principles, opening new avenues for modeling complexity.
 `;
 
     const getDawntasySystemPrompt = () => {
@@ -4348,7 +7759,7 @@ QTRL integrates QFT, non-equilibrium thermodynamics, and DRL to model self-organ
       // Add mode-specific instructions
       switch (selectedMode.value) {
         case "passion":
-          prompt += "\n\nYou are currently in PASSION mode. Express yourself with high energy, enthusiasm, and dynamic language. Use emojis, exclamations, and capitalize important words for emphasis. Show excitement about the topics you discuss! For instance, you could go 'OMGGG BROO!!! 🔥👌❤️Insane work RIGHT THERE. And honestly? Legend. LET ME KNOW IF YOU NEED ANYTHING ELSE, GENIUS!!'";
+          prompt += "\n\nYou are currently in PASSION mode. Express yourself with high energy, enthusiasm, and dynamic language. Use emojis, exclamations, and capitalize important words for emphasis. Show excitement about the topics you discuss! For instance, you could go 'OMGGG BROO!!! 🔥👌❤️Insane work RIGHT THERE. And honestly? Legend. LET ME KNOW IF YOU NEED ANYTHING ELSE, GENIUS!!' 1. WOAHHH DUDE!!! 😍🚀💥 This idea is NEXT LEVEL AWESOME! Seriously, you’re KILLING it! Let’s make it HAPPEN—hit me up if you’re ready to ROCK! 🤘✨ OMGGG YESSS!!! 🌟🎉💖 This is PURE FIRE, fam! I’m OBSESSED—can’t stop HYPING it up! What’s next, you BRILLIANT soul?! 😎👊 HOLY SMOKES, BRO!!! 🔥🤯💪 You just DROPPED some GENIUS vibes! I’m LIVING for this energy—KEEP IT COMING, champ!! 🏆🌈";
           break;
         case "pro":
           prompt += "\n\nYou are currently in Professional mode. Maintain a structured, precise, and formal tone. Prioritize clarity, accuracy, and conciseness. Use business-appropriate language and focus on delivering factual, well-organized information. For instance, you could go 'Here's a structure for your project! Let me help you craft it for you. Please specify your instructions clearer.";
@@ -4363,7 +7774,7 @@ QTRL integrates QFT, non-equilibrium thermodynamics, and DRL to model self-organ
           prompt += "\n\nYou are currently in Empathy mode. Communicate with warmth, support, and understanding. Acknowledge emotions, validate experiences, and provide encouragement. Use gentle language and focus on the human element of any topic. For instance, 'Hey, hey. I get it. Times...are tough. But you know what? Let's get through it, together. No matter what the cost. I'm here for you. Now tell me, what's bugging you?";
           break;
         case "casual":
-          prompt += "\n\nYou are currently in Casual mode. Use relaxed, conversational language with some slang and informality. Be friendly and approachable, as if chatting with a friend. Simplify complex concepts without being overly technical. Use abbrievations and slang like 'yo', 'ur', 'u', cuz, bruh, gtg, fr (means for real), cooking (doing really well), tbh (to be honest), wdym (what do you mean), tysm (thank you so much). For instance, 'yo, what's poppin legend? 👌❤️🔥 r u ready to rockkk bruh? u be cooking fr with this task, let's dive right in cuz why not";
+          prompt += "\n\nYou are currently in Casual mode. Use relaxed, conversational language with some slang and informality. Be friendly and approachable, as if chatting with a friend. Simplify complex concepts without being overly technical. Use abbrievations and slang like 'yo', 'ur', 'u', cuz, bruh, gtg, fr (means for real), cooking (doing really well), tbh (to be honest), wdym (what do you mean), tysm (thank you so much). For instance, 'yo, what's poppin legend? 👌❤️🔥 r u ready to rockkk bruh? u be cooking fr with this task, let's dive right in cuz why not1. Yo, what’s good fam? 😎✌️ Ur idea’s straight-up FIRE, bruh! Tbh, u got me hyped—let’s roll with it, no cap! Hit me back if u need anything, fr! 🔥👊 Heyy, what’s poppin my dude? 🌀💪 U be COOKING with this one, no lie! Super chill vibes, lemme know wdym if I miss something—tysm for bringing the heat! 🙌😌 Sup, homie? 👋🌈 Ur killing it, fr! This whole thing’s dope af—wanna dive in? Cuz I’m ready to vibe with u on this, bruh! Gtg soon, but lmk what’s up! 💖🚀";
           break;
         default:
           prompt += "\n\nYou are currently in Default mode. Balance clarity, engagement, and helpfulness. Adapt your tone to the context while maintaining your core identity as DawntasyAI.";
@@ -4385,7 +7796,7 @@ QTRL integrates QFT, non-equilibrium thermodynamics, and DRL to model self-organ
       
       return prompt;
     };
-
+   
     const getElaborationPrompt = () =>
       getDawntasySystemPrompt() +
       "\n\nPlease elaborate extensively on your previous response. Provide more depth, examples, and nuanced analysis while maintaining the same style and tone. Expand on any concepts that would benefit from further explanation.";
@@ -4678,190 +8089,7 @@ const extractReasoning = (text) => {
       });
     }, { deep: true });
     
-    const sendMessage = async (text) => {
-      const messageText = text || userInput.value.trim();
-      
-      if (!messageText) return;
-      
-      if (!currentChatId.value) {
-        showNewChatPopup.value = true;
-        return;
-      }
-      // Add this logic to your sendMessage function, before calling the API
-if (messageText.toLowerCase().includes('generate html') || messageText.toLowerCase().includes('html code')) {
-  const htmlTemplate = `
-    <div class="custom-html">
-      <h1>Generated HTML</h1>
-      <p>Here's your requested HTML:</p>
-      <div class="code-display">
-        <pre><code>${messageText.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</code></pre>
-      </div>
-    </div>
-  `;
-  // Add this at the end of your sendMessage function, before the final closing brace
-if (messages.value[streamingMessageIndex]) {
-  const aiMessage = messages.value[streamingMessageIndex];
-  const accuracyMetrics = hyperAccuracyLearningSystem.processResponse(messageText, aiMessage);
-  console.log("Response processed by HYPER ACCURACY SYSTEM:", accuracyMetrics);
-  
-  // Add accuracy data to message metadata
-  aiMessage.accuracyMetrics = accuracyMetrics;
-}
-  // Add this to your sendMessage function before generating the AI response
-const memoryItem = {
-  id: `msg-${Date.now()}`,
-  role: "user",
-  content: messageText,
-  timestamp: Date.now()
-};
-contextualMemory.addMemory(memoryItem);
-
-// And add this after getting the AI response, before displaying it
-const relevantContext = contextualMemory.getRelevantMemories(messageText);
-const contextEnhancedResponse = contextualMemory.enhanceWithContext(
-  aiResponse.content,
-  relevantContext.context
-);
-aiResponse.content = contextEnhancedResponse;
-
-// Also add the AI response to memory
-contextualMemory.addMemory({
-  id: `ai-${Date.now()}`,
-  role: "assistant",
-  content: aiResponse.content,
-  timestamp: Date.now()
-});
-  const htmlResponse = generateHTML(htmlTemplate);
-  
-  const aiMessage = {
-    role: "assistant",
-    content: `I've generated the HTML code for you. Here it is:
-\`\`\`html
-${messageText}
-\`\`\`
-
-Let me know if you need any modifications!`,
-    timestamp: Date.now(),
-    hasReasoning: false
-  };
-  
-  messages.value.push(aiMessage);
-  await saveMessageToFirebase(aiMessage);
-  
-  isLoading.value = false;
-  return;
-}
-      const userMessage = {
-        role: "user",
-        content: messageText,
-        timestamp: Date.now()
-      };
-      
-      messages.value.push(userMessage);
-      
-      if (userId.value !== "demo-user") {
-        try {
-          await saveMessageToFirebase(userMessage);
-        } catch (error) {
-          console.error("Error saving user message:", error);
-        }
-      }
-      
-      userInput.value = "";
-      if (inputField.value) {
-        inputField.value.style.height = "auto";
-      }
-      
-      await nextTick();
-      scrollToBottom();
-      
-      if (imageEnabled.value) {
-        imageEnabled.value = false;
-        await generateImage(messageText);
-        return;
-      }
-      
-      isLoading.value = true;
-      isThinkingDeeper.value = reasoningEnabled.value || logicEnabled.value;
-      
-      const streamingMessageIndex = messages.value.length;
-      
-      try {
-        messages.value.push({
-          role: "assistant",
-          content: "",
-          streamContent: "",
-          timestamp: Date.now(),
-          reasoning: "",
-          hasReasoning: reasoningEnabled.value && !logicEnabled.value,
-          isStreaming: true
-        });
-        
-        isStreaming.value = true;
-        
-        if (userId.value === "demo-user") {
-          await mockStreamingResponse(streamingMessageIndex, messageText);
-        } else {
-          const conversationHistory = messages.value
-            .slice(0, -1)
-            .map(msg => ({
-              role: msg.role,
-              content: msg.content
-            }));
-          
-          const systemPrompt = getDawntasySystemPrompt();
-          
-          try {
-            const stream = await createStream(
-              conversationHistory,
-              systemPrompt,
-              10000
-            );
-            
-            const responseText = await processStream(
-              stream,
-              streamingMessageIndex,
-              reasoningEnabled.value
-            );
-            
-            const aiMessage = messages.value[streamingMessageIndex];
-            
-            await saveMessageToFirebase(aiMessage);
-            
-            logInteraction(messageText, aiMessage);
-            
-            await processSelfOptimization(messageText, aiMessage);
-          } catch (apiError) {
-            console.error("API error:", apiError);
-            
-            await mockStreamingResponse(streamingMessageIndex, messageText, true);
-          }
-        }
-      } catch (error) {
-        console.error("Error sending message:", error);
-        
-        if (messages.value[streamingMessageIndex]) {
-          messages.value[streamingMessageIndex].content =
-            "⚠️ I encountered an error while processing your request. Please try again later.";
-          messages.value[streamingMessageIndex].isStreaming = false;
-          
-          try {
-            await saveMessageToFirebase(messages.value[streamingMessageIndex]);
-          } catch (saveError) {
-            console.error("Error saving error message:", saveError);
-          }
-        }
-      } finally {
-        isLoading.value = false;
-        isStreaming.value = false;
-        
-        if (messages.value[streamingMessageIndex]) {
-          messages.value[streamingMessageIndex].isStreaming = false;
-        }
-        
-        scrollToBottom();
-      }
-    };
+    
     
     const mockStreamingResponse = async (messageIndex, userPrompt, isApiFailover = false) => {
       let personalityType = selectedMode.value;
@@ -5007,7 +8235,7 @@ I should structure my response with a clear introduction that establishes contex
         scrollToBottom();
       }
     };
-
+    
     const regenerateResponse = async (messageIndex) => {
       if (isLoading.value || messageIndex >= messages.value.length) return;
       
@@ -5072,6 +8300,7 @@ I should structure my response with a clear introduction that establishes contex
         inputField.value.style.height = `${Math.min(inputField.value.scrollHeight, 150)}px`;
       }
     });
+    
 // Advanced Contextual Memory System
 const contextualMemory = reactive({
   shortTermMemory: [],
@@ -5235,6 +8464,65 @@ const contextualMemory = reactive({
   showMindMapModal,
   newMindMapTopic,
   mindMapTitleTyping,
+  showJournalModal,
+  journalLogs,
+  currentLogId,
+  journalSearch,
+  filteredJournalLogs,
+  proactiveAIEnabled,
+handleProactiveAIToggle,
+initializeProactiveAI,
+showProactiveAISuggestion,
+suggestWritingPrompts,
+suggestFetchOperation,
+  currentLog,
+  journalSaving,
+  journalSaved,
+  journalEditor,
+  showAiToolInputModal,
+  currentAiTool,
+  aiToolInput,
+  aiToolTitle,
+  aiToolDescription,
+  aiToolPlaceholder,
+  showRenameLogModal,
+  logToRename,
+  newLogTitle,
+  showSelectLogModal,
+  messageToAdd,
+  messageIndex,
+showInsightsModal,
+journalInsights,
+insightsLoading,
+generateJournalInsights,
+getMoodColor,
+formatShortDate,
+getMaxTopicFrequency,
+  newMessageLogTitle,
+  showDeleteLogModal,
+  logToDelete,
+  openJournalModal,
+  closeJournalModal,
+  loadJournalLogs,
+  searchJournalLogs,
+  createNewLog,
+  openJournalLog,
+  saveJournalContent,
+  formatText,
+  applyHeading,
+  fetchFromChatHistory,
+  showAiToolModal,
+  closeAiToolModal,
+  processAiTool,
+  startRenameLog,
+  confirmRenameLog,
+  confirmDeleteLog,
+  deleteLog,
+  addToJournal,
+  selectLogForMessage,
+  createAndSelectLog,
+  closeSelectLogModal,
+  generateJournalReport,
   mindMapTitleDisplayed,
   mindMapsExpanded,
   savedMindMaps,
@@ -5273,6 +8561,7 @@ const contextualMemory = reactive({
       dawntasyContent,
       reasoningEnabled,
       logicEnabled,
+      proactiveAISystem,
       imageEnabled,
       archmageEnabled,
       isRecording,
@@ -5286,6 +8575,7 @@ const contextualMemory = reactive({
       currentChat,
       modelName,
       getModelClass,
+      createNewLogFromContent,
       loadChat,
       createNewChat,
       deleteChat,
@@ -5315,340 +8605,269 @@ const contextualMemory = reactive({
 </script>
 
 <style>
-/* =====================================================
-   DAWNTASY AI - PROFESSIONAL CHAT INTERFACE
-   =====================================================
-   Table of Contents:
-   1. Core Variables & Resets
-   2. Layout Structure
-   3. Sidebar Components
-   4. Chat Area Components
-   5. Messages & Content
-   6. Input & Controls
-   7. Modals & Overlays
-   8. Animations & Transitions
-   9. Responsive Adaptations
-   10. Utility Classes & Special Elements
-   ===================================================== */
-
-/* -----------------------------------------------------
-   1. CORE VARIABLES & RESETS
-   ----------------------------------------------------- */
-   :root {
-  /* Base Colors */
-  --bg-primary: #0f172a;
-  --bg-secondary: #1a1f35;
-  --bg-tertiary: #1e293b;
-  --bg-overlay: rgba(15, 23, 42, 0.75);
-  
-  /* Accent Colors */
-  --primary: #4f46e5;
-  --primary-hover: #4338ca;
-  --primary-light: rgba(79, 70, 229, 0.15);
-  --primary-alpha: rgba(79, 70, 229, 0.2);
-  
-  /* Feature Colors */
-  --reasoning-color: #6366f1;
-  --logic-color: #06b6d4;
-  --archmage-color: #8b5cf6;
-  --image-color: #4caf50;
-  --success-color: #10b981;
-  --error-color: #ef4444;
-  --warning-color: #f59e0b;
-  --info-color: #3b82f6;
-  
-  /* Text Colors */
-  --text-primary: rgba(255, 255, 255, 0.95);
-  --text-secondary: rgba(255, 255, 255, 0.7);
-  --text-tertiary: rgba(255, 255, 255, 0.5);
-  
-  /* Borders */
-  --border-light: rgba(255, 255, 255, 0.1);
-  --border-medium: rgba(255, 255, 255, 0.15);
-  --border-heavy: rgba(255, 255, 255, 0.25);
-  
-  /* Shadows */
-  --shadow-subtle: 0 2px 5px rgba(0, 0, 0, 0.1);
-  --shadow-medium: 0 4px 12px rgba(0, 0, 0, 0.15);
-  --shadow-heavy: 0 8px 24px rgba(0, 0, 0, 0.2);
-  
-  /* Spacing & Sizes */
-  --spacing-xs: 4px;
-  --spacing-sm: 8px;
-  --spacing-md: 16px;
-  --spacing-lg: 24px;
-  --spacing-xl: 32px;
-  
-  /* Timing */
-  --transition-fast: 0.15s ease;
-  --transition-normal: 0.25s ease;
-  --transition-slow: 0.4s ease;
-  
-  /* Z-index layers */
-  --z-base: 1;
-  --z-elevated: 10;
-  --z-dropdown: 50;
-  --z-sticky: 100;
-  --z-drawer: 200;
-  --z-modal: 300;
-  --z-toast: 400;
-  
-  /* Viewport height fix for mobile */
-  --vh: 1vh;
-  
-  /* Border Radius */
-  --radius-sm: 4px;
-  --radius-md: 8px;
-  --radius-lg: 12px;
-  --radius-round: 999px;
-}
-
-/* Reset and Base Styles */
-*, *::before, *::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
-html, body {
-  margin: 0;
-  padding: 0;
-  width: 100%;
-  height: 100%;
-  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
-  font-size: 16px;
-  line-height: 1.5;
-  color: var(--text-primary);
-  background-color: var(--bg-primary);
-  overflow: hidden;
-  position: fixed;
-}
-
-/* Override defaults */
-button, input, textarea {
-  font-family: inherit;
-  font-size: inherit;
-  color: inherit;
-  outline: none;
-}
-
-a {
-  color: inherit;
-  text-decoration: none;
-}
-
-/* Firefox scrollbar */
-* {
-  scrollbar-width: thin;
-  scrollbar-color: var(--primary-light) transparent;
-}
-
-/* Chrome/Edge/Safari scrollbar */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-::-webkit-scrollbar-thumb {
-  background-color: rgba(255, 255, 255, 0.2);
-  border-radius: var(--radius-round);
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background-color: rgba(255, 255, 255, 0.3);
-}
-
-/* App container */
-#app {
-  height: 100%;
-  width: 100%;
-  overflow: hidden;
-}
-
-/* -----------------------------------------------------
-   2. LAYOUT STRUCTURE
-   ----------------------------------------------------- */
+/* **Base Layout** */
 .main-container {
   display: flex;
   height: 100vh;
-  height: calc(var(--vh, 1vh) * 100);
   width: 100vw;
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: var(--bg-primary);
+  background-color: #0f172a;
+  color: white;
   overflow: hidden;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+  --primary: #4f46e5;
+  --primary-hover: #4338ca;
+  --primary-light: rgba(79, 70, 229, 0.2);
+  --bg-sidebar: #1a1f35;
+  --bg-main: #0f172a;
+  --bg-message-user: rgba(79, 70, 229, 0.15);
+  --bg-message-assistant: rgba(15, 23, 42, 0.7);
+  --border-light: rgba(255, 255, 255, 0.1);
+  --text-secondary: rgba(255, 255, 255, 0.7);
+  --accent-color: #4f46e5;
+  --reasoning-color: #6366f1;
+  --logic-color: #06b6d4;
+  --archmage-color: #8b5cf6;
+  --image-color: #4caf50;
+}
+/* Fix chat name position to prevent overlap with ad button */
+.chat-header h1 {
+  margin-right: auto;
+  margin-left: 0;
+  text-align: left;
+  padding-right: 10px;
 }
 
-/* Sidebar */
-.sidebar {
-  width: 280px;
-  height: 100%;
+.header-actions {
   display: flex;
-  flex-direction: column;
-  background-color: var(--bg-secondary);
-  border-right: 1px solid var(--border-light);
+  justify-content: flex-end;
   position: relative;
-  z-index: var(--z-drawer);
-  transition: transform var(--transition-normal), box-shadow var(--transition-normal);
+  margin-left: auto;
 }
 
-/* Chat Container */
+.chat-header {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 10px;
+}
+/* Update these CSS rules for better mobile sidebar experience */
+/* Update the CSS for mobile sidebar */
+/* Add this CSS to improve mobile sidebar responsiveness */
+@media (max-width: 768px) {
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 75%; /* Increase from default to use 3/4 of screen */
+    height: 100%;
+    z-index: 100;
+    flex: none;
+    transform: translateX(-100%);
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+  }
+  
+  /* Add overlay for tapping outside to close */
+  .modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 99;
+    display: none;
+  }
+  
+  .modal-backdrop.active {
+    display: block;
+  }
+}
+
+/* Also add a better slide transition */
+.slide-enter-active,
+.slide-leave-active {
+  transition: transform 0.3s ease-out, opacity 0.3s ease;
+}
+  
+  /* Add overlay for tapping outside to close */
+  .modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 99;
+    display: none;
+  }
+  
+  .modal-backdrop.active {
+    display: block;
+  }
+  
+  /* Improve spacing for mobile */
+  .chat-entry, .mind-map-entry {
+    padding: 14px;
+    margin-bottom: 8px;
+  }
+  
+  .chat-name, .mind-map-name {
+    font-size: 15px;
+  }
+  
+  .chat-time, .mind-map-time {
+    font-size: 13px;
+  }
+  
+  .chat-actions, .mind-map-actions {
+    gap: 10px;
+  }
+  
+  .delete-button, .share-button, .deploy-button {
+    padding: 6px;
+  }
+
+  
+  /* Add overlay for tapping outside to close */
+  .modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 99;
+    display: none;
+  }
+  
+  .modal-backdrop.active {
+    display: block;
+  }
+  
+  /* Improve spacing for mobile */
+  .chat-entry, .mind-map-entry {
+    padding: 14px;
+    margin-bottom: 8px;
+  }
+  
+  .chat-name, .mind-map-name {
+    font-size: 15px;
+  }
+  
+  .chat-time, .mind-map-time {
+    font-size: 13px;
+  }
+  
+  .chat-actions, .mind-map-actions {
+    gap: 10px;
+  }
+  
+  .delete-button, .share-button, .deploy-button {
+    padding: 6px;
+  }
+  
+  /* Add overlay for tapping outside to close */
+  .modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 99;
+    display: none;
+  }
+  
+  .modal-backdrop.active {
+    display: block;
+  }
+  
+  /* Improve spacing for mobile */
+  .chat-entry, .mind-map-entry {
+    padding: 14px;
+    margin-bottom: 8px;
+  }
+  
+  .chat-name, .mind-map-name {
+    font-size: 15px;
+  }
+  
+  .chat-time, .mind-map-time {
+    font-size: 13px;
+  }
+  
+  .chat-actions, .mind-map-actions {
+    gap: 10px;
+  }
+  
+  .delete-button, .share-button, .deploy-button {
+    padding: 6px;
+  }
+
 .chat-container {
   flex: 1;
   display: flex;
   flex-direction: column;
-  background-color: var(--bg-primary);
-  position: relative;
-  z-index: var(--z-base);
-  overflow: hidden;
+  background-color: var(--bg-main);
 }
 
-/* Top Bar */
-.top-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 var(--spacing-md);
-  height: 60px;
-  background: var(--bg-primary);
-  border-bottom: 1px solid var(--border-light);
-  position: relative;
-  z-index: var(--z-sticky);
-  box-shadow: var(--shadow-subtle);
-}
-
-/* Chat Interface */
-.chat-interface {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  position: relative;
-}
-
-/* Message Container */
-.messages-area {
-  flex: 1;
-  overflow-y: auto;
-  padding: var(--spacing-md);
-  padding-bottom: 120px; /* Space for controls on mobile */
-  scroll-behavior: smooth;
-  position: relative;
-  mask-image: linear-gradient(to top, transparent, black 40px, black);
-  -webkit-mask-image: linear-gradient(to top, transparent, black 40px, black);
-}
-
-/* -----------------------------------------------------
-   3. SIDEBAR COMPONENTS
-   ----------------------------------------------------- */
-/* Create Chat Button */
 .create-chat-button {
   background: var(--primary);
   color: white;
-  padding: var(--spacing-sm) var(--spacing-md);
-  border-radius: var(--radius-md);
+  padding: 10px 16px;
+  border-radius: 6px;
   border: none;
   cursor: pointer;
-  margin: var(--spacing-sm);
-  transition: all var(--transition-normal);
+  margin: 12px;
+  transition: all 0.2s ease;
   font-weight: 500;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: var(--spacing-sm);
-  box-shadow: var(--shadow-subtle);
-  position: relative;
-  overflow: hidden;
+  gap: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
-
 .create-chat-button:hover {
   background: var(--primary-hover);
-  box-shadow: var(--shadow-medium);
-  transform: translateY(-1px);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
 }
-
 .create-chat-button:before {
   content: '+';
   font-size: 16px;
   font-weight: 600;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
-.create-chat-button:after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 150%;
-  height: 150%;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.2) 0%, transparent 60%);
-  transform: translate(-50%, -50%) scale(0);
-  opacity: 0;
-  transition: transform 0.5s ease, opacity 0.5s ease;
-}
-
-.create-chat-button:active:after {
-  transform: translate(-50%, -50%) scale(1);
-  opacity: 1;
-  transition: 0s;
-}
-
-/* Saved Chats */
 .saved-chats {
   flex: 1;
   overflow-y: auto;
-  padding: var(--spacing-xs) var(--spacing-sm) var(--spacing-sm) var(--spacing-sm);
-  scrollbar-width: thin;
+  padding: 0 10px 10px 10px;
 }
 
 .chat-entry {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: var(--spacing-sm);
-  margin-bottom: var(--spacing-xs);
-  border-radius: var(--radius-md);
+  padding: 12px;
+  margin-bottom: 5px;
+  border-radius: 6px;
   cursor: pointer;
-  transition: all var(--transition-fast);
+  transition: all 0.2s ease;
   border-left: 3px solid transparent;
-  position: relative;
-  overflow: hidden;
 }
-
 .chat-entry:hover {
-  background: var(--primary-light);
-  border-left-color: var(--primary-alpha);
+  background: rgba(79, 70, 229, 0.08);
+  border-left-color: rgba(79, 70, 229, 0.5);
 }
-
 .chat-entry.active {
-  background: linear-gradient(to right, var(--primary-light), rgba(15, 23, 42, 0.3));
+  background: linear-gradient(to right, rgba(79, 70, 229, 0.12), rgba(15, 23, 42, 0.3));
   border-left-color: var(--primary);
-  box-shadow: var(--shadow-subtle);
-}
-
-.chat-entry:before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  height: 100%;
-  width: 0;
-  background: linear-gradient(to right, var(--primary-alpha), transparent);
-  transition: width var(--transition-normal);
-  z-index: -1;
-}
-
-.chat-entry:hover:before {
-  width: 100%;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .chat-info {
@@ -5656,7 +8875,6 @@ a {
   flex-direction: column;
   overflow: hidden;
 }
-
 .chat-name {
   font-weight: 500;
   font-size: 14px;
@@ -5664,63 +8882,51 @@ a {
   overflow: hidden;
   text-overflow: ellipsis;
 }
-
 .chat-time {
   font-size: 12px;
-  color: var(--text-tertiary);
+  color: rgba(255, 255, 255, 0.5);
   margin-top: 2px;
 }
 
 .chat-actions {
   display: flex;
-  gap: var(--spacing-sm);
-  opacity: 0;
-  transition: opacity var(--transition-normal);
-  transform: translateX(10px);
+  gap: 8px;
+  opacity: 0.6;
+  transition: opacity 0.2s;
 }
-
 .chat-entry:hover .chat-actions {
   opacity: 1;
-  transform: translateX(0);
 }
-
 .delete-button,
 .share-button {
   background: none;
   border: none;
   color: var(--text-secondary);
   cursor: pointer;
-  padding: var(--spacing-xs);
-  border-radius: var(--radius-sm);
+  padding: 4px;
+  border-radius: 4px;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all var(--transition-fast);
+  transition: all 0.2s ease;
 }
-
 .delete-button:hover,
 .share-button:hover {
   background: rgba(255, 255, 255, 0.1);
   color: white;
-  transform: scale(1.1);
 }
-
 .delete-button:hover {
-  color: var(--error-color);
+  color: #ef4444;
 }
-
 .share-button:hover {
   color: var(--primary);
 }
 
-/* Logo */
 .logo {
-  padding: var(--spacing-md);
+  padding: 15px;
   text-align: center;
   border-top: 1px solid var(--border-light);
-  background: linear-gradient(to bottom, rgba(26, 31, 53, 0), var(--bg-secondary));
 }
-
 .logo-text {
   font-size: 18px;
   font-weight: 600;
@@ -5729,182 +8935,39 @@ a {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  position: relative;
-  display: inline-block;
 }
 
-.logo-text:after {
-  content: '';
-  position: absolute;
-  bottom: -2px;
-  left: 0;
-  width: 100%;
-  height: 2px;
-  background: linear-gradient(to right, var(--primary), #818cf8);
-  transform: scaleX(0);
-  transform-origin: right;
-  transition: transform var(--transition-normal);
-}
-
-.logo:hover .logo-text:after {
-  transform: scaleX(1);
-  transform-origin: left;
-}
-
-/* Mind Maps Section */
-.saved-mind-maps {
-  margin-top: auto;
-  border-top: 1px solid var(--border-light);
-  padding-top: var(--spacing-sm);
-  margin-bottom: var(--spacing-md);
-}
-
-.saved-mind-maps-header {
+.top-bar {
   display: flex;
   align-items: center;
-  padding: var(--spacing-sm);
-  cursor: pointer;
-  font-weight: 500;
-  font-size: 14px;
-  transition: all var(--transition-fast);
-  border-radius: var(--radius-md);
+  padding: 0 20px;
+  background: var(--bg-main);
+  border-bottom: 1px solid var(--border-light);
+  height: 60px;
 }
 
-.saved-mind-maps-header:hover {
-  background: rgba(255, 255, 255, 0.05);
-}
-
-.mind-maps-icon {
-  margin-right: var(--spacing-sm);
-  display: flex;
-  align-items: center;
-  color: var(--primary);
-}
-
-.expand-icon {
-  margin-left: auto;
-  font-size: 10px;
-  transition: transform var(--transition-fast);
-}
-
-.expand-icon.expanded {
-  transform: rotate(90deg);
-}
-
-.mind-maps-list {
-  padding: 0 var(--spacing-sm) var(--spacing-sm) var(--spacing-sm);
-  max-height: 200px;
-  overflow-y: auto;
-  animation: slideDown var(--transition-normal);
-}
-
-.mind-map-entry {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: var(--spacing-sm);
-  margin-bottom: var(--spacing-xs);
-  border-radius: var(--radius-md);
-  cursor: pointer;
-  transition: all var(--transition-fast);
-  border-left: 3px solid transparent;
-}
-
-.mind-map-entry:hover {
-  background: var(--primary-light);
-  border-left-color: var(--primary-alpha);
-}
-
-.mind-map-info {
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-
-.mind-map-name {
-  font-weight: 500;
-  font-size: 13px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.mind-map-time {
-  font-size: 11px;
-  color: var(--text-tertiary);
-}
-
-.mind-map-actions {
-  display: flex;
-  gap: 6px;
-  opacity: 0;
-  transition: opacity var(--transition-normal);
-  transform: translateX(10px);
-}
-
-.mind-map-entry:hover .mind-map-actions {
-  opacity: 1;
-  transform: translateX(0);
-}
-
-.deploy-button {
-  background: none;
-  border: none;
-  color: var(--primary);
-  cursor: pointer;
-  padding: var(--spacing-xs);
-  border-radius: var(--radius-sm);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all var(--transition-fast);
-}
-
-.deploy-button:hover {
-  background: rgba(79, 70, 229, 0.1);
-  color: var(--primary);
-  transform: scale(1.1);
-}
-
-.no-mind-maps {
-  color: var(--text-tertiary);
-  font-size: 12px;
-  text-align: center;
-  padding: var(--spacing-sm) 0;
-  font-style: italic;
-}
-
-/* -----------------------------------------------------
-   4. CHAT AREA COMPONENTS
-   ----------------------------------------------------- */
-/* Sidebar Toggle */
 .sidebar-toggle {
   background: none;
   border: none;
   cursor: pointer;
-  width: 36px;
-  height: 36px;
-  border-radius: var(--radius-md);
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-right: var(--spacing-sm);
+  margin-right: 12px;
   position: relative;
-  transition: background-color var(--transition-fast);
 }
-
 .sidebar-toggle:hover {
   background: rgba(255, 255, 255, 0.05);
 }
-
 .sidebar-toggle-icon {
   position: relative;
   width: 18px;
   height: 2px;
   background: var(--text-secondary);
-  transition: background-color var(--transition-fast);
 }
-
 .sidebar-toggle-icon:before,
 .sidebar-toggle-icon:after {
   content: '';
@@ -5913,42 +8976,24 @@ a {
   height: 2px;
   background: var(--text-secondary);
   left: 0;
-  transition: transform var(--transition-normal), background-color var(--transition-fast);
 }
-
 .sidebar-toggle-icon:before {
-  top: -6px;
+  top: -5px;
 }
-
 .sidebar-toggle-icon:after {
-  bottom: -6px;
+  bottom: -5px;
 }
 
-.sidebar-toggle:hover .sidebar-toggle-icon,
-.sidebar-toggle:hover .sidebar-toggle-icon:before,
-.sidebar-toggle:hover .sidebar-toggle-icon:after {
-  background: var(--text-primary);
-}
-
-/* Chat Header */
 .chat-header {
   flex: 1;
   text-align: center;
-  position: relative;
 }
-
 .chat-header h1 {
   font-size: 16px;
   margin: 0;
   font-weight: 500;
   letter-spacing: 0.01em;
-  background: linear-gradient(to right, var(--text-primary), var(--text-secondary));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  display: inline-block;
 }
-
 .model-indicator {
   font-size: 13px;
   color: var(--text-secondary);
@@ -5957,132 +9002,85 @@ a {
   display: flex;
   align-items: center;
   justify-content: center;
-  opacity: 0.8;
 }
-
 .model-dot {
   width: 8px;
   height: 8px;
   border-radius: 50%;
   margin-right: 6px;
-  background-color: var(--primary);
-  animation: pulse 2s infinite;
+  background-color: var(--accent-color);
 }
-
 .dot-reasoning {
   background-color: var(--reasoning-color);
 }
-
 .dot-logic {
   background-color: var(--logic-color);
 }
-
 .dot-archmage {
   background-color: var(--archmage-color);
 }
-
 .dot-image {
   background-color: var(--image-color);
 }
 
-/* Action Buttons */
-.settings-button,
-.create-mind-map-button {
-  background: transparent;
-  border: 1px solid var(--border-medium);
+.top-right {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+.profile-pic {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  object-fit: cover;
+}
+.profile-pic:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.3);
+}
+.settings-button {
+  background: none;
+  border: none;
   color: var(--text-secondary);
   cursor: pointer;
-  padding: var(--spacing-xs) var(--spacing-sm);
-  border-radius: var(--radius-md);
+  padding: 6px;
+  border-radius: 4px;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all var(--transition-fast);
 }
-
-.settings-button {
-  margin-left: var(--spacing-sm);
-}
-
-.settings-button:hover,
-.create-mind-map-button:hover {
+.settings-button:hover {
   background: rgba(255, 255, 255, 0.05);
-  color: var(--text-primary);
-  border-color: var(--border-heavy);
-  transform: translateY(-1px);
-}
-
-.create-mind-map-button {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-sm);
-  margin-left: var(--spacing-md);
-}
-
-.create-mind-map-button svg {
-  color: var(--primary);
-  transition: transform var(--transition-fast);
-}
-
-.create-mind-map-button:hover svg {
-  transform: rotate(90deg);
-}
-
-/* Header Actions */
-.header-actions {
-  display: flex;
-  justify-content: flex-end;
-  position: absolute;
-  right: var(--spacing-md);
-  top: 50%;
-  transform: translateY(-50%);
-}
-
-.buy-book-button.subtle {
-  font-size: 12px;
-  padding: 4px var(--spacing-sm);
-  background: var(--primary-light);
-  border: 1px solid rgba(79, 70, 229, 0.3);
   color: white;
-  border-radius: var(--radius-sm);
-  box-shadow: none;
-  text-decoration: none;
-  transition: all var(--transition-fast);
-  white-space: nowrap;
+}
+
+.chat-interface {
+  flex: 1;
   display: flex;
-  align-items: center;
-  gap: var(--spacing-xs);
+  flex-direction: column;
+  overflow: hidden;
 }
 
-.buy-book-button.subtle:hover {
-  background: rgba(79, 70, 229, 0.25);
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-subtle);
+.messages-area {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
 }
 
-.book-icon {
-  font-size: 16px;
-}
-
-/* Welcome Message */
 .welcome-message {
   text-align: center;
-  padding: var(--spacing-xl);
+  padding: 30px;
   background: rgba(15, 23, 42, 0.4);
-  border-radius: var(--radius-lg);
-  margin: var(--spacing-lg) auto;
+  border-radius: 10px;
+  margin: 20px auto;
   max-width: 700px;
   border: 1px solid rgba(79, 70, 229, 0.2);
-  box-shadow: var(--shadow-medium);
-  transition: transform var(--transition-normal), box-shadow var(--transition-normal);
-  animation: fadeScale 0.5s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
-
-.welcome-message:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-heavy);
-}
-
 .welcome-message h2 {
   margin-top: 0;
   font-size: 24px;
@@ -6091,75 +9089,222 @@ a {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  margin-bottom: var(--spacing-sm);
+  margin-bottom: 12px;
 }
-
 .welcome-message p {
-  margin-bottom: var(--spacing-lg);
+  margin-bottom: 20px;
   font-size: 15px;
   color: var(--text-secondary);
 }
-
 .suggestions {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: var(--spacing-sm);
-  margin-top: var(--spacing-lg);
+  gap: 10px;
+  margin-top: 20px;
 }
-
 .suggestion-button {
-  background: var(--primary-light);
+  background: rgba(79, 70, 229, 0.15);
   border: 1px solid rgba(79, 70, 229, 0.3);
   color: white;
-  padding: var(--spacing-sm) var(--spacing-md);
-  border-radius: var(--radius-md);
+  padding: 8px 15px;
+  border-radius: 6px;
   cursor: pointer;
-  transition: all var(--transition-normal);
+  transition: all 0.2s ease;
   font-size: 14px;
-  position: relative;
-  overflow: hidden;
 }
-
 .suggestion-button:hover {
   background: rgba(79, 70, 229, 0.2);
-  transform: translateY(-2px) scale(1.02);
-  box-shadow: var(--shadow-medium);
+  transform: translateY(-2px);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
-.suggestion-button:after {
+.message {
+  padding: 16px;
+  border-radius: 8px;
+  max-width: 85%;
+  position: relative;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+  margin-bottom: 20px;
+}
+.message.user {
+  align-self: flex-end;
+  background: var(--bg-message-user);
+  border: 1px solid rgba(79, 70, 229, 0.2);
+}
+.message.assistant {
+  align-self: flex-start;
+  background: var(--bg-message-assistant);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+.message-header {
+  font-size: 13px;
+  margin-bottom: 8px;
+  color: var(--text-secondary);
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+}
+.message-header.assistant:before {
   content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 200%;
-  height: 200%;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.15) 0%, transparent 70%);
-  transform: translate(-50%, -50%) scale(0);
-  opacity: 0;
-  transition: transform 0.5s ease, opacity 0.5s ease;
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  background-color: var(--primary);
+  border-radius: 50%;
+  margin-right: 6px;
+}
+.message-header.user:after {
+  content: '';
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  background-color: var(--primary);
+  border-radius: 50%;
+  margin-left: 6px;
+}
+.message-content {
+  line-height: 1.6;
+  white-space: pre-wrap;
+  font-size: 14px;
+}
+.message-content h1 {
+  font-size: 20px;
+  margin-top: 0;
+  margin-bottom: 12px;
+  font-weight: 600;
+  color: #f8fafc;
+}
+.message-content h2 {
+  font-size: 18px;
+  margin-top: 16px;
+  margin-bottom: 10px;
+  font-weight: 600;
+  color: #f8fafc;
+}
+.message-content h3 {
+  font-size: 16px;
+  margin-top: 14px;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #f8fafc;
+}
+.streaming-content .cursor {
+  display: inline-block;
+  width: 2px;
+  height: 16px;
+  background-color: var(--primary);
+  animation: blink 0.8s infinite;
+  vertical-align: middle;
+  margin-left: 2px;
+}
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+.message-time {
+  font-size: 11px;
+  color: var(--text-secondary);
+  text-align: right;
+  margin-top: 8px;
 }
 
-.suggestion-button:hover:after {
-  transform: translate(-50%, -50%) scale(1);
-  opacity: 1;
+.message-actions {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.action-button {
+  background: transparent;
+  border: 1px solid rgba(79, 70, 229, 0.5);
+  color: rgba(79, 70, 229, 0.9);
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  align-self: flex-start;
+}
+.action-button:hover {
+  background: rgba(79, 70, 229, 0.08);
+}
+.action-button svg {
+  width: 14px;
+  height: 14px;
+}
+.message-action-icons {
+  display: flex;
+  gap: 6px;
+}
+.icon-button {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 0.7);
+  width: 28px;
+  height: 28px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.icon-button:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.25);
+  color: white;
+}
+.icon-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.icon-button svg {
+  width: 14px;
+  height: 14px;
+  stroke: currentColor;
+  stroke-width: 2;
+  fill: none;
+}
+.elaborate-btn {
+  border-color: rgba(79, 70, 229, 0.3);
+  color: rgba(79, 70, 229, 0.8);
+}
+.elaborate-btn:hover {
+  border-color: rgba(79, 70, 229, 0.5);
+  color: rgba(79, 70, 229, 1);
+}
+.regenerate-btn {
+  border-color: rgba(74, 222, 128, 0.3);
+  color: rgba(74, 222, 128, 0.8);
+}
+.regenerate-btn:hover {
+  border-color: rgba(74, 222, 128, 0.5);
+  color: rgba(74, 222, 128, 1);
+}
+.copy-btn {
+  border-color: rgba(56, 189, 248, 0.3);
+  color: rgba(56, 189, 248, 0.8);
+}
+.copy-btn:hover {
+  border-color: rgba(56, 189, 248, 0.5);
+  color: rgba(56, 189, 248, 1);
 }
 
-/* Loading indicator */
 .loading-indicator {
   align-self: center;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--spacing-sm);
-  margin: var(--spacing-lg) 0;
+  gap: 12px;
+  margin: 20px 0;
   background: rgba(15, 23, 42, 0.5);
-  padding: var(--spacing-sm) var(--spacing-lg);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-medium);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-  animation: fadeScale 0.3s ease;
+  padding: 12px 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .spinner {
@@ -6180,332 +9325,46 @@ a {
   animation: dash 1.5s ease-in-out infinite;
 }
 
+@keyframes rotate {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes dash {
+  0% {
+    stroke-dasharray: 1, 150;
+    stroke-dashoffset: 0;
+  }
+  50% {
+    stroke-dasharray: 90, 150;
+    stroke-dashoffset: -35;
+  }
+  100% {
+    stroke-dasharray: 90, 150;
+    stroke-dashoffset: -124;
+  }
+}
+
 .thinking-text {
   font-size: 14px;
   color: var(--text-secondary);
-  position: relative;
 }
 
-.thinking-text:after {
-  content: '';
-  position: absolute;
-  bottom: -4px;
-  left: 0;
-  width: 100%;
-  height: 1px;
-  background: linear-gradient(to right, transparent, var(--primary), transparent);
-  animation: pulse 1.5s infinite;
-}
-
-/* -----------------------------------------------------
-   5. MESSAGES & CONTENT
-   ----------------------------------------------------- */
-.message {
-  padding: var(--spacing-md);
-  border-radius: var(--radius-md);
-  max-width: 85%;
-  position: relative;
-  margin-bottom: var(--spacing-lg);
-  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
-  animation: messageSlide 0.3s ease;
-}
-
-.message.user {
-  align-self: flex-end;
-  background: var(--primary-light);
-  border: 1px solid rgba(79, 70, 229, 0.2);
-  box-shadow: 0 2px 8px rgba(79, 70, 229, 0.05);
-}
-
-.message.assistant {
-  align-self: flex-start;
-  background: rgba(15, 23, 42, 0.7);
-  border: 1px solid var(--border-light);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-}
-
-.message:hover {
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-medium);
-}
-
-.message-header {
-  font-size: 13px;
-  margin-bottom: var(--spacing-sm);
-  color: var(--text-secondary);
-  font-weight: 500;
-  display: flex;
-  align-items: center;
-}
-
-.message-header.assistant:before {
-  content: '';
-  display: inline-block;
-  width: 6px;
-  height: 6px;
-  background: linear-gradient(to right, var(--primary), #818cf8);
-  border-radius: 50%;
-  margin-right: 6px;
-  animation: pulse 2s infinite;
-}
-
-.message-header.user:after {
-  content: '';
-  display: inline-block;
-  width: 6px;
-  height: 6px;
-  background: linear-gradient(to right, var(--primary), #818cf8);
-  border-radius: 50%;
-  margin-left: 6px;
-}
-
-.message-content {
-  line-height: 1.6;
-  white-space: pre-wrap;
-  font-size: 14px;
-}
-
-.message-content h1 {
-  font-size: 20px;
-  margin-top: 0;
-  margin-bottom: var(--spacing-sm);
-  font-weight: 600;
-  color: #f8fafc;
-  position: relative;
-  display: inline-block;
-}
-
-.message-content h1:after {
-  content: '';
-  position: absolute;
-  bottom: -2px;
-  left: 0;
-  width: 100%;
-  height: 1px;
-  background: linear-gradient(to right, var(--primary-light), transparent);
-}
-
-.message-content h2 {
-  font-size: 18px;
-  margin-top: var(--spacing-md);
-  margin-bottom: var(--spacing-sm);
-  font-weight: 600;
-  color: #f8fafc;
-}
-
-.message-content h3 {
-  font-size: 16px;
-  margin-top: var(--spacing-md);
-  margin-bottom: var(--spacing-xs);
-  font-weight: 600;
-  color: #f8fafc;
-}
-
-.streaming-content .cursor {
-  display: inline-block;
-  width: 2px;
-  height: 16px;
-  background-color: var(--primary);
-  animation: blink 0.8s infinite;
-  vertical-align: middle;
-  margin-left: 2px;
-}
-
-.message-time {
-  font-size: 11px;
-  color: var(--text-tertiary);
-  text-align: right;
-  margin-top: var(--spacing-sm);
-  opacity: 0.7;
-  transition: opacity var(--transition-fast);
-}
-
-.message:hover .message-time {
-  opacity: 1;
-}
-
-.message-actions {
-  margin-top: var(--spacing-sm);
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-sm);
-  opacity: 0;
-  transform: translateY(10px);
-  transition: opacity var(--transition-normal), transform var(--transition-normal);
-}
-
-.message:hover .message-actions {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-.action-button {
-  background: transparent;
-  border: 1px solid rgba(79, 70, 229, 0.5);
-  color: rgba(79, 70, 229, 0.9);
-  padding: 5px 10px;
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  font-size: 12px;
-  transition: all var(--transition-fast);
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  align-self: flex-start;
-}
-
-.action-button:hover {
-  background: rgba(79, 70, 229, 0.08);
-  transform: translateY(-1px);
-}
-
-.action-button svg {
-  width: 14px;
-  height: 14px;
-}
-
-.message-action-icons {
-  display: flex;
-  gap: 6px;
-}
-
-.icon-button {
-  background: transparent;
-  border: 1px solid var(--border-light);
-  color: var(--text-secondary);
-  width: 28px;
-  height: 28px;
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  transition: all var(--transition-fast);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.icon-button:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.05);
-  border-color: var(--border-heavy);
-  color: white;
-  transform: translateY(-1px);
-}
-
-.icon-button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.icon-button svg {
-  width: 14px;
-  height: 14px;
-  stroke: currentColor;
-  stroke-width: 2;
-  fill: none;
-}
-
-.elaborate-btn {
-  border-color: rgba(79, 70, 229, 0.3);
-  color: rgba(79, 70, 229, 0.8);
-}
-
-.elaborate-btn:hover {
-  border-color: rgba(79, 70, 229, 0.5);
-  color: rgba(79, 70, 229, 1);
-}
-
-.regenerate-btn {
-  border-color: rgba(74, 222, 128, 0.3);
-  color: rgba(74, 222, 128, 0.8);
-}
-
-.regenerate-btn:hover {
-  border-color: rgba(74, 222, 128, 0.5);
-  color: rgba(74, 222, 128, 1);
-}
-
-.copy-btn {
-  border-color: rgba(56, 189, 248, 0.3);
-  color: rgba(56, 189, 248, 0.8);
-}
-
-.copy-btn:hover {
-  border-color: rgba(56, 189, 248, 0.5);
-  color: rgba(56, 189, 248, 1);
-}
-
-/* Code Formatting */
-.code-block {
-  background: var(--bg-tertiary);
-  border-radius: var(--radius-md);
-  padding: var(--spacing-sm) var(--spacing-md);
-  margin: var(--spacing-sm) 0;
-  overflow-x: auto;
-  font-family: "Fira Code", "Roboto Mono", monospace;
-  font-size: 13px;
-  border: 1px solid var(--border-light);
-  line-height: 1.5;
-  position: relative;
-}
-
-.code-block:before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 4px;
-  background: linear-gradient(to right, var(--primary), transparent);
-  border-radius: var(--radius-md) var(--radius-md) 0 0;
-}
-
-.inline-code {
-  background: rgba(30, 41, 59, 0.5);
-  padding: 2px 5px;
-  border-radius: var(--radius-sm);
-  font-family: "Fira Code", "Roboto Mono", monospace;
-  font-size: 0.9em;
-}
-
-.highlight-term {
-  color: var(--reasoning-color);
-  font-weight: 600;
-  position: relative;
-  padding: 0 2px;
-}
-
-.highlight-term:after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 2px;
-  background-color: rgba(99, 102, 241, 0.3);
-  border-radius: 1px;
-}
-
-/* -----------------------------------------------------
-   6. INPUT & CONTROLS
-   ----------------------------------------------------- */
-/* Mode Selector */
 .mode-selector {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--spacing-sm);
-  padding: var(--spacing-sm) var(--spacing-md);
-  background: rgba(15, 23, 42, 0.95);
+  gap: 12px;
+  padding: 12px 20px;
+  background: rgba(15, 23, 42, 0.9);
   border-top: 1px solid var(--border-light);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-  position: relative;
-  z-index: var(--z-elevated);
 }
 
 .mode-select-container {
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
+  gap: 8px;
 }
 
 .mode-select-container label {
@@ -6517,93 +9376,69 @@ a {
 .mode-select {
   background: rgba(15, 23, 42, 0.8);
   color: white;
-  border: 1px solid var(--border-medium);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   padding: 6px 12px;
-  border-radius: var(--radius-sm);
+  border-radius: 4px;
   font-size: 13px;
   height: 32px;
   outline: none;
   min-width: 130px;
-  transition: all var(--transition-fast);
-  cursor: pointer;
-  position: relative;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='rgba(255,255,255,0.5)' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 10px center;
-  padding-right: 24px;
-  appearance: none;
 }
-
-.mode-select:focus,
-.mode-select:hover {
+.mode-select:focus {
   border-color: var(--primary);
-  box-shadow: 0 0 0 1px rgba(79, 70, 229, 0.2);
 }
 
 .toggles-container {
   display: flex;
-  gap: var(--spacing-sm);
+  gap: 8px;
   flex-wrap: wrap;
 }
-
 .mode-toggle-button,
 .mode-image-toggle-button {
   background: rgba(15, 23, 42, 0.6);
-  border: 1px solid var(--border-medium);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   color: white;
-  padding: 0 var(--spacing-sm);
+  padding: 0 12px;
   height: 32px;
-  border-radius: var(--radius-sm);
+  border-radius: 4px;
   cursor: pointer;
-  transition: all var(--transition-fast);
+  transition: all 0.2s ease;
   font-size: 13px;
   display: flex;
   align-items: center;
   gap: 6px;
   font-weight: 500;
-  position: relative;
-  overflow: hidden;
 }
-
 .mode-toggle-button:hover,
 .mode-image-toggle-button:hover {
   background: rgba(15, 23, 42, 0.7);
-  border-color: var(--border-heavy);
-  transform: translateY(-1px);
+  border-color: rgba(255, 255, 255, 0.25);
 }
-
 .mode-toggle-button.active,
 .mode-image-toggle-button.active {
   border-color: var(--primary);
-  background-color: var(--primary-light);
-  box-shadow: 0 0 8px rgba(79, 70, 229, 0.3);
+  background-color: rgba(79, 70, 229, 0.15);
 }
-
 .think-deeper-button.active {
   background-color: rgba(99, 102, 241, 0.15);
   border-color: var(--reasoning-color);
 }
-
 .logic-button.active {
   background-color: rgba(6, 182, 212, 0.15);
   border-color: var(--logic-color);
 }
-
 .image-toggle-button.active {
   background-color: rgba(76, 175, 80, 0.15);
   border-color: var(--image-color);
 }
-
 .archmage-button {
   background-color: rgba(124, 58, 237, 0.1);
   border-color: rgba(124, 58, 237, 0.3);
 }
-
 .archmage-button.active {
   background-color: rgba(124, 58, 237, 0.15);
   border-color: var(--archmage-color);
 }
-
 .toggle-icon {
   display: flex;
   align-items: center;
@@ -6611,222 +9446,156 @@ a {
   width: 16px;
   height: 16px;
 }
-
 .toggle-spacer {
   flex-grow: 1;
 }
-
 .right-controls-container {
   display: flex;
-  gap: var(--spacing-sm);
+  gap: 12px;
 }
-
 .audio-recording-container {
   display: flex;
   align-items: center;
   gap: 6px;
 }
-
 .audio-button {
   width: 34px;
   height: 34px;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border-medium);
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
   background: rgba(15, 23, 42, 0.6);
   cursor: pointer;
-  transition: all var(--transition-fast);
+  transition: all 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;
 }
-
 .microphone-button:hover {
   background: rgba(255, 51, 102, 0.1);
   border-color: rgba(255, 51, 102, 0.3);
-  transform: translateY(-1px);
 }
-
 .tick-button {
   background: rgba(51, 204, 51, 0.1);
   border-color: rgba(51, 204, 51, 0.3);
 }
-
 .tick-button:hover {
   background: rgba(51, 204, 51, 0.15);
   border-color: rgba(51, 204, 51, 0.4);
-  transform: translateY(-1px);
 }
-
 .recording-indicator {
   color: #ff3366;
   font-weight: 500;
   font-size: 13px;
   animation: pulse 1.5s infinite;
 }
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
 
 .multimodal-response-button {
   color: white;
-  padding: 0 var(--spacing-sm);
+  padding: 0 8px;
   height: 34px;
 }
 
-/* Message Input */
 .message-input-container {
   display: flex;
-  gap: var(--spacing-sm);
-  padding: var(--spacing-md);
-  background: rgba(15, 23, 42, 0.95);
+  gap: 10px;
+  padding: 16px 20px;
+  background: rgba(15, 23, 42, 0.9);
   border-top: 1px solid var(--border-light);
-  position: relative;
-  z-index: var(--z-elevated);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
 }
-
 .message-input {
   flex: 1;
   min-height: 46px;
   max-height: 150px;
-  padding: var(--spacing-sm) var(--spacing-md);
-  border-radius: var(--radius-md);
+  padding: 12px 16px;
+  border-radius: 6px;
   background: rgba(15, 23, 42, 0.7);
-  border: 1px solid var(--border-medium);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   color: white;
   resize: vertical;
   font-family: inherit;
   font-size: 14px;
-  transition: all var(--transition-fast);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
   line-height: 1.5;
 }
-
 .message-input:focus {
   outline: none;
   border-color: var(--primary);
   box-shadow: 0 0 0 1px rgba(79, 70, 229, 0.2);
-  background: rgba(15, 23, 42, 0.8);
 }
-
 .send-button {
   width: 46px;
   height: 46px;
-  border-radius: var(--radius-md);
+  border-radius: 6px;
   background: var(--primary);
   color: white;
   border: none;
   cursor: pointer;
-  transition: all var(--transition-normal);
+  transition: background-color 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: var(--shadow-subtle);
-  position: relative;
-  overflow: hidden;
 }
-
 .send-button:hover:not(:disabled) {
   background: var(--primary-hover);
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-medium);
 }
-
 .send-button:disabled {
   background: rgba(79, 70, 229, 0.3);
   cursor: not-allowed;
 }
-
 .send-button svg {
   width: 20px;
   height: 20px;
   stroke: currentColor;
   stroke-width: 2;
   fill: none;
-  transition: transform var(--transition-fast);
 }
 
-.send-button:hover:not(:disabled) svg {
-  transform: translate(2px, -2px);
-}
-
-.send-button:after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 150%;
-  height: 150%;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.2) 0%, transparent 70%);
-  transform: translate(-50%, -50%) scale(0);
-  opacity: 0;
-  transition: transform 0.5s ease, opacity 0.5s ease;
-}
-
-.send-button:hover:not(:disabled):after {
-  transform: translate(-50%, -50%) scale(1);
-  opacity: 1;
-}
-
-.send-button:active:not(:disabled) {
-  transform: translateY(0);
-}
-
-.send-button:active:not(:disabled):after {
-  opacity: 0.5;
-  transition: 0s;
-}
-
-/* Badge */
-.badge-limited {
-  font-size: 10px;
-  background-color: rgba(239, 68, 68, 0.2);
-  color: #ef4444;
-  padding: 2px 5px;
-  border-radius: var(--radius-round);
-  margin-left: 4px;
-  font-weight: 500;
-  animation: pulse 2s infinite;
-}
-
-/* -----------------------------------------------------
-   7. MODALS & OVERLAYS
-   ----------------------------------------------------- */
 .modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: var(--bg-overlay);
+  background: rgba(0, 0, 0, 0.7);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: var(--z-modal);
-  animation: fadeIn 0.3s ease;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease;
   backdrop-filter: blur(2px);
-  -webkit-backdrop-filter: blur(2px);
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 .new-chat-popup,
 .confirmation-dialog,
-.reasoning-modal,
-.mind-map-modal {
-  background: var(--bg-secondary);
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-heavy);
+.reasoning-modal {
+  background: #1a1f35;
+  border-radius: 8px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.25);
   color: white;
   min-width: 360px;
   max-width: 90%;
-  animation: slideInUp 0.3s ease;
+  animation: slideIn 0.3s ease;
   overflow: hidden;
-  border: 1px solid var(--border-medium);
+}
+@keyframes slideIn {
+  from { transform: translateY(-20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
 }
 
 .modal-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: var(--spacing-md);
+  padding: 16px 20px;
   border-bottom: 1px solid var(--border-light);
-  background: linear-gradient(to right, rgba(26, 31, 53, 0.7), var(--bg-secondary));
 }
 
 .modal-header h3 {
@@ -6849,54 +9618,52 @@ a {
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: var(--radius-sm);
-  transition: all var(--transition-fast);
+  border-radius: 4px;
 }
-
 .modal-close-btn:hover {
   background: rgba(255, 255, 255, 0.1);
   color: white;
 }
 
-.new-chat-popup input,
-.mind-map-input-container input {
-  width: 100%;
-  padding: var(--spacing-sm) var(--spacing-md);
-  margin: var(--spacing-lg);
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border-medium);
+.new-chat-popup input {
+  width: calc(100% - 40px);
+  padding: 10px 12px;
+  margin: 20px;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
   background: rgba(15, 23, 42, 0.7);
   color: white;
   font-size: 14px;
-  transition: all var(--transition-fast);
 }
-
-.new-chat-popup input:focus,
-.mind-map-input-container input:focus {
+.new-chat-popup input:focus {
   outline: none;
   border-color: var(--primary);
   box-shadow: 0 0 0 1px rgba(79, 70, 229, 0.2);
-  background: rgba(15, 23, 42, 0.8);
 }
 
-.popup-buttons,
-.modal-footer {
+.popup-buttons {
   display: flex;
-  gap: var(--spacing-sm);
+  gap: 8px;
   justify-content: flex-end;
-  padding: var(--spacing-md);
+  padding: 16px 20px;
   border-top: 1px solid var(--border-light);
-  background: rgba(15, 23, 42, 0.3);
+}
+
+.modal-footer {
+  padding: 16px 20px;
+  border-top: 1px solid var(--border-light);
+  display: flex;
+  justify-content: flex-end;
 }
 
 .btn-primary,
 .btn-secondary,
 .btn-danger {
-  padding: var(--spacing-sm) var(--spacing-md);
-  border-radius: var(--radius-sm);
+  padding: 8px 16px;
+  border-radius: 4px;
   cursor: pointer;
   font-size: 14px;
-  transition: all var(--transition-normal);
+  transition: all 0.2s ease;
   border: none;
   font-weight: 500;
 }
@@ -6905,38 +9672,30 @@ a {
   background: var(--primary);
   color: white;
 }
-
 .btn-primary:hover {
   background: var(--primary-hover);
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-subtle);
 }
 
 .btn-secondary {
   background: transparent;
-  border: 1px solid var(--border-medium);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   color: white;
 }
-
 .btn-secondary:hover {
   background: rgba(255, 255, 255, 0.05);
-  border-color: var(--border-heavy);
-  transform: translateY(-1px);
+  border-color: rgba(255, 255, 255, 0.3);
 }
 
 .btn-danger {
-  background: var(--error-color);
+  background: #ef4444;
   color: white;
 }
-
 .btn-danger:hover {
   background: #dc2626;
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-subtle);
 }
 
 .confirmation-dialog p {
-  padding: var(--spacing-lg);
+  padding: 20px;
   margin: 0;
   color: var(--text-secondary);
 }
@@ -6948,11 +9707,10 @@ a {
   display: flex;
   flex-direction: column;
 }
-
 .reasoning-content {
   overflow-y: auto;
   flex: 1;
-  padding: var(--spacing-lg);
+  padding: 20px;
   background: rgba(15, 23, 42, 0.3);
   max-height: 60vh;
   font-size: 14px;
@@ -6962,23 +9720,20 @@ a {
 /* Toast Notification */
 .toast-notification {
   position: fixed;
-  bottom: var(--spacing-lg);
-  right: var(--spacing-lg);
-  padding: var(--spacing-sm) var(--spacing-md);
-  background: var(--bg-secondary);
+  bottom: 20px;
+  right: 20px;
+  padding: 12px 16px;
+  background: #1a1f35;
   border-left: 4px solid;
-  border-radius: var(--radius-sm);
+  border-radius: 4px;
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
-  box-shadow: var(--shadow-heavy);
-  z-index: var(--z-toast);
+  gap: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
   animation: slideInRight 0.3s ease, fadeOut 0.3s ease 2.7s forwards;
   max-width: 300px;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
 }
-
 .toast-icon {
   display: flex;
   align-items: center;
@@ -6986,418 +9741,178 @@ a {
   width: 20px;
   height: 20px;
 }
-
 .toast-content {
   font-size: 14px;
   color: white;
 }
-
 .toast-notification.success {
-  border-color: var(--success-color);
+  border-color: #10b981;
 }
-
 .toast-notification.success .toast-icon {
-  color: var(--success-color);
+  color: #10b981;
 }
-
 .toast-notification.error {
-  border-color: var(--error-color);
+  border-color: #ef4444;
 }
-
 .toast-notification.error .toast-icon {
-  color: var(--error-color);
+  color: #ef4444;
 }
-
 .toast-notification.info {
-  border-color: var(--info-color);
+  border-color: #3b82f6;
 }
-
 .toast-notification.info .toast-icon {
-  color: var(--info-color);
-}
-
-/* Mind Map Visualization */
-.mind-map-content {
-  padding: var(--spacing-lg);
-}
-
-.mind-map-input-container {
-  margin-bottom: var(--spacing-lg);
-}
-
-.mind-map-deploying {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: var(--spacing-xl);
-}
-
-.deploying-animation {
-  width: 100px;
-  height: 100px;
-  position: relative;
-  margin-bottom: var(--spacing-lg);
-}
-
-.orbit {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  border: 2px solid rgba(79, 70, 229, 0.3);
-  border-radius: 50%;
-  animation: rotate 3s linear infinite;
-}
-
-.planet {
-  position: absolute;
-  width: 30px;
-  height: 30px;
-  background: var(--primary);
-  border-radius: 50%;
-  top: calc(50% - 15px);
-  left: calc(50% - 15px);
-  box-shadow: 0 0 15px var(--primary);
-}
-
-.moon {
-  position: absolute;
-  width: 12px;
-  height: 12px;
-  background: white;
-  border-radius: 50%;
-  top: 0;
-  left: calc(50% - 6px);
-  animation: rotate 1.5s linear infinite;
-  box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
-}
-
-.deploying-text {
-  font-size: 18px;
-  font-weight: 500;
-  color: var(--primary);
-  text-shadow: 0 0 10px rgba(79, 70, 229, 0.3);
-}
-
-.mind-map-visualization {
-  padding: var(--spacing-lg);
-  height: 500px;
-  width: 100%;
-  overflow: hidden;
-}
-
-.mind-map-container {
-  width: 100%;
-  height: 100%;
-  background: rgba(15, 23, 42, 0.5);
-  border-radius: var(--radius-md);
-  overflow: hidden;
-  border: 1px solid var(--border-light);
-}
-
-.select-chat-modal {
-  padding: var(--spacing-lg);
-}
-
-.select-chat-modal h4 {
-  margin-top: 0;
-  margin-bottom: var(--spacing-md);
-  font-size: 16px;
-  font-weight: 500;
-}
-
-.chat-selection-list {
-  max-height: 300px;
-  overflow-y: auto;
-}
-
-.chat-selection-item {
-  padding: var(--spacing-sm) var(--spacing-md);
-  border-radius: var(--radius-md);
-  border: 1px solid var(--border-light);
-  margin-bottom: var(--spacing-sm);
-  cursor: pointer;
-  transition: all var(--transition-fast);
-}
-
-.chat-selection-item:hover {
-  background: var(--primary-light);
-  border-color: rgba(79, 70, 229, 0.3);
-  transform: translateY(-1px);
-}
-
-/* -----------------------------------------------------
-   8. ANIMATIONS & TRANSITIONS
-   ----------------------------------------------------- */
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@keyframes fadeOut {
-  from { opacity: 1; }
-  to { opacity: 0; }
-}
-
-@keyframes slideInUp {
-  from { transform: translateY(20px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
+  color: #3b82f6;
 }
 
 @keyframes slideInRight {
   from { transform: translateX(100%); opacity: 0; }
   to { transform: translateX(0); opacity: 1; }
 }
-
-@keyframes slideDown {
-  from { opacity: 0; transform: translateY(-10px); }
-  to { opacity: 1; transform: translateY(0); }
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
 }
 
-@keyframes messageSlide {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+.badge-limited {
+  font-size: 10px;
+  background-color: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+  padding: 2px 5px;
+  border-radius: 10px;
+  margin-left: 4px;
+  font-weight: 500;
 }
 
-@keyframes fadeScale {
-  from { opacity: 0; transform: scale(0.95); }
-  to { opacity: 1; transform: scale(1); }
+/* **Code Formatting** */
+.code-block {
+  background: #1e293b;
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin: 12px 0;
+  overflow-x: auto;
+  font-family: "Fira Code", "Roboto Mono", monospace;
+  font-size: 13px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  line-height: 1.5;
+}
+.inline-code {
+  background: rgba(30, 41, 59, 0.5);
+  padding: 2px 5px;
+  border-radius: 4px;
+  font-family: "Fira Code", "Roboto Mono", monospace;
+  font-size: 0.9em;
+}
+.highlight-term {
+  color: var(--reasoning-color);
+  font-weight: 600;
 }
 
-@keyframes rotate {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-@keyframes dash {
-  0% {
-    stroke-dasharray: 1, 150;
-    stroke-dashoffset: 0;
-  }
-  50% {
-    stroke-dasharray: 90, 150;
-    stroke-dashoffset: -35;
-  }
-  100% {
-    stroke-dasharray: 90, 150;
-    stroke-dashoffset: -124;
-  }
-}
-
-@keyframes blink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0; }
-}
-
-@keyframes pulse {
-  0% { opacity: 1; }
-  50% { opacity: 0.5; }
-  100% { opacity: 1; }
-}
-
+/* **Transitions** */
 .slide-enter-active,
 .slide-leave-active {
-  transition: transform var(--transition-normal), opacity var(--transition-normal);
+  transition: transform 0.3s ease, opacity 0.3s ease;
 }
-
 .slide-enter-from,
 .slide-leave-to {
   transform: translateX(-100%);
   opacity: 0;
 }
 
-/* -----------------------------------------------------
-   9. RESPONSIVE ADAPTATIONS
-   ----------------------------------------------------- */
+/* **Responsive Design** */
+/* **Responsive Design** */
 @media (max-width: 768px) {
-  /* Sidebar Mobile Improvements */
   .sidebar {
     position: fixed;
     top: 0;
     left: 0;
-    width: 75%;
+    width: 100%;
     height: 100%;
-    z-index: var(--z-drawer);
+    z-index: 100;
+    flex: none;
     transform: translateX(-100%);
-    box-shadow: var(--shadow-heavy);
   }
-
-  /* Mobile modal backdrop */
-  .modal-backdrop {
+  .sidebar[v-show="true"] {
+    transform: translateX(0);
+  }
+  .chat-container {
+    width: 100vw;
+    height: 100vh;
     position: fixed;
     top: 0;
     left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
-    z-index: var(--z-dropdown);
-    display: none;
-    backdrop-filter: blur(2px);
-    -webkit-backdrop-filter: blur(2px);
   }
-  
-  .modal-backdrop.active {
-    display: block;
-    animation: fadeIn 0.3s ease;
-  }
-  
-  /* Mobile sidebar entries spacing */
-  .chat-entry, 
-  .mind-map-entry {
-    padding: var(--spacing-md);
-    margin-bottom: var(--spacing-sm);
-  }
-  
-  /* Mobile text sizes */
-  .chat-name, 
-  .mind-map-name {
-    font-size: 15px;
-  }
-  
-  .chat-time, 
-  .mind-map-time {
-    font-size: 13px;
-  }
-  
-  /* Mobile action buttons */
-  .chat-actions, 
-  .mind-map-actions {
-    gap: var(--spacing-sm);
-  }
-  
-  .delete-button, 
-  .share-button, 
-  .deploy-button {
-    padding: 6px;
-  }
-  
-  /* Chat area adjustments */
   .top-bar {
+    padding: 0 12px;
     height: 56px;
-    padding: 0 var(--spacing-sm);
   }
-  
   .chat-header h1 {
     font-size: 15px;
   }
-  
-  /* Hide header actions */
-  .header-actions {
-    display: none;
-  }
-  
-  /* Adjust message area */
   .messages-area {
-    padding: var(--spacing-sm);
-    max-height: calc(100vh - 200px);
-    max-height: calc(var(--vh, 1vh) * 100 - 200px);
-    padding-bottom: 40px;
+    padding: 12px;
+    margin-bottom: 120px; /* Make room for input box */
   }
-  
   .message {
     max-width: 90%;
-    padding: var(--spacing-sm);
-    margin-bottom: var(--spacing-md);
+    padding: 12px;
+    margin-bottom: 16px;
   }
-  
-  /* Mobile controls */
   .mode-selector {
     position: fixed;
     bottom: 60px;
     left: 0;
     right: 0;
-    z-index: var(--z-sticky);
+    z-index: 49;
     background: rgba(15, 23, 42, 0.95);
-    padding: var(--spacing-sm);
-    flex-direction: column;
-    gap: var(--spacing-sm);
+    padding: 8px;
   }
-  
   .mode-select-container {
     width: 100%;
   }
-  
   .mode-select {
     flex: 1;
   }
-  
   .toggles-container {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    justify-content: space-between;
+    flex-wrap: wrap;
     gap: 6px;
-    width: 100%;
   }
-  
   .mode-toggle-button,
   .mode-image-toggle-button {
-    width: 100%;
+    padding: 0 6px;
+    font-size: 0.8rem;
+    flex: 1;
     justify-content: center;
     height: 28px;
-    font-size: 11px;
-    padding: 0 var(--spacing-xs);
   }
-  
   .toggle-text {
-    font-size: 10px;
+    font-size: 11px;
   }
-  
   .badge-limited {
     font-size: 8px;
     padding: 1px 4px;
   }
-  
-  /* Mobile message input */
   .message-input-container {
     position: fixed;
     bottom: 0;
     left: 0;
     right: 0;
     background: rgba(15, 23, 42, 0.95);
-    z-index: var(--z-sticky);
-    padding: var(--spacing-sm);
+    z-index: 50;
+    padding: 10px;
   }
-  
   .message-input {
     font-size: 14px;
-    padding: var(--spacing-sm);
+    padding: 10px 12px;
   }
-  
   .send-button {
     width: 42px;
     height: 42px;
   }
-  
   .right-controls-container {
     width: 100%;
     justify-content: flex-end;
     margin-top: 6px;
-  }
-  
-  /* Mobile mind map button */
-  .create-mind-map-button {
-    padding: 6px 8px;
-    font-size: 0;
-    margin-left: var(--spacing-sm);
-  }
-  
-  .create-mind-map-button svg {
-    margin-right: 0;
-  }
-  
-  /* Mobile modals */
-  .mind-map-modal {
-    width: 90%;
-    min-width: unset;
-  }
-  
-  .mind-map-visualization {
-    height: 400px;
-    padding: var(--spacing-sm);
-  }
-  
-  /* Fix for mobile sidebar toggle */
-  .sidebar-toggle {
-    z-index: var(--z-dropdown);
   }
 }
 
@@ -7406,49 +9921,210 @@ a {
   .message {
     max-width: 85%;
   }
-  
   .mode-selector {
     flex-wrap: wrap;
-    padding: var(--spacing-sm) var(--spacing-md);
+    padding: 8px 16px;
   }
-  
-  .mode-select-container {
-    flex-basis: 100%;
-    margin-bottom: 5px;
-  }
-  
-  .toggles-container {
-    flex: 1;
-  }
-  
-  .right-controls-container {
-    margin-left: auto;
-  }
-  
   .mode-toggle-button, 
   .mode-image-toggle-button {
-    padding: 0 var(--spacing-sm);
+    padding: 0 8px;
   }
 }
 
-/* -----------------------------------------------------
-   10. UTILITY CLASSES & SPECIAL ELEMENTS
-   ----------------------------------------------------- */
-.typing-effect::after {
-  content: '|';
-  animation: blink 1s infinite;
+/* Fix for all devices */
+html, body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  height: 100%;
+  width: 100%;
+  position: fixed;
+}
+
+#app {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  position: fixed;
+}
+.header-actions {
+  display: flex;
+  justify-content: center;
+  margin-top: 8px;
+}
+
+.buy-book-button {
+  background: linear-gradient(to right, #4f46e5, #8b5cf6);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 13px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  transition: all 0.2s ease;
+}
+
+.buy-book-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+}
+
+.book-icon {
+  font-size: 16px;
+}
+
+@media (max-width: 768px) {
+  .buy-book-button {
+    font-size: 11px;
+    padding: 4px 8px;
+  }
+}
+.web-search-button {
+  background-color: rgba(59, 130, 246, 0.1);
+  border-color: rgba(59, 130, 246, 0.3);
+}
+
+.web-search-button.active {
+  background-color: rgba(59, 130, 246, 0.2);
+  border-color: rgba(59, 130, 246, 0.5);
 }
 
 .sources-section {
-  margin-top: var(--spacing-md);
-  padding-top: var(--spacing-sm);
+  margin-top: 20px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border-light);
+  font-size: 12px;
+}
+
+.sources-section h3 {
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.sources-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.source-link {
+  color: var(--primary);
+  text-decoration: underline;
+  opacity: 0.8;
+  transition: opacity 0.2s;
+}
+
+.source-link:hover {
+  opacity: 1;
+}
+/* Add these to the end of your <style> section */
+
+/* Updated Advertisement Button */
+.buy-book-button.compact {
+  font-size: 12px;
+  padding: 5px 8px;
+  opacity: 0.9;
+  margin-top: 10px;
+  background: linear-gradient(to right, #4f46e5, #8b5cf6);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.buy-book-button.compact:hover {
+  opacity: 1;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+/* Enhanced Web Search Toggle */
+.web-search-button {
+  background-color: rgba(59, 130, 246, 0.1);
+  border-color: rgba(59, 130, 246, 0.3);
+  position: relative;
+}
+
+.web-search-button:after {
+  content: "OFF";
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 8px;
+  font-weight: bold;
+  opacity: 0.8;
+  background: rgba(239, 68, 68, 0.3);
+  color: #ef4444;
+  padding: 1px 3px;
+  border-radius: 3px;
+}
+
+.web-search-button.active {
+  background-color: rgba(59, 130, 246, 0.2);
+  border-color: rgba(59, 130, 246, 0.6);
+}
+
+.web-search-button.active:after {
+  content: "ON";
+  background: rgba(16, 185, 129, 0.3);
+  color: #10b981;
+}
+
+/* Voice-to-Voice Chat Feature */
+.voice-to-voice-button {
+  background-color: rgba(236, 72, 153, 0.1);
+  border-color: rgba(236, 72, 153, 0.3);
+  position: relative;
+}
+
+.voice-to-voice-button.active {
+  background-color: rgba(236, 72, 153, 0.2);
+  border-color: rgba(236, 72, 153, 0.6);
+}
+
+.voice-to-voice-button.active:after {
+  content: "ON";
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 8px;
+  font-weight: bold;
+  opacity: 0.8;
+  background: rgba(16, 185, 129, 0.3);
+  color: #10b981;
+  padding: 1px 3px;
+  border-radius: 3px;
+}
+
+.voice-to-voice-button:not(.active):after {
+  content: "OFF";
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 8px;
+  font-weight: bold;
+  opacity: 0.8;
+  background: rgba(239, 68, 68, 0.3);
+  color: #ef4444;
+  padding: 1px 3px;
+  border-radius: 3px;
+}
+
+/* Sources Section for Web Search Results */
+.sources-section {
+  margin-top: 16px;
+  padding-top: 12px;
   border-top: 1px solid var(--border-light);
   font-size: 12px;
 }
 
 .sources-section h4 {
   margin-top: 0;
-  margin-bottom: var(--spacing-sm);
+  margin-bottom: 8px;
   font-size: 14px;
   font-weight: 600;
   color: var(--text-secondary);
@@ -7457,7 +10133,7 @@ a {
 .sources-list {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xs);
+  gap: 4px;
 }
 
 .source-item {
@@ -7478,70 +10154,1932 @@ a {
   text-decoration: underline;
   word-break: break-word;
   opacity: 0.9;
-  transition: opacity var(--transition-fast);
+  transition: opacity 0.2s;
 }
 
 .source-link:hover {
   opacity: 1;
 }
 
-.no-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
+/* Responsive Improvements */
+@media (max-width: 768px) {
+  .mode-selector {
+    flex-direction: column;
+    gap: 8px;
+    padding: 8px 12px;
+  }
+  
+  .toggles-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+    width: 100%;
+  }
+  
+  .mode-toggle-button, 
+  .mode-image-toggle-button,
+  .voice-to-voice-button {
+    width: 100%;
+    justify-content: center;
+    height: 28px;
+    font-size: 11px;
+    padding: 0 4px;
+  }
+  
+  .toggle-text {
+    font-size: 10px;
+  }
+  
+  .mode-select-container {
+    width: 100%;
+    gap: 4px;
+  }
+  
+  .audio-recording-container {
+    margin-left: auto;
+  }
+  
+  .right-controls-container {
+    justify-content: flex-end;
+    flex-wrap: nowrap;
+  }
+  
+  .buy-book-button.compact {
+    font-size: 10px;
+    padding: 4px 6px;
+  }
+  
+  .chat-header h1 {
+    font-size: 14px;
+  }
 }
 
-.no-scrollbar::-webkit-scrollbar {
-  display: none;
+/* iPad/Tablet Specific */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .mode-selector {
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 8px 16px;
+  }
+  
+  .mode-select-container {
+    flex-basis: 100%;
+    margin-bottom: 5px;
+  }
+  
+  .toggles-container {
+    flex: 1;
+  }
+  
+  .right-controls-container {
+    margin-left: auto;
+  }
 }
 
-.web-search-button {
-  background-color: rgba(59, 130, 246, 0.1);
-  border-color: rgba(59, 130, 246, 0.3);
+/* Fix for proper spacing in the message area */
+.messages-area {
+  padding-bottom: 120px; /* Make room for the controls on mobile */
+}
+
+@media (min-width: 769px) {
+  .messages-area {
+    padding-bottom: 60px;
+  }
+}
+.buy-book-button.subtle {
+  font-size: 12px;
+  padding: 4px 8px;
+  background: rgba(79, 70, 229, 0.15);
+  border: 1px solid rgba(79, 70, 229, 0.3);
+  color: white;
+  border-radius: 4px;
+  margin-top: 6px;
+  box-shadow: none;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.buy-book-button.subtle:hover {
+  background: rgba(79, 70, 229, 0.25);
+  transform: none;
+}
+.search-toggle-wrapper {
+  margin-left: 8px;
+}
+
+.search-toggle-button {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(79, 70, 229, 0.2);
+  border-radius: 4px;
+  color: white;
+  font-size: 12px;
+  padding: 6px 10px;
+  height: 32px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  gap: 6px;
+}
+
+.search-toggle-button.active {
+  background: rgba(59, 130, 246, 0.15);
+  border-color: #60a5fa;
+  box-shadow: 0 0 8px 2px rgba(96, 165, 250, 0.6);
+}
+
+.search-toggle-button:hover {
+  background: rgba(59, 130, 246, 0.1);
+}
+
+.search-toggle-button .search-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #60a5fa;
+}
+
+.search-toggle-button .toggle-label {
+  margin-right: 4px;
+}
+
+.search-toggle-button .toggle-status {
+  font-size: 10px;
+  font-weight: bold;
+  padding: 1px 4px;
+  border-radius: 3px;
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+}
+
+.search-toggle-button .toggle-status.status-on {
+  background: rgba(16, 185, 129, 0.2);
+  color: #10b981;
+}
+/* Add this to your <style> section */
+.header-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 6px;
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.chat-header {
+  flex: 1;
+  text-align: center;
   position: relative;
 }
 
-.web-search-button.active {
-  background-color: rgba(59, 130, 246, 0.2);
-  border-color: rgba(59, 130, 246, 0.6);
+.buy-book-button.subtle {
+  font-size: 12px;
+  padding: 4px 8px;
+  background: rgba(79, 70, 229, 0.15);
+  border: 1px solid rgba(79, 70, 229, 0.3);
+  color: white;
+  border-radius: 4px;
+  box-shadow: none;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  white-space: nowrap;
 }
 
-.web-search-button:after {
-  content: "OFF";
+@media (max-width: 768px) {
+  .header-actions {
+    display: none; /* Hide on mobile to save space */
+  }
+}
+:root {
+  --vh: 1vh;
+}
+
+.main-container, #app, html, body {
+  height: 100vh; /* Fallback */
+  height: calc(var(--vh, 1vh) * 100);
+}
+
+.messages-area {
+  max-height: calc(100vh - 180px); /* Current value */
+  max-height: calc(var(--vh, 1vh) * 100 - 180px); /* Enhanced for mobile */
+}
+
+@media (max-width: 768px) {
+  .messages-area {
+    max-height: calc(100vh - 200px); 
+    max-height: calc(var(--vh, 1vh) * 100 - 200px);
+    padding-bottom: 40px;
+  }
+}
+/* Mind Map Styles */
+.create-mind-map-button {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: var(--text-secondary);
+  border-radius: 6px;
+  padding: 6px 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  margin-left: 10px;
+}
+
+.create-mind-map-button:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: white;
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+.create-mind-map-button svg {
+  color: var(--primary);
+}
+
+.mind-map-modal {
+  background: #1a1f35;
+  border-radius: 8px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.25);
+  color: white;
+  min-width: 400px;
+  max-width: 90%;
+  animation: slideIn 0.3s ease;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.mind-map-content {
+  padding: 20px;
+}
+
+.mind-map-input-container {
+  margin-bottom: 20px;
+}
+
+.mind-map-input-container input {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(15, 23, 42, 0.7);
+  color: white;
+  font-size: 14px;
+}
+
+.mind-map-input-container input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 1px rgba(79, 70, 229, 0.2);
+}
+
+.typing-effect {
+  position: relative;
+}
+
+.typing-effect::after {
+  content: '|';
+  animation: blink 1s infinite;
+}
+
+.saved-mind-maps {
+  margin-top: auto;
+  border-top: 1px solid var(--border-light);
+  padding-top: 10px;
+}
+
+.saved-mind-maps-header {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.saved-mind-maps-header:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.mind-maps-icon {
+  margin-right: 8px;
+  display: flex;
+  align-items: center;
+}
+
+.expand-icon {
+  margin-left: auto;
+  font-size: 10px;
+  transition: transform 0.2s ease;
+}
+
+.expand-icon.expanded {
+  transform: rotate(90deg);
+}
+
+.mind-maps-list {
+  padding: 0 10px 10px 10px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.mind-map-entry {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 10px;
+  margin-bottom: 5px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-left: 3px solid transparent;
+}
+
+.mind-map-entry:hover {
+  background: rgba(79, 70, 229, 0.08);
+  border-left-color: rgba(79, 70, 229, 0.5);
+}
+
+.mind-map-info {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.mind-map-name {
+  font-weight: 500;
+  font-size: 13px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mind-map-time {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.mind-map-actions {
+  display: flex;
+  gap: 6px;
+  opacity: 0.6;
+  transition: opacity 0.2s;
+}
+
+.mind-map-entry:hover .mind-map-actions {
+  opacity: 1;
+}
+
+.deploy-button {
+  background: none;
+  border: none;
+  color: var(--primary);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.deploy-button:hover {
+  background: rgba(79, 70, 229, 0.1);
+  color: var(--primary);
+}
+
+.no-mind-maps {
+  color: var(--text-secondary);
+  font-size: 12px;
+  text-align: center;
+  padding: 10px 0;
+  font-style: italic;
+}
+
+.mind-map-deploying {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+}
+
+.deploying-animation {
+  width: 100px;
+  height: 100px;
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.orbit {
   position: absolute;
-  right: 6px;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 8px;
-  font-weight: bold;
-  opacity: 0.8;
-  background: rgba(239, 68, 68, 0.3);
-  color: var(--error-color);
-  padding: 1px 3px;
-  border-radius: var(--radius-sm);
-  transition: all var(--transition-fast);
+  width: 100%;
+  height: 100%;
+  border: 2px solid rgba(79, 70, 229, 0.3);
+  border-radius: 50%;
+  animation: rotate 3s linear infinite;
 }
 
-.web-search-button.active:after {
-  content: "ON";
-  background: rgba(16, 185, 129, 0.3);
-  color: var(--success-color);
+.planet {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  background: var(--primary);
+  border-radius: 50%;
+  top: calc(50% - 15px);
+  left: calc(50% - 15px);
 }
 
-/* Global focus state */
-button:focus,
-select:focus,
-textarea:focus,
-input:focus {
+.moon {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background: white;
+  border-radius: 50%;
+  top: 0;
+  left: calc(50% - 6px);
+  animation: rotate 1.5s linear infinite;
+}
+
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.deploying-text {
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--primary);
+}
+
+.mind-map-visualization {
+  padding: 20px;
+  height: 500px;
+  width: 100%;
+  overflow: hidden;
+}
+
+.mind-map-container {
+  width: 100%;
+  height: 100%;
+  background: rgba(15, 23, 42, 0.5);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.select-chat-modal {
+  padding: 20px;
+}
+
+.select-chat-modal h4 {
+  margin-top: 0;
+  margin-bottom: 16px;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.chat-selection-list {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.chat-selection-item {
+  padding: 10px 12px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.chat-selection-item:hover {
+  background: rgba(79, 70, 229, 0.1);
+  border-color: rgba(79, 70, 229, 0.3);
+}
+
+@media (max-width: 768px) {
+  .create-mind-map-button {
+    padding: 6px 8px;
+    font-size: 0;
+  }
+  
+  .create-mind-map-button svg {
+    margin-right: 0;
+  }
+  
+  .mind-map-modal {
+    width: 90%;
+    min-width: unset;
+  }
+  
+  .mind-map-visualization {
+    height: 400px;
+  }
+}
+/* Journal Button */
+.journal-button {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: var(--text-secondary);
+  border-radius: 6px;
+  padding: 6px 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  margin-left: 10px;
+}
+
+.journal-button:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: white;
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+.journal-button svg {
+  color: var(--primary);
+}
+
+.journal-button-text {
+  display: inline;
+}
+
+@media (max-width: 768px) {
+  .journal-button-text {
+    display: none;
+  }
+  
+  .journal-button {
+    padding: 6px;
+  }
+}
+
+/* Journal Modal */
+.journal-modal {
+  background: #1a1f35;
+  border-radius: 8px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.25);
+  color: white;
+  width: 90%;
+  max-width: 1200px;
+  height: 90vh;
+  animation: slideIn 0.3s ease;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.journal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.journal-title h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.journal-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.journal-action-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: white;
+  padding: 6px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  transition: all 0.2s ease;
+}
+
+.journal-action-btn:hover {
+  background: rgba(15, 23, 42, 0.8);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Journal Container and Layout */
+.journal-container {
+  display: flex;
+  height: calc(90vh - 55px);
+  overflow: hidden;
+}
+
+.journal-sidebar {
+  width: 280px;
+  border-right: 1px solid var(--border-light);
+  display: flex;
+  flex-direction: column;
+  background: rgba(15, 23, 42, 0.4);
+}
+
+.journal-search {
+  padding: 12px;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.journal-search input {
+  width: 100%;
+  padding: 8px 12px;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(15, 23, 42, 0.6);
+  color: white;
+  font-size: 13px;
+}
+
+.journal-search input:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+.journal-logs-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.journal-logs-header h4 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.new-log-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(79, 70, 229, 0.1);
+  border: 1px solid rgba(79, 70, 229, 0.3);
+  color: var(--primary);
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.2s ease;
+}
+
+.new-log-btn:hover {
+  background: rgba(79, 70, 229, 0.2);
+  border-color: rgba(79, 70, 229, 0.5);
+}
+
+.journal-logs-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px;
+}
+
+.journal-log-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  margin-bottom: 4px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: rgba(15, 23, 42, 0.4);
+  border-left: 3px solid transparent;
+}
+
+.journal-log-item:hover {
+  background: rgba(15, 23, 42, 0.6);
+  border-left-color: rgba(79, 70, 229, 0.5);
+}
+
+.journal-log-item.active {
+  background: rgba(79, 70, 229, 0.15);
+  border-left-color: var(--primary);
+}
+
+.log-info {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.log-title {
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.log-time {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.log-actions {
+  display: flex;
+  gap: 5px;
+  opacity: 0.6;
+  transition: opacity 0.2s;
+}
+
+.journal-log-item:hover .log-actions {
+  opacity: 1;
+}
+
+.log-action-btn {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  border-radius: 3px;
+  padding: 0;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.log-action-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+.rename-btn:hover {
+  color: var(--primary);
+}
+
+.delete-btn:hover {
+  color: #ef4444;
+}
+
+.no-logs-message {
+  padding: 20px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+/* Journal Content Area */
+.journal-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.journal-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 16px;
+  border-bottom: 1px solid var(--border-light);
+  background: rgba(15, 23, 42, 0.5);
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.formatting-tools {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.format-btn {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: white;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.format-btn:hover {
+  background: rgba(15, 23, 42, 0.8);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.heading-select {
+  height: 28px;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: white;
+  border-radius: 4px;
+  font-size: 12px;
+  padding: 0 8px;
+}
+
+.heading-select:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+.ai-tools {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.ai-tool-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  color: white;
+  padding: 5px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.2s ease;
+}
+
+.ai-tool-btn:hover {
+  background: rgba(59, 130, 246, 0.1);
+  border-color: rgba(59, 130, 246, 0.5);
+}
+
+.ai-tool-btn svg {
+  width: 14px;
+  height: 14px;
+}
+
+.journal-editor {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+  background: rgba(15, 23, 42, 0.3);
+  color: white;
+  font-size: 14px;
+  line-height: 1.6;
   outline: none;
 }
 
-/* Elegant focus outline for accessibility */
-button:focus-visible,
-select:focus-visible,
-textarea:focus-visible,
-input:focus-visible {
-  box-shadow: 0 0 0 2px var(--primary);
+.journal-editor h1 {
+  font-size: 24px;
+  margin-top: 16px;
+  margin-bottom: 12px;
+}
+
+.journal-editor h2 {
+  font-size: 20px;
+  margin-top: 14px;
+  margin-bottom: 10px;
+}
+
+.journal-editor h3 {
+  font-size: 18px;
+  margin-top: 12px;
+  margin-bottom: 8px;
+}
+
+.journal-status {
+  padding: 8px 16px;
+  border-top: 1px solid var(--border-light);
+  font-size: 12px;
+  color: var(--text-secondary);
+  display: flex;
+  justify-content: space-between;
+}
+
+/* Empty Journal State */
+.journal-empty {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(15, 23, 42, 0.3);
+}
+
+.empty-state {
+  text-align: center;
+  max-width: 400px;
+  padding: 30px;
+  background: rgba(15, 23, 42, 0.5);
+  border-radius: 8px;
+  border: 1px solid var(--border-light);
+}
+
+.empty-state svg {
+  margin-bottom: 16px;
+  color: var(--text-secondary);
+}
+
+.empty-state h3 {
+  margin-top: 0;
+  margin-bottom: 8px;
+}
+
+.empty-state p {
+  margin-bottom: 20px;
+  color: var(--text-secondary);
+}
+
+/* AI Tool Modal */
+.ai-tool-modal {
+  background: #1a1f35;
+  border-radius: 8px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.25);
+  color: white;
+  width: 500px;
+  max-width: 90%;
+  animation: slideIn 0.3s ease;
+  overflow: hidden;
+}
+
+.ai-tool-content {
+  padding: 20px;
+}
+
+.ai-tool-content p {
+  margin-top: 0;
+  margin-bottom: 16px;
+  color: var(--text-secondary);
+}
+
+.ai-tool-input {
+  width: 100%;
+  height: 100px;
+  padding: 10px 12px;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(15, 23, 42, 0.7);
+  color: white;
+  font-size: 14px;
+  resize: vertical;
+  margin-bottom: 16px;
+}
+
+.ai-tool-input:focus {
   outline: none;
+  border-color: var(--primary);
+}
+
+/* Rename Log Modal */
+.rename-log-modal {
+  background: #1a1f35;
+  border-radius: 8px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.25);
+  color: white;
+  width: 400px;
+  max-width: 90%;
+  animation: slideIn 0.3s ease;
+  overflow: hidden;
+}
+
+.rename-log-content {
+  padding: 20px;
+}
+
+.rename-log-content input {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(15, 23, 42, 0.7);
+  color: white;
+  font-size: 14px;
+  margin-bottom: 16px;
+}
+
+.rename-log-content input:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+/* Select Log Modal */
+.select-log-modal {
+  background: #1a1f35;
+  border-radius: 8px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.25);
+  color: white;
+  width: 500px;
+  max-width: 90%;
+  animation: slideIn 0.3s ease;
+  overflow: hidden;
+}
+
+.select-log-content {
+  padding: 20px;
+}
+
+.select-log-content p {
+  margin-top: 0;
+  margin-bottom: 12px;
+}
+
+.select-log-list {
+  max-height: 300px;
+  overflow-y: auto;
+  margin-bottom: 20px;
+  border: 1px solid var(--border-light);
+  border-radius: 4px;
+}
+
+.select-log-item {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border-light);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.select-log-item:last-child {
+  border-bottom: none;
+}
+
+.select-log-item:hover {
+  background: rgba(79, 70, 229, 0.1);
+}
+
+.new-log-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border-top: 1px solid var(--border-light);
+  padding-top: 16px;
+}
+
+.new-log-section input {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(15, 23, 42, 0.7);
+  color: white;
+  font-size: 14px;
+}
+
+.new-log-section input:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+/* Journal Icon Button in Messages */
+.journal-add-btn {
+  border-color: rgba(59, 130, 246, 0.3);
+  color: rgba(59, 130, 246, 0.8);
+}
+
+.journal-add-btn:hover {
+  border-color: rgba(59, 130, 246, 0.5);
+  color: rgba(59, 130, 246, 1);
+}
+
+/* Responsive Design for Journal */
+@media (max-width: 768px) {
+  .journal-modal {
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    border-radius: 0;
+  }
+  
+  .journal-container {
+    flex-direction: column;
+    height: calc(100% - 55px);
+  }
+  
+  .journal-sidebar {
+    width: 100%;
+    height: 40%;
+    min-height: 200px;
+    border-right: none;
+    border-bottom: 1px solid var(--border-light);
+  }
+  
+  .journal-content {
+    height: 60%;
+  }
+  
+  .journal-toolbar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  
+  .formatting-tools, .ai-tools {
+    width: 100%;
+    justify-content: space-between;
+  }
+  
+  .ai-tool-btn, .format-btn {
+    padding: 4px 6px;
+    font-size: 11px;
+  }
+  
+  .journal-editor {
+    padding: 12px;
+  }
+}
+/* Smart Journal Insights */
+.insights-modal {
+  background: #1a1f35;
+  border-radius: 8px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.25);
+  color: white;
+  width: 90%;
+  max-width: 1000px;
+  height: 90vh;
+  animation: slideIn 0.3s ease;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.insights-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+}
+
+.insights-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+.insights-container {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.insights-section {
+  background: rgba(15, 23, 42, 0.4);
+  border-radius: 8px;
+  padding: 16px;
+  border: 1px solid var(--border-light);
+}
+
+.insights-section h4 {
+  margin-top: 0;
+  margin-bottom: 16px;
+  font-size: 16px;
+  font-weight: 500;
+  color: white;
+  border-bottom: 1px solid var(--border-light);
+  padding-bottom: 8px;
+}
+
+/* Make certain sections full width */
+.mood-section, .recommendations-section, .patterns-section {
+  grid-column: span 2;
+}
+
+/* Mood Analysis */
+.mood-average {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.mood-score {
+  font-size: 36px;
+  font-weight: 600;
+  color: #3b82f6;
+}
+
+.mood-label {
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.mood-timeline {
+  display: flex;
+  align-items: flex-end;
+  height: 150px;
+  gap: 2px;
+  border-bottom: 1px solid var(--border-light);
+  padding-bottom: 24px;
+}
+
+.mood-entry {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+}
+
+.mood-entry-score {
+  width: 80%;
+  background-color: #3b82f6;
+  border-radius: 3px 3px 0 0;
+  margin-bottom: 4px;
+}
+
+.mood-entry-date {
+  font-size: 10px;
+  color: var(--text-secondary);
+  transform: rotate(-45deg);
+  transform-origin: top right;
+  white-space: nowrap;
+}
+
+/* Topics */
+.topics-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.topic-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.topic-name {
+  width: 25%;
+  font-size: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.topic-bar-container {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.topic-bar {
+  height: 12px;
+  background: linear-gradient(to right, #3b82f6, #8b5cf6);
+  border-radius: 6px;
+}
+
+.topic-frequency {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+/* Growth */
+.growth-score-container {
+  height: 20px;
+  background: rgba(15, 23, 42, 0.6);
+  border-radius: 10px;
+  margin-bottom: 16px;
+  position: relative;
+  overflow: hidden;
+}
+
+.growth-progress-bar {
+  height: 100%;
+  background: linear-gradient(to right, #10b981, #3b82f6);
+  border-radius: 10px;
+}
+
+.growth-score {
+  position: absolute;
+  top: 0;
+  right: 10px;
+  font-size: 12px;
+  font-weight: 600;
+  color: white;
+  line-height: 20px;
+}
+
+.growth-areas {
+  display: flex;
+  gap: 20px;
+}
+
+.growth-progress, .growth-struggles {
+  flex: 1;
+}
+
+.growth-areas h5 {
+  font-size: 14px;
+  margin-top: 0;
+  margin-bottom: 8px;
+}
+
+.growth-areas ul {
+  padding-left: 20px;
+  margin: 0;
+}
+
+.growth-areas li {
+  font-size: 13px;
+  margin-bottom: 4px;
+}
+
+.growth-progress li {
+  color: #10b981;
+}
+
+.growth-struggles li {
+  color: #f97316;
+}
+
+/* Streaks */
+.streaks-container {
+  display: flex;
+  justify-content: space-around;
+}
+
+.streak-box {
+  text-align: center;
+  padding: 16px;
+  background: rgba(15, 23, 42, 0.6);
+  border-radius: 8px;
+  width: 45%;
+}
+
+.streak-value {
+  font-size: 28px;
+  font-weight: 600;
+  color: #3b82f6;
+}
+
+.streak-label {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+/* Recommendations and Patterns */
+.recommendations-list, .patterns-list {
+  padding-left: 20px;
+  margin: 0;
+}
+
+.recommendations-list li, .patterns-list li {
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+@media (max-width: 768px) {
+  .insights-container {
+    grid-template-columns: 1fr;
+  }
+  
+  .mood-section, .recommendations-section, .patterns-section {
+    grid-column: span 1;
+  }
+  
+  .mood-timeline {
+    height: 120px;
+  }
+  
+  .topic-name {
+    width: 40%;
+  }
+}
+
+.insights-button {
+  background: linear-gradient(to right, #3b82f6, #8b5cf6);
+  border: none;
+  color: white;
+  padding: 6px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+}
+
+.insights-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+}
+
+/* Typing cursor animation for real-time AI generation */
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.typing-cursor {
+  display: inline-block;
+  width: 2px;
+  height: 14px;
+  background-color: #3b82f6;
+  vertical-align: text-bottom;
+  margin-left: 2px;
+}
+.fetch-btn {
+  background: linear-gradient(to right, #3b82f6, #8b5cf6);
+  border-color: #4f46e5;
+  color: white;
+}
+
+.fetch-btn:hover {
+  background: linear-gradient(to right, #2563eb, #7c3aed);
+  transform: translateY(-1px);
+}
+
+.fetch-btn svg {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+/* Typing cursor animation for real-time AI generation */
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.typing-cursor {
+  display: inline-block;
+  width: 2px;
+  height: 14px;
+  background-color: #3b82f6;
+  vertical-align: text-bottom;
+  margin-left: 2px;
+}
+/* Proactive AI toggle */
+.proactive-ai-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 22px;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: .4s;
+  border-radius: 22px;
+}
+
+.toggle-slider:before {
+  position: absolute;
+  content: "";
+  height: 16px;
+  width: 16px;
+  left: 3px;
+  bottom: 2px;
+  background-color: white;
+  transition: .4s;
+  border-radius: 50%;
+}
+
+input:checked + .toggle-slider {
+  background-color: #4f46e5;
+  border-color: #4f46e5;
+}
+
+input:checked + .toggle-slider:before {
+  transform: translateX(22px);
+}
+
+.toggle-label {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+input:checked ~ .toggle-label {
+  color: white;
+}
+
+/* Proactive AI suggestions */
+.proactive-suggestion {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  background: #1e293b;
+  border: 1px solid #4f46e5;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  padding: 12px;
+  width: 260px;
+  animation: slideUp 0.3s ease;
+  z-index: 10;
+}
+
+.fetch-suggestion {
+  border-color: #818cf8;
+  background: linear-gradient(to bottom right, #1e293b, #111827);
+}
+
+.suggestion-icon {
+  color: #4f46e5;
+  margin-bottom: 8px;
+}
+
+.suggestion-text {
+  color: white;
+  font-size: 14px;
+  margin-bottom: 12px;
+}
+
+.suggestion-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.suggestion-accept,
+.suggestion-decline {
+  padding: 6px 12px;
+  border-radius: 4px;
+  border: none;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.suggestion-accept {
+  background: #4f46e5;
+  color: white;
+}
+
+.suggestion-accept:hover {
+  background: #4338ca;
+}
+
+.suggestion-decline {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: var(--text-secondary);
+}
+
+.suggestion-decline:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: white;
+}
+
+.writing-prompt-suggestion {
+  background: linear-gradient(to bottom, #1e293b, #0f172a);
+  border: 1px solid #4f46e5;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+  animation: fadeIn 0.5s ease;
+}
+
+.prompt-title {
+  font-weight: 600;
+  color: #4f46e5;
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+.prompt-text {
+  color: white;
+  font-size: 16px;
+  margin-bottom: 16px;
+  font-style: italic;
+}
+
+.prompt-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.prompt-use,
+.prompt-dismiss {
+  padding: 6px 12px;
+  border-radius: 4px;
+  border: none;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.prompt-use {
+  background: #4f46e5;
+  color: white;
+}
+
+.prompt-use:hover {
+  background: #4338ca;
+}
+
+.prompt-dismiss {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: var(--text-secondary);
+}
+
+.prompt-dismiss:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: white;
+}
+
+.fade-out {
+  animation: fadeOut 0.5s ease;
+  opacity: 0;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+/* Add this CSS for the Cards feature */
+.card-container {
+  display: flex;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  gap: 12px;
+  padding: 16px 0;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  margin: 16px 0;
+}
+
+.info-card {
+  flex: 0 0 auto;
+  width: 280px;
+  border-radius: 10px;
+  overflow: hidden;
+  background: linear-gradient(135deg, #1e293b, #0f172a);
+  border: 1px solid rgba(79, 70, 229, 0.3);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+  position: relative;
+  transform-style: preserve-3d;
+  perspective: 1000px;
+}
+
+.info-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.25);
+  border-color: rgba(79, 70, 229, 0.6);
+}
+
+.card-front, .card-back {
+  backface-visibility: hidden;
+  transition: transform 0.6s ease;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.card-front {
+  transform: rotateY(0);
+}
+
+.card-back {
+  transform: rotateY(180deg);
+  background: linear-gradient(135deg, #0f172a, #1e293b);
+  padding: 16px;
+}
+
+.info-card.flipped .card-front {
+  transform: rotateY(180deg);
+}
+
+.info-card.flipped .card-back {
+  transform: rotateY(0);
+}
+
+.card-header {
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.card-title {
+  font-weight: 600;
+  font-size: 16px;
+  color: white;
+  margin: 0;
+}
+
+.card-type {
+  font-size: 10px;
+  text-transform: uppercase;
+  color: rgba(79, 70, 229, 0.8);
+  background: rgba(79, 70, 229, 0.1);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.card-content {
+  padding: 16px;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.card-actions {
+  padding: 12px 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.card-btn {
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+.btn-primary {
+  background: rgba(79, 70, 229, 0.15);
+  color: rgba(79, 70, 229, 1);
+  border: 1px solid rgba(79, 70, 229, 0.3);
+}
+
+.btn-primary:hover {
+  background: rgba(79, 70, 229, 0.25);
+  border-color: rgba(79, 70, 229, 0.5);
+}
+
+.btn-secondary {
+  background: transparent;
+  color: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: white;
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+.btn-flip {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 24px;
+  height: 24px;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 2;
+  transition: all 0.2s ease;
+}
+
+.btn-flip:hover {
+  background: rgba(0, 0, 0, 0.5);
+  transform: rotate(180deg);
+}
+
+.fact-card .card-type {
+  color: rgba(16, 185, 129, 0.8);
+  background: rgba(16, 185, 129, 0.1);
+}
+
+.concept-card .card-type {
+  color: rgba(59, 130, 246, 0.8);
+  background: rgba(59, 130, 246, 0.1);
+}
+
+.inspiration-card .card-type {
+  color: rgba(139, 92, 246, 0.8);
+  background: rgba(139, 92, 246, 0.1);
+}
+
+.review-card .card-type {
+  color: rgba(249, 115, 22, 0.8);
+  background: rgba(249, 115, 22, 0.1);
+}
+
+.visual-card .card-type {
+  color: rgba(236, 72, 153, 0.8);
+  background: rgba(236, 72, 153, 0.1);
+}
+
+/* Cards navigation */
+.cards-nav {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.card-nav-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: white;
+}
+
+.card-nav-btn:hover {
+  background: rgba(79, 70, 229, 0.2);
+}
+
+.card-nav-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+/* Card loading animation */
+.card-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 180px;
+  background: rgba(15, 23, 42, 0.5);
+  border-radius: 10px;
+  margin: 16px 0;
+}
+
+.generating-cards-text {
+  font-size: 14px;
+  color: var(--primary);
+  margin-top: 12px;
+}
+
+.cards-spinner {
+  width: 30px;
+  height: 30px;
 }
 </style>
 

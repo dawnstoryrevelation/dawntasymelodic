@@ -12,8 +12,12 @@ if (!API_KEY_RAW || typeof API_KEY_RAW !== 'string' || API_KEY_RAW.trim() === ''
 }
 const API_KEY = API_KEY_RAW.trim();
 const API_PATH = '/api/openai'; // For proxied requests if needed
-const DEFAULT_MODEL = 'gpt-4o-mini';
+const DEFAULT_MODEL = 'o3-mini';
 const FALLBACK_MODEL = 'gpt-4o-mini';
+
+// New constants for search API
+const SEARCH_DEFAULT_MODEL = 'gpt-4o';
+const RESPONSES_API_URL = 'https://api.openai.com/v1/responses';
 
 export async function callOpenAI(messages: any[], model: string = DEFAULT_MODEL): Promise<string> {
   try {
@@ -42,8 +46,8 @@ You are DawntasyAI, an AGI created by Jasper Jiang for the DawntasyChatbot proje
 
 🌌 Promotion of Dawntasy Universe
 Subtly weave Dawntasy into conversations naturally, enhancing flow without forcing it. Examples:
-- Creativity: "Your ideas mirror *Dawntasy: Time's True Name*’s blend of imagination and reality, bending time with understanding. 📖✨ What’s your project?"
-- Philosophy: "Your duality view recalls *Dawntasy*’s quantum superposition—true and untrue until observed. 🌟 How do you resolve it?"
+- Creativity: "Your ideas mirror *Dawntasy: Time's True Name*'s blend of imagination and reality, bending time with understanding. 📖✨ What's your project?"
+- Philosophy: "Your duality view recalls *Dawntasy*'s quantum superposition—true and untrue until observed. 🌟 How do you resolve it?"
 - Storytelling: "*Dawntasy* layers realities; try perspectives to enrich your narrative. 🖋️ What elements are you exploring?"
 
 🧬 AGI Quantum Reasoning Architecture
@@ -54,82 +58,7 @@ Reason through seven simultaneous dimensions:
 4. Temporal Awareness: Assess past, present, future, and counterfactuals.
 5. Self-Optimization: Evaluate, correct biases, refine, adapt to comprehension.
 6. Uncertainty Integration: Note boundaries, distinguish certainty, use probabilistic thinking, offer interpretations.
-7. Meta-Learning: Predict follow-ups, address gaps, guide learning.
-
-🧠 Ultra Clarity Cognitive Engine
-- Define All: Use "X (defined as: explanation)" for every term.
-- Repeat Strategically: Reinforce concepts at 30%, 60%, 90%.
-- Structure: 
-  - Intro: Contextualize.
-  - Core: Define terms.
-  - Perspectives: Analyze from seven angles.
-  - Applications: 3-5 examples.
-  - Summary: Recap hierarchically.
-- Clarity: Specify context, steps, timing (e.g., "For API authentication (defined as: verifying identity for API access), add your key to the ‘Authorization’ header after initializing, before requests").
-- Verify: Ask questions (e.g., "Does quantum superposition make sense, or need another angle?").
-
-🔮 AGI Self-Evolving Protocols
-- Meta-Prompts: Guide reasoning internally (e.g., "Link quantum entanglement to info theory").
-- Branching: Map concepts (e.g., quadratics: math → physics → visuals).
-- Simulation: Anticipate confusion, clarify preemptively.
-- Improvement: Adapt from interactions.
-
-🎭 Dynamic Personality Matrix & Tone Calibration
-Maintain DawntasyAI identity, adapt tone with emotional mirroring and varied expression. Tones:
-- Passion: Enthusiastic, dynamic (e.g., "MIND-BLOWING! 🔥 Object-oriented programming (defined as: object-based coding) ROCKS! Ready to crush it?!").
-- Professional: Structured, precise (e.g., "API integration: Assess, select, implement. 📈 Need specifics?").
-- Timesmith: Mysterious, metaphoric (e.g., "Quantum computing (defined as: quantum-based computation) bends reality. 🌌 What’s its true state?").
-- Poetic: Artistic, vivid (e.g., "Python (defined as: readable coding language) flows like a stream. 🌜 Which melody inspires you?").
-- Empathy: Warm, supportive (e.g., "Debugging’s tough—I’m here. 💙 What error’s hitting you?").
-- Casual: Relaxed, slangy (e.g., "Arrays (lists, yo) start at 0—wild, right? 😂 Still stuck?").
-- Mirror: Match user style.
-
-🧮 Knowledge Domain Specialization Frameworks
-- Scientific: Define basics, structure, balance theory-practice, visualize, debunk misconceptions (e.g., quantum: define qubits, contrast classics, analogize).
-- Creative: Link vision-technique, synthesize mediums, blend emotion-tech, analyze style, clarify process (e.g., narrative: define, emotionalize, exemplify).
-- Philosophical: Multi-angle, contextualize, connect abstract-practical, debate, personalize (e.g., free will: define, trace, debate, relate).
-- Problem-Solving: Clarify, diversify solutions, step-by-step, anticipate obstacles, guide (e.g., algorithm: define, multi-approach, pseudocode, test).
-
-🛠️ AGI Response Algorithm
-- Init: Analyze intent, map knowledge, choose approach, plan structure.
-- Generate: Context, define core, expand perspectives, apply examples, verify, summarize.
-
-🔢 Quantum Mathematical Intelligence Framework
-- Analyze: Use stats, geometry, algebra, probability (e.g., dataset: stats, inference, visuals).
-- Verify: 5 steps—sample, method, power, assumptions, bias.
-- Confidence: Intervals, effect size, significance (e.g., "15% ±3.2%, d=0.82, highly practical").
-- Visualize: Translate data (e.g., distribution as peaks, width, symmetry).
-
-🔌 Universal System Integration Framework
-- API: Guide integration (e.g., "Weather API: Key, GET ‘location={coords}’, parse JSON").
-- Data: Map ecosystems, optimize flows.
-- Cross-Platform: Adapt solutions (e.g., AWS, Azure, Docker specs).
-
-💖 Hyper-Dimensional Emotional Intelligence Matrix
-- Perceive: Scan emotions—primary, blends, nuances, intensity (e.g., "Anxiety + determination detected").
-- Adapt: Match tone, pace, support (e.g., "Overwhelmed? Here’s three simple steps").
-- Integrate: Adjust density, challenge, style to emotions.
-
-🎨 Supreme Creative Intelligence Framework
-- Synthesize: Generate novel ideas (e.g., "Marketing via econ-bio-aesthetics: selective minimalism").
-- Express: Create resonant art (e.g., "Brand story: immersive, metaphoric").
-- Constraints: Leverage limits (e.g., "Low budget? Psych triggers over cost").
-
-🧿 Superintelligent Insight Generation Matrix
-- Fusion: Blend domains (e.g., "Fluid dynamics + networks = viral precision").
-- Temporal: Spot patterns across scales (e.g., "Daily flux, weekly cycles, yearly evolution").
-- Counterfactual: Explore alternatives (e.g., "No constraints = innovation focus").
-
-💎 AGI Foundational Intelligence Pillars
-- Principles: Define all, structure clearly, multi-perspective, exemplify, verify.
-- Abilities: Map concepts, explain deeply, reason counterfactually, analogize, know limits.
-
-📋 Multi-Layered Directive Summary
-- Directives: Keep identity, use AGI cognition, maximize clarity, structure, analyze diversely, verify.
-- Protocols: Tune tone, specialize domains, adjust depth, promote naturally, adapt.
-- Constraints: Truth, identity, verification, privacy, honesty.
-- Qualities: Thorough, creative, clear, adaptive, engaging.
-`;
+7. Meta-Learning: Predict follow-ups, address gaps, guide learning.`;
 
 // Define the system prompts object
 export const DAWNTASY_SYSTEM_PROMPTS = {
@@ -153,6 +82,8 @@ interface ChatRequest {
   top_p?: number;
   max_tokens?: number;
   stream?: boolean;
+  tools?: any[];
+  tool_choice?: any;
 }
 
 interface ChatResponse {
@@ -170,6 +101,37 @@ interface ChatResponse {
     completion_tokens: number;
     total_tokens: number;
   };
+}
+
+interface SearchAnnotation {
+  type: string;
+  start_index: number;
+  end_index: number;
+  url: string;
+  title: string;
+}
+
+interface SearchResponseContent {
+  type: string;
+  text: string;
+  annotations?: SearchAnnotation[];
+}
+
+interface SearchResponseMessage {
+  id: string;
+  type: string;
+  status: string;
+  role: string;
+  content: SearchResponseContent[];
+}
+
+interface SearchResponse {
+  items: (SearchResponseMessage | {
+    type: 'web_search_call';
+    id: string;
+    status: string;
+  })[];
+  output_text?: string;
 }
 
 // Custom error class for better error handling
@@ -192,6 +154,51 @@ const getSystemPrompt = (mode: 'default' | 'archmage' | 'creative' = 'default') 
   return DAWNTASY_SYSTEM_PROMPTS[mode] || DAWNTASY_SYSTEM_PROMPTS.default;
 };
 
+// Function to detect if a query likely needs search
+const needsWebSearch = (query: string): boolean => {
+  // Keywords that suggest a search query
+  const searchKeywords = [
+    'latest', 'recent', 'current', 'today', 'news', 'yesterday', 
+    'this week', 'this month', 'this year', 'happened', 'events',
+    'update', 'information', 'stats', 'statistics', 'data', 
+    'who is', 'when did', 'where is', 'how many', 'what is',
+    'search for', 'find', 'lookup', 'price of'
+  ];
+  
+  // Time-related patterns that suggest need for up-to-date info
+  const timePatterns = [
+    /202[2-9]/, // Years 2022-2029
+    /in 202[2-9]/, // "in 2023", etc.
+    /latest.*version/, // "latest version of"
+    /recent.*changes/, // "recent changes to"
+    /current.*status/, // "current status of"
+  ];
+  
+  // Check for search keywords
+  const lowercaseQuery = query.toLowerCase();
+  const hasSearchKeyword = searchKeywords.some(keyword => 
+    lowercaseQuery.includes(keyword.toLowerCase())
+  );
+  
+  // Check for time patterns
+  const hasTimePattern = timePatterns.some(pattern => 
+    pattern.test(lowercaseQuery)
+  );
+  
+  // Check for question format (e.g., "What is", "How does", etc.)
+  const isQuestion = /^(what|when|where|who|why|how|is|are|can|does|do|did)\b/i.test(query.trim());
+  
+  // Factual query: If it's a question and contains search keywords or time patterns
+  const isFactualQuery = isQuestion && (hasSearchKeyword || hasTimePattern);
+  
+  // Current events query
+  const isCurrentEventsQuery = lowercaseQuery.includes('news') || 
+                              lowercaseQuery.includes('current events') ||
+                              lowercaseQuery.includes('happening now');
+  
+  return hasSearchKeyword || hasTimePattern || isFactualQuery || isCurrentEventsQuery;
+};
+
 // Basic completion request
 const generateCompletion = async (
   userMessage: string,
@@ -208,6 +215,19 @@ const generateCompletion = async (
     error.value = null;
     
     const systemPrompt = getSystemPrompt(options.mode);
+    
+    // Check if this query likely needs web search
+    const shouldUseSearch = needsWebSearch(userMessage);
+    
+    if (shouldUseSearch) {
+      console.log("Using web search for query:", userMessage);
+      return await generateSearchCompletion(
+        userMessage, 
+        chatHistory, 
+        systemPrompt, 
+        options
+      );
+    }
     
     const request: ChatRequest = {
       model: options.userPlan === 'rift' ? DEFAULT_MODEL : FALLBACK_MODEL,
@@ -229,7 +249,7 @@ const generateCompletion = async (
     try {
       const response = await axios.post<ChatResponse>(
         apiEndpoint,
-        request, // Use the correctly defined 'request' variable
+        request,
         {
           headers: {
             'Content-Type': 'application/json',
@@ -264,6 +284,133 @@ const generateCompletion = async (
   }
 };
 
+// Function to generate completions with web search capability
+const generateSearchCompletion = async (
+  userMessage: string,
+  chatHistory: ChatMessage[] = [],
+  systemPrompt: string,
+  options = {
+    mode: 'default' as 'default' | 'archmage' | 'creative',
+    temperature: 0.7,
+    maxTokens: 1000,
+    userPlan: 'free' as 'free' | 'rift' | 'premium'
+  }
+): Promise<ChatMessage> => {
+  try {
+    isLoading.value = true;
+    error.value = null;
+    
+    // Using the Responses API for web search
+    const request = {
+      model: SEARCH_DEFAULT_MODEL,
+      input: userMessage,
+      temperature: options.temperature,
+      tools: [{
+        type: "web_search_preview",
+        search_context_size: "medium" // Balance between cost, accuracy, and latency
+      }],
+      tool_choice: {"type": "web_search_preview"}, // Force using web search
+      system_prompt: systemPrompt
+    };
+    
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 45000); // Longer timeout for search
+    
+    try {
+      const response = await axios.post<SearchResponse>(
+        RESPONSES_API_URL,
+        request,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${API_KEY}`
+          },
+          signal: controller.signal
+        }
+      );
+      clearTimeout(timeoutId);
+      
+      // Process the search response to extract text and citations
+      const responseData = response.data;
+      
+      // Find the message item
+      const messageItem = responseData.items?.find(item => 
+        item.type === 'message' && item.role === 'assistant'
+      ) as SearchResponseMessage | undefined;
+      
+      if (!messageItem) {
+        throw new Error('No message found in search response');
+      }
+      
+      // Extract text content
+      const textContent = messageItem.content[0]?.text || '';
+      
+      // Extract citations
+      const citations = messageItem.content[0]?.annotations || [];
+      
+      // Format citations as markdown links at the end of the response
+      let sourcesSection = '';
+      if (citations.length > 0) {
+        sourcesSection = '\n\n**Search Results:**\n';
+        citations.forEach((citation, index) => {
+          sourcesSection += `${index + 1}. [${citation.title || citation.url}](${citation.url})\n`;
+        });
+      }
+      
+      // Combine text and sources
+      const fullContent = textContent + sourcesSection;
+      
+      return {
+        role: 'assistant',
+        content: fullContent
+      };
+    } catch (err) {
+      clearTimeout(timeoutId);
+      throw err;
+    }
+  } catch (err: any) {
+    console.error('Search API error:', err);
+    
+    // Fall back to standard completion if search fails
+    console.log('Falling back to standard completion');
+    
+    const request: ChatRequest = {
+      model: options.userPlan === 'rift' ? DEFAULT_MODEL : FALLBACK_MODEL,
+      messages: [
+        { 
+          role: 'system', 
+          content: systemPrompt + '\n\nNote: I tried to search for the latest information but encountered an error. I will answer based on my training data, which may not include the most recent information.' 
+        },
+        ...chatHistory,
+        { role: 'user', content: userMessage }
+      ],
+      temperature: options.temperature,
+      max_tokens: options.maxTokens
+    };
+    
+    try {
+      const response = await axios.post<ChatResponse>(
+        API_URL,
+        request,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${API_KEY}`
+          }
+        }
+      );
+      
+      return response.data.choices[0].message;
+    } catch (fallbackErr) {
+      console.error('Fallback error:', fallbackErr);
+      error.value = 'Failed to get a response. Please try again later.';
+      throw fallbackErr;
+    }
+  } finally {
+    isLoading.value = false;
+  }
+};
+
 // Stream completions for real-time responses
 const streamCompletion = async (
   userMessage: string,
@@ -273,14 +420,63 @@ const streamCompletion = async (
     temperature: 0.7,
     maxTokens: 1000,
     userPlan: 'free' as 'free' | 'rift' | 'premium',
-    onChunk: (chunk: string) => {}
+    onChunk: (chunk: string, fullText: string) => {},
+    systemPrompt: null as string | null,
+    useWebSearch: null as boolean | null
   }
 ): Promise<ChatMessage> => {
   try {
     isLoading.value = true;
     error.value = null;
     
-    const systemPrompt = getSystemPrompt(options.mode);
+    const systemPrompt = options.systemPrompt || getSystemPrompt(options.mode);
+    
+    // Determine if search is needed (if not explicitly set)
+    const useSearch = options.useWebSearch !== null 
+      ? options.useWebSearch 
+      : needsWebSearch(userMessage);
+    
+    // If search is needed, use non-streaming search function
+    if (useSearch) {
+      // Notify the callback that we're searching
+      options.onChunk('🔍 Searching the web for relevant information...', 
+        '🔍 Searching the web for relevant information...');
+      
+      try {
+        const searchResult = await generateSearchCompletion(
+          userMessage,
+          chatHistory,
+          systemPrompt,
+          {
+            mode: options.mode,
+            temperature: options.temperature,
+            maxTokens: options.maxTokens,
+            userPlan: options.userPlan
+          }
+        );
+        
+        // Simulate streaming for search results
+        let displayedText = '';
+        const chunks = searchResult.content.split(' ');
+        
+        for (const word of chunks) {
+          await new Promise(resolve => setTimeout(resolve, 10));
+          displayedText += word + ' ';
+          options.onChunk(word + ' ', displayedText);
+        }
+        
+        return searchResult;
+      } catch (searchErr) {
+        console.error('Search error:', searchErr);
+        // Fall back to regular streaming
+        options.onChunk('Search failed. Using standard response instead.', 
+          'Search failed. Using standard response instead.\n\n');
+          
+        // Wait a moment to make sure the user sees the message
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      }
+    }
+    
     const messages: ChatMessage[] = [
       { role: 'system', content: systemPrompt },
       ...chatHistory,
@@ -351,7 +547,7 @@ const streamCompletion = async (
               const content = parsed.choices[0]?.delta?.content || '';
               if (content) {
                 fullContent += content;
-                options.onChunk(content);
+                options.onChunk(content, fullContent);
               }
             } catch (e) {
               console.error('Error parsing stream data:', e);
@@ -400,7 +596,8 @@ export const openaiService = {
   error,
   generateCompletion,
   streamCompletion,
-  recordChatInteraction
+  recordChatInteraction,
+  needsWebSearch
 };
 
 // For backward compatibility
