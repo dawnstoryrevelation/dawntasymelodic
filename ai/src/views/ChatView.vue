@@ -104,6 +104,38 @@
             Dawntasy<span style="color: var(--accent-color);">AI</span>
           </span>
         </div>
+        <!-- Memory Bank Section -->
+<div class="memory-bank">
+  <div class="memory-bank-header" @click="toggleMemoryBank">
+    <span class="memory-icon">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+      </svg>
+    </span>
+    <span>Memory Bank</span>
+    <span class="expand-icon" :class="{ expanded: memoryBankExpanded }">▶</span>
+  </div>
+  <div v-if="memoryBankExpanded" class="memory-bank-content">
+    <div class="memory-stats">
+      <div class="memory-stat">
+        <span class="stat-value">{{ memorySystem.topics.size }}</span>
+        <span class="stat-label">Topics</span>
+      </div>
+      <div class="memory-stat">
+        <span class="stat-value">{{ memorySystem.memories.length }}</span>
+        <span class="stat-label">Memories</span>
+      </div>
+    </div>
+    <div class="memory-topics">
+      <h5>Top Topics</h5>
+      <div class="topic-list">
+        <div v-for="(topic, index) in topMemoryTopics" :key="index" class="memory-topic">
+          {{ topic.name }} ({{ topic.count }})
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
       </div>
     </transition>
 
@@ -190,7 +222,13 @@
               class="message-actions"
               
             >
-          </div>
+<div v-if="message.role === 'user' && determineIfSearchNeeded(message.content) && !message.searchSuggested" class="search-suggestion">
+  <div class="search-suggestion-content">
+    <span class="search-icon">🔍</span>
+    <span class="search-suggestion-text">This question might benefit from a web search!</span>
+    <button class="search-suggestion-button" @click="triggerSearch(message.content, index)">Search Web</button>
+  </div>
+</div>
               <button
                 v-if="message.hasReasoning"
                 class="action-button reasoning-button"
@@ -369,29 +407,26 @@
         </div>
 
         <div class="message-input-container">
-  <!-- Added an id for accessibility and a label for clarity -->
-  <label for="user-message" class="visually-hidden">Your Message</label>
-  <textarea
-    id="user-message"
-    v-model="userInput"
-    placeholder="Type your message here... 🤙"
-    @keydown.enter.exact.prevent="sendMessage()"
-    class="message-input multi-line"
-    :disabled="isLoading"
-    ref="inputField"
-  ></textarea>
-  <button
-    @click="sendMessage()"
-    class="send-button"
-    :disabled="isLoading || !userInput.trim()"
-  >
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
-      <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" />
-    </svg>
-  </button>
-</div>
-</div>
-
+          <textarea
+            v-model="userInput"
+            placeholder="Type your message here..."
+            @keydown.enter.exact.prevent="sendMessage()"
+            class="message-input multi-line"
+            :disabled="isLoading"
+            ref="inputField"
+          ></textarea>
+          <button
+            @click="sendMessage()"
+            class="send-button"
+            :disabled="isLoading || !userInput.trim()"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
 
     <!-- New Chat Popup -->
     <div v-if="showNewChatPopup" class="modal-overlay">
@@ -1023,6 +1058,587 @@ const showSelectChatModal = ref(false);
 const openBookLink = () => {
   window.open('https://www.amazon.com/Dawntasy-Circular-Dawn-breathtaking-fantasy-ebook/dp/B0DT74DLY5/', '_blank');
 };
+const memoryBankExpanded = ref(false);
+
+const toggleMemoryBank = () => {
+  memoryBankExpanded.value = !memoryBankExpanded.value;
+};
+
+const topMemoryTopics = computed(() => {
+  return Array.from(memorySystem.topics.entries())
+    .map(([name, data]) => ({
+      name,
+      count: data.count,
+      lastDiscussed: data.lastDiscussed
+    }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 8);
+});
+// Advanced Memory System
+const memorySystem = reactive({
+  // Core memory storage
+  memories: [],
+  topics: new Map(),
+  userPreferences: new Map(),
+  conversationHistory: new Map(),
+  lastInteractionDate: null,
+  
+  // Initialize the memory system
+  async initialize() {
+    if (!userId.value) return;
+    
+    try {
+      console.log("Initializing memory system for user:", userId.value);
+      
+      // Load memories from Firebase
+      const memoriesRef = collection(db, `users/${userId.value}/memories`);
+      const memoriesSnapshot = await getDocs(memoriesRef);
+      
+      if (!memoriesSnapshot.empty) {
+        this.memories = memoriesSnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+        
+        // Reconstruct maps from loaded data
+        this.memories.forEach(memory => {
+          if (memory.type === 'topic') {
+            this.topics.set(memory.content, {
+              count: memory.count || 1,
+              lastDiscussed: memory.timestamp,
+              sentiment: memory.sentiment || 'neutral'
+            });
+          } else if (memory.type === 'preference') {
+            this.userPreferences.set(memory.content, memory.value);
+          } else if (memory.type === 'conversation') {
+            this.conversationHistory.set(memory.chatId, {
+              title: memory.title,
+              summary: memory.summary,
+              topics: memory.topics || [],
+              timestamp: memory.timestamp
+            });
+          }
+        });
+        
+        // Set last interaction date
+        const latestMemory = this.memories.reduce((latest, memory) => 
+          memory.timestamp > (latest?.timestamp || 0) ? memory : latest, null);
+        
+        if (latestMemory) {
+          this.lastInteractionDate = new Date(latestMemory.timestamp);
+        }
+        
+        console.log(`Loaded ${this.memories.length} memories, ${this.topics.size} topics`);
+      }
+    } catch (error) {
+      console.error("Error initializing memory system:", error);
+    }
+  },
+  
+  // Store a new memory
+  async storeMemory(type, content, metadata = {}) {
+    if (!userId.value) return null;
+    
+    try {
+      const memory = {
+        type,
+        content,
+        timestamp: Date.now(),
+        ...metadata
+      };
+      
+      // Add to Firebase
+      const memoriesRef = collection(db, `users/${userId.value}/memories`);
+      const docRef = await addDoc(memoriesRef, memory);
+      
+      // Add to local cache
+      this.memories.push({
+        id: docRef.id,
+        ...memory
+      });
+      
+      // Update appropriate map based on type
+      if (type === 'topic') {
+        const existingTopic = this.topics.get(content);
+        this.topics.set(content, {
+          count: (existingTopic?.count || 0) + 1,
+          lastDiscussed: memory.timestamp,
+          sentiment: metadata.sentiment || existingTopic?.sentiment || 'neutral'
+        });
+      } else if (type === 'preference') {
+        this.userPreferences.set(content, metadata.value);
+      } else if (type === 'conversation') {
+        this.conversationHistory.set(metadata.chatId, {
+          title: metadata.title,
+          summary: metadata.summary,
+          topics: metadata.topics || [],
+          timestamp: memory.timestamp
+        });
+      }
+      
+      this.lastInteractionDate = new Date();
+      return docRef.id;
+    } catch (error) {
+      console.error("Error storing memory:", error);
+      return null;
+    }
+  },
+  
+  // Extract topics from a message
+  extractTopics(message) {
+    const content = message.toLowerCase();
+    
+    // Common topics to detect
+    const topicKeywords = {
+      'dawntasy': ['dawntasy', 'book', 'fantasy', 'novel', 'characters', 'time smith', 'yaee'],
+      'programming': ['code', 'programming', 'javascript', 'python', 'development', 'api'],
+      'ai': ['ai', 'artificial intelligence', 'machine learning', 'neural', 'model'],
+      'science': ['science', 'physics', 'chemistry', 'biology', 'astronomy'],
+      'philosophy': ['philosophy', 'ethics', 'meaning', 'existence', 'consciousness'],
+      'education': ['learn', 'study', 'education', 'teaching', 'school', 'college'],
+      'business': ['business', 'startup', 'company', 'entrepreneur', 'marketing'],
+      'technology': ['technology', 'tech', 'computer', 'software', 'hardware'],
+      'health': ['health', 'fitness', 'exercise', 'diet', 'nutrition', 'medical'],
+      'arts': ['art', 'music', 'painting', 'drawing', 'creative', 'design'],
+    };
+    
+    const detectedTopics = [];
+    
+    // Check for topics in content
+    Object.entries(topicKeywords).forEach(([topic, keywords]) => {
+      if (keywords.some(keyword => content.includes(keyword))) {
+        detectedTopics.push(topic);
+      }
+    });
+    
+    // Also look for specific terms that might be topics themselves
+    const words = content.split(/\s+/);
+    const potentialTopics = words.filter(word => 
+      word.length > 4 && 
+      !['about', 'there', 'their', 'would', 'could', 'should', 'these', 'those', 'some'].includes(word)
+    );
+    
+    return [...new Set([...detectedTopics, ...potentialTopics.slice(0, 3)])];
+  },
+  
+  // Simple sentiment analysis
+  analyzeSentiment(message) {
+    const content = message.toLowerCase();
+    
+    const positiveWords = ['good', 'great', 'excellent', 'amazing', 'wonderful', 'happy', 'love', 'like', 'enjoy', 'pleased'];
+    const negativeWords = ['bad', 'terrible', 'awful', 'horrible', 'sad', 'angry', 'hate', 'dislike', 'disappointed', 'annoyed'];
+    
+    let positiveScore = 0;
+    let negativeScore = 0;
+    
+    positiveWords.forEach(word => {
+      if (content.includes(word)) positiveScore++;
+    });
+    
+    negativeWords.forEach(word => {
+      if (content.includes(word)) negativeScore++;
+    });
+    
+    if (positiveScore > negativeScore * 2) return 'very positive';
+    if (positiveScore > negativeScore) return 'positive';
+    if (negativeScore > positiveScore * 2) return 'very negative';
+    if (negativeScore > positiveScore) return 'negative';
+    return 'neutral';
+  },
+  
+  // Process a message to extract and store memories
+  async processMessage(message, context = {}) {
+    if (!message || !message.content) return;
+    
+    // Extract topics
+    const topics = this.extractTopics(message.content);
+    const sentiment = this.analyzeSentiment(message.content);
+    
+    // Store topics as memories
+    for (const topic of topics) {
+      await this.storeMemory('topic', topic, {
+        sentiment,
+        context: {
+          chatId: context.chatId,
+          messageId: context.messageId
+        }
+      });
+    }
+    
+    // Detect and store user preferences
+    if (message.role === 'user') {
+      // Detect preferences based on language patterns
+      const likePattern = /(?:i|we) (?:like|love|enjoy|prefer) ([\w\s]+)/i;
+      const dislikePattern = /(?:i|we) (?:dislike|hate|don't like|do not like) ([\w\s]+)/i;
+      
+      const likeMatch = message.content.match(likePattern);
+      const dislikeMatch = message.content.match(dislikePattern);
+      
+      if (likeMatch && likeMatch[1]) {
+        await this.storeMemory('preference', likeMatch[1].trim(), { value: 'like' });
+      }
+      
+      if (dislikeMatch && dislikeMatch[1]) {
+        await this.storeMemory('preference', dislikeMatch[1].trim(), { value: 'dislike' });
+      }
+    }
+    
+    return topics;
+  },
+  
+  // Summarize a conversation
+  async summarizeConversation(chatId, messages) {
+    if (!userId.value || !chatId || !messages || messages.length === 0) return;
+    
+    try {
+      // Extract all topics from conversation
+      const allTopics = new Set();
+      messages.forEach(msg => {
+        const topics = this.extractTopics(msg.content);
+        topics.forEach(topic => allTopics.add(topic));
+      });
+      
+      // Create a summary (in a real implementation, this could use an API)
+      const chatTitle = currentChat.value?.name || "Untitled Chat";
+      const topicArray = Array.from(allTopics);
+      
+      // Create simple summary based on first and last messages
+      const firstMsg = messages[0]?.content?.substring(0, 100) || '';
+      const lastMsg = messages[messages.length - 1]?.content?.substring(0, 100) || '';
+      const summary = `Conversation about ${topicArray.join(', ')}. Started with "${firstMsg}..." and ended with "${lastMsg}..."`;
+      
+      // Store the conversation summary
+      await this.storeMemory('conversation', summary, {
+        chatId,
+        title: chatTitle,
+        topics: topicArray,
+        messageCount: messages.length
+      });
+      
+      return summary;
+    } catch (error) {
+      console.error("Error summarizing conversation:", error);
+    }
+  },
+  
+  // Get relevant memories for the current context
+  getRelevantMemories(currentContent = '', limit = 5) {
+    if (!currentContent || this.memories.length === 0) return [];
+    
+    // Extract topics from current content
+    const currentTopics = this.extractTopics(currentContent);
+    
+    // Find memories that match current topics
+    const scoredMemories = this.memories.map(memory => {
+      let score = 0;
+      
+      // Score based on topic match
+      if (memory.type === 'topic' && currentTopics.includes(memory.content)) {
+        score += 10;
+      }
+      
+      // Score based on content match
+      if (memory.content && currentContent.toLowerCase().includes(memory.content.toLowerCase())) {
+        score += 5;
+      }
+      
+      // Score based on recency (higher score for more recent memories)
+      const ageInDays = (Date.now() - memory.timestamp) / (1000 * 60 * 60 * 24);
+      score += Math.max(0, 5 - Math.min(5, ageInDays));
+      
+      return { memory, score };
+    });
+    
+    // Sort by score and get top memories
+    return scoredMemories
+      .filter(item => item.score > 0)
+      .sort((a, b) => b.score - a.score)
+      .slice(0, limit)
+      .map(item => item.memory);
+  },
+  
+  // Generate a personalized greeting based on memories
+  generateGreeting() {
+    if (!this.lastInteractionDate) return "Welcome! How can I help you today?";
+    
+    const daysSinceLastInteraction = Math.floor((Date.now() - this.lastInteractionDate) / (1000 * 60 * 60 * 24));
+    
+    // If it's been more than a day since last interaction
+    if (daysSinceLastInteraction >= 1) {
+      // Find most frequently discussed topics
+      const topTopics = Array.from(this.topics.entries())
+        .sort((a, b) => b[1].count - a[1].count)
+        .slice(0, 2)
+        .map(entry => entry[0]);
+      
+      if (topTopics.length > 0) {
+        if (daysSinceLastInteraction === 1) {
+          return `Welcome back! Yesterday we were discussing ${topTopics.join(' and ')}. Would you like to continue that conversation?`;
+        } else {
+          return `Great to see you again after ${daysSinceLastInteraction} days! Last time we talked about ${topTopics.join(' and ')}. How can I help you today?`;
+        }
+      } else {
+        return `Welcome back after ${daysSinceLastInteraction} ${daysSinceLastInteraction === 1 ? 'day' : 'days'}! How can I assist you today?`;
+      }
+    }
+    
+    return "Welcome back! How can I help you today?";
+  },
+  
+  // Enhance AI response with memories
+  enhanceResponseWithMemories(baseResponse, currentContext) {
+    // Get relevant memories
+    const relevantMemories = this.getRelevantMemories(currentContext);
+    
+    if (relevantMemories.length === 0) return baseResponse;
+    
+    // Group memories by type
+    const topicMemories = relevantMemories.filter(m => m.type === 'topic');
+    const preferenceMemories = relevantMemories.filter(m => m.type === 'preference');
+    const conversationMemories = relevantMemories.filter(m => m.type === 'conversation');
+    
+    let enhancedResponse = baseResponse;
+    
+    // Only add memory references 30% of the time to keep it natural
+    if (Math.random() < 0.3 && topicMemories.length > 0) {
+      const randomTopicMemory = topicMemories[Math.floor(Math.random() * topicMemories.length)];
+      const daysSince = Math.floor((Date.now() - randomTopicMemory.timestamp) / (1000 * 60 * 60 * 24));
+      
+      if (daysSince > 0) {
+        const timeReference = daysSince === 1 ? 'yesterday' : `${daysSince} days ago`;
+        const memoryReference = `\n\nBy the way, I remember we discussed ${randomTopicMemory.content} ${timeReference}. `;
+        enhancedResponse += memoryReference;
+      }
+    }
+    
+    // Reference user preferences if relevant
+    if (Math.random() < 0.2 && preferenceMemories.length > 0) {
+      const randomPreference = preferenceMemories[Math.floor(Math.random() * preferenceMemories.length)];
+      if (randomPreference.value === 'like') {
+        enhancedResponse += `\n\nI recall you mentioned you like ${randomPreference.content}. `;
+      }
+    }
+    
+    return enhancedResponse;
+  }
+});
+onMounted(async () => {
+  // Existing code...
+  
+  // Initialize memory system when a user is authenticated
+  onAuthStateChanged(auth, async (user) => {
+    if (user) {
+      isAuthenticated.value = true;
+      userId.value = user.uid;
+      userProfilePic.value = user.photoURL || "https://via.placeholder.com/40";
+      
+      // Initialize memory system
+      await memorySystem.initialize();
+      
+      // Create a demo chat if no chats exist
+      createDemoChat();
+    } else {
+      // Existing code...
+    }
+  });
+  
+  // Rest of existing code...
+});
+const performWebSearch = async (query) => {
+  try {
+    console.log("Starting web search for:", query);
+    isSearching.value = true;
+    thinkingText.value = "Researching...";
+    
+    // Store the message index BEFORE creating any messages
+    const searchMessageIndex = messages.value.length;
+    
+    // Show searching indicator in the UI - only add ONE message
+    messages.value.push({
+      role: "assistant",
+      content: "🔍 Searching for information about: **" + query + "**\n\nPlease wait while I gather the latest data...",
+      timestamp: Date.now(),
+      hasReasoning: false,
+      isStreaming: true
+    });
+    
+    // System prompt for search
+    const searchSystem = "You are a helpful assistant with web search capability. " +
+      "Search for accurate, up-to-date information when needed, and provide clear, concise summaries of what you find. " +
+      "Always include your sources so users can learn more.";
+    
+    try {
+      console.log("Calling OpenAI API with web search capability");
+      
+      // First, let's use the standard completion API with tool calling
+      const response = await fetch("https://api.openai.com/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${apiKey}`
+        },
+        body: JSON.stringify({
+          model: "gpt-4o",
+          messages: [
+            { role: "system", content: searchSystem },
+            { role: "user", content: `Please search the web for information about: ${query}` }
+          ],
+          tools: [
+            {
+              "type": "function",
+              "function": {
+                "name": "search_web",
+                "description": "Search the web for information",
+                "parameters": {
+                  "type": "object",
+                  "properties": {
+                    "query": {
+                      "type": "string",
+                      "description": "The search query"
+                    }
+                  },
+                  "required": ["query"]
+                }
+              }
+            }
+          ],
+          tool_choice: {
+            "type": "function",
+            "function": {
+              "name": "search_web"
+            }
+          },
+          max_tokens: 2000
+        })
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null) || await response.text();
+        console.error("Search API error:", response.status, errorData);
+        throw new Error(`API error: ${response.status} - ${JSON.stringify(errorData)}`);
+      }
+      
+      const data = await response.json();
+      console.log("Tool calling response:", data);
+      
+      // Get the search query from the tool call
+      let searchQuery = query;
+      if (data.choices && 
+          data.choices[0] && 
+          data.choices[0].message && 
+          data.choices[0].message.tool_calls && 
+          data.choices[0].message.tool_calls.length > 0) {
+        try {
+          const toolCall = data.choices[0].message.tool_calls[0];
+          const args = JSON.parse(toolCall.function.arguments);
+          searchQuery = args.query || query;
+        } catch (e) {
+          console.error("Error parsing tool call arguments:", e);
+        }
+      }
+      
+      // Now make a second request to get the actual search results
+      // For backwards compatibility, we'll still use the chat completions API
+      const followupResponse = await fetch("https://api.openai.com/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${apiKey}`
+        },
+        body: JSON.stringify({
+          model: "gpt-4o",
+          messages: [
+            { role: "system", content: searchSystem },
+            { role: "user", content: `Please search the web for: "${searchQuery}" and provide a comprehensive summary of what you find. Include all sources at the end of your response in a Sources section.` },
+            { role: "assistant", content: "I'll search the web for information about this topic." },
+            { role: "user", content: "Please provide a well-formatted response with clear headings and include all sources as clickable links at the end." }
+          ],
+          max_tokens: 2000
+        })
+      });
+      
+      if (!followupResponse.ok) {
+        throw new Error(`Follow-up API error: ${followupResponse.status}`);
+      }
+      
+      const followupData = await followupResponse.json();
+      let formattedContent = followupData.choices[0].message.content || "";
+      
+      // Extract URLs for citation
+      const urlRegex = /(?:https?:\/\/[^\s)]+)/g;
+      const urls = formattedContent.match(urlRegex) || [];
+      
+      const sources = urls.map(url => ({
+        url: url,
+        title: extractDomainFromUrl(url),
+        snippet: "Source from web search"
+      }));
+      
+      // Ensure sources are included in the content
+      if (!formattedContent.toLowerCase().includes("sources:") && sources.length > 0) {
+        formattedContent += "\n\n**Sources:**\n";
+        sources.forEach((source, index) => {
+          formattedContent += `${index + 1}. [${source.title}](${source.url})\n`;
+        });
+      }
+      
+      // Update the message with search results
+      if (messages.value[searchMessageIndex]) {
+        messages.value[searchMessageIndex].content = formattedContent;
+        messages.value[searchMessageIndex].webSources = sources;
+        messages.value[searchMessageIndex].isStreaming = false;
+      }
+      
+      // Save to Firebase if needed
+      if (userId.value !== "demo-user" && messages.value[searchMessageIndex]) {
+        await saveMessageToFirebase(messages.value[searchMessageIndex]);
+      }
+      
+      showToastNotification("Web search completed", "success");
+      scrollToBottom();
+      
+      return { content: formattedContent, sources };
+      
+    } catch (apiError) {
+      console.error("Web search API error:", apiError);
+      
+      // Fallback to demo search results - UPDATE THE SAME MESSAGE
+      const mockSources = [
+        {
+          title: "Example Source 1",
+          url: "https://example.com/1",
+          snippet: "This is a demonstration search result since the actual search API encountered an error."
+        },
+        {
+          title: "Example Source 2",
+          url: "https://example.com/2",
+          snippet: "When the search API is properly configured, you'll see real results here."
+        }
+      ];
+      
+      const fallbackContent = `## Search Results (Demo Mode)\n\nI tried to search for information about "${query}" but encountered an API error. This is a demonstration of how search results would appear.\n\nIn a properly configured environment, you would see relevant information from the web here, along with proper sources.\n\n**Sources:**\n1. [Example Source 1](https://example.com/1)\n2. [Example Source 2](https://example.com/2)`;
+      
+      // Update the existing message instead of creating a new one
+      if (messages.value[searchMessageIndex]) {
+        messages.value[searchMessageIndex].content = fallbackContent;
+        messages.value[searchMessageIndex].webSources = mockSources;
+        messages.value[searchMessageIndex].isStreaming = false;
+      }
+      
+      showToastNotification("Using demo search results", "info");
+      scrollToBottom();
+      
+      return { content: fallbackContent, sources: mockSources };
+    }
+    
+  } catch (error) {
+    console.error("Web search outer error:", error);
+    showToastNotification("Search feature unavailable", "error");
+    return { content: "", sources: [] };
+  } finally {
+    isSearching.value = false;
+  }
+};
 // Add this function to your setup
 const triggerSearch = async (query, messageIndex) => {
   if (!query) return;
@@ -1046,189 +1662,6 @@ const triggerSearch = async (query, messageIndex) => {
 // Add this to your setup() function
 
 // Update the performWebSearch function to use the correct tools format
-const performWebSearch = async (query) => {
-  try {
-    console.log("🚀 Starting web search for:", query);
-    isSearching.value = true;
-    thinkingText.value = "Researching... 🔍";
-
-    // Show a search indicator in the UI
-    const searchMessageIndex = messages.value.length;
-    messages.value.push({
-      role: "assistant",
-      content: "🔍 Searching for info about: **" + query + "**\n\nHold tight while I fetch the latest deets!!!",
-      timestamp: Date.now(),
-      hasReasoning: false,
-      isStreaming: true
-    });
-
-    // System prompt to set the vibes for our search assistant
-    const searchSystem = "You are a super helpful assistant with web search capabilities. Search for the latest, most accurate info when needed, and include sources for verification!";
-    
-    // The actual search prompt for our API call
-    const searchPrompt = `Please search the web for information about: ${query}. Summarize 3-5 key facts with sources at the end.`;
-
-    console.log("🤙 Calling search API with proper parameters...");
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${apiKey}`
-      },
-      body: JSON.stringify({
-        model: "gpt-4o",
-        messages: [
-          { role: "system", content: searchSystem },
-          { role: "user", content: searchPrompt }
-        ],
-        // Use the web_search_preview tool as per OpenAI's docs!!!
-        tools: [{
-          type: "web_search_preview",
-          user_location: {
-            type: "approximate",
-            country: "US",
-            city: "New York",
-            region: "NY"
-          },
-          search_context_size: "medium"
-        }],
-        tool_choice: {
-          type: "web_search_preview"
-        },
-        max_tokens: 2000
-      })
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => null) || await response.text();
-      console.error("😱 Search API error:", response.status, errorData);
-      throw new Error(`API error: ${response.status} - ${JSON.stringify(errorData)}`);
-    }
-
-    const data = await response.json();
-    console.log("🤩 Search API response:", data);
-
-    // Process the search results
-    let formattedContent = "";
-    let sources = [];
-
-    if (data.choices && data.choices[0] && data.choices[0].message) {
-      const message = data.choices[0].message;
-
-      if (message.tool_calls && message.tool_calls.length > 0) {
-        // If there's a tool call, extract its arguments!
-        const toolCall = message.tool_calls[0];
-        let searchQuery = query;
-        try {
-          const args = JSON.parse(toolCall.function.arguments);
-          searchQuery = args.query || query;
-        } catch (e) {
-          console.error("🤔 Error parsing tool call arguments:", e);
-        }
-
-        // Follow-up request for detailed summary based on search results
-        const followupResponse = await fetch("https://api.openai.com/v1/chat/completions", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${apiKey}`
-          },
-          body: JSON.stringify({
-            model: "gpt-4o",
-            messages: [
-              { role: "system", content: searchSystem },
-              { role: "user", content: searchPrompt },
-              message,
-              { 
-                role: "user", 
-                content: `Now, please provide a comprehensive summary of what you found about "${searchQuery}", including all relevant sources.` 
-              }
-            ],
-            max_tokens: 2000
-          })
-        });
-
-        if (!followupResponse.ok) {
-          throw new Error(`Follow-up API error: ${followupResponse.status}`);
-        }
-
-        const followupData = await followupResponse.json();
-        formattedContent = followupData.choices[0].message.content || "";
-
-        // Extract URLs using a regex
-        const urlRegex = /(?:https?:\/\/[^\s)]+)/g;
-        const urls = formattedContent.match(urlRegex) || [];
-        sources = urls.map(url => ({
-          url: url,
-          title: extractDomainFromUrl(url),
-          snippet: "Source from web search"
-        }));
-      } else {
-        // If no tool call, just take the message content directly
-        formattedContent = message.content || "No search results found.";
-        const urlRegex = /(?:https?:\/\/[^\s)]+)/g;
-        const urls = formattedContent.match(urlRegex) || [];
-        sources = urls.map(url => ({
-          url: url,
-          title: extractDomainFromUrl(url),
-          snippet: "Source from web search"
-        }));
-      }
-    }
-
-    // Append sources to the content if not already included
-    if (!formattedContent.toLowerCase().includes("sources:") && sources.length > 0) {
-      formattedContent += "\n\n**Sources:**\n";
-      sources.forEach((source, index) => {
-        formattedContent += `${index + 1}. [${source.title}](${source.url})\n`;
-      });
-    }
-
-    // Update the message with search results
-    messages.value[searchMessageIndex].content = formattedContent;
-    messages.value[searchMessageIndex].webSources = sources;
-    messages.value[searchMessageIndex].isStreaming = false;
-
-    // Optionally save to Firebase if needed
-    if (userId.value !== "demo-user") {
-      await saveMessageToFirebase(messages.value[searchMessageIndex]);
-    }
-
-    showToastNotification("Web search completed!!! 🎉", "success");
-    scrollToBottom();
-
-    return { content: formattedContent, sources };
-  } catch (apiError) {
-    console.error("💥 Web search API error:", apiError);
-
-    // Fallback demo search results if API fails
-    const mockSources = [
-      {
-        title: "Example Source 1",
-        url: "https://example.com/1",
-        snippet: "Demo search result since API encountered an error."
-      },
-      {
-        title: "Example Source 2",
-        url: "https://example.com/2",
-        snippet: "Demo info for when the API is properly configured."
-      }
-    ];
-
-    const fallbackContent = `## Search Results (Demo Mode)\n\nI tried searching for "${query}" but hit an API error. Here's demo content:\n\n**Sources:**\n1. [Example Source 1](https://example.com/1)\n2. [Example Source 2](https://example.com/2)`;
-
-    messages.value[searchMessageIndex].content = fallbackContent;
-    messages.value[searchMessageIndex].webSources = mockSources;
-    messages.value[searchMessageIndex].isStreaming = false;
-
-    showToastNotification("Using demo search results!!!", "info");
-    scrollToBottom();
-
-    return { content: fallbackContent, sources: mockSources };
-  } finally {
-    isSearching.value = false;
-  }
-};
 
 
 // Helper function to extract hostname from URL
@@ -1241,115 +1674,125 @@ const getHostnameFromUrl = (url) => {
   }
 };
 // Add this to your setup() function
-const determineIfSearchNeeded = (query) => {
-  // Keywords and topics that scream "Search me, bro!" 🤙🔥
-  const searchTriggers = [
-    'latest', 'news', 'recent', 'current', 'today', 'update', 'now',
-    'how many', 'when did', 'where is', 'what happened', 'who is',
-    'statistics', 'data', 'research', 'study', 'report', 'facts',
-    'weather', 'price', 'cost', 'stock', 'market', 'trend',
-    'events', 'schedule', 'population', 'score', 'result'
-  ];
-
-  const searchTopics = [
-    'politics', 'election', 'covid', 'pandemic', 'war', 'crisis',
-    'technology', 'ai', 'sport', 'movie', 'show', 'release',
-    'book', 'publish', 'event', 'conference', 'award', 'stock',
-    'company', 'product', 'launch', 'announcement', 'discovery'
-  ];
-
+const determineIfSearchNeeded = async (query) => {
+  // Quick checks for obvious cases
   const queryLower = query.toLowerCase();
-
-  // Check for explicit search requests bro!!!
-  if (queryLower.includes('search') ||
-      queryLower.includes('look up') ||
+  
+  // INSTANT YES cases
+  if (queryLower.includes('search for') || queryLower.includes('look up') || 
       queryLower.includes('find information')) {
     return true;
   }
+  
+  // INSTANT NO cases
+  if (queryLower.includes('good news') || queryLower.includes('how are you') || 
+      queryLower.match(/^(hi|hello|hey|sup)\b/)) {
+    return false;
+  }
+  
+  try {
+    // Let the AI decide! 🧠
+    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${apiKey}`
+      },
+      body: JSON.stringify({
+        model: "o3-mini",
+        messages: [
+          { 
+            role: "system", 
+            content: "Determine if this query requires web search. Answer ONLY with 'true' or 'false'. Use 'true' for current events, specific facts, statistics, or information likely to be more recent than 2023. Use 'false' for opinions, hypotheticals, coding help, creative tasks, or conversation."
+          },
+          { role: "user", content: query }
+        ],
+        temperature: 0.1,
+        max_tokens: 5
+      })
+    });
+    
+    if (!response.ok) {
+      console.warn("Search determination API failed, using fallback");
+      return smartFallbackSearchCheck(query);
+    }
+    
+    const data = await response.json();
+    const decision = data.choices[0].message.content.trim().toLowerCase();
+    
+    console.log(`🔎 AI SEARCH DECISION: ${decision.toUpperCase()} for "${query}"`);
+    return decision === "true";
+  } catch (error) {
+    console.warn("Error in AI search determination:", error);
+    return smartFallbackSearchCheck(query);
+  }
+};
 
-  // Use regex for question vibes 😎
-  const isQuestion = /who|what|when|where|why|how|is|are|was|were|will|do|does|did/.test(queryLower);
-  const hasSearchTrigger = searchTriggers.some(trigger => queryLower.includes(trigger));
-  const hasSearchTopic = searchTopics.some(topic => queryLower.includes(topic));
-  const hasNamedEntity = /[A-Z][a-z]+ [A-Z][a-z]+|[A-Z][a-z]+\.com/.test(query);
+// Super smart fallback if AI decision fails
+const smartFallbackSearchCheck = (query) => {
+  const queryLower = query.toLowerCase();
+  
+  // Advanced pattern matching
+  const factPatterns = [
+    /who is|what is|when did|where is|how many|why did/,
+    /latest|recent|current|today|now|update/,
+    /news about|happened in|statistics|data on|report on/
+  ];
+  
+  const conversationalPatterns = [
+    /thank you|thanks|appreciate|great|awesome/,
+    /can you help|would you|could you please|i need help/,
+    /my opinion|what do you think|how do you feel/
+  ];
+  
+  // Smart scoring system
+  let searchScore = 0;
+  factPatterns.forEach(pattern => { if (pattern.test(queryLower)) searchScore += 0.25; });
+  conversationalPatterns.forEach(pattern => { if (pattern.test(queryLower)) searchScore -= 0.2; });
+  
+  // Check for named entities
+  if (/[A-Z][a-z]+ [A-Z][a-z]+/.test(query)) searchScore += 0.3;
+  
+  // Check for dates, numbers, stats indicators
+  if (/\d{4}|\d+%|\d+ million|\d+ billion/.test(queryLower)) searchScore += 0.3;
+  
+  console.log(`🧮 FALLBACK SEARCH SCORE: ${searchScore.toFixed(2)} for "${query}"`);
+  return searchScore >= 0.3;
+};
 
-  // Determine search probability (0-1 scale, bro!)
-  let searchProbability = 0;
-  if (isQuestion) searchProbability += 0.3;
-  if (hasSearchTrigger) searchProbability += 0.4;
-  if (hasSearchTopic) searchProbability += 0.2;
-  if (hasNamedEntity) searchProbability += 0.3;
-  searchProbability = Math.min(searchProbability, 1.0);
-
-  console.log(`😎 Search probability for query "${query}": ${searchProbability}`);
-  return searchProbability > 0.5;
+// Fallback heuristic-based determination if AI determination fails
+const fallbackSearchDetermination = (query) => {
+  const queryLower = query.toLowerCase();
+  
+  // Basic patterns that suggest factual queries
+  const factualPatterns = [
+    /who is|what is|when did|where is|how many|why did/,
+    /latest|recent|current|today|now|update/,
+    /news about|happened in|statistics|data on|report on/
+  ];
+  
+  // Check if any factual patterns match
+  const needsFactualInfo = factualPatterns.some(pattern => pattern.test(queryLower));
+  
+  // Check for named entities (proper nouns)
+  const hasNamedEntity = /[A-Z][a-z]+ [A-Z][a-z]+/.test(query);
+  
+  // Calculate a simple score
+  let searchScore = 0;
+  if (needsFactualInfo) searchScore += 0.6;
+  if (hasNamedEntity) searchScore += 0.4;
+  
+  console.log(`Fallback search score: ${searchScore} for query: "${query}"`);
+  return searchScore >= 0.6;
 };
 
 // Add this to your setup() function, after your reactive variables
-const setupMobileSidebar = () => {
-  // Create a modal backdrop for mobile if it doesn't exist
-  let modalBackdrop = document.querySelector('.modal-backdrop');
-  if (!modalBackdrop) {
-    modalBackdrop = document.createElement('div');
-    modalBackdrop.className = 'modal-backdrop';
-    document.body.appendChild(modalBackdrop);
-  }
-  
-  // Enhanced sidebar toggle function
-  const toggleSidebar = () => {
-    isSidebarOpen.value = !isSidebarOpen.value;
-    
-    // Force style update for mobile
-    nextTick(() => {
-      const sidebar = document.querySelector('.sidebar');
-      if (sidebar) {
-        sidebar.style.transform = isSidebarOpen.value ? 'translateX(0)' : 'translateX(-100%)';
-        modalBackdrop.classList.toggle('active', isSidebarOpen.value);
-      }
-    });
-  };
-  
-  // Set up event listeners
-  onMounted(() => {
-    const sidebarToggle = document.querySelector('.sidebar-toggle');
-    if (sidebarToggle) {
-      // Remove any existing listeners to prevent duplicates
-      const newToggle = sidebarToggle.cloneNode(true);
-      sidebarToggle.parentNode.replaceChild(newToggle, sidebarToggle);
-      
-      // Add fresh click listener
-      newToggle.addEventListener('click', (e) => {
-        e.stopPropagation();
-        toggleSidebar();
-      });
-    }
-    
-    // Add click listener to backdrop to close sidebar
-    modalBackdrop.addEventListener('click', () => {
-      isSidebarOpen.value = false;
-      modalBackdrop.classList.remove('active');
-      const sidebar = document.querySelector('.sidebar');
-      if (sidebar) {
-        sidebar.style.transform = 'translateX(-100%)';
-      }
-    });
-    
-    // Close sidebar when window resizes to desktop size
-    window.addEventListener('resize', () => {
-      if (window.innerWidth > 768) {
-        modalBackdrop.classList.remove('active');
-        if (document.querySelector('.sidebar')) {
-          document.querySelector('.sidebar').style.transform = '';
-        }
-      }
-    });
-  });
-  
-  return { toggleSidebar };
-};
+
 
 // Then call this in your setup function
-const { toggleSidebar } = setupMobileSidebar();
+const toggleSidebar = () => {
+  isSidebarOpen.value = !isSidebarOpen.value;
+};
 
 // Make the function available in your return statement
 
@@ -1383,7 +1826,14 @@ const generateCards = async (message, topic) => {
   
   return cards;
 };
-
+const extractDomainFromUrl = (url) => {
+  try {
+    const domain = new URL(url).hostname.replace('www.', '');
+    return domain.charAt(0).toUpperCase() + domain.slice(1);
+  } catch (e) {
+    return url.split('/')[2] || url;
+  }
+};
 // Function to create a single card
 const createCard = (type, topic) => {
   let title, content, backContent;
@@ -1720,9 +2170,19 @@ const sendMessage = async (text) => {
   
   messages.value.push(userMessage);
   
+  // Save to Firebase AND process for memory! 🧠
+  let messageId = null;
   if (userId.value !== "demo-user") {
     try {
-      await saveMessageToFirebase(userMessage);
+      messageId = await saveMessageToFirebase(userMessage);
+      
+      // Process user message for memory system
+      if (memorySystem && typeof memorySystem.processMessage === 'function') {
+        await memorySystem.processMessage(userMessage, {
+          chatId: currentChatId.value,
+          messageId
+        });
+      }
     } catch (error) {
       console.error("Error saving user message:", error);
     }
@@ -1744,8 +2204,8 @@ const sendMessage = async (text) => {
   
   isLoading.value = true;
   
-  // SMART SEARCH DETECTION! ✨
-  const shouldUseSearch = determineIfSearchNeeded(messageText);
+  // DYNAMIC AI-POWERED search determination! 🔍
+  const shouldUseSearch = await determineIfSearchNeeded(messageText);
   isThinkingDeeper.value = reasoningEnabled.value || logicEnabled.value;
   thinkingText.value = shouldUseSearch ? "Researching..." : 
                        reasoningEnabled.value ? "Thinking deeper..." :
@@ -1771,6 +2231,7 @@ const sendMessage = async (text) => {
     if (userId.value === "demo-user") {
       await mockStreamingResponse(streamingMessageIndex, messageText);
     } else {
+      // Get conversation history
       const conversationHistory = messages.value
         .slice(0, -1)
         .map(msg => ({
@@ -1778,32 +2239,57 @@ const sendMessage = async (text) => {
           content: msg.content
         }));
       
-      const systemPrompt = getDawntasySystemPrompt();
+      // Get base system prompt
+      let systemPrompt = getDawntasySystemPrompt();
+      
+      // MEMORY ENHANCEMENT! 🧠✨ Add relevant memories to prompt
+      if (memorySystem && typeof memorySystem.getRelevantMemories === 'function') {
+        const relevantMemories = memorySystem.getRelevantMemories(messageText);
+        
+        if (relevantMemories && relevantMemories.length > 0) {
+          systemPrompt += "\n\n[MEMORY CONTEXT]\n";
+          
+          relevantMemories.forEach(memory => {
+            const daysAgo = Math.floor((Date.now() - memory.timestamp) / (1000 * 60 * 60 * 24));
+            const timeAgo = daysAgo === 0 ? "today" : 
+                           daysAgo === 1 ? "yesterday" : 
+                           `${daysAgo} days ago`;
+            
+            if (memory.type === 'topic') {
+              systemPrompt += `User discussed "${memory.content}" ${timeAgo}.\n`;
+            } else if (memory.type === 'preference') {
+              systemPrompt += `User ${memory.value === 'like' ? 'likes' : 'dislikes'} ${memory.content} (mentioned ${timeAgo}).\n`;
+            } else if (memory.type === 'conversation') {
+              systemPrompt += `Previous conversation about ${memory.topics.join(', ')} ${timeAgo}. Summary: ${memory.summary}\n`;
+            }
+          });
+          
+          systemPrompt += "\nUse this context to personalize your response naturally. Don't explicitly mention your memory unless directly asked.\n";
+        }
+      }
       
       try {
-        // If search is needed, perform web search before generating response
+        // Web search if needed
         let webSearchResults = null;
         if (shouldUseSearch) {
-          console.log("Performing web search for:", messageText);
+          console.log("🔎 Performing web search for:", messageText);
           webSearchResults = await performWebSearch(messageText);
           
-          // Update thinking text during search
           thinkingText.value = "Analyzing search results...";
         }
         
-        // Modify the system prompt to include web search results if available
-        let enhancedPrompt = systemPrompt;
+        // Add search results to prompt if available
         if (webSearchResults && webSearchResults.length > 0) {
-          enhancedPrompt += "\n\n[WEB SEARCH RESULTS]\n";
+          systemPrompt += "\n\n[WEB SEARCH RESULTS]\n";
           webSearchResults.forEach((result, index) => {
-            enhancedPrompt += `Source ${index + 1}: ${result.title}\nURL: ${result.url}\nContent: ${result.snippet}\n\n`;
+            systemPrompt += `Source ${index + 1}: ${result.title}\nURL: ${result.url}\nContent: ${result.snippet}\n\n`;
           });
-          enhancedPrompt += "Use the above web search results to provide an accurate and up-to-date response. Include relevant citations to these sources in your answer.";
+          systemPrompt += "Use these search results for accurate, up-to-date information. Include relevant citations.";
         }
         
         const stream = await createStream(
           conversationHistory,
-          enhancedPrompt,
+          systemPrompt,
           10000
         );
         
@@ -1815,17 +2301,35 @@ const sendMessage = async (text) => {
         
         const aiMessage = messages.value[streamingMessageIndex];
         
-        // Add sources section if web search was used
+        // Add sources if web search was used
         if (webSearchResults && webSearchResults.length > 0) {
           aiMessage.webSources = webSearchResults;
           
-          // Format sources section if not already included
           if (!aiMessage.content.toLowerCase().includes('sources:')) {
             aiMessage.content += formatSourcesSection(webSearchResults);
           }
         }
         
-        await saveMessageToFirebase(aiMessage);
+        // Save AI response to Firebase
+        const aiMessageId = await saveMessageToFirebase(aiMessage);
+        
+        // Process AI message for memory system 🧠
+        if (memorySystem && typeof memorySystem.processMessage === 'function') {
+          await memorySystem.processMessage(aiMessage, {
+            chatId: currentChatId.value,
+            messageId: aiMessageId
+          });
+        }
+        
+        // Check if it's time to summarize the conversation
+        if (shouldSummarizeConversation(messages.value) && 
+            memorySystem && typeof memorySystem.summarizeConversation === 'function') {
+          // Get current conversation segment
+          const currentSegment = getRecentMessageSegment(messages.value);
+          if (currentSegment.length >= 4) {
+            await memorySystem.summarizeConversation(currentChatId.value, currentSegment);
+          }
+        }
         
         logInteraction(messageText, aiMessage);
         
@@ -1860,6 +2364,28 @@ const sendMessage = async (text) => {
     
     scrollToBottom();
   }
+};
+
+// Smart functions to determine when to summarize conversations
+const shouldSummarizeConversation = (messagesList) => {
+  if (messagesList.length < 6) return false;
+  
+  // Check for significant time gap (30+ minutes)
+  const latestMsg = messagesList[messagesList.length - 1];
+  const prevMsg = messagesList[messagesList.length - 2];
+  const timeGap = latestMsg.timestamp - prevMsg.timestamp;
+  
+  if (timeGap > 30 * 60 * 1000) return true;
+  
+  // Summarize every 10 messages
+  return messagesList.length % 10 === 0;
+};
+
+// Get recent conversation segment for summarization
+const getRecentMessageSegment = (messagesList) => {
+  const maxSegmentSize = 10;
+  const startIdx = Math.max(0, messagesList.length - maxSegmentSize);
+  return messagesList.slice(startIdx);
 };
 
 // Helper function to format sources section
@@ -6067,6 +6593,7 @@ const quantumCognitionEngine = reactive({
     };
   }
 });
+
 const processMindMapContent = (content) => {
     // Extract just the HTML part if there's markdown or other content
     const htmlMatch = content.match(/<div class=["']mind-map-box["'][\s\S]*?<\/div>/i);
@@ -7186,224 +7713,10 @@ const generateMindMapData = (centralTopic) => {
 
 // Replace the existing performWebSearch function with this corrected version
 // COMPLETELY REVISED WEB SEARCH IMPLEMENTATION
-const performWebSearch = async (query) => {
-  try {
-    console.log("Starting web search for:", query);
-    isSearching.value = true;
-    thinkingText.value = "Researching...";
-    
-    // Show searching indicator in the UI
-    const searchMessageIndex = messages.value.length;
-    messages.value.push({
-      role: "assistant",
-      content: "🔍 Searching for information about: **" + query + "**\n\nPlease wait while I gather the latest data...",
-      timestamp: Date.now(),
-      hasReasoning: false,
-      isStreaming: true
-    });
-    
-    // System prompt for search
-    const searchSystem = "You are a helpful assistant with web search capability. " +
-      "Search for accurate, up-to-date information when needed, and provide clear, concise summaries of what you find. " +
-      "Always include your sources so users can learn more.";
-    
-    // Direct search query
-    const searchPrompt = `Please search the web for information about: ${query}. Provide a summary of 3-5 relevant facts, with sources linked at the end.`;
-    
-    try {
-      console.log("Calling search API with correct parameters");
-      const response = await fetch("https://api.openai.com/v1/chat/completions", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${apiKey}`
-        },
-        body: JSON.stringify({
-          model: "gpt-4o",
-          messages: [
-            { role: "system", content: searchSystem },
-            { role: "user", content: searchPrompt }
-          ],
-          tools: [{
-            "type": "function",
-            "function": {
-              "name": "web_search",
-              "description": "Search the web for information",
-              "parameters": {
-                "type": "object",
-                "properties": {
-                  "query": {
-                    "type": "string",
-                    "description": "The search query"
-                  }
-                },
-                "required": ["query"]
-              }
-            }
-          }],
-          tool_choice: {
-            "type": "function",
-            "function": {
-              "name": "web_search"
-            }
-          },
-          max_tokens: 2000
-        })
-      });
-      
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => null) || await response.text();
-        console.error("Search API error:", response.status, errorData);
-        throw new Error(`API error: ${response.status} - ${JSON.stringify(errorData)}`);
-      }
-      
-      const data = await response.json();
-      console.log("Search API response:", data);
-      
-      // Process the search results
-      let formattedContent = "";
-      let sources = [];
-      
-      if (data.choices && data.choices[0] && data.choices[0].message) {
-        const message = data.choices[0].message;
-        
-        // Check for tool calls
-        if (message.tool_calls && message.tool_calls.length > 0) {
-          const toolCall = message.tool_calls[0];
-          
-          // Extract search query from the tool call
-          let searchQuery = query;
-          try {
-            const args = JSON.parse(toolCall.function.arguments);
-            searchQuery = args.query || query;
-          } catch (e) {
-            console.error("Error parsing tool call arguments:", e);
-          }
-          
-          // Make a follow-up request to utilize the search results
-          const followupResponse = await fetch("https://api.openai.com/v1/chat/completions", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "Authorization": `Bearer ${apiKey}`
-            },
-            body: JSON.stringify({
-              model: "gpt-4o",
-              messages: [
-                { role: "system", content: searchSystem },
-                { role: "user", content: searchPrompt },
-                message,
-                { 
-                  role: "user", 
-                  content: `Now, please provide a comprehensive summary of what you found about "${searchQuery}", including all relevant sources.` 
-                }
-              ],
-              max_tokens: 2000
-            })
-          });
-          
-          if (!followupResponse.ok) {
-            throw new Error(`Follow-up API error: ${followupResponse.status}`);
-          }
-          
-          const followupData = await followupResponse.json();
-          formattedContent = followupData.choices[0].message.content || "";
-          
-          // Extract source URLs
-          const urlRegex = /(?:https?:\/\/[^\s)]+)/g;
-          const urls = formattedContent.match(urlRegex) || [];
-          
-          sources = urls.map(url => ({
-            url: url,
-            title: extractDomainFromUrl(url),
-            snippet: "Source from web search"
-          }));
-        } else {
-          // Direct content response
-          formattedContent = message.content || "No search results were found.";
-          
-          // Try to extract URLs
-          const urlRegex = /(?:https?:\/\/[^\s)]+)/g;
-          const urls = formattedContent.match(urlRegex) || [];
-          
-          sources = urls.map(url => ({
-            url: url,
-            title: extractDomainFromUrl(url),
-            snippet: "Source from web search"
-          }));
-        }
-      }
-      
-      // Ensure sources are included in the content
-      if (!formattedContent.toLowerCase().includes("sources:") && sources.length > 0) {
-        formattedContent += "\n\n**Sources:**\n";
-        sources.forEach((source, index) => {
-          formattedContent += `${index + 1}. [${source.title}](${source.url})\n`;
-        });
-      }
-      
-      // Update the message with search results
-      messages.value[searchMessageIndex].content = formattedContent;
-      messages.value[searchMessageIndex].webSources = sources;
-      messages.value[searchMessageIndex].isStreaming = false;
-      
-      // Save to Firebase if needed
-      if (userId.value !== "demo-user") {
-        await saveMessageToFirebase(messages.value[searchMessageIndex]);
-      }
-      
-      showToastNotification("Web search completed", "success");
-      scrollToBottom();
-      
-      return { content: formattedContent, sources };
-      
-    } catch (apiError) {
-      console.error("Web search API error:", apiError);
-      
-      // Fallback to demo search results
-      const mockSources = [
-        {
-          title: "Example Source 1",
-          url: "https://example.com/1",
-          snippet: "This is a demonstration search result since the actual search API encountered an error."
-        },
-        {
-          title: "Example Source 2",
-          url: "https://example.com/2",
-          snippet: "When the search API is properly configured, you'll see real results here."
-        }
-      ];
-      
-      const fallbackContent = `## Search Results (Demo Mode)\n\nI tried to search for information about "${query}" but encountered an API error. This is a demonstration of how search results would appear.\n\nIn a properly configured environment, you would see relevant information from the web here, along with proper sources.\n\n**Sources:**\n1. [Example Source 1](https://example.com/1)\n2. [Example Source 2](https://example.com/2)`;
-      
-      messages.value[searchMessageIndex].content = fallbackContent;
-      messages.value[searchMessageIndex].webSources = mockSources;
-      messages.value[searchMessageIndex].isStreaming = false;
-      
-      showToastNotification("Using demo search results", "info");
-      scrollToBottom();
-      
-      return { content: fallbackContent, sources: mockSources };
-    }
-    
-  } catch (error) {
-    console.error("Web search outer error:", error);
-    showToastNotification("Search feature unavailable", "error");
-    return { content: "", sources: [] };
-  } finally {
-    isSearching.value = false;
-  }
-};
+// COMPLETELY REVISED WEB SEARCH IMPLEMENTATION
 
 // Helper function to extract domain name from URL
-const extractDomainFromUrl = (url) => {
-  try {
-    const domain = new URL(url).hostname.replace('www.', '');
-    return domain.charAt(0).toUpperCase() + domain.slice(1);
-  } catch (e) {
-    return url.split('/')[2] || url;
-  }
-};
+
     console.log("Dawntasy book content loaded:", Object.keys(dawntasyBookContent.value));
     return dawntasyBookContent.value;
   } catch (error) {
@@ -7685,16 +7998,36 @@ const enableDemoMode = () => {
       }
     };
 
-    const loadChat = (chatId) => {
-      if (currentChatId.value === chatId) return;
-      currentChatId.value = chatId;
-      loadMessages(chatId);
-      
-      // On mobile, close the sidebar after selecting a chat
-      if (window.innerWidth <= 768) {
-        isSidebarOpen.value = false;
-      }
+    const loadChat = async (chatId) => {
+  if (currentChatId.value === chatId) return;
+  currentChatId.value = chatId;
+  await loadMessages(chatId);
+  
+  // Check if this is a new session with no messages
+  if (messages.value.length === 0 && memorySystem.lastInteractionDate) {
+    // Add a personalized welcome message based on memory
+    const welcomeMessage = {
+      role: "assistant",
+      content: memorySystem.generateGreeting(),
+      timestamp: Date.now(),
+      hasReasoning: false
     };
+    if (currentChatId.value && currentChatId.value !== chatId && messages.value.length > 0) {
+    await memorySystem.summarizeConversation(currentChatId.value, messages.value);
+  }
+  
+  currentChatId.value = chatId;
+  await loadMessages(chatId);
+
+    messages.value.push(welcomeMessage);
+    await saveMessageToFirebase(welcomeMessage);
+  }
+  
+  // On mobile, close the sidebar after selecting a chat
+  if (window.innerWidth <= 768) {
+    isSidebarOpen.value = false;
+  }
+};
 
     const loadMessages = async (chatId) => {
       if (!userId.value || !chatId) return;
@@ -9197,7 +9530,20 @@ const processStream = async (stream, messageIndex, isReasoningMode = false) => {
   if (!stream) {
     throw new Error("No stream provided");
   }
-  
+  if (messages.value[messageIndex]) {
+    let finalResponse = extracted.finalResponse || completeResponse;
+    
+    // Enhance the response with memories if appropriate
+    if (!isReasoningMode && Math.random() < 0.6) { // 60% chance to include memory
+      const userMessage = messages.value.find(m => m.role === 'user');
+      const userContent = userMessage ? userMessage.content : '';
+      finalResponse = memorySystem.enhanceResponseWithMemories(finalResponse, userContent);
+    }
+    
+    messages.value[messageIndex].content = finalResponse;
+    messages.value[messageIndex].reasoning = extracted.reasoning || "";
+    messages.value[messageIndex].hasReasoning = extracted.hasReasoning;
+  }
   const reader = stream.getReader();
   let completeResponse = "";
   
@@ -9833,6 +10179,10 @@ getMaxTopicFrequency,
   isDeployingMindMap,
   mindMapVisualization,
   showSelectChatModal,
+  memorySystem,
+  memoryBankExpanded,
+  toggleMemoryBank,
+  topMemoryTopics,
   selectedMindMap,
   selectedBranch,
   mindMapContainer,
@@ -12491,7 +12841,83 @@ html, body {
   font-size: 12px;
   padding: 0 8px;
 }
+/* Memory Bank Styles */
+.memory-bank {
+  margin-top: 20px;
+  border-top: 1px solid var(--border-light);
+  padding-top: 10px;
+}
 
+.memory-bank-header {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.memory-bank-header:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.memory-icon {
+  margin-right: 8px;
+  display: flex;
+  align-items: center;
+  color: var(--primary);
+}
+
+.memory-bank-content {
+  padding: 10px;
+  background: rgba(15, 23, 42, 0.3);
+  border-radius: 6px;
+  margin: 0 10px 10px 10px;
+}
+
+.memory-stats {
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 12px;
+}
+
+.memory-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.stat-value {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--primary);
+}
+
+.stat-label {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.memory-topics h5 {
+  font-size: 13px;
+  margin: 0 0 8px 0;
+  color: var(--text-secondary);
+}
+
+.topic-list {
+  max-height: 150px;
+  overflow-y: auto;
+}
+
+.memory-topic {
+  padding: 4px 8px;
+  background: rgba(79, 70, 229, 0.1);
+  border-radius: 4px;
+  margin-bottom: 4px;
+  font-size: 12px;
+  color: white;
+}
 .heading-select:focus {
   outline: none;
   border-color: var(--primary);
