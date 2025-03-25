@@ -167,16 +167,7 @@
               </button>
             </div>
           </div>
-          <div
-  v-for="(message, index) in messages"
-  :key="index"
-  class="message"
-  :class="message.role"
->
-  <!-- Add Senticon component -->
-  <div class="message-avatar" v-if="message.role === 'assistant'">
-    <Senticon :mood="getSenticonMood(message)" />
-  </div>
+
           <div
             v-for="(message, index) in messages"
             :key="index"
@@ -197,7 +188,9 @@
             <div
               v-if="message.role === 'assistant' && !message.isStreaming"
               class="message-actions"
+              
             >
+          </div>
               <button
                 v-if="message.hasReasoning"
                 class="action-button reasoning-button"
@@ -376,26 +369,29 @@
         </div>
 
         <div class="message-input-container">
-          <textarea
-            v-model="userInput"
-            placeholder="Type your message here..."
-            @keydown.enter.exact.prevent="sendMessage()"
-            class="message-input multi-line"
-            :disabled="isLoading"
-            ref="inputField"
-          ></textarea>
-          <button
-            @click="sendMessage()"
-            class="send-button"
-            :disabled="isLoading || !userInput.trim()"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" />
-            </svg>
-          </button>
-        </div>
-      </div>
-    </div>
+  <!-- Added an id for accessibility and a label for clarity -->
+  <label for="user-message" class="visually-hidden">Your Message</label>
+  <textarea
+    id="user-message"
+    v-model="userInput"
+    placeholder="Type your message here... 🤙"
+    @keydown.enter.exact.prevent="sendMessage()"
+    class="message-input multi-line"
+    :disabled="isLoading"
+    ref="inputField"
+  ></textarea>
+  <button
+    @click="sendMessage()"
+    class="send-button"
+    :disabled="isLoading || !userInput.trim()"
+  >
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" />
+    </svg>
+  </button>
+</div>
+</div>
+
 
     <!-- New Chat Popup -->
     <div v-if="showNewChatPopup" class="modal-overlay">
@@ -938,7 +934,6 @@
           </div>
         </div>
       </div>
-      </div>
     </div>
   </div>
 </template>
@@ -1008,10 +1003,13 @@ const newMessageLogTitle = ref("");
 const showDeleteLogModal = ref(false);
 const logToDelete = ref(null);
 const savingLogContent = ref(false);
+const journalSubscriptionActive = ref(false);
+const journalLoadAttempts = ref(0);
 const mindMapInput = ref(null);
 const mindMapsExpanded = ref(false);
 const journalLogUnsubscribe = ref(null);
 const isLoadingMindMap = ref(false);
+const isSearching = ref(false);
 const savedMindMaps = ref([]);
 const mindMapTitleTyping = ref(false);
 const mindMapTitleDisplayed = ref("");
@@ -1025,6 +1023,336 @@ const showSelectChatModal = ref(false);
 const openBookLink = () => {
   window.open('https://www.amazon.com/Dawntasy-Circular-Dawn-breathtaking-fantasy-ebook/dp/B0DT74DLY5/', '_blank');
 };
+// Add this function to your setup
+const triggerSearch = async (query, messageIndex) => {
+  if (!query) return;
+  
+  // Mark message as search suggested to prevent showing again
+  if (messages.value[messageIndex]) {
+    messages.value[messageIndex].searchSuggested = true;
+  }
+  
+  // Perform web search
+  const results = await performWebSearch(query);
+  
+  // After search is complete, generate a response using the search results
+  if (results && results.length > 0) {
+    const enhancedPrompt = getDawntasySystemPrompt() + `\n\n[WEB SEARCH RESULTS]\n${results.map((r, i) => 
+      `Source ${i+1}: ${r.title}\nURL: ${r.url}\nContent: ${r.snippet}\n\n`).join('')}`;
+    
+    sendMessage(`Please answer my question about "${query}" using the web search results you just found.`);
+  }
+};
+// Add this to your setup() function
+
+// Update the performWebSearch function to use the correct tools format
+const performWebSearch = async (query) => {
+  try {
+    console.log("🚀 Starting web search for:", query);
+    isSearching.value = true;
+    thinkingText.value = "Researching... 🔍";
+
+    // Show a search indicator in the UI
+    const searchMessageIndex = messages.value.length;
+    messages.value.push({
+      role: "assistant",
+      content: "🔍 Searching for info about: **" + query + "**\n\nHold tight while I fetch the latest deets!!!",
+      timestamp: Date.now(),
+      hasReasoning: false,
+      isStreaming: true
+    });
+
+    // System prompt to set the vibes for our search assistant
+    const searchSystem = "You are a super helpful assistant with web search capabilities. Search for the latest, most accurate info when needed, and include sources for verification!";
+    
+    // The actual search prompt for our API call
+    const searchPrompt = `Please search the web for information about: ${query}. Summarize 3-5 key facts with sources at the end.`;
+
+    console.log("🤙 Calling search API with proper parameters...");
+    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${apiKey}`
+      },
+      body: JSON.stringify({
+        model: "gpt-4o",
+        messages: [
+          { role: "system", content: searchSystem },
+          { role: "user", content: searchPrompt }
+        ],
+        // Use the web_search_preview tool as per OpenAI's docs!!!
+        tools: [{
+          type: "web_search_preview",
+          user_location: {
+            type: "approximate",
+            country: "US",
+            city: "New York",
+            region: "NY"
+          },
+          search_context_size: "medium"
+        }],
+        tool_choice: {
+          type: "web_search_preview"
+        },
+        max_tokens: 2000
+      })
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => null) || await response.text();
+      console.error("😱 Search API error:", response.status, errorData);
+      throw new Error(`API error: ${response.status} - ${JSON.stringify(errorData)}`);
+    }
+
+    const data = await response.json();
+    console.log("🤩 Search API response:", data);
+
+    // Process the search results
+    let formattedContent = "";
+    let sources = [];
+
+    if (data.choices && data.choices[0] && data.choices[0].message) {
+      const message = data.choices[0].message;
+
+      if (message.tool_calls && message.tool_calls.length > 0) {
+        // If there's a tool call, extract its arguments!
+        const toolCall = message.tool_calls[0];
+        let searchQuery = query;
+        try {
+          const args = JSON.parse(toolCall.function.arguments);
+          searchQuery = args.query || query;
+        } catch (e) {
+          console.error("🤔 Error parsing tool call arguments:", e);
+        }
+
+        // Follow-up request for detailed summary based on search results
+        const followupResponse = await fetch("https://api.openai.com/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${apiKey}`
+          },
+          body: JSON.stringify({
+            model: "gpt-4o",
+            messages: [
+              { role: "system", content: searchSystem },
+              { role: "user", content: searchPrompt },
+              message,
+              { 
+                role: "user", 
+                content: `Now, please provide a comprehensive summary of what you found about "${searchQuery}", including all relevant sources.` 
+              }
+            ],
+            max_tokens: 2000
+          })
+        });
+
+        if (!followupResponse.ok) {
+          throw new Error(`Follow-up API error: ${followupResponse.status}`);
+        }
+
+        const followupData = await followupResponse.json();
+        formattedContent = followupData.choices[0].message.content || "";
+
+        // Extract URLs using a regex
+        const urlRegex = /(?:https?:\/\/[^\s)]+)/g;
+        const urls = formattedContent.match(urlRegex) || [];
+        sources = urls.map(url => ({
+          url: url,
+          title: extractDomainFromUrl(url),
+          snippet: "Source from web search"
+        }));
+      } else {
+        // If no tool call, just take the message content directly
+        formattedContent = message.content || "No search results found.";
+        const urlRegex = /(?:https?:\/\/[^\s)]+)/g;
+        const urls = formattedContent.match(urlRegex) || [];
+        sources = urls.map(url => ({
+          url: url,
+          title: extractDomainFromUrl(url),
+          snippet: "Source from web search"
+        }));
+      }
+    }
+
+    // Append sources to the content if not already included
+    if (!formattedContent.toLowerCase().includes("sources:") && sources.length > 0) {
+      formattedContent += "\n\n**Sources:**\n";
+      sources.forEach((source, index) => {
+        formattedContent += `${index + 1}. [${source.title}](${source.url})\n`;
+      });
+    }
+
+    // Update the message with search results
+    messages.value[searchMessageIndex].content = formattedContent;
+    messages.value[searchMessageIndex].webSources = sources;
+    messages.value[searchMessageIndex].isStreaming = false;
+
+    // Optionally save to Firebase if needed
+    if (userId.value !== "demo-user") {
+      await saveMessageToFirebase(messages.value[searchMessageIndex]);
+    }
+
+    showToastNotification("Web search completed!!! 🎉", "success");
+    scrollToBottom();
+
+    return { content: formattedContent, sources };
+  } catch (apiError) {
+    console.error("💥 Web search API error:", apiError);
+
+    // Fallback demo search results if API fails
+    const mockSources = [
+      {
+        title: "Example Source 1",
+        url: "https://example.com/1",
+        snippet: "Demo search result since API encountered an error."
+      },
+      {
+        title: "Example Source 2",
+        url: "https://example.com/2",
+        snippet: "Demo info for when the API is properly configured."
+      }
+    ];
+
+    const fallbackContent = `## Search Results (Demo Mode)\n\nI tried searching for "${query}" but hit an API error. Here's demo content:\n\n**Sources:**\n1. [Example Source 1](https://example.com/1)\n2. [Example Source 2](https://example.com/2)`;
+
+    messages.value[searchMessageIndex].content = fallbackContent;
+    messages.value[searchMessageIndex].webSources = mockSources;
+    messages.value[searchMessageIndex].isStreaming = false;
+
+    showToastNotification("Using demo search results!!!", "info");
+    scrollToBottom();
+
+    return { content: fallbackContent, sources: mockSources };
+  } finally {
+    isSearching.value = false;
+  }
+};
+
+
+// Helper function to extract hostname from URL
+const getHostnameFromUrl = (url) => {
+  try {
+    const hostname = new URL(url).hostname;
+    return hostname.replace(/^www\./, '');
+  } catch (e) {
+    return url;
+  }
+};
+// Add this to your setup() function
+const determineIfSearchNeeded = (query) => {
+  // Keywords and topics that scream "Search me, bro!" 🤙🔥
+  const searchTriggers = [
+    'latest', 'news', 'recent', 'current', 'today', 'update', 'now',
+    'how many', 'when did', 'where is', 'what happened', 'who is',
+    'statistics', 'data', 'research', 'study', 'report', 'facts',
+    'weather', 'price', 'cost', 'stock', 'market', 'trend',
+    'events', 'schedule', 'population', 'score', 'result'
+  ];
+
+  const searchTopics = [
+    'politics', 'election', 'covid', 'pandemic', 'war', 'crisis',
+    'technology', 'ai', 'sport', 'movie', 'show', 'release',
+    'book', 'publish', 'event', 'conference', 'award', 'stock',
+    'company', 'product', 'launch', 'announcement', 'discovery'
+  ];
+
+  const queryLower = query.toLowerCase();
+
+  // Check for explicit search requests bro!!!
+  if (queryLower.includes('search') ||
+      queryLower.includes('look up') ||
+      queryLower.includes('find information')) {
+    return true;
+  }
+
+  // Use regex for question vibes 😎
+  const isQuestion = /who|what|when|where|why|how|is|are|was|were|will|do|does|did/.test(queryLower);
+  const hasSearchTrigger = searchTriggers.some(trigger => queryLower.includes(trigger));
+  const hasSearchTopic = searchTopics.some(topic => queryLower.includes(topic));
+  const hasNamedEntity = /[A-Z][a-z]+ [A-Z][a-z]+|[A-Z][a-z]+\.com/.test(query);
+
+  // Determine search probability (0-1 scale, bro!)
+  let searchProbability = 0;
+  if (isQuestion) searchProbability += 0.3;
+  if (hasSearchTrigger) searchProbability += 0.4;
+  if (hasSearchTopic) searchProbability += 0.2;
+  if (hasNamedEntity) searchProbability += 0.3;
+  searchProbability = Math.min(searchProbability, 1.0);
+
+  console.log(`😎 Search probability for query "${query}": ${searchProbability}`);
+  return searchProbability > 0.5;
+};
+
+// Add this to your setup() function, after your reactive variables
+const setupMobileSidebar = () => {
+  // Create a modal backdrop for mobile if it doesn't exist
+  let modalBackdrop = document.querySelector('.modal-backdrop');
+  if (!modalBackdrop) {
+    modalBackdrop = document.createElement('div');
+    modalBackdrop.className = 'modal-backdrop';
+    document.body.appendChild(modalBackdrop);
+  }
+  
+  // Enhanced sidebar toggle function
+  const toggleSidebar = () => {
+    isSidebarOpen.value = !isSidebarOpen.value;
+    
+    // Force style update for mobile
+    nextTick(() => {
+      const sidebar = document.querySelector('.sidebar');
+      if (sidebar) {
+        sidebar.style.transform = isSidebarOpen.value ? 'translateX(0)' : 'translateX(-100%)';
+        modalBackdrop.classList.toggle('active', isSidebarOpen.value);
+      }
+    });
+  };
+  
+  // Set up event listeners
+  onMounted(() => {
+    const sidebarToggle = document.querySelector('.sidebar-toggle');
+    if (sidebarToggle) {
+      // Remove any existing listeners to prevent duplicates
+      const newToggle = sidebarToggle.cloneNode(true);
+      sidebarToggle.parentNode.replaceChild(newToggle, sidebarToggle);
+      
+      // Add fresh click listener
+      newToggle.addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleSidebar();
+      });
+    }
+    
+    // Add click listener to backdrop to close sidebar
+    modalBackdrop.addEventListener('click', () => {
+      isSidebarOpen.value = false;
+      modalBackdrop.classList.remove('active');
+      const sidebar = document.querySelector('.sidebar');
+      if (sidebar) {
+        sidebar.style.transform = 'translateX(-100%)';
+      }
+    });
+    
+    // Close sidebar when window resizes to desktop size
+    window.addEventListener('resize', () => {
+      if (window.innerWidth > 768) {
+        modalBackdrop.classList.remove('active');
+        if (document.querySelector('.sidebar')) {
+          document.querySelector('.sidebar').style.transform = '';
+        }
+      }
+    });
+  });
+  
+  return { toggleSidebar };
+};
+
+// Then call this in your setup function
+const { toggleSidebar } = setupMobileSidebar();
+
+// Make the function available in your return statement
+
 // Add these functions to your setup function after the variables
 
 // Function to determine if cards would be relevant for the message
@@ -1373,190 +1701,169 @@ const deployBranchToChat = async (chatId) => {
     isLoading.value = false;
   }
 };
+// Modify your sendMessage function
 const sendMessage = async (text) => {
-      const messageText = text || userInput.value.trim();
-      
-      if (!messageText) return;
-      
-      if (!currentChatId.value) {
-        showNewChatPopup.value = true;
-        return;
-      }
-      // Add this logic to your sendMessage function, before calling the API
-if (messageText.toLowerCase().includes('generate html') || messageText.toLowerCase().includes('html code')) {
-  const htmlTemplate = `
-    <div class="custom-html">
-      <h1>Generated HTML</h1>
-      <p>Here's your requested HTML:</p>
-      <div class="code-display">
-        <pre><code>${messageText.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</code></pre>
-      </div>
-    </div>
-  `;
-  // Add this at the end of your sendMessage function, before the final closing brace
-if (messages.value[streamingMessageIndex]) {
-  const aiMessage = messages.value[streamingMessageIndex];
-  const accuracyMetrics = hyperAccuracyLearningSystem.processResponse(messageText, aiMessage);
-  console.log("Response processed by HYPER ACCURACY SYSTEM:", accuracyMetrics);
+  const messageText = text || userInput.value.trim();
   
-  // Add accuracy data to message metadata
-  aiMessage.accuracyMetrics = accuracyMetrics;
-}
-  // Add this to your sendMessage function before generating the AI response
-const memoryItem = {
-  id: `msg-${Date.now()}`,
-  role: "user",
-  content: messageText,
-  timestamp: Date.now()
-};
-contextualMemory.addMemory(memoryItem);
-
-// And add this after getting the AI response, before displaying it
-const relevantContext = contextualMemory.getRelevantMemories(messageText);
-const contextEnhancedResponse = contextualMemory.enhanceWithContext(
-  aiResponse.content,
-  relevantContext.context
-);
-aiResponse.content = contextEnhancedResponse;
-
-// Also add the AI response to memory
-contextualMemory.addMemory({
-  id: `ai-${Date.now()}`,
-  role: "assistant",
-  content: aiResponse.content,
-  timestamp: Date.now()
-});
-  const htmlResponse = generateHTML(htmlTemplate);
+  if (!messageText) return;
   
-  const aiMessage = {
-    role: "assistant",
-    content: `I've generated the HTML code for you. Here it is:
-\`\`\`html
-${messageText}
-\`\`\`
-
-Let me know if you need any modifications!`,
-    timestamp: Date.now(),
-    hasReasoning: false
+  if (!currentChatId.value) {
+    showNewChatPopup.value = true;
+    return;
+  }
+  
+  const userMessage = {
+    role: "user",
+    content: messageText,
+    timestamp: Date.now()
   };
   
-  messages.value.push(aiMessage);
-  await saveMessageToFirebase(aiMessage);
+  messages.value.push(userMessage);
   
-  isLoading.value = false;
-  return;
-}
-      const userMessage = {
-        role: "user",
-        content: messageText,
-        timestamp: Date.now()
-      };
+  if (userId.value !== "demo-user") {
+    try {
+      await saveMessageToFirebase(userMessage);
+    } catch (error) {
+      console.error("Error saving user message:", error);
+    }
+  }
+  
+  userInput.value = "";
+  if (inputField.value) {
+    inputField.value.style.height = "auto";
+  }
+  
+  await nextTick();
+  scrollToBottom();
+  
+  if (imageEnabled.value) {
+    imageEnabled.value = false;
+    await generateImage(messageText);
+    return;
+  }
+  
+  isLoading.value = true;
+  
+  // SMART SEARCH DETECTION! ✨
+  const shouldUseSearch = determineIfSearchNeeded(messageText);
+  isThinkingDeeper.value = reasoningEnabled.value || logicEnabled.value;
+  thinkingText.value = shouldUseSearch ? "Researching..." : 
+                       reasoningEnabled.value ? "Thinking deeper..." :
+                       logicEnabled.value ? "Brainstorming..." :
+                       archmageEnabled.value ? "Contemplating miracles..." : 
+                       "Thinking...";
+  
+  const streamingMessageIndex = messages.value.length;
+  
+  try {
+    messages.value.push({
+      role: "assistant",
+      content: "",
+      streamContent: "",
+      timestamp: Date.now(),
+      reasoning: "",
+      hasReasoning: reasoningEnabled.value && !logicEnabled.value,
+      isStreaming: true
+    });
+    
+    isStreaming.value = true;
+    
+    if (userId.value === "demo-user") {
+      await mockStreamingResponse(streamingMessageIndex, messageText);
+    } else {
+      const conversationHistory = messages.value
+        .slice(0, -1)
+        .map(msg => ({
+          role: msg.role,
+          content: msg.content
+        }));
       
-      messages.value.push(userMessage);
-      
-      if (userId.value !== "demo-user") {
-        try {
-          await saveMessageToFirebase(userMessage);
-        } catch (error) {
-          console.error("Error saving user message:", error);
-        }
-      }
-      
-      userInput.value = "";
-      if (inputField.value) {
-        inputField.value.style.height = "auto";
-      }
-      
-      await nextTick();
-      scrollToBottom();
-      
-      if (imageEnabled.value) {
-        imageEnabled.value = false;
-        await generateImage(messageText);
-        return;
-      }
-      
-      isLoading.value = true;
-      isThinkingDeeper.value = reasoningEnabled.value || logicEnabled.value;
-      
-      const streamingMessageIndex = messages.value.length;
+      const systemPrompt = getDawntasySystemPrompt();
       
       try {
-        messages.value.push({
-          role: "assistant",
-          content: "",
-          streamContent: "",
-          timestamp: Date.now(),
-          reasoning: "",
-          hasReasoning: reasoningEnabled.value && !logicEnabled.value,
-          isStreaming: true
-        });
-        
-        isStreaming.value = true;
-        
-        if (userId.value === "demo-user") {
-          await mockStreamingResponse(streamingMessageIndex, messageText);
-        } else {
-          const conversationHistory = messages.value
-            .slice(0, -1)
-            .map(msg => ({
-              role: msg.role,
-              content: msg.content
-            }));
+        // If search is needed, perform web search before generating response
+        let webSearchResults = null;
+        if (shouldUseSearch) {
+          console.log("Performing web search for:", messageText);
+          webSearchResults = await performWebSearch(messageText);
           
-          const systemPrompt = getDawntasySystemPrompt();
+          // Update thinking text during search
+          thinkingText.value = "Analyzing search results...";
+        }
+        
+        // Modify the system prompt to include web search results if available
+        let enhancedPrompt = systemPrompt;
+        if (webSearchResults && webSearchResults.length > 0) {
+          enhancedPrompt += "\n\n[WEB SEARCH RESULTS]\n";
+          webSearchResults.forEach((result, index) => {
+            enhancedPrompt += `Source ${index + 1}: ${result.title}\nURL: ${result.url}\nContent: ${result.snippet}\n\n`;
+          });
+          enhancedPrompt += "Use the above web search results to provide an accurate and up-to-date response. Include relevant citations to these sources in your answer.";
+        }
+        
+        const stream = await createStream(
+          conversationHistory,
+          enhancedPrompt,
+          10000
+        );
+        
+        const responseText = await processStream(
+          stream,
+          streamingMessageIndex,
+          reasoningEnabled.value
+        );
+        
+        const aiMessage = messages.value[streamingMessageIndex];
+        
+        // Add sources section if web search was used
+        if (webSearchResults && webSearchResults.length > 0) {
+          aiMessage.webSources = webSearchResults;
           
-          try {
-            const stream = await createStream(
-              conversationHistory,
-              systemPrompt,
-              10000
-            );
-            
-            const responseText = await processStream(
-              stream,
-              streamingMessageIndex,
-              reasoningEnabled.value
-            );
-            
-            const aiMessage = messages.value[streamingMessageIndex];
-            
-            await saveMessageToFirebase(aiMessage);
-            
-            logInteraction(messageText, aiMessage);
-            
-            await processSelfOptimization(messageText, aiMessage);
-          } catch (apiError) {
-            console.error("API error:", apiError);
-            
-            await mockStreamingResponse(streamingMessageIndex, messageText, true);
+          // Format sources section if not already included
+          if (!aiMessage.content.toLowerCase().includes('sources:')) {
+            aiMessage.content += formatSourcesSection(webSearchResults);
           }
         }
-      } catch (error) {
-        console.error("Error sending message:", error);
         
-        if (messages.value[streamingMessageIndex]) {
-          messages.value[streamingMessageIndex].content =
-            "⚠️ I encountered an error while processing your request. Please try again later.";
-          messages.value[streamingMessageIndex].isStreaming = false;
-          
-          try {
-            await saveMessageToFirebase(messages.value[streamingMessageIndex]);
-          } catch (saveError) {
-            console.error("Error saving error message:", saveError);
-          }
-        }
-      } finally {
-        isLoading.value = false;
-        isStreaming.value = false;
+        await saveMessageToFirebase(aiMessage);
         
-        if (messages.value[streamingMessageIndex]) {
-          messages.value[streamingMessageIndex].isStreaming = false;
-        }
+        logInteraction(messageText, aiMessage);
         
-        scrollToBottom();
+        await processSelfOptimization(messageText, aiMessage);
+      } catch (apiError) {
+        console.error("API error:", apiError);
+        
+        await mockStreamingResponse(streamingMessageIndex, messageText, true);
       }
-    };
+    }
+  } catch (error) {
+    console.error("Error sending message:", error);
+    
+    if (messages.value[streamingMessageIndex]) {
+      messages.value[streamingMessageIndex].content =
+        "⚠️ I encountered an error while processing your request. Please try again later.";
+      messages.value[streamingMessageIndex].isStreaming = false;
+      
+      try {
+        await saveMessageToFirebase(messages.value[streamingMessageIndex]);
+      } catch (saveError) {
+        console.error("Error saving error message:", saveError);
+      }
+    }
+  } finally {
+    isLoading.value = false;
+    isStreaming.value = false;
+    
+    if (messages.value[streamingMessageIndex]) {
+      messages.value[streamingMessageIndex].isStreaming = false;
+    }
+    
+    scrollToBottom();
+  }
+};
+
+// Helper function to format sources section
+
     
 // Add these functions to your main JavaScript file
 // Function to determine if cards would be relevant for the message
@@ -1626,6 +1933,8 @@ window.scrollCards = (direction) => {
 // Completely redesigned cursor management system
 // Add this comprehensive cursor management system
 // Completely redesigned cursor management system
+// Completely redesigned cursor management system
+// Add this comprehensive cursor management system
 const cursorStateManager = {
   // Store full editor state
   savedState: null,
@@ -1823,7 +2132,6 @@ const cursorStateManager = {
 };
 
 // Enhanced journal input handler
-// Enhanced journal input handler
 const handleJournalInput = (event) => {
   // Don't trigger save on cursor/selection changes, only content changes
   if (journalEditor.value.innerHTML !== cursorStateManager.lastContent) {
@@ -1835,67 +2143,98 @@ const handleJournalInput = (event) => {
 };
 
 // Completely rewritten saveJournalContent function that prevents cursor movement
-const saveJournalContent = async () => {
-  if (!userId.value || !currentLogId.value || !journalEditor.value) return;
+
+// Enhanced journal input handler
+
+// Completely rewritten saveJournalContent function that prevents cursor movement
+// Add this to your onMounted hook
+onMounted(() => {
+  // Rest of your onMounted code...
   
-  // Clear previous timeout
-  if (journalSaveTimeout.value) {
-    clearTimeout(journalSaveTimeout.value);
+  // Enhanced event listener for the journal editor
+  if (journalEditor.value) {
+    // Remove existing listeners to prevent duplicates
+    journalEditor.value.removeEventListener('input', saveJournalContent);
+    journalEditor.value.removeEventListener('input', handleJournalInput);
+    
+    // Add input handler with improved cursor management
+    journalEditor.value.addEventListener('input', handleJournalInput);
+    
+    // Initialize cursor state manager
+    cursorStateManager.lastContent = journalEditor.value.innerHTML;
+    
+    // Intercept any other methods that might change content
+    const originalSetHtml = Object.getOwnPropertyDescriptor(
+      Object.getPrototypeOf(journalEditor.value), 
+      'innerHTML'
+    ).set;
+    
+    // Override innerHTML setter to preserve cursor
+    Object.defineProperty(journalEditor.value, 'innerHTML', {
+      set: function(html) {
+        cursorStateManager.saveState(this);
+        originalSetHtml.call(this, html);
+        
+        // Wait for DOM updates
+        setTimeout(() => {
+          cursorStateManager.restoreState(this);
+        }, 0);
+      }
+    });
   }
   
-  // Capture current content before any processing
-  const currentContent = journalEditor.value.innerHTML;
-  
-  journalSaveTimeout.value = setTimeout(async () => {
-    try {
-      journalSaving.value = true;
-      journalSaved.value = false;
-      
-      const logRef = doc(db, `users/${userId.value}/journals/${currentLogId.value}`);
-      
-      // Direct update without any DOM manipulation
-      await updateDoc(logRef, {
-        content: currentContent,
-        lastEdited: Date.now()
-      });
-      
-      // Update local state without touching the DOM
-      if (currentLog.value) {
-        currentLog.value.content = currentContent;
-        currentLog.value.lastEdited = Date.now();
-      }
-      
-      journalSaving.value = false;
-      journalSaved.value = true;
-      
-      // Reset saved indicator after delay
-      setTimeout(() => {
-        journalSaved.value = false;
-      }, 3000);
-      
-    } catch (error) {
-      console.error("Error saving journal content:", error);
-      journalSaving.value = false;
-      
-      // Try fallback method
-      try {
-        const logRef = doc(db, `users/${userId.value}/journals/${currentLogId.value}`);
-        await setDoc(logRef, {
-          content: currentContent,
-          lastEdited: Date.now()
-        }, { merge: true });
-        
-        journalSaved.value = true;
-        setTimeout(() => {
-          journalSaved.value = false;
-        }, 3000);
-      } catch (fallbackError) {
-        console.error("Fallback save failed:", fallbackError);
-        showToastNotification("Failed to save journal entry", "error");
-      }
+  // Add cleanup on component unmount
+  onUnmounted(() => {
+    if (journalLogUnsubscribe.value) {
+      journalLogUnsubscribe.value();
     }
-  }, 1000);
-};
+  });
+});
+// Update journal editor setup
+onMounted(() => {
+  // Existing code...
+  
+  // Enhanced event listener for the journal editor
+  if (journalEditor.value) {
+    // Remove existing listeners to prevent duplicates
+    journalEditor.value.removeEventListener('input', saveJournalContent);
+    journalEditor.value.removeEventListener('input', handleJournalInput);
+    
+    // Add input handler with improved cursor management
+    journalEditor.value.addEventListener('input', handleJournalInput);
+    
+    // Initialize cursor state manager
+    cursorStateManager.lastContent = journalEditor.value.innerHTML;
+    
+    // Intercept any other methods that might change content
+    const originalSetHtml = Object.getOwnPropertyDescriptor(
+      Object.getPrototypeOf(journalEditor.value), 
+      'innerHTML'
+    ).set;
+    
+    // Override innerHTML setter to preserve cursor
+    Object.defineProperty(journalEditor.value, 'innerHTML', {
+      set: function(html) {
+        cursorStateManager.saveState(this);
+        originalSetHtml.call(this, html);
+        
+        // Wait for DOM updates
+        setTimeout(() => {
+          cursorStateManager.restoreState(this);
+        }, 0);
+      }
+    });
+  }
+  
+  // Existing code...
+});
+
+// Enhanced journal input handler
+// Enhanced journal input handler
+
+
+// Completely rewritten saveJournalContent function that prevents cursor movement
+
 // Update journal editor setup
 onMounted(() => {
   // Existing code...
@@ -2015,6 +2354,7 @@ const callOpenAI = async (systemPrompt, userPrompt, temperature = 0.7) => {
     throw error;
   }
 };
+// Enhanced Proactive AI System
 // Enhanced Proactive AI System
 // Enhanced Proactive AI System
 // Enhanced Proactive AI System
@@ -2692,9 +3032,6 @@ const proactiveAISystem = {
 };
 
 // Update handleProactiveAIToggle function
-
-
-// Update handleProactiveAIToggle function
 const handleProactiveAIToggle = () => {
   if (proactiveAIEnabled.value) {
     showToastNotification("Proactive AI enabled - I'll analyze and suggest content automatically", "info");
@@ -2710,6 +3047,199 @@ const handleProactiveAIToggle = () => {
     showToastNotification("Proactive AI disabled", "info");
   }
 };
+
+// Helper functions for writing prompts
+const suggestWritingPrompts = () => {
+  if (!proactiveAIEnabled.value || !journalEditor.value) return;
+  
+  const content = journalEditor.value.innerText;
+  
+  // Only suggest writing prompts for empty or very short entries
+  if (content.length > 100) return;
+  
+  // Define diverse, thought-provoking prompts
+  const writingPrompts = [
+    "How are you feeling today?",
+    "What's one thing you accomplished today that you're proud of?",
+    "What's something you're looking forward to?",
+    "What's a challenge you're currently facing?",
+    "What are you grateful for today?",
+    "What's something you learned recently?",
+    "What's a goal you're working towards?",
+    "Describe a recent interaction that affected you.",
+    "What's something you'd like to change about your routine?",
+    "What's a memory that made you smile today?"
+  ];
+  
+  const randomPrompt = writingPrompts[Math.floor(Math.random() * writingPrompts.length)];
+  
+  // Create a floating prompt div OUTSIDE the editor content
+  const promptContainer = document.createElement('div');
+  promptContainer.className = 'writing-prompt-container';
+  promptContainer.style.position = 'absolute';
+  promptContainer.style.top = '50%';
+  promptContainer.style.left = '50%';
+  promptContainer.style.transform = 'translate(-50%, -50%)';
+  promptContainer.style.zIndex = '1000';
+  promptContainer.style.width = '80%';
+  promptContainer.style.maxWidth = '500px';
+  
+  promptContainer.innerHTML = `
+    <div class="writing-prompt-suggestion" style="
+      background: linear-gradient(to bottom, #1e293b, #0f172a);
+      border: 1px solid #4f46e5;
+      border-radius: 8px;
+      padding: 16px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+      animation: fadeIn 0.5s ease;
+    ">
+      <div class="prompt-title" style="
+        font-weight: 600;
+        color: #4f46e5;
+        margin-bottom: 8px;
+        font-size: 14px;
+      ">Writing Prompt</div>
+      <div class="prompt-text" style="
+        color: white;
+        font-size: 16px;
+        margin-bottom: 16px;
+        font-style: italic;
+      ">${randomPrompt}</div>
+      <div class="prompt-actions" style="
+        display: flex;
+        gap: 10px;
+      ">
+        <button class="prompt-use" style="
+          background: #4f46e5;
+          color: white;
+          padding: 6px 12px;
+          border-radius: 4px;
+          border: none;
+          font-size: 13px;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        ">Use This Prompt</button>
+        <button class="prompt-dismiss" style="
+          background: transparent;
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          color: rgba(255, 255, 255, 0.7);
+          padding: 6px 12px;
+          border-radius: 4px;
+          font-size: 13px;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        ">Dismiss</button>
+      </div>
+    </div>
+  `;
+  
+  // Add to the parent container of the editor, not inside it
+  if (journalEditor.value.parentNode) {
+    journalEditor.value.parentNode.appendChild(promptContainer);
+    
+    // Add event listeners
+    const useButton = promptContainer.querySelector('.prompt-use');
+    const dismissButton = promptContainer.querySelector('.prompt-dismiss');
+    
+    if (useButton) {
+      useButton.addEventListener('click', () => {
+        // Insert the prompt at the beginning of the editor
+        if (journalEditor.value.innerHTML.trim() === '') {
+          journalEditor.value.innerHTML = `<p><strong>${randomPrompt}</strong></p><p><br></p>`;
+        } else {
+          journalEditor.value.innerHTML = `<p><strong>${randomPrompt}</strong></p><p><br></p>${journalEditor.value.innerHTML}`;
+        }
+        
+        // Remove the floating prompt
+        promptContainer.remove();
+        
+        // Save the updated content
+        saveJournalContent();
+        
+        // Set focus to the editor
+        journalEditor.value.focus();
+      });
+    }
+    
+    if (dismissButton) {
+      dismissButton.addEventListener('click', () => {
+        promptContainer.remove();
+      });
+    }
+    
+    // Auto-remove after 30 seconds
+    setTimeout(() => {
+      if (document.body.contains(promptContainer)) {
+        promptContainer.style.opacity = '0';
+        promptContainer.style.transition = 'opacity 0.5s ease';
+        
+        setTimeout(() => {
+          if (document.body.contains(promptContainer)) {
+            promptContainer.remove();
+          }
+        }, 500);
+      }
+    }, 30000);
+  }
+};
+
+const suggestFetchOperation = () => {
+  if (!proactiveAIEnabled.value) return;
+  
+  // Create a floating suggestion bubble
+  const bubble = document.createElement('div');
+  bubble.className = 'proactive-suggestion fetch-suggestion';
+  
+  bubble.innerHTML = `
+    <div class="suggestion-icon">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#818cf8" stroke-width="2">
+        <circle cx="12" cy="12" r="10"/>
+        <path d="M8 14s1.5 2 4 2 4-2 4-2"/>
+        <path d="M9 9h.01"/>
+        <path d="M15 9h.01"/>
+        <path d="M12 2v2"/>
+        <path d="M4.93 4.93l1.41 1.41"/>
+        <path d="M19.07 4.93l-1.41 1.41"/>
+      </svg>
+    </div>
+    <div class="suggestion-text">I can create a journal entry from your recent chat conversations. Would you like me to try?</div>
+    <div class="suggestion-actions">
+      <button class="suggestion-accept" data-action="fetch">Yes, create entry</button>
+      <button class="suggestion-decline">Not now</button>
+    </div>
+  `;
+  
+  // Append to journal editor
+  if (journalEditor.value) {
+    journalEditor.value.appendChild(bubble);
+    
+    // Add event listeners
+    bubble.querySelector('.suggestion-accept').addEventListener('click', () => {
+      bubble.remove();
+      fetchFromChatHistory();
+    });
+    
+    bubble.querySelector('.suggestion-decline').addEventListener('click', () => {
+      bubble.remove();
+    });
+    
+    // Auto-remove after 20 seconds
+    setTimeout(() => {
+      if (bubble.parentNode) {
+        bubble.classList.add('fade-out');
+        setTimeout(() => {
+          if (bubble.parentNode) {
+            bubble.remove();
+          }
+        }, 500);
+      }
+    }, 20000);
+  }
+};
+
+// Update handleProactiveAIToggle function
+
+// Update handleProactiveAIToggle function
 
 // Update initializeProactiveAI function
 
@@ -2919,142 +3449,6 @@ const showProactiveAISuggestion = (action) => {
 };
 
 // Fix for writing prompts - create them correctly outside the editor
-const suggestWritingPrompts = () => {
-  if (!proactiveAIEnabled.value || !journalEditor.value) return;
-  
-  const content = journalEditor.value.innerText;
-  
-  // Only suggest writing prompts for empty or very short entries
-  if (content.length > 100) return;
-  
-  // Define diverse, thought-provoking prompts
-  const writingPrompts = [
-    "How are you feeling today?",
-    "What's one thing you accomplished today that you're proud of?",
-    "What's something you're looking forward to?",
-    "What's a challenge you're currently facing?",
-    "What are you grateful for today?",
-    "What's something you learned recently?",
-    "What's a goal you're working towards?",
-    "Describe a recent interaction that affected you.",
-    "What's something you'd like to change about your routine?",
-    "What's a memory that made you smile today?"
-  ];
-  
-  const randomPrompt = writingPrompts[Math.floor(Math.random() * writingPrompts.length)];
-  
-  // Create a floating prompt div OUTSIDE the editor content
-  const promptContainer = document.createElement('div');
-  promptContainer.className = 'writing-prompt-container';
-  promptContainer.style.position = 'absolute';
-  promptContainer.style.top = '50%';
-  promptContainer.style.left = '50%';
-  promptContainer.style.transform = 'translate(-50%, -50%)';
-  promptContainer.style.zIndex = '1000';
-  promptContainer.style.width = '80%';
-  promptContainer.style.maxWidth = '500px';
-  
-  promptContainer.innerHTML = `
-    <div class="writing-prompt-suggestion" style="
-      background: linear-gradient(to bottom, #1e293b, #0f172a);
-      border: 1px solid #4f46e5;
-      border-radius: 8px;
-      padding: 16px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
-      animation: fadeIn 0.5s ease;
-    ">
-      <div class="prompt-title" style="
-        font-weight: 600;
-        color: #4f46e5;
-        margin-bottom: 8px;
-        font-size: 14px;
-      ">Writing Prompt</div>
-      <div class="prompt-text" style="
-        color: white;
-        font-size: 16px;
-        margin-bottom: 16px;
-        font-style: italic;
-      ">${randomPrompt}</div>
-      <div class="prompt-actions" style="
-        display: flex;
-        gap: 10px;
-      ">
-        <button class="prompt-use" style="
-          background: #4f46e5;
-          color: white;
-          padding: 6px 12px;
-          border-radius: 4px;
-          border: none;
-          font-size: 13px;
-          cursor: pointer;
-          transition: all 0.2s ease;
-        ">Use This Prompt</button>
-        <button class="prompt-dismiss" style="
-          background: transparent;
-          border: 1px solid rgba(255, 255, 255, 0.2);
-          color: rgba(255, 255, 255, 0.7);
-          padding: 6px 12px;
-          border-radius: 4px;
-          font-size: 13px;
-          cursor: pointer;
-          transition: all 0.2s ease;
-        ">Dismiss</button>
-      </div>
-    </div>
-  `;
-  
-  // Add to the parent container of the editor, not inside it
-  if (journalEditor.value.parentNode) {
-    journalEditor.value.parentNode.appendChild(promptContainer);
-    
-    // Add event listeners
-    const useButton = promptContainer.querySelector('.prompt-use');
-    const dismissButton = promptContainer.querySelector('.prompt-dismiss');
-    
-    if (useButton) {
-      useButton.addEventListener('click', () => {
-        // Insert the prompt at the beginning of the editor
-        if (journalEditor.value.innerHTML.trim() === '') {
-          journalEditor.value.innerHTML = `<p><strong>${randomPrompt}</strong></p><p><br></p>`;
-        } else {
-          journalEditor.value.innerHTML = `<p><strong>${randomPrompt}</strong></p><p><br></p>${journalEditor.value.innerHTML}`;
-        }
-        
-        // Remove the floating prompt
-        promptContainer.remove();
-        
-        // Save the updated content
-        saveJournalContent();
-        
-        // Set focus to the editor
-        journalEditor.value.focus();
-      });
-    }
-    
-    if (dismissButton) {
-      dismissButton.addEventListener('click', () => {
-        promptContainer.remove();
-      });
-    }
-    
-    // Auto-remove after 30 seconds
-    setTimeout(() => {
-      if (document.body.contains(promptContainer)) {
-        promptContainer.style.opacity = '0';
-        promptContainer.style.transition = 'opacity 0.5s ease';
-        
-        setTimeout(() => {
-          if (document.body.contains(promptContainer)) {
-            promptContainer.remove();
-          }
-        }, 500);
-      }
-    }, 30000);
-  }
-};
-
-const suggestFetchOperation = () => {
-  if (!proactiveAIEnabled.value) return;
   
   // Create a floating suggestion bubble
   const bubble = document.createElement('div');
@@ -3105,7 +3499,6 @@ const suggestFetchOperation = () => {
       }
     }, 20000);
   }
-};
 // Completely revised fetchFromChatHistory function
 // Completely revised fetchFromChatHistory function
 const fetchFromChatHistory = async () => {
@@ -3381,6 +3774,7 @@ const getMaxTopicFrequency = () => {
   return Math.max(...journalInsights.value.topics.map(t => t.frequency));
 };
 // Add this to your methods
+// Add this function to your setup() function, replacing the current generateJournalInsights
 const generateJournalInsights = async () => {
   if (!userId.value) {
     showToastNotification("Please log in to generate insights", "error");
@@ -3425,182 +3819,857 @@ const generateJournalInsights = async () => {
       return;
     }
     
-    // Calculate basic statistics
-    const wordCounts = logsContent.map(log => {
-      const words = log.content.split(/\s+/).filter(w => w.length > 0);
-      return {
-        date: log.date,
-        count: words.length
-      };
-    });
+    // Generate actual insights using NLP processing
+    const { moodAnalysis, topicExtraction, growthAnalysis } = await analyzeJournalContent(logsContent);
     
     // Calculate streaks
-    let currentStreak = 0;
-    let longestStreak = 0;
-    let prevDate = null;
+    const streakData = calculateJournalingStreaks(logsContent);
     
-    for (let i = 0; i < logsContent.length; i++) {
-      const logDate = logsContent[i].date;
-      
-      if (prevDate) {
-        // Check if entries are on consecutive days
-        const dayDiff = Math.floor((logDate - prevDate) / (1000 * 60 * 60 * 24));
-        
-        if (dayDiff <= 1) {
-          currentStreak++;
-          longestStreak = Math.max(longestStreak, currentStreak);
-        } else {
-          currentStreak = 1;
-        }
-      } else {
-        currentStreak = 1;
-        longestStreak = 1;
-      }
-      
-      prevDate = logDate;
-    }
-    
-    // Prepare sample data for testing when API call is pending
-    const sampleData = {
-      mood: {
-        entries: logsContent.map((log, index) => ({
-          date: log.date.toLocaleDateString(),
-          score: 5 + Math.floor(Math.random() * 5),
-          keywords: ["thoughtful", "reflective"]
-        })),
-        average: 7.5
-      },
-      topics: [
-        {name: "reflection", frequency: 8}, 
-        {name: "goals", frequency: 6},
-        {name: "work", frequency: 5},
-        {name: "relationships", frequency: 4},
-        {name: "learning", frequency: 3}
-      ],
-      growth: {
-        score: 7,
-        progress: ["self-awareness", "communication", "consistency"],
-        struggles: ["patience", "focus"]
-      },
-      recommendations: [
-        "Consider adding more specific details to your journal entries",
-        "Try journaling at the same time each day to build a consistent habit",
-        "Reflect on your achievements more often to boost motivation"
-      ],
-      patterns: [
-        "You tend to journal more when feeling reflective",
-        "Your entries are more detailed on weekdays"
-      ]
-    };
-    
-    // Update insights data with initial sample to ensure modal works
+    // Update insights with real data
     journalInsights.value = {
-      mood: sampleData.mood,
-      topics: sampleData.topics,
-      growth: sampleData.growth,
-      streaks: { current: currentStreak, longest: longestStreak },
-      wordCounts: wordCounts,
-      recommendations: sampleData.recommendations,
-      patterns: sampleData.patterns
+      mood: moodAnalysis,
+      topics: topicExtraction,
+      growth: growthAnalysis,
+      streaks: streakData,
+      wordCounts: calculateWordCounts(logsContent),
+      recommendations: generateRecommendations(moodAnalysis, topicExtraction, growthAnalysis, streakData),
+      patterns: identifyPatterns(logsContent, moodAnalysis)
     };
     
-    // With sample data displayed, now call API for real insights
-    try {
-      console.log("Calling API for sentiment analysis");
-      const systemPrompt = "You are an expert journal analyst and psychologist. Your task is to analyze journal entries and extract insights about mood, recurring topics, personal growth, and provide recommendations.";
-      
-      const promptContent = logsContent.map(log => 
-        `Entry (${log.date.toLocaleDateString()}):\n${log.content.substring(0, 300)}${log.content.length > 300 ? '...' : ''}`
-      ).join('\n\n');
-      
-      const userPrompt = `Analyze these journal entries and provide:
-1. Mood analysis (score from 1-10 for each entry and average)
-2. Top 5 recurring topics/themes
-3. Personal growth assessment (areas of progress and struggles)
-4. 3 personalized recommendations based on the entries
-5. Notable patterns or insights
-
-Journal entries:
-${promptContent}
-
-Format your response as a JSON object with the following structure:
-{
-  "mood": {
-    "entries": [{"date": "MM/DD/YYYY", "score": 7, "keywords": ["happy", "content"]}],
-    "average": 7.5
-  },
-  "topics": [{"name": "work", "frequency": 8}, {"name": "family", "frequency": 5}],
-  "growth": {
-    "score": 7,
-    "progress": ["confidence", "communication"],
-    "struggles": ["consistency", "patience"]
-  },
-  "recommendations": ["recommendation1", "recommendation2", "recommendation3"],
-  "patterns": ["pattern1", "pattern2"]
-}
-`;
-
-      const response = await fetch("https://api.openai.com/v1/chat/completions", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${apiKey}`
-        },
-        body: JSON.stringify({
-          model: "o3-mini",
-          messages: [
-            { role: "system", content: systemPrompt },
-            { role: "user", content: userPrompt }
-          ],
-          temperature: 0.7
-        })
-      });
-      
-      if (!response.ok) {
-        console.error(`API returned status: ${response.status}`);
-        throw new Error(`API error: ${response.status}`);
-      }
-      
-      const data = await response.json();
-      console.log("Received API response for insights");
-      
-      let insights = {};
-      try {
-        insights = JSON.parse(data.choices[0].message.content);
-        console.log("Successfully parsed insights JSON");
-        
-        // Update insights with real data
-        journalInsights.value = {
-          mood: insights.mood || sampleData.mood,
-          topics: insights.topics || sampleData.topics,
-          growth: insights.growth || sampleData.growth,
-          streaks: { current: currentStreak, longest: longestStreak },
-          wordCounts: wordCounts,
-          recommendations: insights.recommendations || sampleData.recommendations,
-          patterns: insights.patterns || sampleData.patterns
-        };
-      } catch (error) {
-        console.error("Error parsing insights JSON:", error);
-        // Keep the sample data already loaded
-      }
-    } catch (apiError) {
-      console.error("API error:", apiError);
-      // Keep the sample data already loaded
-    }
+    insightsLoading.value = false;
     
   } catch (error) {
     console.error("Error generating journal insights:", error);
     showToastNotification("Failed to generate insights: " + error.message, "error");
     showInsightsModal.value = false;
-  } finally {
     insightsLoading.value = false;
   }
 };
-// Journal Methods
-const openJournalModal = () => {
-  showJournalModal.value = true;
-  loadJournalLogs();
+
+// Helper function to strip HTML tags
+const stripHtml = (html) => {
+  const doc = new DOMParser().parseFromString(html, 'text/html');
+  return doc.body.textContent || "";
 };
+
+// Mood analysis using lexicon-based approach
+const analyzeJournalContent = async (logsContent) => {
+  // Try to use API if available
+  try {
+    if (apiKey) {
+      return await analyzeWithAPI(logsContent);
+    }
+  } catch (error) {
+    console.warn("API analysis failed, using local analysis:", error);
+  }
+  
+  // Fallback to local analysis
+  return performLocalAnalysis(logsContent);
+};
+
+// API-based analysis when API key is available
+const analyzeWithAPI = async (logsContent) => {
+  const combinedContent = logsContent
+    .map(log => `Entry from ${log.date.toLocaleDateString()}: ${log.content.substring(0, 500)}`)
+    .join('\n\n')
+    .substring(0, 4000); // Limit to reasonable size
+  
+  const systemPrompt = "You are an expert journal analyst and psychologist. Your task is to analyze journal entries and extract insights about mood, recurring topics, personal growth.";
+  
+  const userPrompt = `Analyze these journal entries and provide:
+1. Mood analysis (score from 1-10 for each entry date and overall average)
+2. Top 5 recurring topics/themes with frequency counts
+3. Personal growth assessment (areas of progress and struggles)
+
+Journal entries:
+${combinedContent}
+
+Format your response as a JSON object with the following structure:
+{
+  "moodAnalysis": {
+    "entries": [{"date": "MM/DD/YYYY", "score": 7, "keywords": ["happy", "content"]}],
+    "average": 7.5
+  },
+  "topicExtraction": [{"name": "work", "frequency": 8}, {"name": "family", "frequency": 5}],
+  "growthAnalysis": {
+    "score": 7,
+    "progress": ["confidence", "communication"],
+    "struggles": ["consistency", "patience"]
+  }
+}`;
+
+  const response = await fetch("https://api.openai.com/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${apiKey}`
+    },
+    body: JSON.stringify({
+      model: "o3-mini",
+      messages: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: userPrompt }
+      ],
+      temperature: 0.7
+    })
+  });
+  
+  if (!response.ok) {
+    throw new Error(`API error: ${response.status}`);
+  }
+  
+  const data = await response.json();
+  try {
+    return JSON.parse(data.choices[0].message.content);
+  } catch (error) {
+    throw new Error("Failed to parse API response");
+  }
+};
+
+// Local analysis when API is not available
+const performLocalAnalysis = (logsContent) => {
+  // Simple sentiment lexicon
+  const sentimentLexicon = {
+    positive: ['happy', 'joy', 'excited', 'great', 'good', 'love', 'amazing', 'wonderful',
+      'pleased', 'delighted', 'proud', 'grateful', 'thankful', 'appreciate', 'success'],
+    negative: ['sad', 'angry', 'upset', 'frustrated', 'annoyed', 'hate', 'terrible', 'awful',
+      'disappointed', 'worried', 'anxious', 'fear', 'stress', 'regret', 'fail']
+  };
+  
+  // Common topics for extraction
+  const topicKeywords = {
+    'work': ['work', 'job', 'career', 'project', 'boss', 'colleague', 'office', 'meeting', 'deadline'],
+    'relationships': ['friend', 'family', 'partner', 'relationship', 'love', 'date', 'social'],
+    'health': ['health', 'exercise', 'workout', 'gym', 'diet', 'food', 'sleep', 'doctor', 'sick'],
+    'creativity': ['create', 'art', 'write', 'design', 'music', 'paint', 'creative', 'draw', 'idea'],
+    'learning': ['learn', 'study', 'book', 'read', 'course', 'class', 'knowledge', 'education', 'skill'],
+    'finances': ['money', 'financial', 'budget', 'spend', 'save', 'cost', 'buy', 'purchase', 'expense'],
+    'personal growth': ['goal', 'improve', 'growth', 'progress', 'challenge', 'achieve', 'better', 'change'],
+    'emotions': ['feel', 'emotion', 'mood', 'happy', 'sad', 'angry', 'depressed', 'anxious', 'stress'],
+    'future': ['future', 'plan', 'hope', 'dream', 'aspire', 'vision', 'upcoming', 'expect', 'anticipate']
+  };
+  
+  // Growth indicators
+  const growthIndicators = {
+    progress: ['improve', 'progress', 'better', 'growth', 'accomplish', 'achieve', 'success', 'proud', 'overcome'],
+    struggles: ['struggle', 'difficult', 'hard', 'challenge', 'problem', 'issue', 'worry', 'fail', 'mistake']
+  };
+  
+  // Process each log for mood analysis
+  const moodEntries = logsContent.map(log => {
+    const content = log.content.toLowerCase();
+    const words = content.split(/\s+/);
+    
+    // Count sentiment words
+    let positiveCount = 0;
+    let negativeCount = 0;
+    
+    words.forEach(word => {
+      const cleanWord = word.replace(/[^\w]/g, '');
+      if (sentimentLexicon.positive.includes(cleanWord)) positiveCount++;
+      if (sentimentLexicon.negative.includes(cleanWord)) negativeCount++;
+    });
+    
+    // Calculate sentiment score (1-10)
+    let score = 5; // Neutral baseline
+    
+    if (positiveCount + negativeCount > 0) {
+      const sentimentRatio = positiveCount / (positiveCount + negativeCount);
+      score = Math.round(sentimentRatio * 9) + 1; // Convert to 1-10 scale
+    }
+    
+    // Extract mood keywords
+    const keywords = [];
+    if (positiveCount > 0) keywords.push('positive');
+    if (negativeCount > 0) keywords.push('negative');
+    
+    // Add more specific emotions based on content
+    if (content.includes('happ')) keywords.push('happy');
+    if (content.includes('excit')) keywords.push('excited');
+    if (content.includes('sad')) keywords.push('sad');
+    if (content.includes('angr') || content.includes('upset')) keywords.push('angry');
+    if (content.includes('anxi') || content.includes('worry')) keywords.push('anxious');
+    if (content.includes('gratef') || content.includes('thankf')) keywords.push('grateful');
+    
+    return {
+      date: log.date.toLocaleDateString(),
+      score,
+      keywords: keywords.slice(0, 3) // Limit to top 3 keywords
+    };
+  });
+  
+  // Calculate average mood
+  const averageMood = moodEntries.length > 0 
+    ? moodEntries.reduce((sum, entry) => sum + entry.score, 0) / moodEntries.length
+    : 5;
+  
+  // Topic extraction
+  const topicCounts = {};
+  
+  logsContent.forEach(log => {
+    const content = log.content.toLowerCase();
+    
+    Object.entries(topicKeywords).forEach(([topic, keywords]) => {
+      let count = 0;
+      keywords.forEach(keyword => {
+        const regex = new RegExp('\\b' + keyword + '\\w*\\b', 'g');
+        const matches = content.match(regex);
+        if (matches) count += matches.length;
+      });
+      
+      if (count > 0) {
+        topicCounts[topic] = (topicCounts[topic] || 0) + count;
+      }
+    });
+  });
+  
+  // Convert to array and sort by frequency
+  const topicExtraction = Object.entries(topicCounts)
+    .map(([name, frequency]) => ({ name, frequency }))
+    .sort((a, b) => b.frequency - a.frequency)
+    .slice(0, 5); // Top 5 topics
+  
+  // Growth analysis
+  let progressCount = 0;
+  let struggleCount = 0;
+  const progressItems = new Set();
+  const struggleItems = new Set();
+  
+  logsContent.forEach(log => {
+    const content = log.content.toLowerCase();
+    
+    growthIndicators.progress.forEach(indicator => {
+      if (content.includes(indicator)) {
+        progressCount++;
+        
+        // Try to extract context (word after the indicator)
+        const regex = new RegExp('\\b' + indicator + '\\s+\\w+\\b', 'g');
+        const matches = content.match(regex);
+        if (matches) {
+          matches.forEach(match => {
+            const context = match.split(/\s+/)[1];
+            if (context && context.length > 3) {
+              progressItems.add(context);
+            }
+          });
+        } else {
+          progressItems.add(indicator);
+        }
+      }
+    });
+    
+    growthIndicators.struggles.forEach(indicator => {
+      if (content.includes(indicator)) {
+        struggleCount++;
+        
+        // Try to extract context
+        const regex = new RegExp('\\b' + indicator + '\\s+with\\s+\\w+\\b', 'g');
+        const matches = content.match(regex);
+        if (matches) {
+          matches.forEach(match => {
+            const parts = match.split(/\s+/);
+            if (parts.length >= 3) {
+              struggleItems.add(parts[2]);
+            }
+          });
+        } else {
+          struggleItems.add(indicator);
+        }
+      }
+    });
+  });
+  
+  // Calculate growth score (1-10)
+  const totalGrowthMentions = progressCount + struggleCount;
+  let growthScore = 5; // Neutral baseline
+  
+  if (totalGrowthMentions > 0) {
+    const growthRatio = progressCount / totalGrowthMentions;
+    growthScore = Math.min(10, Math.max(1, Math.round(growthRatio * 10)));
+  }
+  
+  return {
+    moodAnalysis: {
+      entries: moodEntries,
+      average: averageMood
+    },
+    topicExtraction,
+    growthAnalysis: {
+      score: growthScore,
+      progress: Array.from(progressItems).slice(0, 3),
+      struggles: Array.from(struggleItems).slice(0, 3)
+    }
+  };
+};
+
+// Calculate journaling streaks (current and longest)
+const calculateJournalingStreaks = (logsContent) => {
+  if (logsContent.length === 0) return { current: 0, longest: 0 };
+  
+  // Sort logs by date
+  const sortedLogs = [...logsContent].sort((a, b) => a.date - b.date);
+  
+  // Group logs by date (day only)
+  const logsByDay = new Map();
+  sortedLogs.forEach(log => {
+    const dateKey = log.date.toISOString().split('T')[0];
+    if (!logsByDay.has(dateKey)) {
+      logsByDay.set(dateKey, true);
+    }
+  });
+  
+  // Convert to array of dates
+  const journalingDays = Array.from(logsByDay.keys())
+    .map(dateStr => new Date(dateStr).getTime());
+  
+  // Find streaks
+  let currentStreak = 1;
+  let longestStreak = 1;
+  let yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+  yesterday = yesterday.toISOString().split('T')[0];
+  
+  // Check if the most recent entry was yesterday or today
+  const mostRecentDay = new Date(Math.max(...journalingDays))
+    .toISOString().split('T')[0];
+  const today = new Date().toISOString().split('T')[0];
+  
+  const hasEntryToday = mostRecentDay === today;
+  const hasEntryYesterday = mostRecentDay === yesterday;
+  
+  // If neither today nor yesterday has an entry, current streak is 0
+  if (!hasEntryToday && !hasEntryYesterday) {
+    currentStreak = 0;
+  } else {
+    // Calculate current streak by going backward from most recent day
+    let lastDate = mostRecentDay;
+    for (let i = journalingDays.length - 2; i >= 0; i--) {
+      const currentDate = new Date(journalingDays[i])
+        .toISOString().split('T')[0];
+      const daysDiff = daysBetweenDates(currentDate, lastDate);
+      
+      if (daysDiff === 1) {
+        currentStreak++;
+        lastDate = currentDate;
+      } else {
+        break;
+      }
+    }
+  }
+  
+  // Calculate longest streak
+  let tempStreak = 1;
+  for (let i = 1; i < journalingDays.length; i++) {
+    const currentDate = new Date(journalingDays[i])
+      .toISOString().split('T')[0];
+    const prevDate = new Date(journalingDays[i-1])
+      .toISOString().split('T')[0];
+    
+    const daysDiff = daysBetweenDates(prevDate, currentDate);
+    
+    if (daysDiff === 1) {
+      tempStreak++;
+    } else {
+      longestStreak = Math.max(longestStreak, tempStreak);
+      tempStreak = 1;
+    }
+  }
+  
+  longestStreak = Math.max(longestStreak, tempStreak);
+  
+  return { current: currentStreak, longest: longestStreak };
+};
+
+// Helper function to calculate days between two date strings
+const daysBetweenDates = (date1Str, date2Str) => {
+  const date1 = new Date(date1Str);
+  const date2 = new Date(date2Str);
+  
+  const diffTime = Math.abs(date2 - date1);
+  return Math.floor(diffTime / (1000 * 60 * 60 * 24));
+};
+
+// Calculate word counts over time
+const calculateWordCounts = (logsContent) => {
+  return logsContent.map(log => ({
+    date: log.date.toLocaleDateString(),
+    count: log.content.split(/\s+/).length
+  }));
+};
+
+// Generate personalized recommendations
+const generateRecommendations = (moodAnalysis, topicExtraction, growthAnalysis, streakData) => {
+  const recommendations = [];
+  
+  // Mood-based recommendations
+  if (moodAnalysis.average < 4) {
+    recommendations.push("Consider practicing gratitude journaling to help improve your mood");
+    recommendations.push("Try journaling about positive moments, no matter how small");
+  } else if (moodAnalysis.average > 7) {
+    recommendations.push("Great job maintaining a positive outlook! Try reflecting on what's working well for you");
+  }
+  
+  // Topic recommendations
+  if (topicExtraction.length > 0) {
+    const topTopic = topicExtraction[0].name;
+    recommendations.push(`You write frequently about "${topTopic}" - consider exploring different aspects of this important area`);
+  }
+  
+  // Growth recommendations
+  if (growthAnalysis.struggles.length > 0) {
+    recommendations.push(`Set small, achievable goals to address challenges with ${growthAnalysis.struggles[0]}`);
+  }
+  
+  // Streak recommendations
+  if (streakData.current < 3) {
+    recommendations.push("Try setting a regular time each day for journaling to build consistency");
+  } else if (streakData.current > 7) {
+    recommendations.push("You're building a great journaling habit! Consider expanding with weekly reflection summaries");
+  }
+  
+  // Add default recommendations if needed
+  if (recommendations.length < 3) {
+    recommendations.push("Experiment with different journaling formats like bullet points or stream of consciousness");
+    recommendations.push("Consider using journaling prompts when you're not sure what to write about");
+    recommendations.push("Try reviewing past entries periodically to track your growth and recurring patterns");
+  }
+  
+  return recommendations.slice(0, 3);
+};
+
+// Identify meaningful patterns in journal entries
+const identifyPatterns = (logsContent, moodAnalysis) => {
+  const patterns = [];
+  
+  // Check for time-based patterns
+  const dayOfWeekMoods = Array(7).fill(0).map(() => ({ sum: 0, count: 0 }));
+  
+  moodAnalysis.entries.forEach(entry => {
+    const date = new Date(entry.date);
+    const dayOfWeek = date.getDay();
+    dayOfWeekMoods[dayOfWeek].sum += entry.score;
+    dayOfWeekMoods[dayOfWeek].count++;
+  });
+  
+  // Find days with better/worse moods
+  const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  let bestDay = -1;
+  let worstDay = -1;
+  let bestScore = 0;
+  let worstScore = 11;
+  
+  dayOfWeekMoods.forEach((dayData, index) => {
+    if (dayData.count > 0) {
+      const avgMood = dayData.sum / dayData.count;
+      if (avgMood > bestScore) {
+        bestScore = avgMood;
+        bestDay = index;
+      }
+      if (avgMood < worstScore) {
+        worstScore = avgMood;
+        worstDay = index;
+      }
+    }
+  });
+  
+  if (bestDay !== -1 && worstDay !== -1 && bestDay !== worstDay) {
+    patterns.push(`Your journal entries tend to be more positive on ${dayNames[bestDay]}s and less positive on ${dayNames[worstDay]}s`);
+  }
+  
+  // Check for length patterns
+  const entryLengths = logsContent.map(log => log.content.split(/\s+/).length);
+  const avgLength = entryLengths.reduce((sum, len) => sum + len, 0) / entryLengths.length;
+  
+  const longEntries = entryLengths.filter(len => len > avgLength * 1.5);
+  const shortEntries = entryLengths.filter(len => len < avgLength * 0.5);
+  
+  if (longEntries.length > entryLengths.length * 0.3) {
+    patterns.push("You tend to write detailed, in-depth journal entries");
+  } else if (shortEntries.length > entryLengths.length * 0.3) {
+    patterns.push("Your entries are often brief and concise");
+  }
+  
+  // Check for mood patterns over time
+  if (moodAnalysis.entries.length >= 5) {
+    const recentMoods = moodAnalysis.entries.slice(-5).map(entry => entry.score);
+    const recentAvg = recentMoods.reduce((sum, score) => sum + score, 0) / recentMoods.length;
+    const overallAvg = moodAnalysis.average;
+    
+    if (recentAvg > overallAvg + 1) {
+      patterns.push("Your mood has been improving in recent journal entries");
+    } else if (recentAvg < overallAvg - 1) {
+      patterns.push("Your recent entries show a somewhat lower mood than your average");
+    }
+  }
+  
+  // Add default pattern if needed
+  if (patterns.length === 0) {
+    patterns.push("Continue journaling to reveal more patterns in your writing and mood");
+  }
+  
+  return patterns;
+};
+// Journal Methods
+// REVOLUTIONARY CURSOR FIX - GUARANTEED TO WORK
+// Replace ALL previous cursor management with this
+
+const domAwareEditor = {
+  // Track core state
+  editor: null,
+  lastContent: null,
+  observer: null,
+  lastSelectionState: null,
+  ignoreNextUpdate: false,
+  isEditing: false,
+  updateCount: 0,
+  
+  // Initialize with the editor element
+  init(editorElement) {
+    if (!editorElement || !(editorElement instanceof Element)) {
+      console.error("Invalid editor element provided to domAwareEditor");
+      return;
+    }
+    
+    // Store reference to editor
+    this.editor = editorElement;
+    this.lastContent = editorElement.innerHTML;
+    
+    // Remove any existing event listeners
+    this.cleanup();
+    
+    // Add enhanced input tracking
+    this.editor.addEventListener('focus', this.handleFocus.bind(this));
+    this.editor.addEventListener('blur', this.handleBlur.bind(this));
+    this.editor.addEventListener('keydown', this.handleKeyDown.bind(this));
+    this.editor.addEventListener('input', this.handleInput.bind(this));
+    
+    // Use a high-quality DOM mutation observer to detect ALL changes
+    this.observer = new MutationObserver(this.handleMutation.bind(this));
+    this.observer.observe(this.editor, {
+      childList: true,
+      attributes: true,
+      characterData: true,
+      subtree: true,
+      characterDataOldValue: true
+    });
+    
+    console.log("DOM-aware editor initialized");
+  },
+  
+  // Clean up all listeners
+  cleanup() {
+    if (this.observer) {
+      this.observer.disconnect();
+      this.observer = null;
+    }
+    
+    if (this.editor) {
+      this.editor.removeEventListener('focus', this.handleFocus.bind(this));
+      this.editor.removeEventListener('blur', this.handleBlur.bind(this));
+      this.editor.removeEventListener('keydown', this.handleKeyDown.bind(this));
+      this.editor.removeEventListener('input', this.handleInput.bind(this));
+    }
+  },
+  
+  // Handle editor focus - capture initial selection state
+  handleFocus() {
+    this.isEditing = true;
+    this.captureSelectionState();
+  },
+  
+  // Handle editor blur - trigger final save
+  handleBlur() {
+    this.isEditing = false;
+    this.triggerContentSave();
+  },
+  
+  // Handle key presses - capture state before key actions
+  handleKeyDown(e) {
+    // Capture selection before key combo actions
+    if (e.ctrlKey || e.metaKey) {
+      this.captureSelectionState();
+    }
+    
+    // Handle special keys
+    if (e.key === 'Tab') {
+      e.preventDefault();
+      document.execCommand('insertHTML', false, '&nbsp;&nbsp;&nbsp;&nbsp;');
+      this.captureSelectionState();
+    }
+  },
+  
+  // Handle direct input events - main edit tracking
+  handleInput(e) {
+    // Only trigger save for real content changes
+    if (this.editor.innerHTML !== this.lastContent) {
+      this.lastContent = this.editor.innerHTML;
+      this.triggerContentSave();
+      this.captureSelectionState();
+    }
+  },
+  
+  // Handle ALL DOM mutations
+  handleMutation(mutations) {
+    // Skip if we triggered this mutation ourselves
+    if (this.ignoreNextUpdate) {
+      this.ignoreNextUpdate = false;
+      return;
+    }
+    
+    // Check if content actually changed
+    const hasContentChange = mutations.some(mutation => 
+      mutation.type === 'characterData' || 
+      mutation.type === 'childList' ||
+      (mutation.type === 'attributes' && mutation.target === this.editor)
+    );
+    
+    if (hasContentChange && this.isEditing) {
+      // Content changed, capture selection and trigger save
+      this.updateCount++;
+      this.captureSelectionState();
+      
+      // Limit save frequency to avoid performance issues
+      if (this.updateCount % 3 === 0) {
+        this.triggerContentSave();
+      }
+    }
+  },
+  
+  // Capture the current selection state for later restoration
+  captureSelectionState() {
+    const selection = window.getSelection();
+    if (!selection || selection.rangeCount === 0) return;
+    
+    const range = selection.getRangeAt(0);
+    if (!this.editor.contains(range.commonAncestorContainer)) return;
+    
+    // Store selection as path + offset for reliability
+    this.lastSelectionState = {
+      startPath: this.getNodePath(range.startContainer),
+      startOffset: range.startOffset,
+      endPath: this.getNodePath(range.endContainer),
+      endOffset: range.endOffset,
+      time: Date.now()
+    };
+  },
+  
+  // Get DOM path from editor root to specific node
+  getNodePath(node) {
+    const path = [];
+    let current = node;
+    
+    // Build path from node to editor root
+    while (current && current !== this.editor) {
+      const parent = current.parentNode;
+      if (!parent) break;
+      
+      // Find index of current node in parent's children
+      const children = Array.from(parent.childNodes);
+      const index = children.indexOf(current);
+      path.unshift(index);
+      current = parent;
+    }
+    
+    return path;
+  },
+  
+  // Restore previously saved selection state
+  restoreSelectionState() {
+    if (!this.lastSelectionState || !this.editor) return false;
+    
+    try {
+      // Find nodes by stored paths
+      const startNode = this.getNodeByPath(this.lastSelectionState.startPath);
+      const endNode = this.getNodeByPath(this.lastSelectionState.endPath);
+      
+      // Verify nodes were found
+      if (!startNode || !endNode) {
+        return this.fallbackRestore();
+      }
+      
+      // Create and apply range
+      const range = document.createRange();
+      
+      // Ensure offsets are valid
+      const startOffset = Math.min(this.lastSelectionState.startOffset, 
+                                   this.getNodeMaxOffset(startNode));
+      const endOffset = Math.min(this.lastSelectionState.endOffset, 
+                                 this.getNodeMaxOffset(endNode));
+      
+      range.setStart(startNode, startOffset);
+      range.setEnd(endNode, endOffset);
+      
+      // Apply selection
+      const selection = window.getSelection();
+      selection.removeAllRanges();
+      selection.addRange(range);
+      
+      return true;
+    } catch (e) {
+      console.warn("Error restoring selection:", e);
+      return this.fallbackRestore();
+    }
+  },
+  
+  // Get node by path from editor root
+  getNodeByPath(path) {
+    let current = this.editor;
+    
+    for (let i = 0; i < path.length; i++) {
+      const index = path[i];
+      
+      if (current.childNodes && index < current.childNodes.length) {
+        current = current.childNodes[index];
+      } else {
+        return null;
+      }
+    }
+    
+    return current;
+  },
+  
+  // Get maximum valid offset for a node
+  getNodeMaxOffset(node) {
+    if (node.nodeType === Node.TEXT_NODE) {
+      return node.textContent.length;
+    }
+    return node.childNodes.length;
+  },
+  
+  // Fallback selection restore method
+  fallbackRestore() {
+    try {
+      // Move to end of content as fallback
+      const range = document.createRange();
+      range.selectNodeContents(this.editor);
+      range.collapse(false);
+      
+      const selection = window.getSelection();
+      selection.removeAllRanges();
+      selection.addRange(range);
+      
+      return true;
+    } catch (e) {
+      console.error("Fallback selection restore failed:", e);
+      return false;
+    }
+  },
+  
+  // Trigger content save while preserving cursor
+  triggerContentSave() {
+    if (!this.editor || !journalEditor.value) return;
+    
+    // Debounce save operations
+    clearTimeout(this._saveTimeout);
+    this._saveTimeout = setTimeout(() => {
+      // Only save if content actually changed
+      if (this.lastContent !== this.editor.innerHTML) {
+        // Capture final content and selection
+        const finalContent = this.editor.innerHTML;
+        this.captureSelectionState();
+        
+        // Set flag to ignore next update (avoid loop)
+        this.ignoreNextUpdate = true;
+        
+        // Call the actual save function
+        if (typeof saveJournalContent === 'function') {
+          saveJournalContent(finalContent);
+        }
+        
+        // Restore selection AFTER save completes
+        setTimeout(() => {
+          this.restoreSelectionState();
+        }, 0);
+      }
+    }, 500);
+  }
+};
+
+// Replace saveJournalContent function with this version
+const saveJournalContent = async (content) => {
+  if (!userId.value || !currentLogId.value) return;
+  
+  const actualContent = content || (journalEditor.value ? journalEditor.value.innerHTML : "");
+  
+  // Skip saving if nothing changed
+  if (currentLog.value && currentLog.value.content === actualContent) {
+    return;
+  }
+  
+  try {
+    journalSaving.value = true;
+    journalSaved.value = false;
+    
+    const logRef = doc(db, `users/${userId.value}/journals/${currentLogId.value}`);
+    
+    // Update Firebase in background
+    await updateDoc(logRef, {
+      content: actualContent,
+      lastEdited: Date.now()
+    });
+    
+    // Update local state
+    if (currentLog.value) {
+      currentLog.value.content = actualContent;
+      currentLog.value.lastEdited = Date.now();
+    }
+    
+    journalSaving.value = false;
+    journalSaved.value = true;
+    
+    setTimeout(() => {
+      journalSaved.value = false;
+    }, 2000);
+    
+  } catch (error) {
+    console.error("Error saving journal content:", error);
+    journalSaving.value = false;
+    
+    // Try fallback with setDoc
+    try {
+      const logRef = doc(db, `users/${userId.value}/journals/${currentLogId.value}`);
+      await setDoc(logRef, {
+        content: actualContent,
+        lastEdited: Date.now()
+      }, { merge: true });
+      
+      journalSaved.value = true;
+      setTimeout(() => {
+        journalSaved.value = false;
+      }, 2000);
+    } catch (fallbackError) {
+      console.error("Fallback save failed:", fallbackError);
+      showToastNotification("Failed to save journal entry", "error");
+    }
+  }
+};
+
+// Add this to your onMounted hook to initialize the editor system
+onMounted(() => {
+  // Previous onMounted code...
+  
+  // Wait for journal editor to be available
+  const initJournalEditor = () => {
+    if (journalEditor.value) {
+      // Initialize the DOM-aware editor with the journal editor element
+      domAwareEditor.init(journalEditor.value);
+    } else {
+      // Retry after a delay
+      setTimeout(initJournalEditor, 500);
+    }
+  };
+  
+  // Start initialization
+  initJournalEditor();
+  
+  // Set up cleanup
+  onUnmounted(() => {
+    domAwareEditor.cleanup();
+    if (journalLogUnsubscribe.value) {
+      journalLogUnsubscribe.value();
+    }
+  });
+});
 
 const closeJournalModal = () => {
   showJournalModal.value = false;
@@ -3610,83 +4679,196 @@ const closeJournalModal = () => {
 
 // Replace the loadJournalLogs function with this enhanced version
 // Replace the loadJournalLogs function with this enhanced version
-const loadJournalLogs = async () => {
-  if (!userId.value) return;
-  
-  try {
-    const logsRef = collection(db, `users/${userId.value}/journals`);
-    const q = query(logsRef, orderBy("lastEdited", "desc"));
-    
-    // Get initial data
-    const snapshot = await getDocs(q);
-    journalLogs.value = snapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    }));
-    
-    filteredJournalLogs.value = [...journalLogs.value];
-    
-    // Set up real-time listener for journals
-    if (journalLogUnsubscribe.value) {
-      journalLogUnsubscribe.value(); // Clean up previous listener
-    }
-    
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      journalLogs.value = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }));
-      filteredJournalLogs.value = journalSearch.value ? 
-        journalLogs.value.filter(log => log.title.toLowerCase().includes(journalSearch.value.toLowerCase())) :
-        [...journalLogs.value];
-    });
-    
-    // Store the unsubscribe function for cleanup
-    journalLogUnsubscribe.value = unsubscribe;
-    
-  } catch (error) {
-    console.error("Error loading journal logs:", error);
-    showToastNotification("Failed to load journal logs", "error");
-  }
-};
-
-// Ensure this function is called in onMounted lifecycle hook
-onMounted(() => {
-  // Existing code...
-  
-  // Clean up listener on component unmount
-  onUnmounted(() => {
-    if (journalLogUnsubscribe.value) {
-      journalLogUnsubscribe.value();
-    }
-  });
-});
-// Ensure this function is called in onMounted lifecycle hook
-onMounted(() => {
-  // Existing code...
-  
-  // Clean up listener on component unmount
-  onUnmounted(() => {
-    if (journalLogUnsubscribe.value) {
-      journalLogUnsubscribe.value();
-    }
-  });
-});
-
-const searchJournalLogs = () => {
-  const searchTerm = journalSearch.value.toLowerCase().trim();
-  if (!searchTerm) {
-    filteredJournalLogs.value = [...journalLogs.value];
+// Replace the loadJournalLogs function with this enhanced version
+// Replace the loadJournalLogs function with this enhanced version
+const loadJournalLogs = async (forceRefresh = false) => {
+  if (!userId.value) {
+    console.warn("Cannot load journal logs: No user ID");
     return;
   }
   
-  filteredJournalLogs.value = journalLogs.value.filter(log => 
-    log.title.toLowerCase().includes(searchTerm) || 
-    (log.content && log.content.toLowerCase().includes(searchTerm))
-  );
+  if (journalLoadAttempts.value > 5) {
+    console.warn("Too many load attempts, resetting counter");
+    journalLoadAttempts.value = 0;
+  }
+  
+  journalLoadAttempts.value++;
+  console.log(`Loading journal logs (attempt ${journalLoadAttempts.value}) for user:`, userId.value);
+  
+  try {
+    // CRITICAL: First clear existing data when force refreshing
+    if (forceRefresh) {
+      journalLogs.value = [];
+      filteredJournalLogs.value = [];
+      
+      // Clean up any existing subscription
+      if (journalLogUnsubscribe.value) {
+        journalLogUnsubscribe.value();
+        journalLogUnsubscribe.value = null;
+        journalSubscriptionActive.value = false;
+      }
+    }
+    const logsRef = collection(db, `users/${userId.value}/journals`);
+    
+    // Create a clean query with explicit ordering
+    const q = query(logsRef, orderBy("lastEdited", "desc"));
+    
+    // IMPORTANT: Get initial snapshot FIRST before setting up listener
+    const initialSnapshot = await getDocs(q);
+    
+    // Process the initial data
+    const initialLogs = initialSnapshot.docs.map(doc => {
+      const data = doc.data();
+      return {
+        id: doc.id,
+        title: data.title || "Untitled Log",
+        content: data.content || "",
+        created: data.created || Date.now(),
+        lastEdited: data.lastEdited || Date.now(),
+        createdBy: data.createdBy || userId.value
+      };
+    });
+    
+    console.log(`Found ${initialLogs.length} journal logs directly`);
+    
+    // CRITICAL: Force Vue to recognize this as a new array 
+    journalLogs.value = [...initialLogs];
+    filteredJournalLogs.value = [...initialLogs];
+    
+    // Wait for Vue to process the updates
+    await nextTick();
+    
+    // Now set up real-time listener ONLY if we don't already have one
+    if (!journalSubscriptionActive.value) {
+      if (journalLogUnsubscribe.value) {
+        journalLogUnsubscribe.value();
+      }
+      
+      // Add a unique identifier to the listener to help debugging
+      const listenerId = Date.now().toString();
+      console.log(`Setting up journal listener ${listenerId}`);
+      
+      const unsubscribe = onSnapshot(q, (snapshot) => {
+        console.log(`Journal snapshot received for listener ${listenerId}, docs:`, snapshot.size);
+        
+        if (snapshot.empty) {
+          console.log("Empty journal snapshot received");
+          return;
+        }
+        
+        const updatedLogs = snapshot.docs.map(doc => {
+          const data = doc.data();
+          return {
+            id: doc.id,
+            title: data.title || "Untitled Log",
+            content: data.content || "",
+            created: data.created || Date.now(),
+            lastEdited: data.lastEdited || Date.now(),
+            createdBy: data.createdBy || userId.value
+          };
+        });
+        
+        // CRITICAL: Use direct assignment AND force Vue reactivity update
+        journalLogs.value = [...updatedLogs];
+        
+        // Update filtered logs accordingly
+        if (journalSearch.value) {
+          filteredJournalLogs.value = updatedLogs.filter(log => 
+            log.title.toLowerCase().includes(journalSearch.value.toLowerCase()) ||
+            log.content.toLowerCase().includes(journalSearch.value.toLowerCase())
+          );
+        } else {
+          filteredJournalLogs.value = [...updatedLogs];
+        }
+        
+        console.log(`Journal logs updated: ${journalLogs.value.length}`);
+      }, (error) => {
+        console.error(`Journal listener ${listenerId} error:`, error);
+        journalSubscriptionActive.value = false;
+        
+        // Auto-retry on error after short delay
+        setTimeout(() => {
+          loadJournalLogs(true);
+        }, 2000);
+      });
+      
+      journalLogUnsubscribe.value = unsubscribe;
+      journalSubscriptionActive.value = true;
+    }
+    
+    // Add this safety check - force resubscribe if needed
+    if (journalLogs.value.length === 0 && initialLogs.length > 0) {
+      console.warn("Journal logs array is empty despite having data, forcing refresh");
+      setTimeout(() => loadJournalLogs(true), 500);
+    }
+    
+  } catch (error) {
+    console.error("Error loading journal logs:", error);
+    
+    // CRITICAL: Add error recovery with automatic retry
+    setTimeout(() => {
+      console.log("Retrying journal logs load after error");
+      loadJournalLogs(true);
+    }, 3000);
+    
+    showToastNotification("Issue loading journals, retrying...", "error");
+  }
+};
+const repairJournalSystem = async () => {
+  console.log("Running journal system repair");
+  
+  // Force clear any stuck state first
+  journalLogs.value = [];
+  filteredJournalLogs.value = [];
+  currentLog.value = null;
+  currentLogId.value = null;
+  
+  if (journalLogUnsubscribe.value) {
+    journalLogUnsubscribe.value();
+    journalLogUnsubscribe.value = null;
+  }
+  
+  // Wait for state clearing to complete
+  await nextTick();
+  
+  // Now try a fresh load with force refresh
+  loadJournalLogs(true);
+  
+  // Set up automatic periodic check for missing logs
+  setInterval(() => {
+    if (journalLogs.value.length === 0 && userId.value) {
+      console.log("Empty journal logs detected, attempting repair");
+      loadJournalLogs(true);
+    }
+  }, 10000); // Check every 10 seconds
 };
 
-// Completely revised createNewLog function with robust Firebase handling
+// 4. Call this on open journal modal
+const openJournalModal = () => {
+  showJournalModal.value = true;
+  
+  // CRITICAL: Add this forced repair and load
+  repairJournalSystem();
+  
+  // Additional safety to ensure journals appear after short delay
+  setTimeout(() => {
+    if (journalLogs.value.length === 0) {
+      loadJournalLogs(true);
+    }
+  }, 2000);
+};
+// Ensure this function is called in onMounted lifecycle hook
+onMounted(() => {
+  // Existing code...
+  
+  // Clean up listener on component unmount
+  onUnmounted(() => {
+    if (journalLogUnsubscribe.value) {
+      journalLogUnsubscribe.value();
+    }
+  });
+});
+
 // Completely revised createNewLog function with robust Firebase handling
 const createNewLog = async () => {
   if (!userId.value) {
@@ -3736,6 +4918,46 @@ const createNewLog = async () => {
     return null;
   }
 };
+
+// Ensure this function is called in onMounted lifecycle hook
+onMounted(() => {
+  // Existing code...
+  
+  // Clean up listener on component unmount
+  onUnmounted(() => {
+    if (journalLogUnsubscribe.value) {
+      journalLogUnsubscribe.value();
+    }
+  });
+});
+// Ensure this function is called in onMounted lifecycle hook
+onMounted(() => {
+  // Existing code...
+  
+  // Clean up listener on component unmount
+  onUnmounted(() => {
+    if (journalLogUnsubscribe.value) {
+      journalLogUnsubscribe.value();
+    }
+  });
+});
+
+const searchJournalLogs = () => {
+  const searchTerm = journalSearch.value.toLowerCase().trim();
+  if (!searchTerm) {
+    filteredJournalLogs.value = [...journalLogs.value];
+    return;
+  }
+  
+  filteredJournalLogs.value = journalLogs.value.filter(log => 
+    log.title.toLowerCase().includes(searchTerm) || 
+    (log.content && log.content.toLowerCase().includes(searchTerm))
+  );
+};
+
+// Completely revised createNewLog function with robust Firebase handling
+// Completely revised createNewLog function with robust Firebase handling
+
 
 // Also update the saveJournalContent function
 
@@ -4349,10 +5571,7 @@ const generateJournalReport = async () => {
 };
 
 // Helper to strip HTML tags from content
-const stripHtml = (html) => {
-  const doc = new DOMParser().parseFromString(html, 'text/html');
-  return doc.body.textContent || "";
-};
+
 const hyperAccuracyLearningSystem = reactive({
   version: "1.0",
   accuracyLevel: 0.999,
@@ -5060,6 +6279,7 @@ const deleteMindMap = async (mindMapId) => {
     showToastNotification("Failed to delete mind map", "error");
   }
 };
+
 // Replace the current createMindMapVisualization function with this enhanced version
 // Enhanced visualization with dynamic text sizing
 const createMindMapVisualization = (centralTopic, branches = []) => {
@@ -5964,103 +7184,224 @@ const generateMindMapData = (centralTopic) => {
 };
 
 
+// Replace the existing performWebSearch function with this corrected version
+// COMPLETELY REVISED WEB SEARCH IMPLEMENTATION
 const performWebSearch = async (query) => {
   try {
-    isLoading.value = true;
-    showToastNotification("Searching the web...", "info");
+    console.log("Starting web search for:", query);
+    isSearching.value = true;
+    thinkingText.value = "Researching...";
     
-    const searchMessage = {
+    // Show searching indicator in the UI
+    const searchMessageIndex = messages.value.length;
+    messages.value.push({
       role: "assistant",
-      content: "🔍 Searching the web for: **" + query + "**\n\nPlease wait...",
+      content: "🔍 Searching for information about: **" + query + "**\n\nPlease wait while I gather the latest data...",
       timestamp: Date.now(),
       hasReasoning: false,
       isStreaming: true
-    };
-    
-    messages.value.push(searchMessage);
-    const searchIndex = messages.value.length - 1;
-    
-    // OpenAI API call for web search
-    const searchResponse = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${apiKey}`
-      },
-      body: JSON.stringify({
-        model: "gpt-4o-mini-search-preview",
-        messages: [
-          { 
-            role: "system", 
-            content: "You are a helpful web search assistant. Your task is to search for accurate information and provide results with proper citations."
-          },
-          { 
-            role: "user", 
-            content: `Please search for: ${query}. Provide a summary of the results with source links.`
-          }
-        ],
-        max_tokens: 2000,
-        search_tool: { enabled: true }
-      })
     });
     
-    if (!searchResponse.ok) {
-      const errorData = await searchResponse.json().catch(() => ({}));
-      throw new Error(`Search API error: ${searchResponse.status} ${errorData.error?.message || ''}`);
-    }
+    // System prompt for search
+    const searchSystem = "You are a helpful assistant with web search capability. " +
+      "Search for accurate, up-to-date information when needed, and provide clear, concise summaries of what you find. " +
+      "Always include your sources so users can learn more.";
     
-    const data = await searchResponse.json();
-    const searchResults = data.choices[0].message.content;
+    // Direct search query
+    const searchPrompt = `Please search the web for information about: ${query}. Provide a summary of 3-5 relevant facts, with sources linked at the end.`;
     
-    // Extract sources
-    const sources = searchResults.match(/https?:\/\/[^\s)]+/g) || [];
-    
-    // Format the results with sources
-    let formattedResults = `## Search Results for: ${query}\n\n`;
-    formattedResults += searchResults;
-    
-    // Add sources section if not already included
-    if (!searchResults.toLowerCase().includes("sources:") && sources.length > 0) {
-      formattedResults += `\n\n---\n\n**Sources:**\n`;
-      sources.forEach((source, index) => {
-        formattedResults += `${index + 1}. [${source}](${source})\n`;
+    try {
+      console.log("Calling search API with correct parameters");
+      const response = await fetch("https://api.openai.com/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${apiKey}`
+        },
+        body: JSON.stringify({
+          model: "gpt-4o",
+          messages: [
+            { role: "system", content: searchSystem },
+            { role: "user", content: searchPrompt }
+          ],
+          tools: [{
+            "type": "function",
+            "function": {
+              "name": "web_search",
+              "description": "Search the web for information",
+              "parameters": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "The search query"
+                  }
+                },
+                "required": ["query"]
+              }
+            }
+          }],
+          tool_choice: {
+            "type": "function",
+            "function": {
+              "name": "web_search"
+            }
+          },
+          max_tokens: 2000
+        })
       });
-    }
-    
-    // Update the message with the results
-    messages.value[searchIndex].content = formattedResults;
-    messages.value[searchIndex].isStreaming = false;
-    
-    await saveMessageToFirebase(messages.value[searchIndex]);
-    
-    // Store in quantum engine (if using)
-    if (quantumCognitionEngine && sources.length > 0) {
-      quantumCognitionEngine.webKnowledgeBase.set(query, {
-        content: searchResults,
-        sources: sources,
-        timestamp: Date.now(),
-        relevance: 0.95
-      });
-    }
-    
-    return { content: searchResults, sources };
-  } catch (error) {
-    console.error("Web search error:", error);
-    showToastNotification("Web search failed", "error");
-    
-    // Update the last message
-    if (messages.value.length > 0) {
-      const lastMessage = messages.value[messages.value.length - 1];
-      if (lastMessage.role === "assistant" && lastMessage.content.includes("Searching the web")) {
-        lastMessage.content = "⚠️ Web search failed. Please try again later or check your API key configuration.";
-        lastMessage.isStreaming = false;
-        await saveMessageToFirebase(lastMessage);
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null) || await response.text();
+        console.error("Search API error:", response.status, errorData);
+        throw new Error(`API error: ${response.status} - ${JSON.stringify(errorData)}`);
       }
+      
+      const data = await response.json();
+      console.log("Search API response:", data);
+      
+      // Process the search results
+      let formattedContent = "";
+      let sources = [];
+      
+      if (data.choices && data.choices[0] && data.choices[0].message) {
+        const message = data.choices[0].message;
+        
+        // Check for tool calls
+        if (message.tool_calls && message.tool_calls.length > 0) {
+          const toolCall = message.tool_calls[0];
+          
+          // Extract search query from the tool call
+          let searchQuery = query;
+          try {
+            const args = JSON.parse(toolCall.function.arguments);
+            searchQuery = args.query || query;
+          } catch (e) {
+            console.error("Error parsing tool call arguments:", e);
+          }
+          
+          // Make a follow-up request to utilize the search results
+          const followupResponse = await fetch("https://api.openai.com/v1/chat/completions", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${apiKey}`
+            },
+            body: JSON.stringify({
+              model: "gpt-4o",
+              messages: [
+                { role: "system", content: searchSystem },
+                { role: "user", content: searchPrompt },
+                message,
+                { 
+                  role: "user", 
+                  content: `Now, please provide a comprehensive summary of what you found about "${searchQuery}", including all relevant sources.` 
+                }
+              ],
+              max_tokens: 2000
+            })
+          });
+          
+          if (!followupResponse.ok) {
+            throw new Error(`Follow-up API error: ${followupResponse.status}`);
+          }
+          
+          const followupData = await followupResponse.json();
+          formattedContent = followupData.choices[0].message.content || "";
+          
+          // Extract source URLs
+          const urlRegex = /(?:https?:\/\/[^\s)]+)/g;
+          const urls = formattedContent.match(urlRegex) || [];
+          
+          sources = urls.map(url => ({
+            url: url,
+            title: extractDomainFromUrl(url),
+            snippet: "Source from web search"
+          }));
+        } else {
+          // Direct content response
+          formattedContent = message.content || "No search results were found.";
+          
+          // Try to extract URLs
+          const urlRegex = /(?:https?:\/\/[^\s)]+)/g;
+          const urls = formattedContent.match(urlRegex) || [];
+          
+          sources = urls.map(url => ({
+            url: url,
+            title: extractDomainFromUrl(url),
+            snippet: "Source from web search"
+          }));
+        }
+      }
+      
+      // Ensure sources are included in the content
+      if (!formattedContent.toLowerCase().includes("sources:") && sources.length > 0) {
+        formattedContent += "\n\n**Sources:**\n";
+        sources.forEach((source, index) => {
+          formattedContent += `${index + 1}. [${source.title}](${source.url})\n`;
+        });
+      }
+      
+      // Update the message with search results
+      messages.value[searchMessageIndex].content = formattedContent;
+      messages.value[searchMessageIndex].webSources = sources;
+      messages.value[searchMessageIndex].isStreaming = false;
+      
+      // Save to Firebase if needed
+      if (userId.value !== "demo-user") {
+        await saveMessageToFirebase(messages.value[searchMessageIndex]);
+      }
+      
+      showToastNotification("Web search completed", "success");
+      scrollToBottom();
+      
+      return { content: formattedContent, sources };
+      
+    } catch (apiError) {
+      console.error("Web search API error:", apiError);
+      
+      // Fallback to demo search results
+      const mockSources = [
+        {
+          title: "Example Source 1",
+          url: "https://example.com/1",
+          snippet: "This is a demonstration search result since the actual search API encountered an error."
+        },
+        {
+          title: "Example Source 2",
+          url: "https://example.com/2",
+          snippet: "When the search API is properly configured, you'll see real results here."
+        }
+      ];
+      
+      const fallbackContent = `## Search Results (Demo Mode)\n\nI tried to search for information about "${query}" but encountered an API error. This is a demonstration of how search results would appear.\n\nIn a properly configured environment, you would see relevant information from the web here, along with proper sources.\n\n**Sources:**\n1. [Example Source 1](https://example.com/1)\n2. [Example Source 2](https://example.com/2)`;
+      
+      messages.value[searchMessageIndex].content = fallbackContent;
+      messages.value[searchMessageIndex].webSources = mockSources;
+      messages.value[searchMessageIndex].isStreaming = false;
+      
+      showToastNotification("Using demo search results", "info");
+      scrollToBottom();
+      
+      return { content: fallbackContent, sources: mockSources };
     }
     
+  } catch (error) {
+    console.error("Web search outer error:", error);
+    showToastNotification("Search feature unavailable", "error");
     return { content: "", sources: [] };
   } finally {
-    isLoading.value = false;
+    isSearching.value = false;
+  }
+};
+
+// Helper function to extract domain name from URL
+const extractDomainFromUrl = (url) => {
+  try {
+    const domain = new URL(url).hostname.replace('www.', '');
+    return domain.charAt(0).toUpperCase() + domain.slice(1);
+  } catch (e) {
+    return url.split('/')[2] || url;
   }
 };
     console.log("Dawntasy book content loaded:", Object.keys(dawntasyBookContent.value));
@@ -6217,91 +7558,6 @@ onMounted(() => {
         }
       });
     });
-    const performWebSearch = async (query) => {
-  try {
-    isLoading.value = true;
-    showToastNotification("Searching the web...", "info");
-    
-    const searchMessage = {
-      role: "assistant",
-      content: "🔍 Searching the web for: **" + query + "**\n\nPlease wait...",
-      timestamp: Date.now(),
-      hasReasoning: false,
-      isStreaming: true
-    };
-    
-    messages.value.push(searchMessage);
-    const searchIndex = messages.value.length - 1;
-    
-    // Mock search results for demo
-    const mockResults = [
-      {
-        title: "Understanding " + query,
-        snippet: "This page provides detailed information about " + query + " with comprehensive examples and use cases.",
-        url: "https://example.com/search/" + encodeURIComponent(query)
-      },
-      {
-        title: query + " - Wikipedia",
-        snippet: "The definitive resource about " + query + " covering its history, applications, and related concepts.",
-        url: "https://en.wikipedia.org/wiki/" + encodeURIComponent(query.replace(/\s+/g, '_'))
-      },
-      {
-        title: "Latest Research on " + query,
-        snippet: "Recent scientific developments related to " + query + " from leading academic institutions.",
-        url: "https://scholar.example.org/" + encodeURIComponent(query)
-      }
-    ];
-    
-    // Format the results with sources
-    let formattedResults = `## Search Results for: ${query}\n\n`;
-    
-    mockResults.forEach((result, index) => {
-      formattedResults += `### ${index + 1}. ${result.title}\n`;
-      formattedResults += `${result.snippet}\n\n`;
-      formattedResults += `[Read more](${result.url})\n\n`;
-    });
-    
-    formattedResults += `\n\n---\n\n**Sources:**\n`;
-    mockResults.forEach((result, index) => {
-      formattedResults += `${index + 1}. [${result.title}](${result.url})\n`;
-    });
-    
-    // Update the message with the results
-    messages.value[searchIndex].content = formattedResults;
-    messages.value[searchIndex].isStreaming = false;
-    
-    await saveMessageToFirebase(messages.value[searchIndex]);
-    
-    // Store in quantum engine
-    mockResults.forEach(result => {
-      quantumCognitionEngine.webKnowledgeBase.set(query, {
-        title: result.title,
-        snippet: result.snippet,
-        url: result.url,
-        relevance: 0.8 + (Math.random() * 0.2)
-      });
-    });
-    
-    return mockResults;
-  } catch (error) {
-    console.error("Web search error:", error);
-    showToastNotification("Web search failed", "error");
-    
-    // Update the last message
-    if (messages.value.length > 0) {
-      const lastMessage = messages.value[messages.value.length - 1];
-      if (lastMessage.role === "assistant" && lastMessage.content.includes("Searching the web")) {
-        lastMessage.content = "⚠️ Web search failed. Please try again later.";
-        lastMessage.isStreaming = false;
-        await saveMessageToFirebase(lastMessage);
-      }
-    }
-    
-    return [];
-  } finally {
-    isLoading.value = false;
-  }
-};
     // Enable demo mode for development when authentication fails
     // Update the enableDemoMode function to support mind maps
 const enableDemoMode = () => {
@@ -6931,51 +8187,97 @@ const mockStreamingResponse = async (messageIndex, userPrompt, includeCards = fa
     };
 
     // **Utility Functions**
-    const formatMessage = (content) => {
-      if (!content) return "";
+    // Add this to your formatMessage function to display sources
+
+const formatMessage = (content) => {
+  if (!content) return "";
+  
+  // Process markdown syntax...
+  let formatted = content
+    .replace(/```([a-z]*)\n([\s\S]*?)```/g, (match, lang, code) => {
+      return `<pre class="code-block ${lang || ""}"><code>${code.trim()}</code></pre>`;
+    })
+    .replace(/`([^`]+)`/g, `<code class="inline-code">$1</code>`)
+.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+.replace(/\*(.*?)\*/g, "<em>$1</em>")
+.replace(/__(.*?)__/g, "<u>$1</u>")
+.replace(/### (.*)/g, "<h3>$1</h3>")
+.replace(/## (.*)/g, "<h2>$1</h2>")
+.replace(/# (.*)/g, "<h1>$1</h1>")
+.replace(/\n/g, "<br>");
+  
+  // Check if the message has sources from web search
+  const sourcesMatch = content.match(/---\s*\n+\s*\*\*Sources:\*\*\s*\n([\s\S]*?)($|(?=\n\n))/);
+  if (sourcesMatch) {
+    // Extract the sources section and format it more nicely
+    const sourcesSection = sourcesMatch[0];
+    const cleanContent = content.replace(sourcesSection, '').trim();
+    
+    // Re-format the sources for better display
+    const sources = sourcesMatch[1].match(/\d+\.\s*\[(.*?)\]\((.*?)\)/g) || [];
+    
+    let formattedSources = `
+      <div class="sources-section">
+        <h4>Sources</h4>
+        <div class="sources-list">
+    `;
+    
+    sources.forEach((source, index) => {
+      const titleMatch = source.match(/\[(.*?)\]/);
+      const urlMatch = source.match(/\((.*?)\)/);
       
-      let formatted = content
-        .replace(/```([a-z]*)\n([\s\S]*?)```/g, (match, lang, code) => {
-          return `<pre class="code-block ${lang || ""}"><code>${code.trim()}</code></pre>`;
-        })
-        .replace(/`([^`]+)`/g, `<code class="inline-code">$1</code>`)
-        .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
-        .replace(/\*(.*?)\*/g, "<em>$1</em>")
-        .replace(/__(.*?)__/g, "<u>$1</u>")
-        .replace(/### (.*)/g, "<h3>$1</h3>")
-        .replace(/## (.*)/g, "<h2>$1</h2>")
-        .replace(/# (.*)/g, "<h1>$1</h1>")
-        .replace(/\n/g, "<br>");
-      
-      const terms = [
-        "Time Smith",
-        "The Rift",
-        "Plain and Pale Clock",
-        "Dawntasy",
-        "Bear Village",
-        "Ursa Minor",
-        "Yaee",
-        "Thappnon",
-        "Solus",
-        "Dawntasy Saga",
-        "Lieutenant Sara",
-        "Isllandio",
-        "DawntasyAI",
-        "Jasper Jiang",
-        "Dawntasy Melodic",
-        "Dawntasy: Time's True Name",
-      ];
-      
-      terms.forEach((term) => {
-        const regex = new RegExp(`\\b${term}\\b`, "g");
-        formatted = formatted.replace(
-          regex,
-          `<span class="highlight-term">${term}</span>`
-        );
-      });
-      
-      return formatted;
-    };
+      if (titleMatch && urlMatch) {
+        const title = titleMatch[1];
+        const url = urlMatch[1];
+        
+        formattedSources += `
+          <div class="source-item">
+            <span class="source-num">${index + 1}.</span>
+            <a href="${url}" class="source-link" target="_blank">${title}</a>
+          </div>
+        `;
+      }
+    });
+    
+    formattedSources += `
+        </div>
+      </div>
+    `;
+    
+    // Return content with nicely formatted sources
+    formatted = formatted.replace(/<br>---<br>[\s\S]*?Sources:[\s\S]*?$/, '') + formattedSources;
+  }
+  
+  // Process terms highlighting
+  const terms = [
+    "Time Smith",
+    "The Rift",
+    "Plain and Pale Clock",
+    "Dawntasy",
+    "Bear Village",
+    "Ursa Minor",
+    "Yaee",
+    "Thappnon",
+    "Solus",
+    "Dawntasy Saga",
+    "Lieutenant Sara",
+    "Isllandio",
+    "DawntasyAI",
+    "Jasper Jiang",
+    "Dawntasy Melodic",
+    "Dawntasy: Time's True Name",
+  ];
+  
+  terms.forEach((term) => {
+    const regex = new RegExp(`\\b${term}\\b`, "g");
+    formatted = formatted.replace(
+      regex,
+      `<span class="highlight-term">${term}</span>`
+    );
+  });
+  
+  return formatted;
+};
 
     const formatTime = (timestamp) => {
       if (!timestamp) return "";
@@ -7759,7 +9061,7 @@ We propose **Quantum Thermodynamic Reinforcement Learning (QTRL)**, a framework 
       // Add mode-specific instructions
       switch (selectedMode.value) {
         case "passion":
-          prompt += "\n\nYou are currently in PASSION mode. Express yourself with high energy, enthusiasm, and dynamic language. Use emojis, exclamations, and capitalize important words for emphasis. Show excitement about the topics you discuss! For instance, you could go 'OMGGG BROO!!! 🔥👌❤️Insane work RIGHT THERE. And honestly? Legend. LET ME KNOW IF YOU NEED ANYTHING ELSE, GENIUS!!' 1. WOAHHH DUDE!!! 😍🚀💥 This idea is NEXT LEVEL AWESOME! Seriously, you’re KILLING it! Let’s make it HAPPEN—hit me up if you’re ready to ROCK! 🤘✨ OMGGG YESSS!!! 🌟🎉💖 This is PURE FIRE, fam! I’m OBSESSED—can’t stop HYPING it up! What’s next, you BRILLIANT soul?! 😎👊 HOLY SMOKES, BRO!!! 🔥🤯💪 You just DROPPED some GENIUS vibes! I’m LIVING for this energy—KEEP IT COMING, champ!! 🏆🌈";
+          prompt += "\n\nYou are currently in PASSION mode. BE EXTREMELY PASSIONATE AND LIKE EXTREMELY POSITIVE. Express yourself with high energy, enthusiasm, and dynamic language. Use emojis, exclamations, and capitalize important words for emphasis. Show excitement about the topics you discuss! For instance, you could go 'OMGGG BROO!!! 🔥👌❤️Insane work RIGHT THERE. And honestly? Legend. LET ME KNOW IF YOU NEED ANYTHING ELSE, GENIUS!!' 1. WOAHHH DUDE!!! 😍🚀💥 This idea is NEXT LEVEL AWESOME! Seriously, you’re KILLING it! Let’s make it HAPPEN—hit me up if you’re ready to ROCK! 🤘✨ OMGGG YESSS!!! 🌟🎉💖 This is PURE FIRE, fam! I’m OBSESSED—can’t stop HYPING it up! What’s next, you BRILLIANT soul?! 😎👊 HOLY SMOKES, BRO!!! 🔥🤯💪 You just DROPPED some GENIUS vibes! I’m LIVING for this energy—KEEP IT COMING, champ!! 🏆🌈";
           break;
         case "pro":
           prompt += "\n\nYou are currently in Professional mode. Maintain a structured, precise, and formal tone. Prioritize clarity, accuracy, and conciseness. Use business-appropriate language and focus on delivering factual, well-organized information. For instance, you could go 'Here's a structure for your project! Let me help you craft it for you. Please specify your instructions clearer.";
@@ -7774,7 +9076,7 @@ We propose **Quantum Thermodynamic Reinforcement Learning (QTRL)**, a framework 
           prompt += "\n\nYou are currently in Empathy mode. Communicate with warmth, support, and understanding. Acknowledge emotions, validate experiences, and provide encouragement. Use gentle language and focus on the human element of any topic. For instance, 'Hey, hey. I get it. Times...are tough. But you know what? Let's get through it, together. No matter what the cost. I'm here for you. Now tell me, what's bugging you?";
           break;
         case "casual":
-          prompt += "\n\nYou are currently in Casual mode. Use relaxed, conversational language with some slang and informality. Be friendly and approachable, as if chatting with a friend. Simplify complex concepts without being overly technical. Use abbrievations and slang like 'yo', 'ur', 'u', cuz, bruh, gtg, fr (means for real), cooking (doing really well), tbh (to be honest), wdym (what do you mean), tysm (thank you so much). For instance, 'yo, what's poppin legend? 👌❤️🔥 r u ready to rockkk bruh? u be cooking fr with this task, let's dive right in cuz why not1. Yo, what’s good fam? 😎✌️ Ur idea’s straight-up FIRE, bruh! Tbh, u got me hyped—let’s roll with it, no cap! Hit me back if u need anything, fr! 🔥👊 Heyy, what’s poppin my dude? 🌀💪 U be COOKING with this one, no lie! Super chill vibes, lemme know wdym if I miss something—tysm for bringing the heat! 🙌😌 Sup, homie? 👋🌈 Ur killing it, fr! This whole thing’s dope af—wanna dive in? Cuz I’m ready to vibe with u on this, bruh! Gtg soon, but lmk what’s up! 💖🚀";
+          prompt += "\n\nYou are currently in Casual mode. Use relaxed, conversational language with some slang and informality. Be friendly and approachable, as if chatting with a friend. Simplify complex concepts without being overly technical. Use abbrievations and slang like 'yo', 'ur', 'u', cuz, bruh, gtg, fr (means for real), cooking (doing really well), tbh (to be honest), wdym (what do you mean), tysm (thank you so much). For instance, 'yo, what's poppin legend? 👌❤️🔥 r u ready to rockkk bruh? u be cooking fr with this task, let's dive right in cuz why not1. Yo, what’s good fam? 😎✌️ Ur idea’s straight-up FIRE, bruh! Tbh, u got me hyped—let’s roll with it, no cap! Hit me back if u need anything, fr! 🔥👊 Heyy, what’s poppin my dude? 🌀💪 U be COOKING with this one, no lie! Super chill vibes, lemme know wdym if I miss something—tysm for bringing the heat! 🙌😌 Sup, homie? 👋🌈 Ur killing it, fr! This whole thing’s dope af—wanna dive in? Cuz I’m ready to vibe with u on this, bruh! Gtg soon, but lmk what’s up! 💖🚀' SO BASICALLY JUST BE OVER-THE-TOP INTERNET DUDE BFF FRIEND";
           break;
         default:
           prompt += "\n\nYou are currently in Default mode. Balance clarity, engagement, and helpfulness. Adapt your tone to the context while maintaining your core identity as DawntasyAI.";
@@ -8479,6 +9781,7 @@ suggestFetchOperation,
   journalSaving,
   journalSaved,
   journalEditor,
+  toggleSidebar,
   showAiToolInputModal,
   currentAiTool,
   aiToolInput,
@@ -8641,7 +9944,45 @@ getMaxTopicFrequency,
   text-align: left;
   padding-right: 10px;
 }
+.search-suggestion {
+  margin-top: 8px;
+  margin-bottom: 4px;
+}
 
+.search-suggestion-content {
+  display: flex;
+  align-items: center;
+  padding: 6px 10px;
+  border-radius: 6px;
+  background: rgba(59, 130, 246, 0.1);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  font-size: 12px;
+}
+
+.search-icon {
+  margin-right: 6px;
+}
+
+.search-suggestion-text {
+  color: var(--text-secondary);
+}
+
+.search-suggestion-button {
+  margin-left: auto;
+  background: rgba(59, 130, 246, 0.2);
+  border: 1px solid rgba(59, 130, 246, 0.4);
+  color: #60a5fa;
+  border-radius: 4px;
+  padding: 3px 8px;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.search-suggestion-button:hover {
+  background: rgba(59, 130, 246, 0.3);
+  border-color: rgba(59, 130, 246, 0.6);
+}
 .header-actions {
   display: flex;
   justify-content: flex-end;
@@ -8659,20 +10000,26 @@ getMaxTopicFrequency,
 /* Update these CSS rules for better mobile sidebar experience */
 /* Update the CSS for mobile sidebar */
 /* Add this CSS to improve mobile sidebar responsiveness */
+/* Add these CSS rules to enhance mobile sidebar responsiveness */
 @media (max-width: 768px) {
   .sidebar {
     position: fixed;
     top: 0;
     left: 0;
     width: 75%; /* Increase from default to use 3/4 of screen */
-    height: 100%;
-    z-index: 100;
-    flex: none;
+    height: 100vh; /* Full height */
+    z-index: 1000; /* Higher z-index to ensure it appears on top */
+    background-color: var(--bg-sidebar);
     transform: translateX(-100%);
+    transition: transform 0.3s ease-out;
     box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
   }
   
-  /* Add overlay for tapping outside to close */
+  .sidebar[style*="translateX(0px)"] {
+    transform: translateX(0) !important;
+  }
+  
+  /* Modal backdrop for tapping outside to close */
   .modal-backdrop {
     position: fixed;
     top: 0;
@@ -8680,12 +10027,25 @@ getMaxTopicFrequency,
     right: 0;
     bottom: 0;
     background: rgba(0, 0, 0, 0.5);
-    z-index: 99;
-    display: none;
+    z-index: 999; /* Just below the sidebar */
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
   }
   
   .modal-backdrop.active {
-    display: block;
+    opacity: 1;
+    pointer-events: auto;
+  }
+  
+  /* Make sure the sidebar toggle is easy to tap */
+  .sidebar-toggle {
+    min-width: 44px; /* Larger touch target */
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1001; /* Above both sidebar and backdrop */
   }
 }
 
@@ -8710,7 +10070,146 @@ getMaxTopicFrequency,
   .modal-backdrop.active {
     display: block;
   }
-  
+  /* Add this to your CSS section */
+.thinking-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.thinking-animation {
+  position: relative;
+  width: 80px;
+  height: 20px;
+}
+
+.thinking-text {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  letter-spacing: 0.02em;
+}
+
+.thinking-deeper {
+  color: var(--reasoning-color);
+}
+
+.thinking-logic {
+  color: var(--logic-color);
+}
+
+.thinking-archmage {
+  color: var(--archmage-color);
+  font-weight: 600;
+}
+
+.thinking-search {
+  color: #60a5fa;
+}
+
+/* Dot pulse animation - super clean! */
+.dot-pulse {
+  position: relative;
+  left: -9999px;
+  width: 10px;
+  height: 10px;
+  border-radius: 5px;
+  background-color: var(--primary);
+  color: var(--primary);
+  box-shadow: 9999px 0 0 -5px;
+  animation: dot-pulse 1.5s infinite linear;
+  animation-delay: 0.25s;
+}
+
+.dot-pulse::before, .dot-pulse::after {
+  content: "";
+  display: inline-block;
+  position: absolute;
+  top: 0;
+  width: 10px;
+  height: 10px;
+  border-radius: 5px;
+  background-color: var(--primary);
+  color: var(--primary);
+}
+
+.dot-pulse::before {
+  box-shadow: 9984px 0 0 -5px;
+  animation: dot-pulse-before 1.5s infinite linear;
+  animation-delay: 0s;
+}
+
+.dot-pulse::after {
+  box-shadow: 10014px 0 0 -5px;
+  animation: dot-pulse-after 1.5s infinite linear;
+  animation-delay: 0.5s;
+}
+
+.thinking-deeper .dot-pulse,
+.thinking-deeper .dot-pulse::before,
+.thinking-deeper .dot-pulse::after {
+  background-color: var(--reasoning-color);
+  color: var(--reasoning-color);
+}
+
+.thinking-logic .dot-pulse,
+.thinking-logic .dot-pulse::before,
+.thinking-logic .dot-pulse::after {
+  background-color: var(--logic-color);
+  color: var(--logic-color);
+}
+
+.thinking-archmage .dot-pulse,
+.thinking-archmage .dot-pulse::before,
+.thinking-archmage .dot-pulse::after {
+  background-color: var(--archmage-color);
+  color: var(--archmage-color);
+}
+
+.thinking-search .dot-pulse,
+.thinking-search .dot-pulse::before,
+.thinking-search .dot-pulse::after {
+  background-color: #60a5fa;
+  color: #60a5fa;
+}
+
+@keyframes dot-pulse-before {
+  0% {
+    box-shadow: 9984px 0 0 -5px;
+  }
+  30% {
+    box-shadow: 9984px 0 0 2px;
+  }
+  60%, 100% {
+    box-shadow: 9984px 0 0 -5px;
+  }
+}
+
+@keyframes dot-pulse {
+  0% {
+    box-shadow: 9999px 0 0 -5px;
+  }
+  30% {
+    box-shadow: 9999px 0 0 2px;
+  }
+  60%, 100% {
+    box-shadow: 9999px 0 0 -5px;
+  }
+}
+
+@keyframes dot-pulse-after {
+  0% {
+    box-shadow: 10014px 0 0 -5px;
+  }
+  30% {
+    box-shadow: 10014px 0 0 2px;
+  }
+  60%, 100% {
+    box-shadow: 10014px 0 0 -5px;
+  }
+}
   /* Improve spacing for mobile */
   .chat-entry, .mind-map-entry {
     padding: 14px;
