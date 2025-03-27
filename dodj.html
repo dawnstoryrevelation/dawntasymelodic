@@ -3,9 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>🚀 HyperJump Ascendancy - EPIC Doodle Jump 🚀</title>
+    <title>🌌 Cosmic Ascendancy Ultra - LEGENDARY Edition 🌌</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+        :root {
+            --primary-color: #00ffff; /* Cyan */
+            --secondary-color: #ff00ff; /* Magenta */
+            --background-dark: #0a0a10;
+            --background-medium: #1a1a2e;
+            --background-light: #2a2a4e;
+            --text-color: #e0e0e0;
+            --coin-color: #ffd700;
+            --danger-color: #ff4d4d;
+        }
 
         body {
             margin: 0;
@@ -14,25 +25,25 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            background: linear-gradient(to bottom, #0b0c10, #1f2833, #45a29e); /* Deep space to teal gradient */
+            background: linear-gradient(to bottom, var(--background-dark), var(--background-medium), var(--background-light));
             font-family: 'Press Start 2P', cursive;
-            overflow: hidden; /* Prevent scroll bars */
-            color: #c5c6c7; /* Light grey text */
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+            overflow: hidden;
+            color: var(--text-color);
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
         }
 
         #gameContainer {
             position: relative;
-            border: 5px solid #66fcf1; /* Bright teal border */
-            box-shadow: 0 0 30px #66fcf1, inset 0 0 15px rgba(102, 252, 241, 0.5); /* Neon glow */
-            background-color: #0b0c10; /* Dark canvas background */
-            overflow: hidden; /* Crucial for containing elements */
-            touch-action: none; /* Prevent default touch actions like scrolling/zooming */
+            border: 6px solid var(--primary-color);
+            box-shadow: 0 0 40px var(--primary-color), inset 0 0 20px rgba(0, 255, 255, 0.5);
+            background-color: var(--background-dark);
+            overflow: hidden;
+            touch-action: none;
         }
 
         canvas {
-            display: block; /* Remove extra space below canvas */
-            background: transparent; /* Let container background show */
+            display: block;
+            background: transparent;
         }
 
         .uiElement {
@@ -40,398 +51,828 @@
             left: 50%;
             transform: translateX(-50%);
             text-align: center;
-            color: #66fcf1; /* Teal UI text */
-            font-size: 1.5em; /* Adjusted for better readability */
+            color: var(--primary-color);
+            font-size: 1.2em; /* Smaller base for more UI */
             z-index: 10;
-            white-space: nowrap; /* Prevent wrapping */
-            padding: 5px 10px;
-            background-color: rgba(11, 12, 16, 0.7); /* Dark semi-transparent background */
-            border-radius: 5px;
+            white-space: nowrap;
+            padding: 4px 8px;
+            background-color: rgba(10, 10, 16, 0.8);
+            border-radius: 4px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,1);
         }
 
         #scoreDisplay {
-            top: 15px;
-            font-size: 1.8em;
+            top: 10px;
+            font-size: 1.5em;
         }
 
         #highScoreDisplay {
-            top: 55px; /* Position below score */
-            font-size: 1em;
-            color: #45a29e; /* Slightly darker teal for high score */
+            top: 45px;
+            font-size: 0.9em;
+            color: var(--secondary-color);
         }
 
-         #startScreen, #gameOverScreen {
+        #coinDisplay {
+            top: 70px;
+            font-size: 1.1em;
+            color: var(--coin-color);
+        }
+
+        #powerUpDisplay {
+            top: 100px;
+            font-size: 0.8em;
+            color: #7f7; /* Light green */
+            background-color: rgba(0, 50, 0, 0.7);
+            display: none; /* Hidden initially */
+        }
+
+        /* --- Screens --- */
+        .screen {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(11, 12, 16, 0.9); /* Dark overlay */
-            display: flex;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-color: rgba(10, 10, 16, 0.95);
+            display: none; /* Hidden by default */
             flex-direction: column;
             justify-content: center;
             align-items: center;
             z-index: 20;
-            padding: 20px;
+            padding: 15px;
             box-sizing: border-box;
+            text-align: center;
+            overflow-y: auto; /* Allow scrolling if content overflows */
         }
+        .screen.active { display: flex; } /* Show active screen */
 
         .screenTitle {
-            font-size: 2.5em; /* Larger title */
-            margin-bottom: 20px;
-            color: #66fcf1; /* Bright teal */
-            text-align: center;
+            font-size: 2em;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+            line-height: 1.2;
         }
 
         .screenText {
-            font-size: 1em;
-            margin-bottom: 30px;
-            color: #c5c6c7; /* Light grey */
-            text-align: center;
-            max-width: 80%;
+            font-size: 0.9em;
+            margin-bottom: 20px;
+            color: var(--text-color);
+            max-width: 90%;
         }
 
         .button {
             font-family: 'Press Start 2P', cursive;
-            font-size: 1.5em;
-            padding: 15px 30px;
-            background: linear-gradient(145deg, #4fa, #66fcf1); /* Teal gradient */
-            color: #0b0c10; /* Dark text on button */
+            font-size: 1.3em;
+            padding: 12px 25px;
+            background: linear-gradient(145deg, var(--secondary-color), var(--primary-color));
+            color: var(--background-dark);
             border: none;
             border-radius: 8px;
             cursor: pointer;
             text-shadow: none;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3), inset 0 -2px 2px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.4), inset 0 -2px 2px rgba(0, 0, 0, 0.2);
             transition: transform 0.1s ease, box-shadow 0.1s ease;
+            margin: 8px;
+            flex-shrink: 0; /* Prevent buttons shrinking */
         }
+         .button.small {
+            font-size: 1em;
+            padding: 8px 15px;
+         }
 
         .button:hover, .button:focus {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(102, 252, 241, 0.4), inset 0 -2px 2px rgba(0, 0, 0, 0.2);
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 5px 10px rgba(0, 255, 255, 0.5), inset 0 -2px 2px rgba(0, 0, 0, 0.2);
             outline: none;
         }
-
         .button:active {
             transform: translateY(1px);
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3), inset 0 -1px 1px rgba(0, 0, 0, 0.2);
         }
-
-        /* Hide screens initially */
-        #gameOverScreen {
-            display: none;
+        .button:disabled {
+            background: #555;
+            color: #999;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
         }
+
+        /* Character Selection & Shop Specifics */
+        .item-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            max-width: 100%;
+        }
+        .item-card {
+            background-color: var(--background-medium);
+            border: 2px solid var(--secondary-color);
+            border-radius: 8px;
+            padding: 10px;
+            width: 100px; /* Fixed width for consistency */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            cursor: pointer;
+            transition: background-color 0.2s, border-color 0.2s;
+        }
+        .item-card.selected {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 10px var(--primary-color);
+        }
+         .item-card.locked {
+             border-color: #666;
+             cursor: default;
+         }
+        .item-card canvas {
+            width: 60px; /* Preview size */
+            height: 60px;
+            margin-bottom: 5px;
+            background-color: var(--background-light); /* Background for preview */
+            border-radius: 4px;
+        }
+        .item-name {
+            font-size: 0.8em;
+            margin-bottom: 5px;
+        }
+        .item-cost {
+            font-size: 0.9em;
+            color: var(--coin-color);
+        }
+         .item-card.locked .item-cost {
+             color: #aaa;
+         }
 
         /* Small screen adjustments */
-        @media (max-width: 600px) {
-            .screenTitle {
-                font-size: 1.8em;
-            }
-            .screenText {
-                font-size: 0.8em;
-            }
-            .button {
-                font-size: 1.2em;
-                padding: 10px 20px;
-            }
-            #scoreDisplay {
-                font-size: 1.5em;
-            }
-             #highScoreDisplay {
-                font-size: 0.8em;
-             }
+        @media (max-width: 600px), (max-height: 700px) {
+            .screenTitle { font-size: 1.6em; margin-bottom: 10px; }
+            .screenText { font-size: 0.75em; margin-bottom: 15px;}
+            .button { font-size: 1.1em; padding: 10px 20px; margin: 5px;}
+            .button.small { font-size: 0.9em; padding: 6px 12px;}
+            #scoreDisplay { font-size: 1.3em; }
+            #highScoreDisplay { font-size: 0.8em; top: 38px; }
+            #coinDisplay { font-size: 1em; top: 58px;}
+            #powerUpDisplay { font-size: 0.7em; top: 80px;}
+            .item-card { width: 80px; padding: 8px;}
+            .item-card canvas { width: 50px; height: 50px;}
+            .item-name { font-size: 0.7em; }
+            .item-cost { font-size: 0.8em; }
         }
+         @media (max-height: 500px) {
+             .screenTitle { font-size: 1.4em; margin-bottom: 8px; }
+             .button { font-size: 1em; padding: 8px 15px; margin: 4px;}
+         }
 
     </style>
 </head>
 <body>
     <div id="gameContainer">
         <canvas id="gameCanvas"></canvas>
+
+        <!-- In-Game UI -->
         <div id="scoreDisplay" class="uiElement">Score: 0</div>
         <div id="highScoreDisplay" class="uiElement">Best: 0</div>
+        <div id="coinDisplay" class="uiElement">💰 0</div>
+        <div id="powerUpDisplay" class="uiElement"></div>
 
-        <div id="startScreen">
-            <div class="screenTitle">🚀 HyperJump Ascendancy 🚀</div>
+        <!-- Start Screen -->
+        <div id="startScreen" class="screen active">
+            <div class="screenTitle">🌌 Cosmic Ascendancy<br>ULTRA 🌌</div>
             <div class="screenText">
-                Reach for the stars! <br><br>
-                Controls:<br>
-                ⬅️ Arrow Keys ➡️ / Mouse / Touch
+                Keyboard: ⬅️ ➡️ | Mouse/Touch: Tilt/Tap Sides
             </div>
             <button id="startButton" class="button">S T A R T</button>
+            <button id="charSelectButton" class="button small">Characters</button>
+            <button id="shopButton" class="button small">Shop</button>
         </div>
 
-        <div id="gameOverScreen">
+        <!-- Game Over Screen -->
+        <div id="gameOverScreen" class="screen">
             <div class="screenTitle">💥 GAME OVER 💥</div>
             <div class="screenText" id="finalScoreText">Your Score: 0</div>
             <div class="screenText" id="gameOverHighScoreText">High Score: 0</div>
             <button id="restartButton" class="button">RESTART</button>
+            <button id="backToMenuButtonGO" class="button small">Main Menu</button>
         </div>
+
+        <!-- Character Selection Screen -->
+        <div id="charSelectScreen" class="screen">
+            <div class="screenTitle">🧑‍🚀 Select Character 👽</div>
+            <div id="charSelectContainer" class="item-container">
+                <!-- Character cards will be generated here -->
+            </div>
+             <div class="screenText" id="charSelectCoinDisplay">💰 0</div>
+            <button id="charSelectConfirmButton" class="button small">Select</button>
+            <button id="backToMenuButtonCS" class="button small">Back</button>
+        </div>
+
+        <!-- Shop Screen -->
+        <div id="shopScreen" class="screen">
+            <div class="screenTitle">🛒 Item Shop 🛒</div>
+            <div class="screenText">Spend your coins! (More items coming soon!)</div>
+            <div id="shopItemContainer" class="item-container">
+                 <!-- Shop items will be generated here -->
+                 <div class="screenText">(Shop functionality is basic for now)</div>
+            </div>
+            <div class="screenText" id="shopCoinDisplay">💰 0</div>
+            <button id="backToMenuButtonShop" class="button small">Back</button>
+        </div>
+
     </div>
 
     <script>
+        // --- Canvas & Context ---
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         const gameContainer = document.getElementById('gameContainer');
+
+        // --- UI Elements ---
         const scoreDisplay = document.getElementById('scoreDisplay');
         const highScoreDisplay = document.getElementById('highScoreDisplay');
+        const coinDisplay = document.getElementById('coinDisplay');
+        const powerUpDisplay = document.getElementById('powerUpDisplay');
         const startScreen = document.getElementById('startScreen');
         const gameOverScreen = document.getElementById('gameOverScreen');
+        const charSelectScreen = document.getElementById('charSelectScreen');
+        const shopScreen = document.getElementById('shopScreen');
         const startButton = document.getElementById('startButton');
         const restartButton = document.getElementById('restartButton');
         const finalScoreText = document.getElementById('finalScoreText');
         const gameOverHighScoreText = document.getElementById('gameOverHighScoreText');
+        const charSelectButton = document.getElementById('charSelectButton');
+        const shopButton = document.getElementById('shopButton');
+        const charSelectContainer = document.getElementById('charSelectContainer');
+        const shopItemContainer = document.getElementById('shopItemContainer');
+        const charSelectConfirmButton = document.getElementById('charSelectConfirmButton');
+        const backToMenuButtonGO = document.getElementById('backToMenuButtonGO');
+        const backToMenuButtonCS = document.getElementById('backToMenuButtonCS');
+        const backToMenuButtonShop = document.getElementById('backToMenuButtonShop');
+        const charSelectCoinDisplay = document.getElementById('charSelectCoinDisplay');
+        const shopCoinDisplay = document.getElementById('shopCoinDisplay');
 
         // --- Game Constants ---
-        const GRAVITY = 0.35;
-        const PLAYER_MOVE_SPEED = 7;
-        const PLAYER_JUMP_FORCE = -11; // Negative is up
-        const PLAYER_SPRING_JUMP_FORCE = -20; // Super jump
+        const GRAVITY = 0.38;
+        const PLAYER_MOVE_SPEED = 7.5;
+        const PLAYER_JUMP_FORCE = -11.5;
+        const PLAYER_SPRING_JUMP_FORCE = -21;
+        const PLAYER_PROPELLER_GRAVITY_FACTOR = 0.3; // Gravity reduction with propeller
         const PLAYER_WIDTH = 40;
         const PLAYER_HEIGHT = 55;
         const PLATFORM_HEIGHT = 15;
         const PLATFORM_WIDTH = 85;
-        const PLATFORM_SPAWN_MIN_Y_GAP = 80;
-        const PLATFORM_SPAWN_MAX_Y_GAP = 130;
-        const SCROLL_THRESHOLD_FACTOR = 0.4; // When player reaches 40% from top, scroll
-        const MOVING_PLATFORM_SPEED = 1.5;
-        const PLAYER_MAX_FALL_SPEED = 15;
+        const PLATFORM_SPAWN_MIN_Y_GAP = 85;
+        const PLATFORM_SPAWN_MAX_Y_GAP = 140;
+        const SCROLL_THRESHOLD_FACTOR = 0.4;
+        const MOVING_PLATFORM_SPEED = 1.8;
+        const PLAYER_MAX_FALL_SPEED = 16;
+        const COIN_SIZE = 15;
+        const COIN_SPAWN_CHANCE = 0.3; // 30% chance per platform
+        const POWERUP_SPAWN_CHANCE = 0.08; // 8% chance per platform (rarer)
+        const OBSTACLE_SPAWN_CHANCE = 0.05; // 5% chance STARTING - Increases with score
+        const MAGNET_RADIUS = 120;
+        const POWERUP_DURATION = 8000; // 8 seconds in milliseconds
 
         // --- Game Variables ---
         let player;
         let platforms = [];
+        let coins = [];
+        let powerUps = [];
+        let obstacles = [];
         let score = 0;
-        let highScore = localStorage.getItem('hyperJumpHighScore') || 0;
+        let highScore = 0;
+        let collectedCoins = 0;
+        let totalCoins = 0; // Persistent coins for shop
         let keys = { left: false, right: false };
-        let cameraY = 0; // How much the view has scrolled
-        let gameState = 'menu'; // 'menu', 'playing', 'gameOver'
-        let targetCanvasWidth = 450; // Target width
-        let targetCanvasHeight = 700; // Target height
+        let cameraY = 0;
+        let gameState = 'menu'; // 'menu', 'playing', 'gameOver', 'charSelect', 'shop'
+        let targetCanvasWidth = 450;
+        let targetCanvasHeight = 700;
         let scaleFactor = 1;
         let lastTime = 0;
         let animationFrameId;
+        let particleEffects = []; // For visual flair
 
-        // Player Animation State
-        let playerSquishFactor = 1; // For jump/land animation
+        // Player State
+        let playerSquishFactor = 1;
         let playerIsGrounded = false;
+        let selectedCharacterIndex = 0;
+        let purchasedCharacters = [true]; // Index 0 (default) is always purchased
+
+        // Power-up State
+        let activePowerUp = null; // { type: 'shield'/'propeller'/etc, endTime: timestamp }
+        let scoreMultiplier = 1;
+
+        // --- Characters --- (Define appearance - Add more!)
+        const characters = [
+            { name: 'Doodler', color: '#66fcf1', drawFunc: drawDefaultCharacter, cost: 0 },
+            { name: 'Pinky', color: '#ff80ed', drawFunc: drawSimpleCharacter, cost: 50 },
+            { name: 'Cyclops', color: '#f0a050', drawFunc: drawCyclopsCharacter, cost: 150 },
+            { name: 'Blocky', color: '#cccccc', drawFunc: drawBlockyCharacter, cost: 300 },
+            // Add more characters here...
+        ];
+
+        // --- Shop Items --- (Expand this)
+        const shopItems = [
+            // Initially, only characters are purchasable via the char select screen
+            // You could add cosmetic trails, different jump sounds (if implemented), etc.
+            { id: 'trail_rainbow', name: 'Rainbow Trail', cost: 500, type: 'cosmetic' },
+            { id: 'trail_fire', name: 'Fire Trail', cost: 750, type: 'cosmetic' },
+        ];
+        let purchasedItems = []; // IDs of purchased shop items
 
         // --- Utility Functions ---
-        function random(min, max) {
-            return Math.random() * (max - min) + min;
-        }
+        function random(min, max) { return Math.random() * (max - min) + min; }
+        function randomInt(min, max) { return Math.floor(random(min, max + 1)); }
+        function lerp(start, end, amount) { return start + (end - start) * amount; }
 
         function resizeCanvas() {
-            const containerWidth = window.innerWidth * 0.95; // Use 95% of width
-            const containerHeight = window.innerHeight * 0.95; // Use 95% of height
-
-            // Calculate scale factor based on height primarily, but don't exceed width
+            const containerWidth = window.innerWidth * 0.98;
+            const containerHeight = window.innerHeight * 0.98;
             scaleFactor = Math.min(containerWidth / targetCanvasWidth, containerHeight / targetCanvasHeight);
 
             canvas.width = targetCanvasWidth * scaleFactor;
             canvas.height = targetCanvasHeight * scaleFactor;
 
-            // Adjust container size if needed (optional, depends on desired layout)
             gameContainer.style.width = `${canvas.width}px`;
             gameContainer.style.height = `${canvas.height}px`;
 
-             // Re-scale UI elements if necessary (or use relative units like em/rem in CSS)
-            // Example: Adjust font size based on scaleFactor if needed
-            // scoreDisplay.style.fontSize = `${1.8 * scaleFactor}em`;
+            // Force redraw of UI elements in menus if needed
+            if (gameState === 'charSelect') populateCharSelect();
+            if (gameState === 'shop') populateShop();
         }
+
+        // --- Data Persistence ---
+        function saveData() {
+            localStorage.setItem('cosmicAscendancyUltra_highScore', highScore);
+            localStorage.setItem('cosmicAscendancyUltra_totalCoins', totalCoins);
+            localStorage.setItem('cosmicAscendancyUltra_selectedChar', selectedCharacterIndex);
+            localStorage.setItem('cosmicAscendancyUltra_purchasedChars', JSON.stringify(purchasedCharacters));
+            localStorage.setItem('cosmicAscendancyUltra_purchasedItems', JSON.stringify(purchasedItems));
+        }
+
+        function loadData() {
+            highScore = parseInt(localStorage.getItem('cosmicAscendancyUltra_highScore') || '0');
+            totalCoins = parseInt(localStorage.getItem('cosmicAscendancyUltra_totalCoins') || '0');
+            selectedCharacterIndex = parseInt(localStorage.getItem('cosmicAscendancyUltra_selectedChar') || '0');
+
+            const savedPurchased = localStorage.getItem('cosmicAscendancyUltra_purchasedChars');
+            if (savedPurchased) {
+                purchasedCharacters = JSON.parse(savedPurchased);
+                 // Ensure the array has the correct length if new characters were added
+                while (purchasedCharacters.length < characters.length) {
+                    purchasedCharacters.push(false);
+                }
+            } else {
+                purchasedCharacters = characters.map(c => c.cost === 0); // Default only
+            }
+             // Ensure selected character is valid and purchased
+            if (!purchasedCharacters[selectedCharacterIndex]) {
+                selectedCharacterIndex = 0; // Default if selected was invalid
+            }
+
+            const savedItems = localStorage.getItem('cosmicAscendancyUltra_purchasedItems');
+             if (savedItems) {
+                 purchasedItems = JSON.parse(savedItems);
+             } else {
+                 purchasedItems = [];
+             }
+
+            updateHighScoreDisplay();
+            updateCoinDisplay();
+        }
+
+        // --- Sound Placeholder ---
+        function playSound(soundId) {
+            // console.log(`SOUND: ${soundId}`); // Placeholder
+            // Add actual audio implementation here later if desired
+        }
+
+         // --- Particle Effects ---
+         class Particle {
+            constructor(x, y, color, size, life, vx, vy, gravity = 0.1) {
+                this.x = x;
+                this.y = y;
+                this.color = color;
+                this.size = size * scaleFactor;
+                this.maxLife = life;
+                this.life = life;
+                this.vx = vx * scaleFactor;
+                this.vy = vy * scaleFactor;
+                this.gravity = gravity;
+            }
+            update(deltaTime) {
+                this.x += this.vx * (deltaTime / 16.67);
+                this.y += this.vy * (deltaTime / 16.67);
+                this.vy += this.gravity * (deltaTime / 16.67);
+                this.life -= deltaTime;
+                this.size *= 0.98; // Shrink
+            }
+            draw() {
+                 if (this.life <= 0 || this.size <= 0.1) return;
+                 const alpha = Math.max(0, this.life / this.maxLife);
+                 ctx.fillStyle = `${this.color}${Math.round(alpha * 255).toString(16).padStart(2, '0')}`; // Add alpha hex
+                 ctx.beginPath();
+                 ctx.arc(this.x, this.y - cameraY, this.size, 0, Math.PI * 2);
+                 ctx.fill();
+            }
+         }
+
+        function createParticles(x, y, count, color, sizeRange, lifeRange, speedRange, gravity = 0.1) {
+            for (let i = 0; i < count; i++) {
+                const angle = Math.random() * Math.PI * 2;
+                const speed = random(speedRange[0], speedRange[1]);
+                const vx = Math.cos(angle) * speed;
+                const vy = Math.sin(angle) * speed;
+                const size = random(sizeRange[0], sizeRange[1]);
+                const life = random(lifeRange[0], lifeRange[1]);
+                particleEffects.push(new Particle(x, y, color, size, life, vx, vy, gravity));
+            }
+        }
+
+
+        // --- Character Drawing Functions ---
+        function drawDefaultCharacter(charData) {
+            // Rounded rectangle shape (Original Doodler style)
+            ctx.fillStyle = charData.color;
+            ctx.strokeStyle = var(--background-dark);
+            ctx.lineWidth = 2 * scaleFactor;
+            ctx.beginPath();
+            ctx.roundRect(-player.width / 2, -player.height / 2, player.width, player.height, 10 * scaleFactor);
+            ctx.fill();
+            ctx.stroke();
+
+            // Eyes
+            ctx.fillStyle = var(--background-dark);
+            const eyeWidth = 5 * scaleFactor; const eyeHeight = 7 * scaleFactor;
+            const eyeY = -player.height * 0.1; const eyeXOffset = player.width * 0.2;
+            ctx.beginPath(); ctx.ellipse(player.facingRight ? eyeXOffset : -eyeXOffset, eyeY, eyeWidth, eyeHeight, 0, 0, Math.PI * 2); ctx.fill();
+            ctx.beginPath(); ctx.ellipse(player.facingRight ? -eyeXOffset * 0.3 : eyeXOffset * 0.3, eyeY, eyeWidth * 0.8, eyeHeight * 0.8, 0, 0, Math.PI * 2); ctx.fill();
+             // Mouth
+             ctx.strokeStyle = var(--background-dark); ctx.lineWidth = 1.5 * scaleFactor;
+             ctx.beginPath(); ctx.moveTo(-player.width * 0.15, player.height * 0.2); ctx.lineTo(player.width * 0.15, player.height * 0.2); ctx.stroke();
+
+             // Propeller Hat (if active)
+            if (activePowerUp?.type === 'propeller') {
+                 ctx.fillStyle = '#aaa'; // Grey pole
+                 ctx.fillRect(-2 * scaleFactor, -player.height/2 - 10 * scaleFactor, 4 * scaleFactor, 10 * scaleFactor);
+                 // Spinning blades (simple rotation illusion)
+                 ctx.fillStyle = '#ddd';
+                 const bladeAngle = (performance.now() / 50) % (Math.PI * 2);
+                 ctx.translate(0, -player.height/2 - 10 * scaleFactor);
+                 ctx.rotate(bladeAngle);
+                 ctx.fillRect(-15 * scaleFactor, -2 * scaleFactor, 30 * scaleFactor, 4 * scaleFactor);
+                 ctx.rotate(Math.PI / 2); // Perpendicular blade
+                 ctx.fillRect(-15 * scaleFactor, -2 * scaleFactor, 30 * scaleFactor, 4 * scaleFactor);
+                 // Reset rotation and translation applied within this block
+            }
+        }
+
+        function drawSimpleCharacter(charData) {
+             // Simple circle
+            ctx.fillStyle = charData.color;
+            ctx.strokeStyle = var(--background-dark);
+            ctx.lineWidth = 2 * scaleFactor;
+            ctx.beginPath();
+            ctx.arc(0, 0, player.width / 2, 0, Math.PI * 2); // Centered circle
+            ctx.fill();
+            ctx.stroke();
+             // Eyes (larger)
+            ctx.fillStyle = '#fff'; // White sclera
+            const eyeSize = 8 * scaleFactor; const eyeY = -player.height * 0.1; const eyeXOffset = player.width * 0.15;
+            ctx.beginPath(); ctx.arc(player.facingRight ? eyeXOffset : -eyeXOffset, eyeY, eyeSize, 0, Math.PI*2); ctx.fill();
+            ctx.fillStyle = var(--background-dark); // Black pupil
+            ctx.beginPath(); ctx.arc(player.facingRight ? eyeXOffset + 2*scaleFactor : -eyeXOffset - 2*scaleFactor, eyeY, eyeSize * 0.5, 0, Math.PI*2); ctx.fill();
+        }
+
+        function drawCyclopsCharacter(charData) {
+             // Oval body
+            ctx.fillStyle = charData.color;
+            ctx.strokeStyle = var(--background-dark);
+            ctx.lineWidth = 2 * scaleFactor;
+            ctx.beginPath();
+            ctx.ellipse(0, 0, player.width / 2, player.height / 2.5, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+             // Single large eye
+            ctx.fillStyle = '#fff'; // White sclera
+            const eyeSize = 12 * scaleFactor; const eyeY = -player.height * 0.05;
+            ctx.beginPath(); ctx.arc(0, eyeY, eyeSize, 0, Math.PI*2); ctx.fill();
+            ctx.fillStyle = var(--background-dark); // Black pupil
+             const pupilOffsetX = player.vx * 0.5; // Pupil follows movement slightly
+            ctx.beginPath(); ctx.arc(pupilOffsetX, eyeY, eyeSize * 0.5, 0, Math.PI*2); ctx.fill();
+        }
+        function drawBlockyCharacter(charData) {
+            // Square body
+           ctx.fillStyle = charData.color;
+           ctx.strokeStyle = var(--background-dark);
+           ctx.lineWidth = 2 * scaleFactor;
+           ctx.beginPath();
+           // Draw slightly rounded rect for softer look
+           ctx.roundRect(-player.width / 2, -player.height / 2, player.width, player.height, 4 * scaleFactor);
+           ctx.fill();
+           ctx.stroke();
+
+           // Simple square eyes
+           ctx.fillStyle = var(--background-dark);
+           const eyeSize = 6 * scaleFactor;
+           const eyeY = -player.height * 0.1;
+           const eyeXOffset = player.width * 0.2;
+           ctx.fillRect((player.facingRight ? eyeXOffset : -eyeXOffset) - eyeSize / 2, eyeY - eyeSize / 2, eyeSize, eyeSize);
+           ctx.fillRect((player.facingRight ? -eyeXOffset * 0.3 : eyeXOffset * 0.3) - eyeSize / 2, eyeY - eyeSize / 2, eyeSize, eyeSize); // Second eye
+
+           // Straight line mouth
+           ctx.strokeStyle = var(--background-dark);
+           ctx.lineWidth = 2 * scaleFactor;
+           ctx.beginPath();
+           ctx.moveTo(-player.width * 0.2, player.height * 0.25);
+           ctx.lineTo(player.width * 0.2, player.height * 0.25);
+           ctx.stroke();
+       }
 
         // --- Game Objects ---
         class Player {
             constructor() {
-                this.width = PLAYER_WIDTH;
-                this.height = PLAYER_HEIGHT;
+                this.width = PLAYER_WIDTH * scaleFactor; // Scale dimensions
+                this.height = PLAYER_HEIGHT * scaleFactor;
                 this.x = canvas.width / 2 - this.width / 2;
-                this.y = canvas.height - this.height - 100; // Start lower
+                this.y = canvas.height - this.height - 100 * scaleFactor;
                 this.vx = 0;
                 this.vy = 0;
-                this.color = '#66fcf1'; // Teal player
-                this.facingRight = true; // For drawing eyes/features
+                this.facingRight = true;
+                this.charData = characters[selectedCharacterIndex]; // Load selected char data
+
+                 // Power-up flags
+                 this.shieldActive = false;
+                 this.magnetActive = false;
+                 this.propellerActive = false; // Specific flag for propeller effect
+            }
+
+            updateCharacter() {
+                 this.charData = characters[selectedCharacterIndex];
+                 // Adjust width/height if characters have different base sizes (optional)
+                 this.width = PLAYER_WIDTH * scaleFactor;
+                 this.height = PLAYER_HEIGHT * scaleFactor;
             }
 
             draw() {
                 ctx.save();
+                // Base translation for position
                 ctx.translate(this.x + this.width / 2, this.y + this.height / 2);
 
-                // Apply squish/stretch based on vertical velocity and grounded state
+                // Dynamic squish/stretch
                 let dynamicSquish = 1;
-                if (playerIsGrounded) {
-                     dynamicSquish = 1 - Math.min(0.2, Math.abs(this.vy * 0.05)); // Squish more on hard land
+                if (playerIsGrounded) dynamicSquish = 1 - Math.min(0.2, Math.abs(this.vy * 0.05));
+                else dynamicSquish = 1 + Math.min(0.3, Math.abs(this.vy * 0.02));
+                playerSquishFactor = lerp(playerSquishFactor, dynamicSquish, 0.15);
+                ctx.scale(playerSquishFactor, 1 / playerSquishFactor);
+
+                // Call the drawing function specific to the selected character
+                if (this.charData.drawFunc) {
+                    this.charData.drawFunc(this.charData);
                 } else {
-                     dynamicSquish = 1 + Math.min(0.3, Math.abs(this.vy * 0.02)); // Stretch while falling/rising fast
+                    drawDefaultCharacter(this.charData); // Fallback
                 }
-                 playerSquishFactor = lerp(playerSquishFactor, dynamicSquish, 0.15); // Smooth transition
 
-                ctx.scale(playerSquishFactor, 1 / playerSquishFactor); // Apply scaling
+                // Draw Shield (if active) - after character drawing
+                if (this.shieldActive) {
+                    ctx.strokeStyle = 'rgba(0, 200, 255, 0.7)'; // Translucent blue
+                    ctx.lineWidth = 4 * scaleFactor;
+                    ctx.beginPath();
+                    // Slightly larger circle/oval around the player
+                    ctx.ellipse(0, 0, this.width * 0.7, this.height * 0.7, 0, 0, Math.PI * 2);
+                    ctx.stroke();
+                }
+                // Draw Magnet Aura (if active)
+                 if (this.magnetActive) {
+                     ctx.strokeStyle = 'rgba(255, 255, 100, 0.3)'; // Yellowish aura
+                     ctx.lineWidth = 1 * scaleFactor;
+                     const auraRadius = MAGNET_RADIUS * scaleFactor * (0.8 + Math.sin(performance.now() / 200) * 0.2); // Pulsating
+                     ctx.beginPath();
+                     ctx.arc(0, 0, auraRadius, 0, Math.PI * 2);
+                     ctx.stroke();
+                 }
 
-                // Body
-                ctx.fillStyle = this.color;
-                ctx.strokeStyle = '#0b0c10'; // Dark outline
-                ctx.lineWidth = 2 * scaleFactor;
-                ctx.beginPath();
-                // Rounded rectangle shape
-                ctx.roundRect(-this.width / 2, -this.height / 2, this.width, this.height, 10 * scaleFactor);
-                ctx.fill();
-                ctx.stroke();
-
-                // Eyes (Simple ovals)
-                ctx.fillStyle = '#0b0c10'; // Black eyes
-                const eyeWidth = 5 * scaleFactor;
-                const eyeHeight = 7 * scaleFactor;
-                const eyeY = -this.height * 0.1;
-                const eyeXOffset = this.width * 0.2;
-
-                ctx.beginPath();
-                ctx.ellipse(this.facingRight ? eyeXOffset : -eyeXOffset, eyeY, eyeWidth, eyeHeight, 0, 0, Math.PI * 2);
-                ctx.fill();
-                 ctx.beginPath();
-                 ctx.ellipse(this.facingRight ? -eyeXOffset * 0.3 : eyeXOffset * 0.3, eyeY, eyeWidth * 0.8, eyeHeight * 0.8, 0, 0, Math.PI * 2); // Smaller eye
-                ctx.fill();
-
-                 // Mouth (Simple line)
-                 ctx.strokeStyle = '#0b0c10';
-                 ctx.lineWidth = 1.5 * scaleFactor;
-                 ctx.beginPath();
-                 ctx.moveTo(-this.width * 0.15, this.height * 0.2);
-                 ctx.lineTo(this.width * 0.15, this.height * 0.2);
-                 ctx.stroke();
-
-
-                ctx.restore();
+                ctx.restore(); // Restore context from base translation + squish
             }
 
             update(deltaTime) {
-                // Apply horizontal movement
-                if (keys.left) {
-                    this.vx = -PLAYER_MOVE_SPEED;
-                    this.facingRight = false;
-                } else if (keys.right) {
-                    this.vx = PLAYER_MOVE_SPEED;
-                    this.facingRight = true;
-                } else {
-                    this.vx = 0;
-                }
-                this.x += this.vx * (deltaTime / 16.67); // Normalize movement based on 60fps
+                // Horizontal movement
+                let targetVx = 0;
+                if (keys.left) targetVx = -PLAYER_MOVE_SPEED;
+                else if (keys.right) targetVx = PLAYER_MOVE_SPEED;
+                 this.vx = lerp(this.vx, targetVx, 0.2); // Smoother acceleration/deceleration
 
-                // Apply gravity
-                this.vy += GRAVITY * (deltaTime / 16.67);
+                this.x += this.vx * (deltaTime / 16.67);
+
+                // Gravity & Vertical Velocity
+                 let currentGravity = GRAVITY;
+                 if (this.propellerActive) {
+                     currentGravity *= PLAYER_PROPELLER_GRAVITY_FACTOR; // Reduced gravity
+                     // Add a slight upward boost if falling slowly or rising
+                     if (this.vy > -2) this.vy -= 0.1 * (deltaTime / 16.67);
+                 }
+                this.vy += currentGravity * (deltaTime / 16.67);
                 this.vy = Math.min(this.vy, PLAYER_MAX_FALL_SPEED); // Terminal velocity
                 this.y += this.vy * (deltaTime / 16.67);
 
                 // Screen wrap horizontally
-                if (this.x > canvas.width) {
-                    this.x = -this.width;
-                } else if (this.x < -this.width) {
-                    this.x = canvas.width;
-                }
+                if (this.x > canvas.width) this.x = -this.width;
+                else if (this.x < -this.width) this.x = canvas.width;
 
-                // Check for game over
+                // Check for game over (falling off screen)
                 if (this.y - cameraY > canvas.height) {
                     gameOver();
                 }
 
-                playerIsGrounded = false; // Reset before collision check
+                playerIsGrounded = false;
+
+                 // Magnet effect - pull coins
+                 if (this.magnetActive) {
+                     coins.forEach(coin => {
+                         if (!coin.collected) {
+                             const dx = (this.x + this.width / 2) - coin.x;
+                             const dy = (this.y + this.height / 2) - coin.y;
+                             const distSq = dx * dx + dy * dy;
+                             const magnetRadiusSq = (MAGNET_RADIUS * scaleFactor) * (MAGNET_RADIUS * scaleFactor);
+
+                             if (distSq < magnetRadiusSq) {
+                                 const dist = Math.sqrt(distSq);
+                                 const pullStrength = 1 - (dist / (MAGNET_RADIUS * scaleFactor)); // Stronger when closer
+                                 coin.vx = lerp(coin.vx, (dx / dist) * -PLAYER_MOVE_SPEED * 0.8 * pullStrength, 0.1); // Move towards player
+                                 coin.vy = lerp(coin.vy, (dy / dist) * -PLAYER_MOVE_SPEED * 0.8 * pullStrength, 0.1);
+                             } else {
+                                coin.vx = lerp(coin.vx, 0, 0.1); // Slow down if out of range
+                                coin.vy = lerp(coin.vy, 0, 0.1);
+                             }
+                         }
+                     });
+                 }
             }
 
             jump(force = PLAYER_JUMP_FORCE) {
-                 if (this.vy >= -2) { // Allow jumping even if slightly moving up
+                 if (this.vy >= -2 || this.propellerActive) { // Allow jumping easier with propeller
                     this.vy = force;
                     playSound('jump');
-                    playerSquishFactor = 0.8; // Immediate squish on jump start
+                    playerSquishFactor = 0.8;
                 }
             }
 
-             handleCollision(platform) {
-                 // Simple AABB collision detection only if falling down
-                 if (this.vy > 0 &&
-                     this.x < platform.x + platform.width &&
+             handlePlatformCollision(platform) {
+                 if (this.vy > 0 && // Only check if falling
+                     this.x < platform.x + platform.scaledWidth &&
                      this.x + this.width > platform.x &&
                      this.y + this.height > platform.y &&
-                     this.y + this.height < platform.y + platform.height + Math.abs(this.vy) // Check slightly below for landing robustness
+                     this.y + this.height < platform.y + platform.scaledHeight + Math.abs(this.vy * (deltaTime / 16.67) * 1.5) // Generous check below
                  ) {
-                     // Landed!
-                     this.y = platform.y - this.height; // Correct position
+                     this.y = platform.y - this.height;
                      playerIsGrounded = true;
+                     playerSquishFactor = 1.2;
 
-                     switch (platform.type) {
-                         case 'static':
-                             this.jump();
-                             break;
-                         case 'moving':
-                             this.jump();
-                             // Add platform's horizontal velocity? (optional complexity)
-                             // this.x += platform.vx;
-                             break;
-                         case 'breakable':
-                             this.jump();
-                             platform.break();
-                             break;
-                         case 'spring':
-                             this.jump(PLAYER_SPRING_JUMP_FORCE);
-                             platform.activateSpring();
-                             break;
+                     let jumpForce = PLAYER_JUMP_FORCE;
+                     if (activePowerUp?.type === 'superSprings') {
+                        jumpForce = PLAYER_SPRING_JUMP_FORCE;
+                        platform.activateSpring(); // Visual effect even if not a spring platform
+                        playSound('spring');
+                     } else {
+                         switch (platform.type) {
+                             case 'moving':
+                                 // Optional: Add platform velocity slightly?
+                                 // this.x += platform.vx * (deltaTime / 16.67);
+                                 playSound('jump');
+                                 break;
+                             case 'breakable':
+                                 platform.break(); // Sound played in break()
+                                 break;
+                             case 'spring':
+                                 jumpForce = PLAYER_SPRING_JUMP_FORCE;
+                                 platform.activateSpring(); // Sound played in activateSpring()
+                                 break;
+                             case 'static':
+                             default:
+                                 playSound('jump');
+                                 break;
+                         }
                      }
-                      playerSquishFactor = 1.2; // Squash effect on land
+                      this.jump(jumpForce);
+                      return true; // Collision happened
                  }
+                 return false; // No collision
+             }
+
+            handleCoinCollision(coin) {
+                 if (!coin.collected &&
+                     this.x < coin.x + coin.scaledSize &&
+                     this.x + this.width > coin.x &&
+                     this.y < coin.y + coin.scaledSize &&
+                     this.y + this.height > coin.y
+                 ) {
+                     coin.collect();
+                     return true;
+                 }
+                 return false;
+             }
+
+             handlePowerUpCollision(powerUp) {
+                  if (!powerUp.collected &&
+                      this.x < powerUp.x + powerUp.width &&
+                      this.x + this.width > powerUp.x &&
+                      this.y < powerUp.y + powerUp.height &&
+                      this.y + this.height > powerUp.y
+                  ) {
+                      powerUp.collect();
+                      return true;
+                  }
+                  return false;
+              }
+
+             handleObstacleCollision(obstacle) {
+                 if (!obstacle.triggered && // Only trigger once
+                     this.x < obstacle.x + obstacle.width &&
+                     this.x + this.width > obstacle.x &&
+                     this.y < obstacle.y + obstacle.height &&
+                     this.y + this.height > obstacle.y
+                 ) {
+                     obstacle.trigger(); // Mark as triggered
+                     if (this.shieldActive) {
+                         deactivatePowerUp('shield'); // Consume shield
+                         playSound('shield_break');
+                          createParticles(obstacle.x + obstacle.width / 2, obstacle.y + obstacle.height/2,
+                                          20, '#00c8ff', [2, 5], [300, 600], [1, 4], 0.05); // Shield break effect
+                     } else {
+                         playSound('hit_obstacle');
+                         gameOver(); // Game over if no shield
+                     }
+                     return true;
+                 }
+                 return false;
              }
         }
 
         class Platform {
             constructor(x, y, type = 'static') {
-                this.width = PLATFORM_WIDTH;
-                this.height = PLATFORM_HEIGHT;
+                this.baseWidth = PLATFORM_WIDTH;
+                this.baseHeight = PLATFORM_HEIGHT;
+                this.scaledWidth = this.baseWidth * scaleFactor;
+                this.scaledHeight = this.baseHeight * scaleFactor;
                 this.x = x;
                 this.y = y;
                 this.type = type;
-                this.isVisible = true; // For breakable platforms
-                this.animationState = 0; // For effects
-                this.vx = 0; // For moving platforms
-                this.direction = 1; // For moving platforms
+                this.isVisible = true;
+                this.animationState = 0;
+                this.vx = 0;
+                this.direction = 1;
 
-                if (this.type === 'moving') {
-                    this.color = '#4da6ff'; // Blue
-                    this.vx = MOVING_PLATFORM_SPEED * (Math.random() < 0.5 ? 1 : -1);
-                } else if (this.type === 'breakable') {
-                    this.color = '#a0522d'; // Brown
-                } else if (this.type === 'spring') {
-                    this.color = '#ffd700'; // Yellow/Gold
-                } else {
-                    this.color = '#50c878'; // Green
+                // Assign color based on type
+                switch(type) {
+                    case 'moving': this.color = '#4da6ff'; this.vx = MOVING_PLATFORM_SPEED * (Math.random() < 0.5 ? 1 : -1); break;
+                    case 'breakable': this.color = '#a0522d'; break;
+                    case 'spring': this.color = '#ffd700'; break;
+                    default: this.color = '#50c878'; break; // static
                 }
+            }
+
+            rescale() { // Call on resize
+                this.scaledWidth = this.baseWidth * scaleFactor;
+                this.scaledHeight = this.baseHeight * scaleFactor;
             }
 
             draw() {
                  if (!this.isVisible) return;
-
                  const screenY = this.y - cameraY;
-                 const wobbleFactor = this.type === 'spring' && this.animationState > 0 ? Math.sin(this.animationState * Math.PI * 2) * 0.1 : 0;
+                 if (screenY > canvas.height || screenY < -this.scaledHeight) return; // Basic culling
+
+                 const wobbleFactor = (this.type === 'spring' || activePowerUp?.type === 'superSprings') && this.animationState > 0 ? Math.sin(this.animationState * Math.PI * 2) * 0.1 : 0;
 
                  ctx.save();
-                 ctx.translate(this.x + this.width / 2, screenY + this.height / 2);
-                 ctx.scale(1 + wobbleFactor, 1 - wobbleFactor); // Wobble effect
+                 ctx.translate(this.x + this.scaledWidth / 2, screenY + this.scaledHeight / 2);
+                 ctx.scale(1 + wobbleFactor, 1 - wobbleFactor);
 
-                 // Main platform color
-                 ctx.fillStyle = this.color;
+                 let alpha = 1;
+                 let fillColor = this.color;
                  if (this.type === 'breakable' && this.animationState > 0) {
-                     // Fade out effect
-                     ctx.globalAlpha = 1 - this.animationState;
-                     ctx.fillStyle = '#654321'; // Darker brown when breaking
+                     alpha = 1 - this.animationState;
+                     fillColor = '#654321'; // Darker breaking color
                  }
-                  ctx.roundRect(-this.width / 2, -this.height / 2, this.width, this.height, 5 * scaleFactor);
-                  ctx.fill();
+                 ctx.globalAlpha = alpha;
+                 ctx.fillStyle = fillColor;
 
-                 // Add subtle highlight/shadow for depth
+                 // Use roundRect for nicer look
+                 ctx.beginPath();
+                 ctx.roundRect(-this.scaledWidth / 2, -this.scaledHeight / 2, this.scaledWidth, this.scaledHeight, 5 * scaleFactor);
+                 ctx.fill();
+
+                 // Subtle highlight/shadow
                  ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
-                 ctx.fillRect(-this.width / 2, -this.height / 2, this.width, 2 * scaleFactor); // Top highlight
+                 ctx.fillRect(-this.scaledWidth / 2, -this.scaledHeight / 2, this.scaledWidth, 2 * scaleFactor);
                  ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
-                 ctx.fillRect(-this.width / 2, this.height / 2 - 2 * scaleFactor, this.width, 2 * scaleFactor); // Bottom shadow
+                 ctx.fillRect(-this.scaledWidth / 2, this.scaledHeight / 2 - 2 * scaleFactor, this.scaledWidth, 2 * scaleFactor);
 
                  // Spring visual cue
                  if (this.type === 'spring') {
                     ctx.fillStyle = '#fff';
                     ctx.beginPath();
-                    ctx.arc(0, -this.height * 0.6, 3 * scaleFactor, 0, Math.PI * 2); // Small white circle on top
+                    ctx.arc(0, -this.scaledHeight * 0.6, 3 * scaleFactor, 0, Math.PI * 2);
                     ctx.fill();
                  }
 
@@ -441,259 +882,748 @@
             update(deltaTime) {
                  if (this.type === 'moving') {
                     this.x += this.vx * this.direction * (deltaTime / 16.67);
-                    if (this.x <= 0 || this.x + this.width >= canvas.width) {
-                        this.direction *= -1; // Reverse direction at edges
-                        this.x = Math.max(0, Math.min(this.x, canvas.width - this.width)); // Clamp position
+                    if (this.x <= 0 || this.x + this.scaledWidth >= canvas.width) {
+                        this.direction *= -1;
+                        this.x = Math.max(0, Math.min(this.x, canvas.width - this.scaledWidth));
                     }
                  }
-
-                 // Handle breakable platform animation/removal
                  if (this.type === 'breakable' && this.animationState > 0) {
-                     this.animationState += 0.05 * (deltaTime / 16.67); // Fade out speed
-                     if (this.animationState >= 1) {
-                         this.isVisible = false;
-                     }
+                     this.animationState += 0.05 * (deltaTime / 16.67);
+                     if (this.animationState >= 1) this.isVisible = false;
                  }
-                  // Handle spring animation reset
-                 if (this.type === 'spring' && this.animationState > 0) {
-                     this.animationState -= 0.1 * (deltaTime / 16.67); // Reset speed
-                      if (this.animationState < 0) this.animationState = 0;
+                 if ((this.type === 'spring' || activePowerUp?.type === 'superSprings') && this.animationState > 0) {
+                    this.animationState -= 0.1 * (deltaTime / 16.67);
+                    if (this.animationState < 0) this.animationState = 0;
                  }
             }
 
             break() {
-                if (this.animationState === 0) { // Only break once
-                    this.animationState = 0.01; // Start breaking animation
+                if (this.animationState === 0) {
+                    this.animationState = 0.01;
                     playSound('break');
+                    // Add breaking particles
+                     createParticles(this.x + this.scaledWidth / 2, this.y + this.scaledHeight / 2,
+                                    15, this.color, [1, 4], [200, 500], [0.5, 2], 0.08);
                 }
             }
              activateSpring() {
-                this.animationState = 1; // Start spring wobble
-                playSound('spring');
+                if (this.animationState <= 0) { // Only trigger if not already animating strongly
+                    this.animationState = 1;
+                    playSound('spring');
+                }
              }
         }
 
-        // --- Game Logic Functions ---
-        function initGame() {
-            resizeCanvas(); // Initial size set
-
-            player = new Player();
-            platforms = [];
-            cameraY = 0;
-            score = 0;
-            gameState = 'menu';
-
-            // Create initial platforms
-            let startPlatform = new Platform(canvas.width / 2 - PLATFORM_WIDTH / 2, canvas.height - 80 * scaleFactor, 'static');
-            platforms.push(startPlatform);
-
-            let lastPlatformY = startPlatform.y;
-            while (lastPlatformY > -canvas.height) { // Generate platforms up to one screen above start
-                 lastPlatformY -= random(PLATFORM_SPAWN_MIN_Y_GAP, PLATFORM_SPAWN_MAX_Y_GAP) * scaleFactor;
-                 generatePlatform(lastPlatformY);
+        class Coin {
+            constructor(x, y) {
+                this.baseSize = COIN_SIZE;
+                this.scaledSize = this.baseSize * scaleFactor;
+                this.x = x;
+                this.y = y;
+                this.collected = false;
+                this.color = var(--coin-color); // Gold
+                this.animationOffset = Math.random() * Math.PI * 2; // For sparkle/bobbing
+                this.vx = 0; // For magnet effect
+                this.vy = 0;
             }
 
-             updateScoreDisplay();
-             updateHighScoreDisplay(); // Initial display
-             startScreen.style.display = 'flex';
-             gameOverScreen.style.display = 'none';
+             rescale() {
+                 this.scaledSize = this.baseSize * scaleFactor;
+             }
+
+            draw() {
+                if (this.collected) return;
+                 const screenY = this.y - cameraY;
+                 if (screenY > canvas.height || screenY < -this.scaledSize) return;
+
+                 const bobAmount = Math.sin(performance.now() / 300 + this.animationOffset) * 3 * scaleFactor;
+                 const currentSize = this.scaledSize * (0.9 + Math.sin(performance.now() / 200 + this.animationOffset) * 0.1); // Pulsate slightly
+
+                 ctx.save();
+                 ctx.translate(this.x + this.scaledSize / 2, screenY + this.scaledSize / 2 + bobAmount);
+
+                 // Coin Body
+                 ctx.fillStyle = this.color;
+                 ctx.beginPath();
+                 ctx.arc(0, 0, currentSize / 2, 0, Math.PI * 2);
+                 ctx.fill();
+
+                 // Simple shine effect
+                 ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+                 ctx.beginPath();
+                 ctx.arc(-currentSize * 0.2, -currentSize * 0.2, currentSize * 0.2, 0, Math.PI * 2);
+                 ctx.fill();
+
+                 // Simple symbol ($ or star)
+                 ctx.fillStyle = '#b8860b'; // Darker gold
+                 ctx.font = `${currentSize * 0.6}px "Press Start 2P"`;
+                 ctx.textAlign = 'center';
+                 ctx.textBaseline = 'middle';
+                 ctx.fillText('$', 0, 0);
+
+                 ctx.restore();
+            }
+             update(deltaTime) {
+                 if(this.collected) return;
+                 // Apply velocity from magnet effect
+                 this.x += this.vx * (deltaTime / 16.67);
+                 this.y += this.vy * (deltaTime / 16.67);
+
+             }
+             collect() {
+                if (!this.collected) {
+                    this.collected = true;
+                    collectedCoins += 1; // Increment session coins
+                    totalCoins += 1; // Increment persistent coins
+                    playSound('coin');
+                    updateCoinDisplay(); // Update UI immediately
+                     // Coin collection particles
+                     createParticles(this.x + this.scaledSize / 2, this.y + this.scaledSize / 2,
+                                     10, this.color, [1, 3], [150, 400], [1, 3], 0.02);
+                }
+            }
+        }
+
+        class PowerUp {
+             constructor(x, y, type) {
+                 this.x = x;
+                 this.y = y;
+                 this.type = type; // 'shield', 'propeller', 'magnet', 'superSprings', 'multiplier'
+                 this.width = 30 * scaleFactor;
+                 this.height = 30 * scaleFactor;
+                 this.collected = false;
+                 this.animationOffset = Math.random() * Math.PI;
+
+                 // Assign visuals based on type
+                 switch(type) {
+                     case 'shield': this.color = '#00aaff'; this.symbol = '🛡️'; break; // Needs emoji support or draw icon
+                     case 'propeller': this.color = '#aaaaaa'; this.symbol = ' P '; break; // Draw manually?
+                     case 'magnet': this.color = '#ffff00'; this.symbol = ' M '; break; // Draw manually? U? 🧲
+                     case 'superSprings': this.color = '#ff8800'; this.symbol = ' S '; break; // Draw manually? 🚀
+                     case 'multiplier': this.color = '#ff00ff'; this.symbol = 'x2'; break;
+                     default: this.color = '#ffffff'; this.symbol = '?'; break;
+                 }
+             }
+
+              rescale() {
+                  this.width = 30 * scaleFactor;
+                  this.height = 30 * scaleFactor;
+              }
+
+             draw() {
+                 if (this.collected) return;
+                 const screenY = this.y - cameraY;
+                  if (screenY > canvas.height || screenY < -this.height) return;
+
+                 const bobAmount = Math.sin(performance.now() / 350 + this.animationOffset) * 4 * scaleFactor;
+
+                 ctx.save();
+                 ctx.translate(this.x + this.width / 2, screenY + this.height / 2 + bobAmount);
+
+                 // Background bubble
+                 ctx.fillStyle = this.color + 'aa'; // Semi-transparent
+                 ctx.beginPath();
+                 ctx.arc(0, 0, this.width / 1.8, 0, Math.PI * 2);
+                 ctx.fill();
+                 // Outline
+                 ctx.strokeStyle = this.color;
+                 ctx.lineWidth = 1.5 * scaleFactor;
+                 ctx.stroke();
+
+                 // Draw Symbol (Text based for simplicity)
+                 ctx.fillStyle = '#000'; // Black symbol usually visible
+                 ctx.font = `bold ${this.height * 0.6}px "Press Start 2P"`;
+                 ctx.textAlign = 'center';
+                 ctx.textBaseline = 'middle';
+                 // Special drawing for propeller/magnet if needed
+                 if (this.type === 'propeller') this.drawPropellerSymbol();
+                 else if (this.type === 'magnet') this.drawMagnetSymbol();
+                 else if (this.type === 'superSprings') this.drawSpringSymbol();
+                 else ctx.fillText(this.symbol, 0, 0);
+
+                 ctx.restore();
+             }
+
+             // Example drawing functions for symbols
+             drawPropellerSymbol() {
+                 ctx.fillStyle = '#555'; ctx.fillRect(-this.width*0.1, -this.height*0.3, this.width*0.2, this.height*0.3);
+                 ctx.fillStyle = '#888'; ctx.fillRect(-this.width*0.4, -this.height*0.4, this.width*0.8, this.height*0.15);
+             }
+             drawMagnetSymbol() {
+                 ctx.fillStyle = '#c00'; ctx.fillRect(-this.width*0.3, -this.height*0.3, this.width*0.2, this.height*0.5);
+                 ctx.fillStyle = '#aaa'; ctx.fillRect( this.width*0.1, -this.height*0.3, this.width*0.2, this.height*0.5);
+                 ctx.fillStyle = '#555'; ctx.fillRect(-this.width*0.3, -this.height*0.4, this.width*0.6, this.height*0.15);
+             }
+              drawSpringSymbol() {
+                  ctx.strokeStyle = '#888'; ctx.lineWidth = 2 * scaleFactor;
+                  ctx.beginPath(); ctx.moveTo(-this.width*0.3, this.height*0.3);
+                  let y = this.height*0.3; let xOff = this.width*0.3;
+                  for(let i=0; i<3; i++) {
+                      y -= this.height*0.2; xOff*=-1; ctx.lineTo(xOff, y);
+                  }
+                  ctx.stroke();
+                  ctx.fillStyle = '#aaa'; ctx.fillRect(-this.width*0.4, this.height*0.3, this.width*0.8, this.height*0.1);
+              }
+
+              update(deltaTime) { /* Bobbing/Rotation? */ }
+
+             collect() {
+                 if (!this.collected) {
+                     this.collected = true;
+                     activatePowerUp(this.type);
+                     playSound('powerup');
+                      createParticles(this.x + this.width / 2, this.y + this.height / 2,
+                                     25, this.color, [2, 5], [400, 800], [1, 5], 0.01);
+                 }
+             }
+        }
+
+         class Obstacle {
+             constructor(x, y, type) {
+                 this.x = x;
+                 this.y = y;
+                 this.type = type; // 'monster', 'blackHole', 'spikes'
+                 this.triggered = false;
+                 this.animationOffset = Math.random() * Math.PI * 2;
+
+                 // Define properties based on type
+                 switch(type) {
+                     case 'monster':
+                         this.width = 50 * scaleFactor;
+                         this.height = 40 * scaleFactor;
+                         this.color = '#ff6347'; // Tomato red
+                         this.vx = (random(1, 2.5) * (Math.random() < 0.5 ? 1 : -1)) * scaleFactor; // Random speed & direction
+                         this.eyeColor = '#fff';
+                         break;
+                     case 'blackHole':
+                         this.width = 60 * scaleFactor;
+                         this.height = 60 * scaleFactor;
+                         this.color = '#222';
+                         this.pullRadius = 150 * scaleFactor;
+                         this.pullStrength = 0.5; // Gravity-like pull
+                         break;
+                     case 'spikes':
+                         this.width = PLATFORM_WIDTH * 0.8 * scaleFactor; // Size relative to platform
+                         this.height = 20 * scaleFactor;
+                         this.color = '#aaaaaa'; // Grey
+                         this.vx = 0; // Static usually
+                         break;
+                     default: // Fallback
+                         this.width = 40*scaleFactor; this.height = 40*scaleFactor; this.color=var(--danger-color); this.vx=0; break;
+                 }
+             }
+
+              rescale() {
+                 // Recalculate dimensions and speeds based on new scaleFactor
+                 switch(this.type) {
+                     case 'monster':
+                         this.width = 50 * scaleFactor; this.height = 40 * scaleFactor;
+                         // Note: Adjusting vx requires tracking original base speed or recalculating
+                         break;
+                     case 'blackHole':
+                         this.width = 60 * scaleFactor; this.height = 60 * scaleFactor;
+                         this.pullRadius = 150 * scaleFactor;
+                         break;
+                     case 'spikes':
+                          this.width = PLATFORM_WIDTH * 0.8 * scaleFactor;
+                         this.height = 20 * scaleFactor;
+                         break;
+                     default: this.width = 40*scaleFactor; this.height = 40*scaleFactor; break;
+                 }
+              }
+
+             draw() {
+                  const screenY = this.y - cameraY;
+                  if (screenY > canvas.height || screenY < -this.height * 2) return; // More generous culling upwards
+
+                  ctx.save();
+                  ctx.translate(this.x + this.width / 2, screenY + this.height / 2);
+
+                  switch(this.type) {
+                     case 'monster': this.drawMonster(); break;
+                     case 'blackHole': this.drawBlackHole(); break;
+                     case 'spikes': this.drawSpikes(); break;
+                     default: this.drawDefaultObstacle(); break;
+                  }
+
+                  ctx.restore();
+             }
+
+             drawMonster() {
+                 // Simple oval body
+                 ctx.fillStyle = this.color;
+                 ctx.beginPath();
+                 ctx.ellipse(0, 0, this.width / 2, this.height / 2, 0, 0, Math.PI * 2);
+                 ctx.fill();
+                 // Eyes (angry looking)
+                 const eyeY = -this.height * 0.1;
+                 const eyeSize = 5 * scaleFactor;
+                 ctx.fillStyle = this.eyeColor;
+                 ctx.beginPath(); ctx.arc(-this.width*0.2, eyeY, eyeSize, 0, Math.PI*2); ctx.fill();
+                 ctx.beginPath(); ctx.arc( this.width*0.2, eyeY, eyeSize, 0, Math.PI*2); ctx.fill();
+                 // Pupils looking towards player (simplified: center or side based on player x)
+                 const pupilX = (player.x + player.width/2 < this.x + this.width/2) ? -eyeSize*0.2 : eyeSize*0.2;
+                 ctx.fillStyle = '#000';
+                 ctx.beginPath(); ctx.arc(-this.width*0.2 + pupilX, eyeY, eyeSize*0.5, 0, Math.PI*2); ctx.fill();
+                 ctx.beginPath(); ctx.arc( this.width*0.2 + pupilX, eyeY, eyeSize*0.5, 0, Math.PI*2); ctx.fill();
+                 // Simple mouth
+                  ctx.strokeStyle = '#000'; ctx.lineWidth = 1.5 * scaleFactor;
+                  ctx.beginPath(); ctx.moveTo(-this.width*0.25, this.height*0.2); ctx.lineTo(this.width*0.25, this.height*0.2); ctx.stroke();
+             }
+
+             drawBlackHole() {
+                 // Pulsating dark center
+                 const coreRadius = this.width * 0.3 * (0.8 + Math.sin(performance.now()/150 + this.animationOffset) * 0.2);
+                 ctx.fillStyle = '#000';
+                 ctx.beginPath(); ctx.arc(0, 0, coreRadius, 0, Math.PI*2); ctx.fill();
+                 // Swirling gradient effect (concentric rings)
+                 for (let r = coreRadius; r < this.width / 2; r += 4 * scaleFactor) {
+                     const alpha = 1 - (r / (this.width / 2));
+                     const grey = Math.floor(alpha * 50) + 10; // Dark greys
+                     ctx.strokeStyle = `rgba(${grey}, ${grey}, ${grey}, ${alpha * 0.5})`;
+                     ctx.lineWidth = 2 * scaleFactor;
+                     ctx.beginPath();
+                     ctx.arc(0, 0, r, 0, Math.PI * 2);
+                     ctx.stroke();
+                 }
+             }
+
+             drawSpikes() {
+                 ctx.fillStyle = this.color;
+                 const spikeCount = 5;
+                 const spikeBaseWidth = this.width / spikeCount;
+                 ctx.beginPath();
+                 ctx.moveTo(-this.width / 2, this.height / 2); // Start bottom left
+                 for (let i = 0; i < spikeCount; i++) {
+                     const baseX = -this.width / 2 + i * spikeBaseWidth;
+                     ctx.lineTo(baseX + spikeBaseWidth / 2, -this.height / 2); // Point up
+                     ctx.lineTo(baseX + spikeBaseWidth, this.height / 2);      // Down to base
+                 }
+                 ctx.closePath();
+                 ctx.fill();
+                  // Add a darker base rectangle
+                  ctx.fillStyle = '#666';
+                  ctx.fillRect(-this.width/2, this.height/2 - 3*scaleFactor, this.width, 3*scaleFactor);
+             }
+
+             drawDefaultObstacle() {
+                 ctx.fillStyle = this.color;
+                 ctx.fillRect(-this.width/2, -this.height/2, this.width, this.height);
+                 ctx.fillStyle = '#000';
+                 ctx.font = `${this.height*0.6}px "Press Start 2P"`; ctx.textAlign='center'; ctx.textBaseline='middle';
+                 ctx.fillText('!', 0, 0);
+             }
+
+
+             update(deltaTime) {
+                 // Movement for monsters
+                 if (this.type === 'monster') {
+                     this.x += this.vx * (deltaTime / 16.67);
+                     // Bounce off screen edges (or maybe despawn?)
+                     if (this.x <= 0 || this.x + this.width >= canvas.width) {
+                         this.vx *= -1;
+                         this.x = Math.max(0, Math.min(this.x, canvas.width - this.width));
+                     }
+                 }
+
+                  // Apply pull for black holes
+                  if (this.type === 'blackHole' && gameState === 'playing') {
+                      const dx = (this.x + this.width / 2) - (player.x + player.width / 2);
+                      const dy = (this.y + this.height / 2) - (player.y + player.height / 2);
+                      const distSq = dx * dx + dy * dy;
+
+                      if (distSq < this.pullRadius * this.pullRadius && distSq > 0) {
+                          const dist = Math.sqrt(distSq);
+                          const force = (1 - (dist / this.pullRadius)) * this.pullStrength; // Stronger closer
+                          // Apply force directly to player velocity
+                          player.vx -= (dx / dist) * force * (deltaTime / 16.67);
+                          player.vy -= (dy / dist) * force * (deltaTime / 16.67);
+                      }
+                  }
+             }
+
+             trigger() {
+                 this.triggered = true;
+                 // Add visual effect on trigger? (e.g., flash, particles)
+                  createParticles(this.x + this.width / 2, this.y + this.height/2,
+                                  15, var(--danger-color), [3, 6], [200, 500], [1, 4]);
+             }
+         }
+
+        // --- Game State Management ---
+        function switchState(newState) {
+            // Hide all screens
+            startScreen.classList.remove('active');
+            gameOverScreen.classList.remove('active');
+            charSelectScreen.classList.remove('active');
+            shopScreen.classList.remove('active');
+
+             // Stop game loop if exiting playing state
+            if (gameState === 'playing' && newState !== 'playing') {
+                cancelAnimationFrame(animationFrameId);
+            }
+
+            gameState = newState;
+
+            // Show the relevant screen
+            switch(newState) {
+                case 'menu':
+                    startScreen.classList.add('active');
+                    break;
+                case 'playing':
+                    // UI handled by canvas drawing loop
+                    if (!animationFrameId) { // Resume loop if paused
+                         lastTime = performance.now();
+                         animationFrameId = requestAnimationFrame(gameLoop);
+                    }
+                    break;
+                case 'gameOver':
+                    gameOverScreen.classList.add('active');
+                    updateGameOverScreen();
+                    break;
+                case 'charSelect':
+                    charSelectScreen.classList.add('active');
+                    populateCharSelect();
+                    updateCharSelectCoinDisplay();
+                    break;
+                case 'shop':
+                    shopScreen.classList.add('active');
+                    populateShop();
+                    updateShopCoinDisplay();
+                    break;
+            }
+        }
+
+        // --- Game Logic ---
+        function initGame(resume = false) {
+            if (!resume) {
+                 loadData(); // Load persistent data
+                 resizeCanvas(); // Initial size set
+                 cameraY = 0;
+                 score = 0;
+                 collectedCoins = 0; // Reset session coins
+                 platforms = [];
+                 coins = [];
+                 powerUps = [];
+                 obstacles = [];
+                 particleEffects = [];
+                 activePowerUp = null;
+                 scoreMultiplier = 1;
+
+                 player = new Player(); // Create player AFTER loading selected character index
+
+                 // Create initial platform & starting platforms
+                 let startPlatform = new Platform(canvas.width / 2 - (PLATFORM_WIDTH * scaleFactor) / 2, canvas.height - 80 * scaleFactor, 'static');
+                 startPlatform.rescale();
+                 platforms.push(startPlatform);
+                 player.y = startPlatform.y - player.height; // Place player on start platform
+                 player.x = startPlatform.x + startPlatform.scaledWidth / 2 - player.width / 2;
+
+                 let lastPlatformY = startPlatform.y;
+                 while (lastPlatformY > cameraY - canvas.height * 1.5) { // Generate more initial platforms
+                     lastPlatformY -= random(PLATFORM_SPAWN_MIN_Y_GAP, PLATFORM_SPAWN_MAX_Y_GAP) * scaleFactor;
+                     generatePlatformCluster(lastPlatformY);
+                 }
+
+                 updateScoreDisplay();
+                 updateCoinDisplay(); // Update with loaded totalCoins
+                 updatePowerUpDisplay(); // Clear display
+            } else {
+                 // If resuming (e.g., after resize), just resize elements
+                 resizeCanvas();
+                 player.updateCharacter(); // Ensure player character data is current
+                 player.width = PLAYER_WIDTH * scaleFactor;
+                 player.height = PLAYER_HEIGHT * scaleFactor;
+                 [...platforms, ...coins, ...powerUps, ...obstacles].forEach(obj => obj.rescale?.());
+            }
         }
 
         function startGame() {
-             if (gameState === 'playing') return; // Prevent multiple starts
-             initGame(); // Reset everything
-             gameState = 'playing';
-             startScreen.style.display = 'none';
-             gameOverScreen.style.display = 'none';
-             player.y = platforms[0].y - player.height; // Place player on the first platform
-             player.x = platforms[0].x + platforms[0].width / 2 - player.width / 2;
-             player.vy = PLAYER_JUMP_FORCE * 0.8; // Initial small hop
-             lastTime = performance.now(); // Set start time for deltaTime calculation
-             gameLoop(lastTime); // Start the loop
+            initGame(false); // Full reset
+            player.vy = PLAYER_JUMP_FORCE * 0.8; // Initial small hop
+            switchState('playing');
+            lastTime = performance.now();
+            animationFrameId = requestAnimationFrame(gameLoop);
         }
 
         function gameOver() {
-            if (gameState === 'gameOver') return; // Prevent multiple game overs
-            gameState = 'gameOver';
-            cancelAnimationFrame(animationFrameId); // Stop the loop
+            if (gameState === 'gameOver') return;
             playSound('gameOver');
-
             if (score > highScore) {
                 highScore = score;
-                localStorage.setItem('hyperJumpHighScore', highScore);
             }
+            saveData(); // Save score, coins etc.
+            switchState('gameOver');
+        }
 
+        function updateGameOverScreen() {
              finalScoreText.textContent = `Your Score: ${score}`;
              gameOverHighScoreText.textContent = `High Score: ${highScore}`;
-             gameOverScreen.style.display = 'flex';
         }
 
-        function generatePlatform(yPos) {
+        // Generate a cluster around a Y position: platform + potential coin/powerup/obstacle
+        function generatePlatformCluster(yPos) {
              const minX = 10 * scaleFactor;
-             const maxX = canvas.width - PLATFORM_WIDTH - 10 * scaleFactor;
+             const maxX = canvas.width - (PLATFORM_WIDTH * scaleFactor) - 10 * scaleFactor;
              const xPos = random(minX, maxX);
-             let type = 'static';
-             const rand = Math.random();
 
-             // Increase chance of special platforms as score increases
-             const difficultyFactor = Math.min(1, score / 5000); // Max difficulty at score 5000
+             // Determine platform type
+             let platformType = 'static';
+             const platRand = Math.random();
+             const difficultyFactor = Math.min(1, score / 10000); // Increases chance of harder elements up to score 10k
 
-             if (rand < 0.1 + difficultyFactor * 0.1) { // 10-20% chance of moving
-                 type = 'moving';
-             } else if (rand < 0.18 + difficultyFactor * 0.1) { // 8-18% chance of breakable
-                 type = 'breakable';
-             } else if (rand < 0.23 + difficultyFactor * 0.05) { // 5-10% chance of spring
-                 type = 'spring';
+             if (platRand < 0.1 + difficultyFactor * 0.15) platformType = 'moving';          // 10-25%
+             else if (platRand < 0.18 + difficultyFactor * 0.15) platformType = 'breakable'; // 8-23%
+             else if (platRand < 0.23 + difficultyFactor * 0.1) platformType = 'spring';    // 5-15%
+
+             const newPlatform = new Platform(xPos, yPos, platformType);
+             newPlatform.rescale();
+             platforms.push(newPlatform);
+
+             // Spawn Coin?
+             if (Math.random() < COIN_SPAWN_CHANCE) {
+                 const coinX = xPos + random(0, newPlatform.scaledWidth - COIN_SIZE * scaleFactor);
+                 const coinY = yPos - (COIN_SIZE * scaleFactor * 1.5); // Slightly above platform
+                 const newCoin = new Coin(coinX, coinY);
+                 newCoin.rescale();
+                 coins.push(newCoin);
              }
-             // else: static (default)
 
-             platforms.push(new Platform(xPos, yPos, type));
+             // Spawn PowerUp? (Less likely than coin)
+             if (Math.random() < POWERUP_SPAWN_CHANCE) {
+                  const powerUpX = xPos + random(0, newPlatform.scaledWidth - 30 * scaleFactor);
+                  const powerUpY = yPos - random(40, 70) * scaleFactor; // Further above platform
+                  const powerUpTypes = ['shield', 'propeller', 'magnet', 'superSprings', 'multiplier'];
+                  const chosenType = powerUpTypes[randomInt(0, powerUpTypes.length - 1)];
+                  const newPowerUp = new PowerUp(powerUpX, powerUpY, chosenType);
+                  newPowerUp.rescale();
+                  powerUps.push(newPowerUp);
+             }
+
+             // Spawn Obstacle? (Even less likely, increases with score)
+             const obstacleChance = OBSTACLE_SPAWN_CHANCE + difficultyFactor * 0.1; // Up to 15% at high scores
+             if (platforms.length > 5 && Math.random() < obstacleChance) { // Don't spawn too early
+                  const obsTypes = ['monster', 'blackHole', 'spikes'];
+                  const obsType = obsTypes[randomInt(0, obsTypes.length - 1)];
+                  let obsX, obsY;
+
+                  if (obsType === 'spikes') { // Place spikes ON a platform (not the newly generated one usually)
+                      const targetPlatformIndex = randomInt(0, platforms.length - 2); // Pick an older platform
+                      const targetPlatform = platforms[targetPlatformIndex];
+                      if(targetPlatform && targetPlatform.type !== 'breakable') { // Avoid spikes on breakable
+                        obsX = targetPlatform.x + (targetPlatform.scaledWidth - PLATFORM_WIDTH * 0.8 * scaleFactor) / 2; // Centered spike strip
+                        obsY = targetPlatform.y - (20 * scaleFactor); // On top of platform
+                      } else { return; /* Skip if no suitable platform found */ }
+                  } else if (obsType === 'monster') { // Place monster flying between platforms
+                      obsX = random(minX, maxX);
+                      obsY = yPos - random(PLATFORM_SPAWN_MAX_Y_GAP * 0.5, PLATFORM_SPAWN_MAX_Y_GAP * 1.5) * scaleFactor; // In the gap above
+                  } else { // Black Hole - place in open space
+                      obsX = random(minX, maxX);
+                      obsY = yPos - random(PLATFORM_SPAWN_MAX_Y_GAP, PLATFORM_SPAWN_MAX_Y_GAP * 2) * scaleFactor;
+                  }
+
+                 const newObstacle = new Obstacle(obsX, obsY, obsType);
+                 newObstacle.rescale();
+                 obstacles.push(newObstacle);
+             }
         }
 
+
+        // --- UI Updates ---
         function updateScoreDisplay() {
             scoreDisplay.textContent = `Score: ${score}`;
         }
         function updateHighScoreDisplay() {
             highScoreDisplay.textContent = `Best: ${highScore}`;
         }
-
-        function playSound(sound) {
-            // Placeholder: Implement actual sound playing here if desired
-            // console.log(`Playing sound: ${sound}`); // Log for now
-            // Example using Web Audio API (requires more setup):
-            // if (audioContext && soundBuffers[sound]) {
-            //    const source = audioContext.createBufferSource();
-            //    source.buffer = soundBuffers[sound];
-            //    source.connect(audioContext.destination);
-            //    source.start(0);
-            // }
+        function updateCoinDisplay() {
+            coinDisplay.textContent = `💰 ${totalCoins}`; // Show persistent total coins
+             // Also update coin displays on menu screens if they are active
+             if (gameState === 'charSelect') updateCharSelectCoinDisplay();
+             if (gameState === 'shop') updateShopCoinDisplay();
         }
+         function updateCharSelectCoinDisplay() {
+             charSelectCoinDisplay.textContent = `💰 ${totalCoins}`;
+         }
+          function updateShopCoinDisplay() {
+              shopCoinDisplay.textContent = `💰 ${totalCoins}`;
+          }
 
-        // Simple linear interpolation for smoother animations
-        function lerp(start, end, amount) {
-            return start + (end - start) * amount;
-        }
+        function updatePowerUpDisplay() {
+             if (activePowerUp) {
+                 const timeLeft = Math.max(0, (activePowerUp.endTime - performance.now()) / 1000).toFixed(1);
+                 let text = activePowerUp.type.toUpperCase();
+                 if (activePowerUp.type === 'multiplier') text = `SCORE x${scoreMultiplier}`;
+                 powerUpDisplay.textContent = `${text} (${timeLeft}s)`;
+                 powerUpDisplay.style.display = 'block';
+             } else {
+                 powerUpDisplay.style.display = 'none';
+             }
+         }
+
+        // --- Power-up Logic ---
+        function activatePowerUp(type) {
+             const now = performance.now();
+             // Deactivate existing powerup if different type? (Optional rule)
+             // if (activePowerUp && activePowerUp.type !== type) {
+             //     deactivatePowerUp(activePowerUp.type);
+             // }
+
+             activePowerUp = { type: type, endTime: now + POWERUP_DURATION };
+
+             // Apply immediate effects
+             switch(type) {
+                 case 'shield': player.shieldActive = true; break;
+                 case 'propeller': player.propellerActive = true; break;
+                 case 'magnet': player.magnetActive = true; break;
+                 case 'superSprings': /* Effect applied in collision check */ break;
+                 case 'multiplier': scoreMultiplier = 2; break;
+             }
+             updatePowerUpDisplay();
+         }
+
+        function deactivatePowerUp(type) {
+             if (!activePowerUp || activePowerUp.type !== type) return; // Only deactivate the correct one
+
+             // Remove effects
+             switch(type) {
+                 case 'shield': player.shieldActive = false; break;
+                 case 'propeller': player.propellerActive = false; break;
+                 case 'magnet':
+                    player.magnetActive = false;
+                    // Stop coins moving towards player
+                    coins.forEach(c => { c.vx = 0; c.vy = 0; });
+                    break;
+                 case 'superSprings': /* No persistent effect to remove */ break;
+                 case 'multiplier': scoreMultiplier = 1; break;
+             }
+             activePowerUp = null;
+             playSound(`powerdown_${type}`); // Sound for power-up ending
+             updatePowerUpDisplay();
+         }
+
+         function checkPowerUpExpiry() {
+             if (activePowerUp && performance.now() >= activePowerUp.endTime) {
+                 deactivatePowerUp(activePowerUp.type);
+             }
+         }
 
 
         // --- Input Handling ---
         function handleKeyDown(e) {
             if (gameState !== 'playing') return;
-            if (e.key === 'ArrowLeft' || e.key === 'a') {
-                keys.left = true;
-            } else if (e.key === 'ArrowRight' || e.key === 'd') {
-                keys.right = true;
-            }
+            if (e.key === 'ArrowLeft' || e.key.toLowerCase() === 'a') keys.left = true;
+            else if (e.key === 'ArrowRight' || e.key.toLowerCase() === 'd') keys.right = true;
         }
-
         function handleKeyUp(e) {
-            if (e.key === 'ArrowLeft' || e.key === 'a') {
-                keys.left = false;
-            } else if (e.key === 'ArrowRight' || e.key === 'd') {
-                keys.right = false;
-            }
+            if (e.key === 'ArrowLeft' || e.key.toLowerCase() === 'a') keys.left = false;
+            else if (e.key === 'ArrowRight' || e.key.toLowerCase() === 'd') keys.right = false;
         }
-
         function handleMouseMove(e) {
              if (gameState !== 'playing') return;
              const rect = canvas.getBoundingClientRect();
-             const mouseX = (e.clientX - rect.left) / scaleFactor; // Scale mouse coords
-             const deadZone = canvas.width * 0.15; // Area in the middle where player doesn't move
-
-             if (mouseX < canvas.width / 2 - deadZone) {
-                 keys.left = true;
-                 keys.right = false;
-             } else if (mouseX > canvas.width / 2 + deadZone) {
-                 keys.left = false;
-                 keys.right = true;
-             } else {
-                 keys.left = false;
-                 keys.right = false;
-             }
+             const mouseX = (e.clientX - rect.left); // No need to scale here, compare with canvas.width directly
+             const deadZone = canvas.width * 0.2;
+             if (mouseX < canvas.width / 2 - deadZone) { keys.left = true; keys.right = false; }
+             else if (mouseX > canvas.width / 2 + deadZone) { keys.left = false; keys.right = true; }
+             else { keys.left = false; keys.right = false; }
          }
-
          function handleTouchMove(e) {
              if (gameState !== 'playing') return;
-             e.preventDefault(); // Prevent screen scrolling
+             e.preventDefault();
              const rect = canvas.getBoundingClientRect();
              if (e.touches.length > 0) {
-                 const touchX = (e.touches[0].clientX - rect.left) / scaleFactor; // Scale touch coords
-                 const deadZone = canvas.width * 0.15;
-
-                 if (touchX < canvas.width / 2 - deadZone) {
-                     keys.left = true;
-                     keys.right = false;
-                 } else if (touchX > canvas.width / 2 + deadZone) {
-                     keys.left = false;
-                     keys.right = true;
-                 } else {
-                     keys.left = false;
-                     keys.right = false;
-                 }
+                 const touchX = (e.touches[0].clientX - rect.left);
+                 const deadZone = canvas.width * 0.2;
+                 if (touchX < canvas.width / 2 - deadZone) { keys.left = true; keys.right = false; }
+                 else if (touchX > canvas.width / 2 + deadZone) { keys.left = false; keys.right = true; }
+                 else { keys.left = false; keys.right = false; }
              }
          }
-
           function handleTouchEnd(e) {
               if (gameState !== 'playing') return;
-              // Stop movement when touch ends
-              keys.left = false;
-              keys.right = false;
+              keys.left = false; keys.right = false;
           }
 
 
         // --- Game Loop ---
         function gameLoop(currentTime) {
-            if (gameState !== 'playing') return;
+            if (gameState !== 'playing') return; // Ensure loop stops if state changes
 
-            const deltaTime = currentTime - lastTime;
+            const deltaTime = Math.min(32, currentTime - lastTime); // Cap delta time to prevent huge jumps
             lastTime = currentTime;
 
             // --- Update ---
             player.update(deltaTime);
-
-            // Collision detection & Jumping
-            platforms.forEach(platform => {
-                if (platform.isVisible) {
-                    player.handleCollision(platform);
-                }
-                platform.update(deltaTime); // Update platform movement/state
+            platforms.forEach(p => p.update(deltaTime));
+            coins.forEach(c => c.update(deltaTime));
+            powerUps.forEach(p => p.update(deltaTime));
+            obstacles.forEach(o => o.update(deltaTime));
+            particleEffects.forEach((p, i) => {
+                p.update(deltaTime);
+                if (p.life <= 0 || p.size <= 0.1) particleEffects.splice(i, 1); // Remove dead particles
             });
+
+            // --- Collisions ---
+            let landedOnPlatform = false;
+            platforms.forEach(platform => {
+                if (platform.isVisible && !landedOnPlatform) { // Only land on one platform per frame
+                    if (player.handlePlatformCollision(platform)) {
+                       landedOnPlatform = true;
+                    }
+                }
+            });
+            coins.forEach(coin => player.handleCoinCollision(coin));
+            powerUps.forEach(powerUp => player.handlePowerUpCollision(powerUp));
+            obstacles.forEach(obstacle => player.handleObstacleCollision(obstacle));
 
 
             // --- Scrolling ---
             const scrollThreshold = canvas.height * SCROLL_THRESHOLD_FACTOR;
-            if (player.y - cameraY < scrollThreshold) {
-                const scrollAmount = scrollThreshold - (player.y - cameraY);
-                cameraY -= scrollAmount; // Move camera up (negative direction)
-                score += Math.floor(scrollAmount); // Increase score based on scroll
-                 updateScoreDisplay();
+            if (player.y - cameraY < scrollThreshold && player.vy < 0) { // Only scroll when moving up
+                const scrollAmount = (scrollThreshold - (player.y - cameraY)) * (deltaTime / 16.67); // Smooth scroll based on delta
+                cameraY -= scrollAmount;
+                const scoreIncrease = Math.floor(scrollAmount * scoreMultiplier); // Apply multiplier here
+                score += scoreIncrease;
+                updateScoreDisplay();
             }
 
-            // --- Platform Management ---
-            // Remove platforms below the screen
-            platforms = platforms.filter(platform => platform.y - cameraY > -PLATFORM_HEIGHT);
+            // --- Object Management ---
+            // Remove objects way below screen
+            const cleanupMargin = canvas.height * 1.5;
+            platforms = platforms.filter(p => p.isVisible && p.y - cameraY > -cleanupMargin);
+            coins = coins.filter(c => !c.collected && c.y - cameraY > -cleanupMargin);
+            powerUps = powerUps.filter(p => !p.collected && p.y - cameraY > -cleanupMargin);
+            obstacles = obstacles.filter(o => o.y - cameraY > -cleanupMargin * 1.5); // Keep obstacles longer?
 
             // Add new platforms if needed
-            let highestPlatformY = Math.min(...platforms.map(p => p.y));
-            if (highestPlatformY > cameraY - canvas.height) { // If highest plat is below top edge
-                 generatePlatform(highestPlatformY - random(PLATFORM_SPAWN_MIN_Y_GAP, PLATFORM_SPAWN_MAX_Y_GAP));
+            let highestPlatformY = Math.min(0, ...platforms.map(p => p.y)); // Ensure it's not positive
+            if (highestPlatformY > cameraY - canvas.height * 1.5) { // Need more platforms above the top edge
+                 generatePlatformCluster(highestPlatformY - random(PLATFORM_SPAWN_MIN_Y_GAP, PLATFORM_SPAWN_MAX_Y_GAP) * scaleFactor);
             }
 
+            // --- Power-up Expiry ---
+            checkPowerUpExpiry();
+            if(activePowerUp) updatePowerUpDisplay(); // Keep timer ticking
 
             // --- Draw ---
-            // Clear canvas with a subtle gradient matching body or just dark
-             ctx.fillStyle = '#0b0c10'; // Match container background
-             ctx.fillRect(0, 0, canvas.width, canvas.height);
+            // Background (Could add parallax stars here later)
+            ctx.fillStyle = var(--background-dark);
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // Draw subtle background elements (stars, etc.) - OPTIONAL PERFORMANCE HIT
-            // drawBackgroundStars();
-
-            // Draw platforms (relative to camera)
-            platforms.forEach(platform => platform.draw());
-
-            // Draw Player (relative to camera)
+            // Draw Game Objects (relative to camera)
             ctx.save();
-            ctx.translate(0, -cameraY); // Apply camera scroll
-            player.draw();
+            ctx.translate(0, -cameraY);
+
+            platforms.forEach(p => p.draw());
+            coins.forEach(c => c.draw());
+            powerUps.forEach(p => p.draw());
+            obstacles.forEach(o => o.draw());
+            player.draw(); // Draw player last (or maybe behind foreground obstacles?)
+
+            // Draw Particles (absolute position, but factor in camera for y)
+             particleEffects.forEach(p => p.draw());
+
             ctx.restore();
 
 
@@ -701,57 +1631,211 @@
             animationFrameId = requestAnimationFrame(gameLoop);
         }
 
-        /* Optional: Background star drawing function
-        let stars = [];
-        function initStars() {
-            stars = [];
-            for (let i = 0; i < 100; i++) {
-                stars.push({
-                    x: Math.random() * targetCanvasWidth,
-                    y: Math.random() * targetCanvasHeight,
-                    radius: Math.random() * 1.5,
-                    alpha: Math.random() * 0.5 + 0.2 // Varying brightness
-                });
-            }
-        }
-        function drawBackgroundStars() {
-            ctx.save();
-             stars.forEach(star => {
-                 // Make stars parallax scroll slower than game world
-                 const parallaxFactor = 0.1;
-                 const starY = (star.y - cameraY * parallaxFactor) % canvas.height;
-                  if (starY < 0) starY += canvas.height; // Wrap around vertically
+        // --- Menu/Shop/Char Select Logic ---
+        function populateCharSelect() {
+            charSelectContainer.innerHTML = ''; // Clear previous items
+            characters.forEach((char, index) => {
+                const card = document.createElement('div');
+                card.classList.add('item-card');
+                if (index === selectedCharacterIndex) card.classList.add('selected');
+                const isPurchased = purchasedCharacters[index];
+                 if (!isPurchased) card.classList.add('locked');
 
-                  ctx.fillStyle = `rgba(200, 200, 255, ${star.alpha})`; // Bluish-white stars
-                  ctx.beginPath();
-                  ctx.arc(star.x * scaleFactor, starY, star.radius * scaleFactor, 0, Math.PI * 2);
-                  ctx.fill();
+                const previewCanvas = document.createElement('canvas');
+                previewCanvas.width = 60; previewCanvas.height = 60;
+                const pCtx = previewCanvas.getContext('2d');
+                drawCharPreview(pCtx, char, 60); // Helper to draw preview
+
+                const name = document.createElement('div');
+                name.classList.add('item-name');
+                name.textContent = char.name;
+
+                const cost = document.createElement('div');
+                cost.classList.add('item-cost');
+                if (isPurchased) {
+                     cost.textContent = 'Owned';
+                     cost.style.color = '#7f7'; // Green
+                 } else {
+                     cost.textContent = `💰 ${char.cost}`;
+                 }
+
+
+                card.appendChild(previewCanvas);
+                card.appendChild(name);
+                card.appendChild(cost);
+
+                if (isPurchased) {
+                     card.onclick = () => selectCharacter(index);
+                } else {
+                     card.onclick = () => tryBuyCharacter(index); // Try to buy if clicked
+                 }
+
+
+                charSelectContainer.appendChild(card);
+            });
+             charSelectConfirmButton.disabled = !purchasedCharacters[selectedCharacterIndex];
+        }
+
+         function drawCharPreview(pCtx, char, size) {
+             // Simplified drawing for preview - Scale down internal sizes
+             const tempPlayer = { width: PLAYER_WIDTH * (size/PLAYER_HEIGHT), height: size, facingRight: true }; // Rough scale
+             const tempScaleFactor = scaleFactor * (size/PLAYER_HEIGHT);
+
+             pCtx.save();
+             pCtx.translate(size / 2, size / 2);
+              // Simulate drawing call with adjusted context/scale
+             const originalCtx = ctx; // Backup original context
+             const originalScale = scaleFactor;
+              ctx = pCtx; // Temporarily use preview context
+             scaleFactor = tempScaleFactor; // Temporarily use preview scale
+
+             // Use a generic player object for size refs inside draw funcs
+             const originalPlayer = player;
+             player = tempPlayer;
+
+             if (char.drawFunc) {
+                char.drawFunc(char);
+             } else {
+                 drawDefaultCharacter(char); // Fallback
+             }
+
+             // Restore original context and scale
+             ctx = originalCtx;
+             scaleFactor = originalScale;
+             player = originalPlayer;
+
+             pCtx.restore();
+         }
+
+
+        function selectCharacter(index) {
+             if (!purchasedCharacters[index]) return; // Should not happen if UI is correct
+             selectedCharacterIndex = index;
+             saveData(); // Save selection immediately
+             populateCharSelect(); // Re-render to show selection change
+             // Update player object if game is somehow running (shouldn't be)
+             if (player) player.updateCharacter();
+             playSound('ui_select');
+        }
+
+         function tryBuyCharacter(index) {
+             const char = characters[index];
+             if (purchasedCharacters[index]) return; // Already owned
+
+             if (totalCoins >= char.cost) {
+                 totalCoins -= char.cost;
+                 purchasedCharacters[index] = true;
+                 selectedCharacterIndex = index; // Auto-select after buying
+                 playSound('purchase_success');
+                 saveData();
+                 updateCoinDisplay();
+                 populateCharSelect(); // Update UI to show ownership and selection
+             } else {
+                 playSound('purchase_fail');
+                 // Optional: Show "Not enough coins" message briefly
+                 const costElement = charSelectContainer.children[index].querySelector('.item-cost');
+                 if(costElement) {
+                    costElement.style.color = var(--danger-color);
+                    costElement.textContent = 'NEED 💰!';
+                    setTimeout(() => {
+                         if(gameState === 'charSelect') { // Check if still on this screen
+                            costElement.style.color = var(--coin-color); // Reset color
+                             costElement.textContent = `💰 ${char.cost}`; // Reset text
+                         }
+                    }, 1500);
+                 }
+             }
+         }
+
+        function populateShop() {
+             shopItemContainer.innerHTML = ''; // Clear previous
+             // Example: Add shop items (currently just placeholder text)
+             shopItems.forEach(item => {
+                  const card = document.createElement('div');
+                 card.classList.add('item-card');
+                 if (purchasedItems.includes(item.id)) card.classList.add('selected'); // Show if purchased
+
+                 // Placeholder visual
+                  const preview = document.createElement('div');
+                  preview.style.width = '60px'; preview.style.height = '60px';
+                  preview.style.backgroundColor = '#444'; preview.style.borderRadius = '4px';
+                  preview.style.display = 'flex'; preview.style.alignItems='center'; preview.style.justifyContent='center';
+                  preview.style.fontSize = '10px'; preview.textContent = item.type.toUpperCase();
+
+                 const name = document.createElement('div');
+                 name.classList.add('item-name');
+                 name.textContent = item.name;
+
+                 const cost = document.createElement('div');
+                 cost.classList.add('item-cost');
+                  if (purchasedItems.includes(item.id)) {
+                      cost.textContent = 'Owned';
+                      cost.style.color = '#7f7';
+                  } else {
+                     cost.textContent = `💰 ${item.cost}`;
+                     card.onclick = () => tryBuyShopItem(item);
+                 }
+
+                 card.appendChild(preview);
+                 card.appendChild(name);
+                 card.appendChild(cost);
+                 shopItemContainer.appendChild(card);
              });
-            ctx.restore();
+              if (shopItems.length === 0) {
+                 shopItemContainer.innerHTML = '<div class="screenText">More items coming soon!</div>';
+              }
         }
-        */
 
+         function tryBuyShopItem(item) {
+             if (purchasedItems.includes(item.id)) return;
+
+             if (totalCoins >= item.cost) {
+                 totalCoins -= item.cost;
+                 purchasedItems.push(item.id);
+                 playSound('purchase_success');
+                 saveData();
+                 updateCoinDisplay();
+                 populateShop(); // Update shop UI
+                 // Apply cosmetic effect if applicable (needs implementation)
+                 // applyCosmetic(item.id);
+             } else {
+                 playSound('purchase_fail');
+                 // Optional: Show "Not enough coins" message
+             }
+         }
 
         // --- Event Listeners ---
         window.addEventListener('keydown', handleKeyDown);
         window.addEventListener('keyup', handleKeyUp);
         canvas.addEventListener('mousemove', handleMouseMove);
-        canvas.addEventListener('mouseleave', () => { keys.left = false; keys.right = false; }); // Stop if mouse leaves
-
-        // Touch events
-        canvas.addEventListener('touchstart', handleTouchMove, { passive: false }); // Use handleTouchMove to start movement immediately
+        canvas.addEventListener('mouseleave', () => { keys.left = false; keys.right = false; });
+        canvas.addEventListener('touchstart', handleTouchMove, { passive: false });
         canvas.addEventListener('touchmove', handleTouchMove, { passive: false });
         canvas.addEventListener('touchend', handleTouchEnd);
         canvas.addEventListener('touchcancel', handleTouchEnd);
 
-
         startButton.addEventListener('click', startGame);
         restartButton.addEventListener('click', startGame);
-        window.addEventListener('resize', initGame); // Re-init on resize to handle scaling/layout changes
+        charSelectButton.addEventListener('click', () => switchState('charSelect'));
+        shopButton.addEventListener('click', () => switchState('shop'));
+
+         // Back buttons
+         backToMenuButtonGO.addEventListener('click', () => switchState('menu'));
+         backToMenuButtonCS.addEventListener('click', () => switchState('menu'));
+         backToMenuButtonShop.addEventListener('click', () => switchState('menu'));
+
+          // Character select confirm (optional, could just select onClick)
+         charSelectConfirmButton.addEventListener('click', () => {
+              // Already selected via selectCharacter, just go back
+              switchState('menu');
+          });
+
+
+        window.addEventListener('resize', () => initGame(true)); // Re-init on resize
 
         // --- Initial Setup ---
-        initGame(); // Prepare the game and show the start menu
-        // initStars(); // Initialize background stars if using
+        initGame(false); // Load data, setup initial state
+        switchState('menu'); // Start at the main menu
 
     </script>
 </body>
