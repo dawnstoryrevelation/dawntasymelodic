@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>🚀 HyperJump Ascendancy - EPIC Doodle Jump 🚀</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(to bottom, #0b0c10, #1f2833, #45a29e); /* Deep space to teal gradient */
+            font-family: 'Press Start 2P', cursive;
+            overflow: hidden; /* Prevent scroll bars */
+            color: #c5c6c7; /* Light grey text */
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+        }
+
+        #gameContainer {
+            position: relative;
+            border: 5px solid #66fcf1; /* Bright teal border */
+            box-shadow: 0 0 30px #66fcf1, inset 0 0 15px rgba(102, 252, 241, 0.5); /* Neon glow */
+            background-color: #0b0c10; /* Dark canvas background */
+            overflow: hidden; /* Crucial for containing elements */
+            touch-action: none; /* Prevent default touch actions like scrolling/zooming */
+        }
+
+        canvas {
+            display: block; /* Remove extra space below canvas */
+            background: transparent; /* Let container background show */
+        }
+
+        .uiElement {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            color: #66fcf1; /* Teal UI text */
+            font-size: 1.5em; /* Adjusted for better readability */
+            z-index: 10;
+            white-space: nowrap; /* Prevent wrapping */
+            padding: 5px 10px;
+            background-color: rgba(11, 12, 16, 0.7); /* Dark semi-transparent background */
+            border-radius: 5px;
+        }
+
+        #scoreDisplay {
+            top: 15px;
+            font-size: 1.8em;
+        }
+
+        #highScoreDisplay {
+            top: 55px; /* Position below score */
+            font-size: 1em;
+            color: #45a29e; /* Slightly darker teal for high score */
+        }
+
+         #startScreen, #gameOverScreen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(11, 12, 16, 0.9); /* Dark overlay */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 20;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .screenTitle {
+            font-size: 2.5em; /* Larger title */
+            margin-bottom: 20px;
+            color: #66fcf1; /* Bright teal */
+            text-align: center;
+        }
+
+        .screenText {
+            font-size: 1em;
+            margin-bottom: 30px;
+            color: #c5c6c7; /* Light grey */
+            text-align: center;
+            max-width: 80%;
+        }
+
+        .button {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 1.5em;
+            padding: 15px 30px;
+            background: linear-gradient(145deg, #4fa, #66fcf1); /* Teal gradient */
+            color: #0b0c10; /* Dark text on button */
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            text-shadow: none;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3), inset 0 -2px 2px rgba(0, 0, 0, 0.2);
+            transition: transform 0.1s ease, box-shadow 0.1s ease;
+        }
+
+        .button:hover, .button:focus {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(102, 252, 241, 0.4), inset 0 -2px 2px rgba(0, 0, 0, 0.2);
+            outline: none;
+        }
+
+        .button:active {
+            transform: translateY(1px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3), inset 0 -1px 1px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Hide screens initially */
+        #gameOverScreen {
+            display: none;
+        }
+
+        /* Small screen adjustments */
+        @media (max-width: 600px) {
+            .screenTitle {
+                font-size: 1.8em;
+            }
+            .screenText {
+                font-size: 0.8em;
+            }
+            .button {
+                font-size: 1.2em;
+                padding: 10px 20px;
+            }
+            #scoreDisplay {
+                font-size: 1.5em;
+            }
+             #highScoreDisplay {
+                font-size: 0.8em;
+             }
+        }
+
+    </style>
+</head>
+<body>
+    <div id="gameContainer">
+        <canvas id="gameCanvas"></canvas>
+        <div id="scoreDisplay" class="uiElement">Score: 0</div>
+        <div id="highScoreDisplay" class="uiElement">Best: 0</div>
+
+        <div id="startScreen">
+            <div class="screenTitle">🚀 HyperJump Ascendancy 🚀</div>
+            <div class="screenText">
+                Reach for the stars! <br><br>
+                Controls:<br>
+                ⬅️ Arrow Keys ➡️ / Mouse / Touch
+            </div>
+            <button id="startButton" class="button">S T A R T</button>
+        </div>
+
+        <div id="gameOverScreen">
+            <div class="screenTitle">💥 GAME OVER 💥</div>
+            <div class="screenText" id="finalScoreText">Your Score: 0</div>
+            <div class="screenText" id="gameOverHighScoreText">High Score: 0</div>
+            <button id="restartButton" class="button">RESTART</button>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const gameContainer = document.getElementById('gameContainer');
+        const scoreDisplay = document.getElementById('scoreDisplay');
+        const highScoreDisplay = document.getElementById('highScoreDisplay');
+        const startScreen = document.getElementById('startScreen');
+        const gameOverScreen = document.getElementById('gameOverScreen');
+        const startButton = document.getElementById('startButton');
+        const restartButton = document.getElementById('restartButton');
+        const finalScoreText = document.getElementById('finalScoreText');
+        const gameOverHighScoreText = document.getElementById('gameOverHighScoreText');
+
+        // --- Game Constants ---
+        const GRAVITY = 0.35;
+        const PLAYER_MOVE_SPEED = 7;
+        const PLAYER_JUMP_FORCE = -11; // Negative is up
+        const PLAYER_SPRING_JUMP_FORCE = -20; // Super jump
+        const PLAYER_WIDTH = 40;
+        const PLAYER_HEIGHT = 55;
+        const PLATFORM_HEIGHT = 15;
+        const PLATFORM_WIDTH = 85;
+        const PLATFORM_SPAWN_MIN_Y_GAP = 80;
+        const PLATFORM_SPAWN_MAX_Y_GAP = 130;
+        const SCROLL_THRESHOLD_FACTOR = 0.4; // When player reaches 40% from top, scroll
+        const MOVING_PLATFORM_SPEED = 1.5;
+        const PLAYER_MAX_FALL_SPEED = 15;
+
+        // --- Game Variables ---
+        let player;
+        let platforms = [];
+        let score = 0;
+        let highScore = localStorage.getItem('hyperJumpHighScore') || 0;
+        let keys = { left: false, right: false };
+        let cameraY = 0; // How much the view has scrolled
+        let gameState = 'menu'; // 'menu', 'playing', 'gameOver'
+        let targetCanvasWidth = 450; // Target width
+        let targetCanvasHeight = 700; // Target height
+        let scaleFactor = 1;
+        let lastTime = 0;
+        let animationFrameId;
+
+        // Player Animation State
+        let playerSquishFactor = 1; // For jump/land animation
+        let playerIsGrounded = false;
+
+        // --- Utility Functions ---
+        function random(min, max) {
+            return Math.random() * (max - min) + min;
+        }
+
+        function resizeCanvas() {
+            const containerWidth = window.innerWidth * 0.95; // Use 95% of width
+            const containerHeight = window.innerHeight * 0.95; // Use 95% of height
+
+            // Calculate scale factor based on height primarily, but don't exceed width
+            scaleFactor = Math.min(containerWidth / targetCanvasWidth, containerHeight / targetCanvasHeight);
+
+            canvas.width = targetCanvasWidth * scaleFactor;
+            canvas.height = targetCanvasHeight * scaleFactor;
+
+            // Adjust container size if needed (optional, depends on desired layout)
+            gameContainer.style.width = `${canvas.width}px`;
+            gameContainer.style.height = `${canvas.height}px`;
+
+             // Re-scale UI elements if necessary (or use relative units like em/rem in CSS)
+            // Example: Adjust font size based on scaleFactor if needed
+            // scoreDisplay.style.fontSize = `${1.8 * scaleFactor}em`;
+        }
+
+        // --- Game Objects ---
+        class Player {
+            constructor() {
+                this.width = PLAYER_WIDTH;
+                this.height = PLAYER_HEIGHT;
+                this.x = canvas.width / 2 - this.width / 2;
+                this.y = canvas.height - this.height - 100; // Start lower
+                this.vx = 0;
+                this.vy = 0;
+                this.color = '#66fcf1'; // Teal player
+                this.facingRight = true; // For drawing eyes/features
+            }
+
+            draw() {
+                ctx.save();
+                ctx.translate(this.x + this.width / 2, this.y + this.height / 2);
+
+                // Apply squish/stretch based on vertical velocity and grounded state
+                let dynamicSquish = 1;
+                if (playerIsGrounded) {
+                     dynamicSquish = 1 - Math.min(0.2, Math.abs(this.vy * 0.05)); // Squish more on hard land
+                } else {
+                     dynamicSquish = 1 + Math.min(0.3, Math.abs(this.vy * 0.02)); // Stretch while falling/rising fast
+                }
+                 playerSquishFactor = lerp(playerSquishFactor, dynamicSquish, 0.15); // Smooth transition
+
+                ctx.scale(playerSquishFactor, 1 / playerSquishFactor); // Apply scaling
+
+                // Body
+                ctx.fillStyle = this.color;
+                ctx.strokeStyle = '#0b0c10'; // Dark outline
+                ctx.lineWidth = 2 * scaleFactor;
+                ctx.beginPath();
+                // Rounded rectangle shape
+                ctx.roundRect(-this.width / 2, -this.height / 2, this.width, this.height, 10 * scaleFactor);
+                ctx.fill();
+                ctx.stroke();
+
+                // Eyes (Simple ovals)
+                ctx.fillStyle = '#0b0c10'; // Black eyes
+                const eyeWidth = 5 * scaleFactor;
+                const eyeHeight = 7 * scaleFactor;
+                const eyeY = -this.height * 0.1;
+                const eyeXOffset = this.width * 0.2;
+
+                ctx.beginPath();
+                ctx.ellipse(this.facingRight ? eyeXOffset : -eyeXOffset, eyeY, eyeWidth, eyeHeight, 0, 0, Math.PI * 2);
+                ctx.fill();
+                 ctx.beginPath();
+                 ctx.ellipse(this.facingRight ? -eyeXOffset * 0.3 : eyeXOffset * 0.3, eyeY, eyeWidth * 0.8, eyeHeight * 0.8, 0, 0, Math.PI * 2); // Smaller eye
+                ctx.fill();
+
+                 // Mouth (Simple line)
+                 ctx.strokeStyle = '#0b0c10';
+                 ctx.lineWidth = 1.5 * scaleFactor;
+                 ctx.beginPath();
+                 ctx.moveTo(-this.width * 0.15, this.height * 0.2);
+                 ctx.lineTo(this.width * 0.15, this.height * 0.2);
+                 ctx.stroke();
+
+
+                ctx.restore();
+            }
+
+            update(deltaTime) {
+                // Apply horizontal movement
+                if (keys.left) {
+                    this.vx = -PLAYER_MOVE_SPEED;
+                    this.facingRight = false;
+                } else if (keys.right) {
+                    this.vx = PLAYER_MOVE_SPEED;
+                    this.facingRight = true;
+                } else {
+                    this.vx = 0;
+                }
+                this.x += this.vx * (deltaTime / 16.67); // Normalize movement based on 60fps
+
+                // Apply gravity
+                this.vy += GRAVITY * (deltaTime / 16.67);
+                this.vy = Math.min(this.vy, PLAYER_MAX_FALL_SPEED); // Terminal velocity
+                this.y += this.vy * (deltaTime / 16.67);
+
+                // Screen wrap horizontally
+                if (this.x > canvas.width) {
+                    this.x = -this.width;
+                } else if (this.x < -this.width) {
+                    this.x = canvas.width;
+                }
+
+                // Check for game over
+                if (this.y - cameraY > canvas.height) {
+                    gameOver();
+                }
+
+                playerIsGrounded = false; // Reset before collision check
+            }
+
+            jump(force = PLAYER_JUMP_FORCE) {
+                 if (this.vy >= -2) { // Allow jumping even if slightly moving up
+                    this.vy = force;
+                    playSound('jump');
+                    playerSquishFactor = 0.8; // Immediate squish on jump start
+                }
+            }
+
+             handleCollision(platform) {
+                 // Simple AABB collision detection only if falling down
+                 if (this.vy > 0 &&
+                     this.x < platform.x + platform.width &&
+                     this.x + this.width > platform.x &&
+                     this.y + this.height > platform.y &&
+                     this.y + this.height < platform.y + platform.height + Math.abs(this.vy) // Check slightly below for landing robustness
+                 ) {
+                     // Landed!
+                     this.y = platform.y - this.height; // Correct position
+                     playerIsGrounded = true;
+
+                     switch (platform.type) {
+                         case 'static':
+                             this.jump();
+                             break;
+                         case 'moving':
+                             this.jump();
+                             // Add platform's horizontal velocity? (optional complexity)
+                             // this.x += platform.vx;
+                             break;
+                         case 'breakable':
+                             this.jump();
+                             platform.break();
+                             break;
+                         case 'spring':
+                             this.jump(PLAYER_SPRING_JUMP_FORCE);
+                             platform.activateSpring();
+                             break;
+                     }
+                      playerSquishFactor = 1.2; // Squash effect on land
+                 }
+             }
+        }
+
+        class Platform {
+            constructor(x, y, type = 'static') {
+                this.width = PLATFORM_WIDTH;
+                this.height = PLATFORM_HEIGHT;
+                this.x = x;
+                this.y = y;
+                this.type = type;
+                this.isVisible = true; // For breakable platforms
+                this.animationState = 0; // For effects
+                this.vx = 0; // For moving platforms
+                this.direction = 1; // For moving platforms
+
+                if (this.type === 'moving') {
+                    this.color = '#4da6ff'; // Blue
+                    this.vx = MOVING_PLATFORM_SPEED * (Math.random() < 0.5 ? 1 : -1);
+                } else if (this.type === 'breakable') {
+                    this.color = '#a0522d'; // Brown
+                } else if (this.type === 'spring') {
+                    this.color = '#ffd700'; // Yellow/Gold
+                } else {
+                    this.color = '#50c878'; // Green
+                }
+            }
+
+            draw() {
+                 if (!this.isVisible) return;
+
+                 const screenY = this.y - cameraY;
+                 const wobbleFactor = this.type === 'spring' && this.animationState > 0 ? Math.sin(this.animationState * Math.PI * 2) * 0.1 : 0;
+
+                 ctx.save();
+                 ctx.translate(this.x + this.width / 2, screenY + this.height / 2);
+                 ctx.scale(1 + wobbleFactor, 1 - wobbleFactor); // Wobble effect
+
+                 // Main platform color
+                 ctx.fillStyle = this.color;
+                 if (this.type === 'breakable' && this.animationState > 0) {
+                     // Fade out effect
+                     ctx.globalAlpha = 1 - this.animationState;
+                     ctx.fillStyle = '#654321'; // Darker brown when breaking
+                 }
+                  ctx.roundRect(-this.width / 2, -this.height / 2, this.width, this.height, 5 * scaleFactor);
+                  ctx.fill();
+
+                 // Add subtle highlight/shadow for depth
+                 ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
+                 ctx.fillRect(-this.width / 2, -this.height / 2, this.width, 2 * scaleFactor); // Top highlight
+                 ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+                 ctx.fillRect(-this.width / 2, this.height / 2 - 2 * scaleFactor, this.width, 2 * scaleFactor); // Bottom shadow
+
+                 // Spring visual cue
+                 if (this.type === 'spring') {
+                    ctx.fillStyle = '#fff';
+                    ctx.beginPath();
+                    ctx.arc(0, -this.height * 0.6, 3 * scaleFactor, 0, Math.PI * 2); // Small white circle on top
+                    ctx.fill();
+                 }
+
+                 ctx.restore();
+            }
+
+            update(deltaTime) {
+                 if (this.type === 'moving') {
+                    this.x += this.vx * this.direction * (deltaTime / 16.67);
+                    if (this.x <= 0 || this.x + this.width >= canvas.width) {
+                        this.direction *= -1; // Reverse direction at edges
+                        this.x = Math.max(0, Math.min(this.x, canvas.width - this.width)); // Clamp position
+                    }
+                 }
+
+                 // Handle breakable platform animation/removal
+                 if (this.type === 'breakable' && this.animationState > 0) {
+                     this.animationState += 0.05 * (deltaTime / 16.67); // Fade out speed
+                     if (this.animationState >= 1) {
+                         this.isVisible = false;
+                     }
+                 }
+                  // Handle spring animation reset
+                 if (this.type === 'spring' && this.animationState > 0) {
+                     this.animationState -= 0.1 * (deltaTime / 16.67); // Reset speed
+                      if (this.animationState < 0) this.animationState = 0;
+                 }
+            }
+
+            break() {
+                if (this.animationState === 0) { // Only break once
+                    this.animationState = 0.01; // Start breaking animation
+                    playSound('break');
+                }
+            }
+             activateSpring() {
+                this.animationState = 1; // Start spring wobble
+                playSound('spring');
+             }
+        }
+
+        // --- Game Logic Functions ---
+        function initGame() {
+            resizeCanvas(); // Initial size set
+
+            player = new Player();
+            platforms = [];
+            cameraY = 0;
+            score = 0;
+            gameState = 'menu';
+
+            // Create initial platforms
+            let startPlatform = new Platform(canvas.width / 2 - PLATFORM_WIDTH / 2, canvas.height - 80 * scaleFactor, 'static');
+            platforms.push(startPlatform);
+
+            let lastPlatformY = startPlatform.y;
+            while (lastPlatformY > -canvas.height) { // Generate platforms up to one screen above start
+                 lastPlatformY -= random(PLATFORM_SPAWN_MIN_Y_GAP, PLATFORM_SPAWN_MAX_Y_GAP) * scaleFactor;
+                 generatePlatform(lastPlatformY);
+            }
+
+             updateScoreDisplay();
+             updateHighScoreDisplay(); // Initial display
+             startScreen.style.display = 'flex';
+             gameOverScreen.style.display = 'none';
+        }
+
+        function startGame() {
+             if (gameState === 'playing') return; // Prevent multiple starts
+             initGame(); // Reset everything
+             gameState = 'playing';
+             startScreen.style.display = 'none';
+             gameOverScreen.style.display = 'none';
+             player.y = platforms[0].y - player.height; // Place player on the first platform
+             player.x = platforms[0].x + platforms[0].width / 2 - player.width / 2;
+             player.vy = PLAYER_JUMP_FORCE * 0.8; // Initial small hop
+             lastTime = performance.now(); // Set start time for deltaTime calculation
+             gameLoop(lastTime); // Start the loop
+        }
+
+        function gameOver() {
+            if (gameState === 'gameOver') return; // Prevent multiple game overs
+            gameState = 'gameOver';
+            cancelAnimationFrame(animationFrameId); // Stop the loop
+            playSound('gameOver');
+
+            if (score > highScore) {
+                highScore = score;
+                localStorage.setItem('hyperJumpHighScore', highScore);
+            }
+
+             finalScoreText.textContent = `Your Score: ${score}`;
+             gameOverHighScoreText.textContent = `High Score: ${highScore}`;
+             gameOverScreen.style.display = 'flex';
+        }
+
+        function generatePlatform(yPos) {
+             const minX = 10 * scaleFactor;
+             const maxX = canvas.width - PLATFORM_WIDTH - 10 * scaleFactor;
+             const xPos = random(minX, maxX);
+             let type = 'static';
+             const rand = Math.random();
+
+             // Increase chance of special platforms as score increases
+             const difficultyFactor = Math.min(1, score / 5000); // Max difficulty at score 5000
+
+             if (rand < 0.1 + difficultyFactor * 0.1) { // 10-20% chance of moving
+                 type = 'moving';
+             } else if (rand < 0.18 + difficultyFactor * 0.1) { // 8-18% chance of breakable
+                 type = 'breakable';
+             } else if (rand < 0.23 + difficultyFactor * 0.05) { // 5-10% chance of spring
+                 type = 'spring';
+             }
+             // else: static (default)
+
+             platforms.push(new Platform(xPos, yPos, type));
+        }
+
+        function updateScoreDisplay() {
+            scoreDisplay.textContent = `Score: ${score}`;
+        }
+        function updateHighScoreDisplay() {
+            highScoreDisplay.textContent = `Best: ${highScore}`;
+        }
+
+        function playSound(sound) {
+            // Placeholder: Implement actual sound playing here if desired
+            // console.log(`Playing sound: ${sound}`); // Log for now
+            // Example using Web Audio API (requires more setup):
+            // if (audioContext && soundBuffers[sound]) {
+            //    const source = audioContext.createBufferSource();
+            //    source.buffer = soundBuffers[sound];
+            //    source.connect(audioContext.destination);
+            //    source.start(0);
+            // }
+        }
+
+        // Simple linear interpolation for smoother animations
+        function lerp(start, end, amount) {
+            return start + (end - start) * amount;
+        }
+
+
+        // --- Input Handling ---
+        function handleKeyDown(e) {
+            if (gameState !== 'playing') return;
+            if (e.key === 'ArrowLeft' || e.key === 'a') {
+                keys.left = true;
+            } else if (e.key === 'ArrowRight' || e.key === 'd') {
+                keys.right = true;
+            }
+        }
+
+        function handleKeyUp(e) {
+            if (e.key === 'ArrowLeft' || e.key === 'a') {
+                keys.left = false;
+            } else if (e.key === 'ArrowRight' || e.key === 'd') {
+                keys.right = false;
+            }
+        }
+
+        function handleMouseMove(e) {
+             if (gameState !== 'playing') return;
+             const rect = canvas.getBoundingClientRect();
+             const mouseX = (e.clientX - rect.left) / scaleFactor; // Scale mouse coords
+             const deadZone = canvas.width * 0.15; // Area in the middle where player doesn't move
+
+             if (mouseX < canvas.width / 2 - deadZone) {
+                 keys.left = true;
+                 keys.right = false;
+             } else if (mouseX > canvas.width / 2 + deadZone) {
+                 keys.left = false;
+                 keys.right = true;
+             } else {
+                 keys.left = false;
+                 keys.right = false;
+             }
+         }
+
+         function handleTouchMove(e) {
+             if (gameState !== 'playing') return;
+             e.preventDefault(); // Prevent screen scrolling
+             const rect = canvas.getBoundingClientRect();
+             if (e.touches.length > 0) {
+                 const touchX = (e.touches[0].clientX - rect.left) / scaleFactor; // Scale touch coords
+                 const deadZone = canvas.width * 0.15;
+
+                 if (touchX < canvas.width / 2 - deadZone) {
+                     keys.left = true;
+                     keys.right = false;
+                 } else if (touchX > canvas.width / 2 + deadZone) {
+                     keys.left = false;
+                     keys.right = true;
+                 } else {
+                     keys.left = false;
+                     keys.right = false;
+                 }
+             }
+         }
+
+          function handleTouchEnd(e) {
+              if (gameState !== 'playing') return;
+              // Stop movement when touch ends
+              keys.left = false;
+              keys.right = false;
+          }
+
+
+        // --- Game Loop ---
+        function gameLoop(currentTime) {
+            if (gameState !== 'playing') return;
+
+            const deltaTime = currentTime - lastTime;
+            lastTime = currentTime;
+
+            // --- Update ---
+            player.update(deltaTime);
+
+            // Collision detection & Jumping
+            platforms.forEach(platform => {
+                if (platform.isVisible) {
+                    player.handleCollision(platform);
+                }
+                platform.update(deltaTime); // Update platform movement/state
+            });
+
+
+            // --- Scrolling ---
+            const scrollThreshold = canvas.height * SCROLL_THRESHOLD_FACTOR;
+            if (player.y - cameraY < scrollThreshold) {
+                const scrollAmount = scrollThreshold - (player.y - cameraY);
+                cameraY -= scrollAmount; // Move camera up (negative direction)
+                score += Math.floor(scrollAmount); // Increase score based on scroll
+                 updateScoreDisplay();
+            }
+
+            // --- Platform Management ---
+            // Remove platforms below the screen
+            platforms = platforms.filter(platform => platform.y - cameraY > -PLATFORM_HEIGHT);
+
+            // Add new platforms if needed
+            let highestPlatformY = Math.min(...platforms.map(p => p.y));
+            if (highestPlatformY > cameraY - canvas.height) { // If highest plat is below top edge
+                 generatePlatform(highestPlatformY - random(PLATFORM_SPAWN_MIN_Y_GAP, PLATFORM_SPAWN_MAX_Y_GAP));
+            }
+
+
+            // --- Draw ---
+            // Clear canvas with a subtle gradient matching body or just dark
+             ctx.fillStyle = '#0b0c10'; // Match container background
+             ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Draw subtle background elements (stars, etc.) - OPTIONAL PERFORMANCE HIT
+            // drawBackgroundStars();
+
+            // Draw platforms (relative to camera)
+            platforms.forEach(platform => platform.draw());
+
+            // Draw Player (relative to camera)
+            ctx.save();
+            ctx.translate(0, -cameraY); // Apply camera scroll
+            player.draw();
+            ctx.restore();
+
+
+            // --- Loop ---
+            animationFrameId = requestAnimationFrame(gameLoop);
+        }
+
+        /* Optional: Background star drawing function
+        let stars = [];
+        function initStars() {
+            stars = [];
+            for (let i = 0; i < 100; i++) {
+                stars.push({
+                    x: Math.random() * targetCanvasWidth,
+                    y: Math.random() * targetCanvasHeight,
+                    radius: Math.random() * 1.5,
+                    alpha: Math.random() * 0.5 + 0.2 // Varying brightness
+                });
+            }
+        }
+        function drawBackgroundStars() {
+            ctx.save();
+             stars.forEach(star => {
+                 // Make stars parallax scroll slower than game world
+                 const parallaxFactor = 0.1;
+                 const starY = (star.y - cameraY * parallaxFactor) % canvas.height;
+                  if (starY < 0) starY += canvas.height; // Wrap around vertically
+
+                  ctx.fillStyle = `rgba(200, 200, 255, ${star.alpha})`; // Bluish-white stars
+                  ctx.beginPath();
+                  ctx.arc(star.x * scaleFactor, starY, star.radius * scaleFactor, 0, Math.PI * 2);
+                  ctx.fill();
+             });
+            ctx.restore();
+        }
+        */
+
+
+        // --- Event Listeners ---
+        window.addEventListener('keydown', handleKeyDown);
+        window.addEventListener('keyup', handleKeyUp);
+        canvas.addEventListener('mousemove', handleMouseMove);
+        canvas.addEventListener('mouseleave', () => { keys.left = false; keys.right = false; }); // Stop if mouse leaves
+
+        // Touch events
+        canvas.addEventListener('touchstart', handleTouchMove, { passive: false }); // Use handleTouchMove to start movement immediately
+        canvas.addEventListener('touchmove', handleTouchMove, { passive: false });
+        canvas.addEventListener('touchend', handleTouchEnd);
+        canvas.addEventListener('touchcancel', handleTouchEnd);
+
+
+        startButton.addEventListener('click', startGame);
+        restartButton.addEventListener('click', startGame);
+        window.addEventListener('resize', initGame); // Re-init on resize to handle scaling/layout changes
+
+        // --- Initial Setup ---
+        initGame(); // Prepare the game and show the start menu
+        // initStars(); // Initialize background stars if using
+
+    </script>
+</body>
+</html>
