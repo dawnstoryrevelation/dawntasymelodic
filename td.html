@@ -1,0 +1,1138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LEGENDARY Clash Royale-like Proto</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #333;
+            color: white;
+            margin: 0;
+            overflow: hidden; /* Prevent scrollbars */
+        }
+        #game-container {
+            position: relative;
+            border: 2px solid gold;
+            margin-top: 10px;
+            /* Fixed size for simplicity, adjust as needed */
+            width: 400px;
+            height: 600px;
+        }
+        canvas {
+            display: block;
+            background-color: #5a8a5a; /* Greenish arena */
+            width: 100%;
+            height: 100%;
+        }
+        #ui-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100px; /* Area for hand and elixir */
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 5px;
+            box-sizing: border-box;
+        }
+        #hand {
+            display: flex;
+            gap: 5px;
+        }
+        .card {
+            width: 60px;
+            height: 80px;
+            background-color: #eee;
+            border: 2px solid black;
+            border-radius: 5px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            padding: 3px;
+            cursor: pointer;
+            position: relative;
+            color: black;
+            font-size: 10px;
+            text-align: center;
+        }
+        .card.selected {
+            border-color: yellow;
+            transform: scale(1.05);
+        }
+        .card.unaffordable {
+            filter: grayscale(1);
+            background-color: #aaa;
+        }
+        .card-cost {
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            background-color: purple;
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 12px;
+        }
+         .card-name {
+             font-weight: bold;
+             margin-top: 20px; /* Space for cost */
+         }
+         .card-rarity {
+             font-style: italic;
+             font-size: 9px;
+         }
+
+        #elixir-bar-container {
+            width: 80px;
+            height: 80px;
+            background-color: #444;
+            border: 1px solid gold;
+            border-radius: 5px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end; /* Fill from bottom */
+        }
+        #elixir-bar {
+            width: 90%;
+            background-color: purple;
+            height: 0%; /* Starts empty, fills up */
+            transition: height 0.2s linear;
+        }
+        #elixir-text {
+            color: white;
+            font-weight: bold;
+            margin-top: 5px;
+             position: absolute; /* Overlay on bar */
+             bottom: 10px;
+             right: 25px;
+        }
+
+        #game-message {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.8);
+            color: yellow;
+            font-size: 24px;
+            font-weight: bold;
+            padding: 20px;
+            border-radius: 10px;
+            display: none; /* Hidden initially */
+            text-align: center;
+        }
+
+         /* Simple Health Bar Style */
+        .health-bar-bg {
+            fill: red;
+        }
+        .health-bar-fg {
+            fill: limegreen;
+        }
+
+    </style>
+</head>
+<body>
+
+    <h1>Extremely Legendary Proto-Clash</h1>
+    <div id="game-container">
+        <canvas id="gameCanvas"></canvas>
+        <div id="game-message">Game Over!</div>
+        <div id="ui-overlay">
+            <div id="hand">
+                <!-- Cards will be generated here by JS -->
+            </div>
+            <div id="elixir-bar-container">
+                <div id="elixir-bar"></div>
+                <div id="elixir-text">0</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- CONFIG ---
+        const CONFIG = {
+            // Arena dimensions (logical units, canvas scales)
+            ARENA_WIDTH: 400,
+            ARENA_HEIGHT: 600,
+            LANE_WIDTH_RATIO: 0.4, // How wide each lane area is relative to half width
+            BRIDGE_Y_RATIO: 0.5, // Vertical position of the "river" / bridges
+            BRIDGE_WIDTH: 40,
+            // Gameplay
+            MAX_ELIXIR: 10,
+            ELIXIR_REGEN_RATE: 1 / 2.8, // Elixir per second (1 every 2.8s)
+            STARTING_ELIXIR: 5,
+            GAME_DURATION_SECONDS: 180, // 3 minutes
+            OVERTIME_SECONDS: 60, // 1 minute
+            OVERTIME_ELIXIR_MULTIPLIER: 2,
+            // Troop Deployment
+            DEPLOY_PADDING_Y: 20, // Min distance from King tower vertically
+            // Bot AI
+            BOT_DEPLOY_COOLDOWN_MIN: 2000, // ms
+            BOT_DEPLOY_COOLDOWN_MAX: 5000, // ms
+        };
+
+        // --- ASSET DEFINITIONS (Troops, Towers) ---
+        // Define base stats - In a real game, this would be HUGE
+        const TROOP_DATA = {
+            // --- COMMON ---
+            'Knight': {
+                rarity: 'Common', cost: 3, hp: 600, damage: 100, attackSpeed: 1.1, speed: 1.2, range: 1.5, type: 'ground', target: 'ground', radius: 12, unlockArena: 0
+            },
+            'Archers': {
+                rarity: 'Common', cost: 3, hp: 200, damage: 50, attackSpeed: 0.9, speed: 1.2, range: 5, type: 'ground', target: 'any', radius: 10, unlockArena: 0, count: 2, // Deploy 2 units
+                spawnOffset: {x: 15, y: 0} // Offset for second unit
+            },
+            // --- RARE ---
+            'Giant': {
+                rarity: 'Rare', cost: 5, hp: 1500, damage: 120, attackSpeed: 1.5, speed: 0.9, range: 1.5, type: 'ground', target: 'buildings', radius: 18, unlockArena: 1
+            },
+            'MiniPekka': {
+                 rarity: 'Rare', cost: 4, hp: 700, damage: 350, attackSpeed: 1.6, speed: 1.8, range: 1.5, type: 'ground', target: 'ground', radius: 13, unlockArena: 0
+             },
+            // --- EPIC ---
+             'BabyDragon': {
+                 rarity: 'Epic', cost: 4, hp: 800, damage: 100, attackSpeed: 1.5, speed: 1.6, range: 3.5, type: 'air', target: 'any', radius: 15, unlockArena: 2, splashRadius: 1.5 // Basic splash concept
+             },
+            // --- LEGENDARY (Conceptual) ---
+             'MegaKnight': {
+                 rarity: 'Legendary', cost: 7, hp: 1400, damage: 150, attackSpeed: 1.7, speed: 1.2, range: 1.8, type: 'ground', target: 'ground', radius: 20, unlockArena: 7,
+                 // Complex abilities omitted for simplicity (spawn damage, jump)
+                 // splashRadius: 1.8
+             }
+            // ... Add ~44 more definitions here for the full 50+ ...
+            // Examples: Skeletons (Swarm), Minions (Air Swarm), Hog Rider (Building Targeter),
+            // Wizard (Ranged Splash), Valkyrie (Ground Splash), Golem (Tank w/ Death Spawn), etc.
+        };
+
+        const TOWER_DATA = {
+            'Princess': { hp: 1400, damage: 80, attackSpeed: 0.8, range: 7.5, target: 'any', radius: 20 },
+            'King': { hp: 2400, damage: 60, attackSpeed: 1.0, range: 7, target: 'any', radius: 25 }
+        };
+
+
+        // --- GAME STATE ---
+        let canvas, ctx;
+        let gameRunning = true;
+        let gameTime = 0; // seconds
+        let isOvertime = false;
+        let playerElixir = CONFIG.STARTING_ELIXIR;
+        let botElixir = CONFIG.STARTING_ELIXIR;
+        let playerTowers = [];
+        let botTowers = [];
+        let troops = []; // All active troops
+        let projectiles = []; // Active projectiles
+        let gameOverMessage = "";
+        let lastTimestamp = 0;
+        let deltaTime = 0; // Time since last frame in seconds
+
+        // Player Deck/Hand
+        // In a real game: Load player's saved deck
+        const playerDeckTemplate = ['Knight', 'Archers', 'Giant', 'MiniPekka', 'BabyDragon', 'Knight', 'Archers', 'Giant']; // Example deck
+        let playerDeck = [...playerDeckTemplate];
+        let playerHand = []; // Max 4 cards
+        let selectedCardIndex = -1; // Index in playerHand
+
+        // Bot Deck/Hand (Simple mirror for now)
+        const botDeckTemplate = ['Knight', 'Archers', 'Giant', 'MiniPekka', 'BabyDragon', 'Knight', 'Archers', 'Giant'];
+        let botDeck = [...botDeckTemplate];
+        let botHand = []; // Bot doesn't need a visual hand, but needs card options
+        let nextBotDeployTime = 0;
+
+        // --- UTILITY FUNCTIONS ---
+        function getRandomInt(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        function distance(unit1, unit2) {
+            const dx = unit1.x - unit2.x;
+            const dy = unit1.y - unit2.y;
+            return Math.sqrt(dx * dx + dy * dy);
+        }
+
+        // --- GAME OBJECTS (Classes/Factories) ---
+
+        // Base class for units (Troops and Towers)
+        class Unit {
+            constructor(x, y, stats, owner) {
+                this.x = x;
+                this.y = y;
+                this.stats = stats;
+                this.owner = owner; // 'player' or 'bot'
+                this.maxHp = stats.hp;
+                this.hp = stats.hp;
+                this.range = stats.range * TILE_SIZE; // Convert grid range to pixel range
+                this.attackSpeed = stats.attackSpeed; // seconds per attack
+                this.attackCooldown = 0; // Time until next attack
+                this.target = null; // The unit this unit is currently targeting
+                this.radius = stats.radius || 10; // Visual/Collision radius
+                this.isTower = false;
+            }
+
+             findTarget(potentialTargets) {
+                 let closestTarget = null;
+                 let minDistance = this.range + 1; // Start slightly outside range
+
+                 potentialTargets.forEach(potential => {
+                     if (potential === this || potential.hp <= 0 || potential.owner === this.owner) return; // Skip self, dead, or friendly
+
+                     // Target type filtering
+                     const canTargetAir = this.stats.target === 'any' || this.stats.target === 'air';
+                     const canTargetGround = this.stats.target === 'any' || this.stats.target === 'ground' || this.stats.target === 'buildings';
+                     const targetIsAir = potential.stats && potential.stats.type === 'air';
+                     const targetIsGround = !targetIsAir; // Includes buildings for simplicity here
+                     const targetIsBuilding = potential.isTower || (potential.stats && potential.stats.target === 'buildings'); // Does THIS unit target buildings?
+
+                      // Skip if target type is incompatible
+                     if ((targetIsAir && !canTargetAir) || (targetIsGround && !canTargetGround)) {
+                        // console.log(`${this.stats.name || 'Tower'} cannot target ${potential.stats?.name || 'Tower'} type`);
+                         return;
+                     }
+
+                      // Building-only targeting check (for units like Giant)
+                     if (this.stats.target === 'buildings' && !targetIsBuilding) {
+                         return; // Skip non-buildings if I only target buildings
+                     }
+
+                     const d = distance(this, potential) - potential.radius; // Distance to edge of target
+                     if (d < minDistance) {
+                         minDistance = d;
+                         closestTarget = potential;
+                     }
+                 });
+
+                 // If unit targets buildings only, but no buildings in range, check for troops IN range if needed for defense (basic)
+                  if (this.stats.target === 'buildings' && !closestTarget && !this.isTower) {
+                       // Maybe allow targeting troops if directly threatened? Complex rule, omit for now.
+                  }
+
+                 if (closestTarget && minDistance <= this.range) {
+                    // console.log(`${this.stats.name || 'Tower'} targeting ${closestTarget.stats?.name || 'Tower'}`);
+                     return closestTarget;
+                 }
+                 return null; // No target in range
+             }
+
+            attack(target) {
+                // console.log(`${this.stats.name || 'Tower'} attacking ${target.stats?.name || 'Tower'}`);
+                 target.takeDamage(this.stats.damage);
+                 this.attackCooldown = this.attackSpeed; // Reset cooldown
+
+                 // Basic Splash Damage (if defined)
+                 if (this.stats.splashRadius && !this.isTower) { // Towers don't splash here
+                     const splashPixelRadius = this.stats.splashRadius * TILE_SIZE;
+                     const splashTargets = (this.owner === 'player' ? botTowers.concat(troops.filter(t => t.owner === 'bot')) : playerTowers.concat(troops.filter(t => t.owner === 'player')));
+
+                     splashTargets.forEach(splashTarget => {
+                         if (splashTarget !== target && splashTarget.hp > 0 && distance(target, splashTarget) <= splashPixelRadius + splashTarget.radius) {
+                            // console.log(`Splash damage to ${splashTarget.stats?.name || 'Tower'}`);
+                             splashTarget.takeDamage(this.stats.damage); // Full damage splash for simplicity
+                         }
+                     });
+                 }
+             }
+
+             takeDamage(amount) {
+                 this.hp -= amount;
+                 if (this.hp <= 0) {
+                     this.hp = 0;
+                     // Handle death in the main update loop (removal from arrays)
+                     // console.log(`${this.stats.name || 'Tower'} destroyed!`);
+                 }
+             }
+
+            update(deltaTime, allUnits) {
+                if (this.hp <= 0) return;
+
+                if (this.attackCooldown > 0) {
+                    this.attackCooldown -= deltaTime;
+                }
+
+                // Re-evaluate target periodically or if current target is dead/out of range
+                if (!this.target || this.target.hp <= 0 || distance(this, this.target) - this.target.radius > this.range) {
+                    this.target = this.findTarget(allUnits);
+                }
+
+                // Attack if possible
+                if (this.target && this.attackCooldown <= 0) {
+                    this.attack(this.target);
+                }
+            }
+
+            draw(ctx) {
+                // Simple circle representation
+                ctx.fillStyle = this.owner === 'player' ? 'blue' : 'red';
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.strokeStyle = 'black';
+                ctx.lineWidth = 1;
+                ctx.stroke();
+
+                // Draw HP Bar
+                const barWidth = this.radius * 2;
+                const barHeight = 5;
+                const barX = this.x - this.radius;
+                const barY = this.y - this.radius - barHeight - 2; // Above the unit
+                const hpRatio = this.hp / this.maxHp;
+
+                ctx.fillStyle = '#333'; // Background
+                ctx.fillRect(barX, barY, barWidth, barHeight);
+                ctx.fillStyle = hpRatio > 0.5 ? 'limegreen' : hpRatio > 0.2 ? 'yellow' : 'red'; // Foreground
+                ctx.fillRect(barX, barY, barWidth * hpRatio, barHeight);
+                 ctx.strokeStyle = 'black';
+                 ctx.lineWidth = 0.5;
+                 ctx.strokeRect(barX, barY, barWidth, barHeight);
+            }
+        }
+
+        class Tower extends Unit {
+            constructor(x, y, stats, owner, isKing = false) {
+                super(x, y, stats, owner);
+                this.isKing = isKing;
+                this.isTower = true;
+                this.stats.name = isKing ? 'King Tower' : 'Princess Tower'; // Add name for logs
+            }
+
+             // Override draw for different tower appearance
+            draw(ctx) {
+                ctx.fillStyle = this.owner === 'player' ? 'darkblue' : 'darkred';
+                const size = this.radius * (this.isKing ? 2.5 : 2);
+                ctx.fillRect(this.x - size / 2, this.y - size / 2, size, size);
+                ctx.strokeStyle = 'gold';
+                ctx.lineWidth = 2;
+                ctx.strokeRect(this.x - size / 2, this.y - size / 2, size, size);
+
+                 // Crown for King Tower
+                 if(this.isKing) {
+                     ctx.fillStyle = 'yellow';
+                     ctx.beginPath();
+                     ctx.moveTo(this.x - size*0.2, this.y - size*0.3);
+                     ctx.lineTo(this.x, this.y - size*0.5);
+                     ctx.lineTo(this.x + size*0.2, this.y - size*0.3);
+                     ctx.lineTo(this.x + size*0.3, this.y - size*0.4);
+                     ctx.lineTo(this.x, this.y - size*0.15); // Center point bottom
+                     ctx.lineTo(this.x - size*0.3, this.y - size*0.4);
+                     ctx.closePath();
+                     ctx.fill();
+                 }
+
+                 // Draw HP Bar (reuse Unit's method but adjust position)
+                 const barWidth = size * 0.8;
+                 const barHeight = 8;
+                 const barX = this.x - barWidth / 2;
+                 const barY = this.y - size / 2 - barHeight - 5; // Position above tower
+                 const hpRatio = this.hp / this.maxHp;
+
+                 ctx.fillStyle = '#333'; // Background
+                 ctx.fillRect(barX, barY, barWidth, barHeight);
+                 ctx.fillStyle = hpRatio > 0.5 ? 'limegreen' : hpRatio > 0.2 ? 'yellow' : 'red'; // Foreground
+                 ctx.fillRect(barX, barY, barWidth * hpRatio, barHeight);
+                 ctx.strokeStyle = 'black';
+                 ctx.lineWidth = 1;
+                 ctx.strokeRect(barX, barY, barWidth, barHeight);
+            }
+        }
+
+        class Troop extends Unit {
+            constructor(x, y, troopName, owner) {
+                const stats = TROOP_DATA[troopName];
+                if (!stats) throw new Error(`Troop data not found for ${troopName}`);
+                super(x, y, { ...stats, name: troopName }, owner); // Pass name to base for logging
+                this.speed = stats.speed * TILE_SIZE; // Pixels per second
+                this.moveTargetPos = null; // Target position for pathfinding
+                this.state = 'moving'; // 'moving', 'attacking'
+            }
+
+            update(deltaTime, allUnits, towers) {
+                if (this.hp <= 0) return;
+
+                super.update(deltaTime, allUnits); // Handle targeting and attacking cooldown
+
+                 // Movement Logic
+                 if (this.target && distance(this, this.target) - this.target.radius <= this.range) {
+                     // In range of target, stop moving, start attacking (if cooldown allows)
+                     this.state = 'attacking';
+                     if (this.attackCooldown <= 0) {
+                         this.attack(this.target);
+                     }
+                 } else {
+                     // Out of range or no target, move towards goal
+                     this.state = 'moving';
+                     this.move(deltaTime, towers);
+                 }
+            }
+
+            move(deltaTime, towers) {
+                if (this.hp <= 0 || this.state !== 'moving') return;
+
+                // Determine movement goal: Attack target > Enemy Tower > Cross Bridge
+                let goalX = this.x, goalY = this.y;
+
+                 // 1. If has an attack target (even if out of range), move towards it
+                 if (this.target) {
+                     goalX = this.target.x;
+                     goalY = this.target.y;
+                 }
+                 // 2. If targeting buildings only, move towards nearest enemy building
+                 else if (this.stats.target === 'buildings') {
+                     const enemyTowers = towers.filter(t => t.owner !== this.owner && t.hp > 0);
+                     let closestTower = null;
+                     let minDist = Infinity;
+                     enemyTowers.forEach(t => {
+                          // Check if tower is "reachable" (King tower only reachable if Princess on that side is down)
+                          const isKing = t.isKing;
+                          const towerSide = t.x < CONFIG.ARENA_WIDTH / 2 ? 'left' : 'right';
+                          const princessDown = enemyTowers.find(pt => !pt.isKing && (pt.x < CONFIG.ARENA_WIDTH / 2 ? 'left' : 'right') === towerSide)?.hp <= 0;
+
+                          if(isKing && !princessDown && enemyTowers.some(pt => !pt.isKing && pt.hp > 0)) return; // Don't target king if other towers exist and princess on its side is up
+
+                         const d = distance(this, t);
+                         if (d < minDist) {
+                             minDist = d;
+                             closestTower = t;
+                         }
+                     });
+                     if(closestTower) {
+                         goalX = closestTower.x;
+                         goalY = closestTower.y;
+                     } else { // No buildings left? Target center of enemy backline (fallback)
+                        goalY = (this.owner === 'player') ? 0 : CONFIG.ARENA_HEIGHT;
+                        goalX = CONFIG.ARENA_WIDTH / 2;
+                     }
+                 }
+                 // 3. Default: Move towards the opposite side bridge/tower area
+                 else {
+                     const targetY = (this.owner === 'player') ? 0 : CONFIG.ARENA_HEIGHT;
+                     // Basic lane following - move towards bridge on current side
+                     const bridgeY = CONFIG.ARENA_HEIGHT * CONFIG.BRIDGE_Y_RATIO;
+                     const centerLine = CONFIG.ARENA_WIDTH / 2;
+
+                     if (Math.abs(this.y - bridgeY) > TILE_SIZE / 2) { // If not near bridge Y
+                         goalY = bridgeY; // Move vertically to bridge level first
+                         // Stay roughly in lane
+                         goalX = (this.x < centerLine) ? centerLine * (1 - CONFIG.LANE_WIDTH_RATIO) : centerLine * (1 + CONFIG.LANE_WIDTH_RATIO);
+                     } else { // At bridge level or beyond
+                         goalY = targetY; // Move towards enemy baseline
+                         // Aim for the tower on the correct side
+                         const enemyTowers = towers.filter(t => t.owner !== this.owner && t.hp > 0 && !t.isKing);
+                         const leftTower = enemyTowers.find(t => t.x < centerLine);
+                         const rightTower = enemyTowers.find(t => t.x > centerLine);
+
+                          if (this.x < centerLine) { // Left lane preference
+                             goalX = leftTower ? leftTower.x : (rightTower ? rightTower.x : centerLine);
+                         } else { // Right lane preference
+                             goalX = rightTower ? rightTower.x : (leftTower ? leftTower.x : centerLine);
+                         }
+                         // If near enemy baseline, might directly target King if available
+                         const enemyKing = towers.find(t => t.owner !== this.owner && t.isKing);
+                         if(enemyKing && enemyKing.hp > 0 && this.y < bridgeY * 0.5 && this.owner === 'player') {
+                            const kingSide = enemyKing.x < CONFIG.ARENA_WIDTH / 2 ? 'left' : 'right';
+                            const princessDown = towers.find(pt => pt.owner !== this.owner && !pt.isKing && (pt.x < CONFIG.ARENA_WIDTH / 2 ? 'left' : 'right') === kingSide)?.hp <= 0;
+                             if(princessDown || !enemyTowers.some(pt => !pt.isKing && pt.hp > 0)) {
+                                goalX = enemyKing.x;
+                            }
+                         } else if(enemyKing && enemyKing.hp > 0 && this.y > bridgeY * 1.5 && this.owner === 'bot') {
+                             const kingSide = enemyKing.x < CONFIG.ARENA_WIDTH / 2 ? 'left' : 'right';
+                            const princessDown = towers.find(pt => pt.owner !== this.owner && !pt.isKing && (pt.x < CONFIG.ARENA_WIDTH / 2 ? 'left' : 'right') === kingSide)?.hp <= 0;
+                            if(princessDown || !enemyTowers.some(pt => !pt.isKing && pt.hp > 0)) {
+                                goalX = enemyKing.x;
+                            }
+                         }
+                     }
+                 }
+
+                 // Calculate movement vector (simple straight line)
+                 const dx = goalX - this.x;
+                 const dy = goalY - this.y;
+                 const distToGoal = Math.sqrt(dx * dx + dy * dy);
+
+                 if (distToGoal > 1) { // Move if not already at goal
+                     const moveX = (dx / distToGoal) * this.speed * deltaTime;
+                     const moveY = (dy / distToGoal) * this.speed * deltaTime;
+
+                      // Collision Avoidance (VERY basic - nudge away from others)
+                      let nudgeX = 0;
+                      let nudgeY = 0;
+                      const allUnits = troops.concat(playerTowers, botTowers); // Check against everything
+                      allUnits.forEach(other => {
+                          if (other === this || other.hp <= 0) return;
+                          const d = distance(this, other);
+                          const minDist = this.radius + other.radius;
+                          if (d < minDist) {
+                              const overlap = minDist - d;
+                              const pushAngle = Math.atan2(this.y - other.y, this.x - other.x);
+                              // Stronger nudge if deeply overlapping
+                              nudgeX += Math.cos(pushAngle) * overlap * 0.5;
+                              nudgeY += Math.sin(pushAngle) * overlap * 0.5;
+                          }
+                      });
+
+                     this.x += moveX + nudgeX * deltaTime; // Apply nudge scaled by deltaTime
+                     this.y += moveY + nudgeY * deltaTime;
+
+                     // Clamp position to stay within arena bounds (rough)
+                     this.x = Math.max(this.radius, Math.min(CONFIG.ARENA_WIDTH - this.radius, this.x));
+                     this.y = Math.max(this.radius, Math.min(CONFIG.ARENA_HEIGHT - this.radius, this.y));
+                 }
+            }
+
+            // Override draw to show troop-specifics (optional)
+            draw(ctx) {
+                super.draw(ctx); // Draw basic circle and HP bar
+
+                // Add troop name text (for debugging/clarity)
+                ctx.fillStyle = 'black';
+                ctx.font = '10px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText(this.stats.name, this.x, this.y + this.radius + 10);
+
+                 // Indicate target line (optional debugging)
+                /* if (this.target && this.state === 'attacking') {
+                    ctx.strokeStyle = 'rgba(255, 255, 0, 0.5)';
+                    ctx.lineWidth = 1;
+                    ctx.beginPath();
+                    ctx.moveTo(this.x, this.y);
+                    ctx.lineTo(this.target.x, this.target.y);
+                    ctx.stroke();
+                } */
+                 // Indicate Flying with a simple shadow
+                 if (this.stats.type === 'air') {
+                     ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+                     ctx.beginPath();
+                     // Ellipse below the unit
+                     ctx.ellipse(this.x, this.y + this.radius * 0.8, this.radius * 0.8, this.radius * 0.4, 0, 0, Math.PI * 2);
+                     ctx.fill();
+                 }
+            }
+        }
+
+
+        // --- GLOBAL VARIABLES for easier access ---
+        const TILE_SIZE = 10; // Arbitrary unit size for range calculations etc.
+
+        // --- INITIALIZATION ---
+        function initGame() {
+            canvas = document.getElementById('gameCanvas');
+            ctx = canvas.getContext('2d');
+            canvas.width = CONFIG.ARENA_WIDTH;
+            canvas.height = CONFIG.ARENA_HEIGHT;
+
+            // Setup Event Listeners
+            canvas.addEventListener('click', handleCanvasClick);
+            document.getElementById('hand').addEventListener('click', handleHandClick);
+
+            // Reset game state
+            gameRunning = true;
+            gameTime = 0;
+            isOvertime = false;
+            playerElixir = CONFIG.STARTING_ELIXIR;
+            botElixir = CONFIG.STARTING_ELIXIR;
+            troops = [];
+            projectiles = [];
+            playerTowers = [];
+            botTowers = [];
+            gameOverMessage = "";
+            document.getElementById('game-message').style.display = 'none';
+
+            // Create Towers
+            const midX = CONFIG.ARENA_WIDTH / 2;
+            const laneOffset = CONFIG.ARENA_WIDTH * 0.25; // Distance of Princess towers from center
+            const playerKingY = CONFIG.ARENA_HEIGHT - 50;
+            const playerPrincessY = CONFIG.ARENA_HEIGHT - 120;
+            const botKingY = 50;
+            const botPrincessY = 120;
+
+            playerTowers.push(new Tower(midX, playerKingY, TOWER_DATA.King, 'player', true));
+            playerTowers.push(new Tower(midX - laneOffset, playerPrincessY, TOWER_DATA.Princess, 'player'));
+            playerTowers.push(new Tower(midX + laneOffset, playerPrincessY, TOWER_DATA.Princess, 'player'));
+
+            botTowers.push(new Tower(midX, botKingY, TOWER_DATA.King, 'bot', true));
+            botTowers.push(new Tower(midX - laneOffset, botPrincessY, TOWER_DATA.Princess, 'bot'));
+            botTowers.push(new Tower(midX + laneOffset, botPrincessY, TOWER_DATA.Princess, 'bot'));
+
+             // Setup Decks & Hands
+             shuffleArray(playerDeck);
+             shuffleArray(botDeck);
+             playerHand = [];
+             botHand = [];
+             for(let i=0; i<4; i++) {
+                 drawCard(playerDeck, playerHand);
+                 drawCard(botDeck, botHand); // Bot needs cards to choose from
+             }
+             selectedCardIndex = -1;
+             updateHandUI();
+
+             // Reset Bot AI timer
+             nextBotDeployTime = Date.now() + getRandomInt(CONFIG.BOT_DEPLOY_COOLDOWN_MIN, CONFIG.BOT_DEPLOY_COOLDOWN_MAX);
+
+
+            // Start Game Loop
+            lastTimestamp = performance.now();
+            requestAnimationFrame(gameLoop);
+            console.log("Game Initialized!");
+        }
+
+        // --- DECK & HAND MANAGEMENT ---
+        function drawCard(deck, hand) {
+            if (deck.length === 0) {
+                // Reshuffle graveyard/played cards - for simplicity, just reuse template
+                console.log("Deck empty, reshuffling template");
+                 if (hand === playerHand) deck.push(...playerDeckTemplate);
+                 else deck.push(...botDeckTemplate);
+                shuffleArray(deck);
+            }
+             if (hand.length < 4 && deck.length > 0) {
+                hand.push(deck.pop());
+            }
+        }
+
+        function playCard(cardIndex, owner, deployX, deployY) {
+            const hand = (owner === 'player') ? playerHand : botHand;
+            const deck = (owner === 'player') ? playerDeck : botDeck;
+            const elixir = (owner === 'player') ? playerElixir : botElixir;
+
+            if (cardIndex < 0 || cardIndex >= hand.length) return false;
+
+            const cardName = hand[cardIndex];
+            const cardData = TROOP_DATA[cardName];
+            if (!cardData) return false; // Should not happen
+
+            if (elixir >= cardData.cost) {
+                 // Deduct elixir
+                 if (owner === 'player') playerElixir -= cardData.cost;
+                 else botElixir -= cardData.cost;
+
+                 // Spawn troop(s)
+                 const troopCount = cardData.count || 1;
+                 for(let i = 0; i < troopCount; i++) {
+                     let spawnX = deployX;
+                     let spawnY = deployY;
+                     // Apply offset for multi-unit spawns (like Archers)
+                     if(i > 0 && cardData.spawnOffset) {
+                         // Simple alternating offset for now
+                         const side = i % 2 === 1 ? 1 : -1;
+                         spawnX += cardData.spawnOffset.x * side;
+                         spawnY += cardData.spawnOffset.y * side; // Usually just x offset
+                     }
+                     // Clamp spawn position slightly
+                     spawnX = Math.max(cardData.radius, Math.min(CONFIG.ARENA_WIDTH - cardData.radius, spawnX));
+                     spawnY = Math.max(cardData.radius, Math.min(CONFIG.ARENA_HEIGHT - cardData.radius, spawnY));
+
+                     troops.push(new Troop(spawnX, spawnY, cardName, owner));
+                     console.log(`${owner} deployed ${cardName} at (${Math.round(spawnX)}, ${Math.round(spawnY)})`);
+                 }
+
+
+                 // Remove card from hand and draw next
+                 hand.splice(cardIndex, 1);
+                 drawCard(deck, hand);
+
+                 // Update UI if player
+                 if (owner === 'player') {
+                     selectedCardIndex = -1; // Deselect after playing
+                     updateHandUI();
+                     updateElixirUI();
+                 }
+                 return true; // Card played successfully
+             } else {
+                 // console.log(`${owner} cannot afford ${cardName}`);
+                 return false; // Not enough elixir
+             }
+        }
+
+        // --- INPUT HANDLING ---
+        function handleHandClick(event) {
+             if (!gameRunning) return;
+            const cardElement = event.target.closest('.card');
+            if (cardElement) {
+                const index = parseInt(cardElement.dataset.index, 10);
+                const cardName = playerHand[index];
+                const cardData = TROOP_DATA[cardName];
+
+                if (playerElixir >= cardData.cost) {
+                    if (selectedCardIndex === index) {
+                        selectedCardIndex = -1; // Click again to deselect
+                    } else {
+                        selectedCardIndex = index;
+                    }
+                    updateHandUI(); // Highlight selected card
+                } else {
+                    console.log("Not enough elixir for " + cardName);
+                     // Maybe flash the card red briefly?
+                }
+            }
+        }
+
+        function handleCanvasClick(event) {
+             if (!gameRunning || selectedCardIndex === -1) return;
+
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            const clickX = (event.clientX - rect.left) * scaleX;
+            const clickY = (event.clientY - rect.top) * scaleY;
+
+            // Validate deployment zone (Player's side, not too close to King Tower)
+            const bridgeY = CONFIG.ARENA_HEIGHT * CONFIG.BRIDGE_Y_RATIO;
+            const kingTower = playerTowers.find(t => t.isKing);
+            const kingY = kingTower ? kingTower.y : CONFIG.ARENA_HEIGHT; // Fallback
+
+            // Allow deployment up to the bridge
+            if (clickY > bridgeY && clickY < CONFIG.ARENA_HEIGHT - CONFIG.DEPLOY_PADDING_Y) {
+                // Try to play the selected card
+                const played = playCard(selectedCardIndex, 'player', clickX, clickY);
+                 // If successful, card is removed & deselected in playCard function
+            } else {
+                console.log("Invalid deployment location.");
+                // Maybe provide visual feedback (e.g., red X)
+            }
+        }
+
+        // --- BOT AI ---
+        function runBotAI() {
+             if (!gameRunning || Date.now() < nextBotDeployTime) return;
+
+             // Find playable cards
+             const playableCards = botHand.map((cardName, index) => ({ name: cardName, index, cost: TROOP_DATA[cardName]?.cost || 99 }))
+                                         .filter(card => botElixir >= card.cost);
+
+             if (playableCards.length > 0) {
+                 // Simple AI: Choose a random playable card
+                 const cardToPlay = playableCards[Math.floor(Math.random() * playableCards.length)];
+
+                 // Choose a random lane and deployment position (behind own towers)
+                 const deployY = getRandomInt(CONFIG.DEPLOY_PADDING_Y, CONFIG.ARENA_HEIGHT * CONFIG.BRIDGE_Y_RATIO - 50); // Deploy in own territory
+                 const deployX = (Math.random() < 0.5)
+                     ? getRandomInt(CONFIG.ARENA_WIDTH * 0.1, CONFIG.ARENA_WIDTH * 0.4) // Left lane area
+                     : getRandomInt(CONFIG.ARENA_WIDTH * 0.6, CONFIG.ARENA_WIDTH * 0.9); // Right lane area
+
+                 playCard(cardToPlay.index, 'bot', deployX, deployY);
+
+                  // Reset cooldown
+                 nextBotDeployTime = Date.now() + getRandomInt(CONFIG.BOT_DEPLOY_COOLDOWN_MIN, CONFIG.BOT_DEPLOY_COOLDOWN_MAX);
+             } else {
+                 // If no card playable, check again sooner
+                  nextBotDeployTime = Date.now() + 500; // Check again in 0.5s
+             }
+        }
+
+        // --- UPDATE LOGIC ---
+        function update(timestamp) {
+            deltaTime = (timestamp - lastTimestamp) / 1000; // Delta time in seconds
+            lastTimestamp = timestamp;
+
+            if (!gameRunning) return;
+
+            gameTime += deltaTime;
+
+            // Check for overtime
+            if (!isOvertime && gameTime >= CONFIG.GAME_DURATION_SECONDS) {
+                isOvertime = true;
+                console.log("OVERTIME!");
+                // Optionally add a visual indicator for overtime
+            }
+            // Check for game end by time
+            if (gameTime >= CONFIG.GAME_DURATION_SECONDS + CONFIG.OVERTIME_SECONDS) {
+                 endGameByTime();
+                 return; // Stop updates
+            }
+
+
+            // Regenerate Elixir
+            const currentElixirRate = CONFIG.ELIXIR_REGEN_RATE * (isOvertime ? CONFIG.OVERTIME_ELIXIR_MULTIPLIER : 1);
+            playerElixir = Math.min(CONFIG.MAX_ELIXIR, playerElixir + currentElixirRate * deltaTime);
+            botElixir = Math.min(CONFIG.MAX_ELIXIR, botElixir + currentElixirRate * deltaTime);
+            updateElixirUI(); // Update visual elixir bar/text
+
+             // Update Bot AI
+             runBotAI();
+
+            // Update all units (Towers and Troops)
+            const allUnits = [...playerTowers, ...botTowers, ...troops];
+            const allTowers = [...playerTowers, ...botTowers];
+
+            playerTowers.forEach(tower => tower.update(deltaTime, allUnits));
+            botTowers.forEach(tower => tower.update(deltaTime, allUnits));
+            troops.forEach(troop => troop.update(deltaTime, allUnits, allTowers)); // Pass towers for building targeting
+
+            // Remove dead troops
+            troops = troops.filter(troop => troop.hp > 0);
+
+             // Remove dead towers (and check for game over)
+             let playerKingDestroyed = false;
+             let botKingDestroyed = false;
+             playerTowers = playerTowers.filter(tower => {
+                 if (tower.hp <= 0 && tower.isKing) playerKingDestroyed = true;
+                 return tower.hp > 0;
+             });
+             botTowers = botTowers.filter(tower => {
+                 if (tower.hp <= 0 && tower.isKing) botKingDestroyed = true;
+                 return tower.hp > 0;
+             });
+
+             if (playerKingDestroyed) {
+                 endGame('Bot Wins!');
+             } else if (botKingDestroyed) {
+                 endGame('Player Wins!');
+             }
+        }
+
+         function countDestroyedTowers(initialTowers, currentTowers) {
+             const initialCount = initialTowers.length;
+             const currentCount = currentTowers.length;
+             // Calculate based on how many are missing from the initial set (assuming they don't respawn)
+             // This simple count works if we know we started with 3 each.
+             return 3 - currentCount;
+         }
+
+         function endGameByTime() {
+            if (!gameRunning) return; // Prevent multiple calls
+             console.log("Game ended by time limit.");
+
+             // Need to know initial tower counts to compare properly
+             const playerDestroyedCount = 3 - playerTowers.length; // Assumes start with 3
+             const botDestroyedCount = 3 - botTowers.length; // Assumes start with 3
+
+             if (botDestroyedCount > playerDestroyedCount) {
+                 endGame("Player Wins by Towers!");
+             } else if (playerDestroyedCount > botDestroyedCount) {
+                 endGame("Bot Wins by Towers!");
+             } else {
+                 // Check remaining King Tower HP for tiebreaker (or Princess HP if Kings are equal)
+                 const playerKingHp = playerTowers.find(t => t.isKing)?.hp || 0;
+                 const botKingHp = botTowers.find(t => t.isKing)?.hp || 0;
+
+                 if (playerKingHp < botKingHp) {
+                     endGame("Bot Wins on HP Tiebreaker!");
+                 } else if (botKingHp < playerKingHp) {
+                     endGame("Player Wins on HP Tiebreaker!");
+                 } else {
+                      // Extremely rare: check princess tower total HP maybe? Or just Draw.
+                     endGame("Draw!");
+                 }
+             }
+         }
+
+        function endGame(message) {
+             if(!gameRunning) return;
+            gameRunning = false;
+            gameOverMessage = message;
+            console.log("Game Over:", message);
+            document.getElementById('game-message').innerText = message;
+            document.getElementById('game-message').style.display = 'block';
+
+             // Maybe add a "Play Again" button functionality here
+             // setTimeout(initGame, 5000); // Example: Restart after 5 seconds
+        }
+
+        // --- DRAWING ---
+        function drawArena(ctx) {
+            // Base Green
+            ctx.fillStyle = '#5a8a5a';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Lanes (Slightly lighter green)
+            ctx.fillStyle = '#6a9a6a';
+            const laneWidth = (canvas.width / 2) * CONFIG.LANE_WIDTH_RATIO;
+            const midX = canvas.width / 2;
+            ctx.fillRect(midX - laneWidth, 0, laneWidth * 2, canvas.height); // Center path slightly wider visually
+            // Left path
+             ctx.fillRect(0, 0, (midX - laneWidth)/2 + laneWidth/2, canvas.height);
+             // Right Path
+             ctx.fillRect(midX + laneWidth/2, 0, (midX - laneWidth)/2 + laneWidth/2, canvas.height);
+
+
+            // River (Blue)
+            const bridgeY = canvas.height * CONFIG.BRIDGE_Y_RATIO;
+            ctx.fillStyle = '#4466cc';
+            ctx.fillRect(0, bridgeY - TILE_SIZE, canvas.width, TILE_SIZE * 2); // River width
+
+            // Bridges (Brown wooden planks)
+            ctx.fillStyle = '#8B4513'; // SaddleBrown
+            const bridgeVisualWidth = CONFIG.BRIDGE_WIDTH;
+            const bridgeCenterOffset = canvas.width * 0.25; // Position bridges like towers
+             ctx.fillRect(midX - bridgeCenterOffset - bridgeVisualWidth / 2, bridgeY - TILE_SIZE, bridgeVisualWidth, TILE_SIZE * 2);
+             ctx.fillRect(midX + bridgeCenterOffset - bridgeVisualWidth / 2, bridgeY - TILE_SIZE, bridgeVisualWidth, TILE_SIZE * 2);
+              // Add plank lines for detail
+              ctx.strokeStyle = '#654321'; // Darker Brown
+              ctx.lineWidth = 2;
+              for (let i = 1; i < 4; i++) {
+                  const lineY = bridgeY - TILE_SIZE + (TILE_SIZE * 2 * i / 4);
+                  ctx.beginPath();
+                  ctx.moveTo(midX - bridgeCenterOffset - bridgeVisualWidth / 2, lineY);
+                  ctx.lineTo(midX - bridgeCenterOffset + bridgeVisualWidth / 2, lineY);
+                  ctx.stroke();
+                  ctx.beginPath();
+                  ctx.moveTo(midX + bridgeCenterOffset - bridgeVisualWidth / 2, lineY);
+                  ctx.lineTo(midX + bridgeCenterOffset + bridgeVisualWidth / 2, lineY);
+                  ctx.stroke();
+              }
+
+             // Deployment Zone Indicator Lines (Subtle)
+             ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+             ctx.lineWidth = 1;
+             ctx.setLineDash([5, 5]);
+             // Player side limit
+             ctx.beginPath();
+             ctx.moveTo(0, bridgeY);
+             ctx.lineTo(canvas.width, bridgeY);
+             ctx.stroke();
+             // Bot side limit
+             ctx.beginPath();
+             ctx.moveTo(0, CONFIG.ARENA_HEIGHT - bridgeY);
+             ctx.lineTo(canvas.width, CONFIG.ARENA_HEIGHT - bridgeY);
+             ctx.stroke();
+             ctx.setLineDash([]); // Reset line dash
+
+
+             // Arena "Walls" (Darker border)
+            /* ctx.strokeStyle = '#385d38';
+            ctx.lineWidth = 5;
+            ctx.strokeRect(0, 0, canvas.width, canvas.height); */
+        }
+
+        function draw() {
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw Arena Background
+            drawArena(ctx);
+
+            // Draw Towers
+            playerTowers.forEach(tower => tower.draw(ctx));
+            botTowers.forEach(tower => tower.draw(ctx));
+
+            // Draw Troops
+            troops.forEach(troop => troop.draw(ctx));
+
+            // Draw Projectiles (if implemented)
+            // projectiles.forEach(p => p.draw(ctx));
+
+            // Draw UI Elements (e.g., selected card indicator on cursor - complex)
+
+            // Draw Timer (optional)
+            ctx.fillStyle = 'white';
+            ctx.font = '16px sans-serif';
+            ctx.textAlign = 'center';
+            const remainingTime = Math.max(0, (CONFIG.GAME_DURATION_SECONDS + (isOvertime ? CONFIG.OVERTIME_SECONDS : 0)) - gameTime);
+            const minutes = Math.floor(remainingTime / 60);
+            const seconds = Math.floor(remainingTime % 60);
+            ctx.fillText(`${minutes}:${seconds < 10 ? '0' : ''}${seconds}`, canvas.width / 2, 20);
+            if(isOvertime) {
+                ctx.fillStyle = 'yellow';
+                ctx.fillText('OVERTIME!', canvas.width / 2, 40);
+            }
+        }
+
+        // --- UI UPDATES ---
+        function updateElixirUI() {
+            const elixirInt = Math.floor(playerElixir);
+            document.getElementById('elixir-text').innerText = elixirInt;
+            const elixirPercentage = (playerElixir / CONFIG.MAX_ELIXIR) * 100;
+            document.getElementById('elixir-bar').style.height = `${elixirPercentage}%`;
+
+             // Update card affordability visuals
+             updateHandUI();
+        }
+
+        function getRarityColor(rarity) {
+            switch (rarity?.toLowerCase()) {
+                case 'common': return '#aaa';
+                case 'rare': return '#ff9a00'; // Orange
+                case 'epic': return '#d500ff'; // Purple
+                case 'legendary': return '#00ffea'; // Cyan/Rainbow-ish
+                default: return '#666';
+            }
+        }
+
+        function updateHandUI() {
+            const handElement = document.getElementById('hand');
+            handElement.innerHTML = ''; // Clear current hand
+
+            playerHand.forEach((cardName, index) => {
+                const cardData = TROOP_DATA[cardName];
+                if (!cardData) return; // Skip if data missing
+
+                const cardDiv = document.createElement('div');
+                cardDiv.classList.add('card');
+                cardDiv.dataset.index = index;
+
+                if (index === selectedCardIndex) {
+                    cardDiv.classList.add('selected');
+                }
+                if (playerElixir < cardData.cost) {
+                    cardDiv.classList.add('unaffordable');
+                }
+
+                 // Card Content
+                 const costSpan = document.createElement('span');
+                 costSpan.classList.add('card-cost');
+                 costSpan.innerText = cardData.cost;
+
+                 const nameSpan = document.createElement('span');
+                 nameSpan.classList.add('card-name');
+                 nameSpan.innerText = cardName;
+
+                 const raritySpan = document.createElement('span');
+                 raritySpan.classList.add('card-rarity');
+                 raritySpan.innerText = cardData.rarity;
+                 raritySpan.style.color = getRarityColor(cardData.rarity); // Style based on rarity
+
+                 // Simple visual representation (colored box)
+                 const visualDiv = document.createElement('div');
+                 visualDiv.style.width = '40px';
+                 visualDiv.style.height = '30px';
+                 visualDiv.style.backgroundColor = getRarityColor(cardData.rarity); // Use rarity color as placeholder visual
+                 visualDiv.style.border = '1px solid black';
+                 visualDiv.style.marginTop = '5px';
+
+
+                 cardDiv.appendChild(costSpan);
+                 cardDiv.appendChild(nameSpan);
+                 // cardDiv.appendChild(visualDiv); // Add placeholder visual
+                 cardDiv.appendChild(raritySpan);
+
+                handElement.appendChild(cardDiv);
+            });
+        }
+
+
+        // --- GAME LOOP ---
+        function gameLoop(timestamp) {
+            update(timestamp);
+            draw();
+
+            if (gameRunning) { // Only request next frame if game should continue
+                requestAnimationFrame(gameLoop);
+            }
+        }
+
+        // --- START ---
+        window.onload = initGame;
+
+    </script>
+
+</body>
+</html>
