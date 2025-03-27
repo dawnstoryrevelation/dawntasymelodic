@@ -2,6 +2,7 @@
   <div class="main-container">
     <transition name="slide">
       <div class="sidebar" v-show="isSidebarOpen">
+      <!-- Add this just above the create-chat-button -->
         <button class="create-chat-button" @click="showNewChatPopup = true">
           Create a New Chat
         </button>
@@ -104,38 +105,7 @@
             Dawntasy<span style="color: var(--accent-color);">AI</span>
           </span>
         </div>
-        <!-- Memory Bank Section -->
-<div class="memory-bank">
-  <div class="memory-bank-header" @click="toggleMemoryBank">
-    <span class="memory-icon">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
-      </svg>
-    </span>
-    <span>Memory Bank</span>
-    <span class="expand-icon" :class="{ expanded: memoryBankExpanded }">▶</span>
-  </div>
-  <div v-if="memoryBankExpanded" class="memory-bank-content">
-    <div class="memory-stats">
-      <div class="memory-stat">
-        <span class="stat-value">{{ memorySystem.topics.size }}</span>
-        <span class="stat-label">Topics</span>
-      </div>
-      <div class="memory-stat">
-        <span class="stat-value">{{ memorySystem.memories.length }}</span>
-        <span class="stat-label">Memories</span>
-      </div>
-    </div>
-    <div class="memory-topics">
-      <h5>Top Topics</h5>
-      <div class="topic-list">
-        <div v-for="(topic, index) in topMemoryTopics" :key="index" class="memory-topic">
-          {{ topic.name }} ({{ topic.count }})
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
+        <MemoryBank />
       </div>
     </transition>
 
@@ -220,15 +190,7 @@
             <div
               v-if="message.role === 'assistant' && !message.isStreaming"
               class="message-actions"
-              
             >
-<div v-if="message.role === 'user' && determineIfSearchNeeded(message.content) && !message.searchSuggested" class="search-suggestion">
-  <div class="search-suggestion-content">
-    <span class="search-icon">🔍</span>
-    <span class="search-suggestion-text">This question might benefit from a web search!</span>
-    <button class="search-suggestion-button" @click="triggerSearch(message.content, index)">Search Web</button>
-  </div>
-</div>
               <button
                 v-if="message.hasReasoning"
                 class="action-button reasoning-button"
@@ -981,9 +943,14 @@ import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { SelfOptimizationService } from '@/services/selfOptimization';
 import { useRouter } from 'vue-router';
 import { onUnmounted } from 'vue';
+import MemoryBank from '@/components/MemoryBank.vue';
+import memoryService from '@/services/EnhancedMemoryService';
 
 export default {
   name: "DawntasyChat",
+  components: {
+  MemoryBank,
+},
   setup() {
     // Initialize Firebase services
     const db = getFirestore();
@@ -1005,6 +972,7 @@ const journalSearch = ref("");
 const filteredJournalLogs = ref([]);
 const currentLog = ref(null);
 const journalSaving = ref(false);
+
 const journalSaved = ref(false);
 const aiGeneratedContent = ref([]);
 const thinkingText = ref("Thinking...");
@@ -1033,18 +1001,16 @@ const journalInsights = ref({
   recommendations: []
 });
 const insightsLoading = ref(false);
+const isHomePage = ref(false); // Tracks if we're on the Home page
 const messageIndex = ref(-1);
 const newMessageLogTitle = ref("");
 const showDeleteLogModal = ref(false);
 const logToDelete = ref(null);
 const savingLogContent = ref(false);
-const journalSubscriptionActive = ref(false);
-const journalLoadAttempts = ref(0);
 const mindMapInput = ref(null);
 const mindMapsExpanded = ref(false);
 const journalLogUnsubscribe = ref(null);
 const isLoadingMindMap = ref(false);
-const isSearching = ref(false);
 const savedMindMaps = ref([]);
 const mindMapTitleTyping = ref(false);
 const mindMapTitleDisplayed = ref("");
@@ -1058,741 +1024,392 @@ const showSelectChatModal = ref(false);
 const openBookLink = () => {
   window.open('https://www.amazon.com/Dawntasy-Circular-Dawn-breathtaking-fantasy-ebook/dp/B0DT74DLY5/', '_blank');
 };
-const memoryBankExpanded = ref(false);
-
-const toggleMemoryBank = () => {
-  memoryBankExpanded.value = !memoryBankExpanded.value;
-};
-
-const topMemoryTopics = computed(() => {
-  return Array.from(memorySystem.topics.entries())
-    .map(([name, data]) => ({
-      name,
-      count: data.count,
-      lastDiscussed: data.lastDiscussed
-    }))
-    .sort((a, b) => b.count - a.count)
-    .slice(0, 8);
-});
-// Advanced Memory System
-const memorySystem = reactive({
-  // Core memory storage
-  memories: [],
-  topics: new Map(),
-  userPreferences: new Map(),
-  conversationHistory: new Map(),
-  lastInteractionDate: null,
-  
-  // Initialize the memory system
-  async initialize() {
-    if (!userId.value) return;
-    
-    try {
-      console.log("Initializing memory system for user:", userId.value);
-      
-      // Load memories from Firebase
-      const memoriesRef = collection(db, `users/${userId.value}/memories`);
-      const memoriesSnapshot = await getDocs(memoriesRef);
-      
-      if (!memoriesSnapshot.empty) {
-        this.memories = memoriesSnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        }));
-        
-        // Reconstruct maps from loaded data
-        this.memories.forEach(memory => {
-          if (memory.type === 'topic') {
-            this.topics.set(memory.content, {
-              count: memory.count || 1,
-              lastDiscussed: memory.timestamp,
-              sentiment: memory.sentiment || 'neutral'
-            });
-          } else if (memory.type === 'preference') {
-            this.userPreferences.set(memory.content, memory.value);
-          } else if (memory.type === 'conversation') {
-            this.conversationHistory.set(memory.chatId, {
-              title: memory.title,
-              summary: memory.summary,
-              topics: memory.topics || [],
-              timestamp: memory.timestamp
-            });
-          }
-        });
-        
-        // Set last interaction date
-        const latestMemory = this.memories.reduce((latest, memory) => 
-          memory.timestamp > (latest?.timestamp || 0) ? memory : latest, null);
-        
-        if (latestMemory) {
-          this.lastInteractionDate = new Date(latestMemory.timestamp);
-        }
-        
-        console.log(`Loaded ${this.memories.length} memories, ${this.topics.size} topics`);
-      }
-    } catch (error) {
-      console.error("Error initializing memory system:", error);
-    }
-  },
-  
-  // Store a new memory
-  async storeMemory(type, content, metadata = {}) {
-    if (!userId.value) return null;
-    
-    try {
-      const memory = {
-        type,
-        content,
-        timestamp: Date.now(),
-        ...metadata
-      };
-      
-      // Add to Firebase
-      const memoriesRef = collection(db, `users/${userId.value}/memories`);
-      const docRef = await addDoc(memoriesRef, memory);
-      
-      // Add to local cache
-      this.memories.push({
-        id: docRef.id,
-        ...memory
-      });
-      
-      // Update appropriate map based on type
-      if (type === 'topic') {
-        const existingTopic = this.topics.get(content);
-        this.topics.set(content, {
-          count: (existingTopic?.count || 0) + 1,
-          lastDiscussed: memory.timestamp,
-          sentiment: metadata.sentiment || existingTopic?.sentiment || 'neutral'
-        });
-      } else if (type === 'preference') {
-        this.userPreferences.set(content, metadata.value);
-      } else if (type === 'conversation') {
-        this.conversationHistory.set(metadata.chatId, {
-          title: metadata.title,
-          summary: metadata.summary,
-          topics: metadata.topics || [],
-          timestamp: memory.timestamp
-        });
-      }
-      
-      this.lastInteractionDate = new Date();
-      return docRef.id;
-    } catch (error) {
-      console.error("Error storing memory:", error);
-      return null;
-    }
-  },
-  
-  // Extract topics from a message
-  extractTopics(message) {
-    const content = message.toLowerCase();
-    
-    // Common topics to detect
-    const topicKeywords = {
-      'dawntasy': ['dawntasy', 'book', 'fantasy', 'novel', 'characters', 'time smith', 'yaee'],
-      'programming': ['code', 'programming', 'javascript', 'python', 'development', 'api'],
-      'ai': ['ai', 'artificial intelligence', 'machine learning', 'neural', 'model'],
-      'science': ['science', 'physics', 'chemistry', 'biology', 'astronomy'],
-      'philosophy': ['philosophy', 'ethics', 'meaning', 'existence', 'consciousness'],
-      'education': ['learn', 'study', 'education', 'teaching', 'school', 'college'],
-      'business': ['business', 'startup', 'company', 'entrepreneur', 'marketing'],
-      'technology': ['technology', 'tech', 'computer', 'software', 'hardware'],
-      'health': ['health', 'fitness', 'exercise', 'diet', 'nutrition', 'medical'],
-      'arts': ['art', 'music', 'painting', 'drawing', 'creative', 'design'],
-    };
-    
-    const detectedTopics = [];
-    
-    // Check for topics in content
-    Object.entries(topicKeywords).forEach(([topic, keywords]) => {
-      if (keywords.some(keyword => content.includes(keyword))) {
-        detectedTopics.push(topic);
-      }
-    });
-    
-    // Also look for specific terms that might be topics themselves
-    const words = content.split(/\s+/);
-    const potentialTopics = words.filter(word => 
-      word.length > 4 && 
-      !['about', 'there', 'their', 'would', 'could', 'should', 'these', 'those', 'some'].includes(word)
-    );
-    
-    return [...new Set([...detectedTopics, ...potentialTopics.slice(0, 3)])];
-  },
-  
-  // Simple sentiment analysis
-  analyzeSentiment(message) {
-    const content = message.toLowerCase();
-    
-    const positiveWords = ['good', 'great', 'excellent', 'amazing', 'wonderful', 'happy', 'love', 'like', 'enjoy', 'pleased'];
-    const negativeWords = ['bad', 'terrible', 'awful', 'horrible', 'sad', 'angry', 'hate', 'dislike', 'disappointed', 'annoyed'];
-    
-    let positiveScore = 0;
-    let negativeScore = 0;
-    
-    positiveWords.forEach(word => {
-      if (content.includes(word)) positiveScore++;
-    });
-    
-    negativeWords.forEach(word => {
-      if (content.includes(word)) negativeScore++;
-    });
-    
-    if (positiveScore > negativeScore * 2) return 'very positive';
-    if (positiveScore > negativeScore) return 'positive';
-    if (negativeScore > positiveScore * 2) return 'very negative';
-    if (negativeScore > positiveScore) return 'negative';
-    return 'neutral';
-  },
-  
-  // Process a message to extract and store memories
-  async processMessage(message, context = {}) {
-    if (!message || !message.content) return;
-    
-    // Extract topics
-    const topics = this.extractTopics(message.content);
-    const sentiment = this.analyzeSentiment(message.content);
-    
-    // Store topics as memories
-    for (const topic of topics) {
-      await this.storeMemory('topic', topic, {
-        sentiment,
-        context: {
-          chatId: context.chatId,
-          messageId: context.messageId
-        }
-      });
-    }
-    
-    // Detect and store user preferences
-    if (message.role === 'user') {
-      // Detect preferences based on language patterns
-      const likePattern = /(?:i|we) (?:like|love|enjoy|prefer) ([\w\s]+)/i;
-      const dislikePattern = /(?:i|we) (?:dislike|hate|don't like|do not like) ([\w\s]+)/i;
-      
-      const likeMatch = message.content.match(likePattern);
-      const dislikeMatch = message.content.match(dislikePattern);
-      
-      if (likeMatch && likeMatch[1]) {
-        await this.storeMemory('preference', likeMatch[1].trim(), { value: 'like' });
-      }
-      
-      if (dislikeMatch && dislikeMatch[1]) {
-        await this.storeMemory('preference', dislikeMatch[1].trim(), { value: 'dislike' });
-      }
-    }
-    
-    return topics;
-  },
-  
-  // Summarize a conversation
-  async summarizeConversation(chatId, messages) {
-    if (!userId.value || !chatId || !messages || messages.length === 0) return;
-    
-    try {
-      // Extract all topics from conversation
-      const allTopics = new Set();
-      messages.forEach(msg => {
-        const topics = this.extractTopics(msg.content);
-        topics.forEach(topic => allTopics.add(topic));
-      });
-      
-      // Create a summary (in a real implementation, this could use an API)
-      const chatTitle = currentChat.value?.name || "Untitled Chat";
-      const topicArray = Array.from(allTopics);
-      
-      // Create simple summary based on first and last messages
-      const firstMsg = messages[0]?.content?.substring(0, 100) || '';
-      const lastMsg = messages[messages.length - 1]?.content?.substring(0, 100) || '';
-      const summary = `Conversation about ${topicArray.join(', ')}. Started with "${firstMsg}..." and ended with "${lastMsg}..."`;
-      
-      // Store the conversation summary
-      await this.storeMemory('conversation', summary, {
-        chatId,
-        title: chatTitle,
-        topics: topicArray,
-        messageCount: messages.length
-      });
-      
-      return summary;
-    } catch (error) {
-      console.error("Error summarizing conversation:", error);
-    }
-  },
-  
-  // Get relevant memories for the current context
-  getRelevantMemories(currentContent = '', limit = 5) {
-    if (!currentContent || this.memories.length === 0) return [];
-    
-    // Extract topics from current content
-    const currentTopics = this.extractTopics(currentContent);
-    
-    // Find memories that match current topics
-    const scoredMemories = this.memories.map(memory => {
-      let score = 0;
-      
-      // Score based on topic match
-      if (memory.type === 'topic' && currentTopics.includes(memory.content)) {
-        score += 10;
-      }
-      
-      // Score based on content match
-      if (memory.content && currentContent.toLowerCase().includes(memory.content.toLowerCase())) {
-        score += 5;
-      }
-      
-      // Score based on recency (higher score for more recent memories)
-      const ageInDays = (Date.now() - memory.timestamp) / (1000 * 60 * 60 * 24);
-      score += Math.max(0, 5 - Math.min(5, ageInDays));
-      
-      return { memory, score };
-    });
-    
-    // Sort by score and get top memories
-    return scoredMemories
-      .filter(item => item.score > 0)
-      .sort((a, b) => b.score - a.score)
-      .slice(0, limit)
-      .map(item => item.memory);
-  },
-  
-  // Generate a personalized greeting based on memories
-  generateGreeting() {
-    if (!this.lastInteractionDate) return "Welcome! How can I help you today?";
-    
-    const daysSinceLastInteraction = Math.floor((Date.now() - this.lastInteractionDate) / (1000 * 60 * 60 * 24));
-    
-    // If it's been more than a day since last interaction
-    if (daysSinceLastInteraction >= 1) {
-      // Find most frequently discussed topics
-      const topTopics = Array.from(this.topics.entries())
-        .sort((a, b) => b[1].count - a[1].count)
-        .slice(0, 2)
-        .map(entry => entry[0]);
-      
-      if (topTopics.length > 0) {
-        if (daysSinceLastInteraction === 1) {
-          return `Welcome back! Yesterday we were discussing ${topTopics.join(' and ')}. Would you like to continue that conversation?`;
-        } else {
-          return `Great to see you again after ${daysSinceLastInteraction} days! Last time we talked about ${topTopics.join(' and ')}. How can I help you today?`;
-        }
-      } else {
-        return `Welcome back after ${daysSinceLastInteraction} ${daysSinceLastInteraction === 1 ? 'day' : 'days'}! How can I assist you today?`;
-      }
-    }
-    
-    return "Welcome back! How can I help you today?";
-  },
-  
-  // Enhance AI response with memories
-  enhanceResponseWithMemories(baseResponse, currentContext) {
-    // Get relevant memories
-    const relevantMemories = this.getRelevantMemories(currentContext);
-    
-    if (relevantMemories.length === 0) return baseResponse;
-    
-    // Group memories by type
-    const topicMemories = relevantMemories.filter(m => m.type === 'topic');
-    const preferenceMemories = relevantMemories.filter(m => m.type === 'preference');
-    const conversationMemories = relevantMemories.filter(m => m.type === 'conversation');
-    
-    let enhancedResponse = baseResponse;
-    
-    // Only add memory references 30% of the time to keep it natural
-    if (Math.random() < 0.3 && topicMemories.length > 0) {
-      const randomTopicMemory = topicMemories[Math.floor(Math.random() * topicMemories.length)];
-      const daysSince = Math.floor((Date.now() - randomTopicMemory.timestamp) / (1000 * 60 * 60 * 24));
-      
-      if (daysSince > 0) {
-        const timeReference = daysSince === 1 ? 'yesterday' : `${daysSince} days ago`;
-        const memoryReference = `\n\nBy the way, I remember we discussed ${randomTopicMemory.content} ${timeReference}. `;
-        enhancedResponse += memoryReference;
-      }
-    }
-    
-    // Reference user preferences if relevant
-    if (Math.random() < 0.2 && preferenceMemories.length > 0) {
-      const randomPreference = preferenceMemories[Math.floor(Math.random() * preferenceMemories.length)];
-      if (randomPreference.value === 'like') {
-        enhancedResponse += `\n\nI recall you mentioned you like ${randomPreference.content}. `;
-      }
-    }
-    
-    return enhancedResponse;
-  }
-});
-onMounted(async () => {
+// Add this to your setup() function
+onMounted(() => {
   // Existing code...
   
-  // Initialize memory system when a user is authenticated
-  onAuthStateChanged(auth, async (user) => {
-    if (user) {
-      isAuthenticated.value = true;
-      userId.value = user.uid;
-      userProfilePic.value = user.photoURL || "https://via.placeholder.com/40";
-      
-      // Initialize memory system
-      await memorySystem.initialize();
-      
-      // Create a demo chat if no chats exist
-      createDemoChat();
-    } else {
-      // Existing code...
+  // Set up periodic memory management
+  const memoryLifecycleInterval = setInterval(async () => {
+    if (isAuthenticated.value && userId.value) {
+      await memoryService.manageMemoryLifecycles();
     }
+  }, 3600000); // Run every hour
+  
+  // Clean up on unmount
+  onUnmounted(() => {
+    clearInterval(memoryLifecycleInterval);
   });
-  
-  // Rest of existing code...
 });
-const performWebSearch = async (query) => {
-  try {
-    console.log("Starting web search for:", query);
-    isSearching.value = true;
-    thinkingText.value = "Researching...";
-    
-    // Store the message index BEFORE creating any messages
-    const searchMessageIndex = messages.value.length;
-    
-    // Show searching indicator in the UI - only add ONE message
-    messages.value.push({
-      role: "assistant",
-      content: "🔍 Searching for information about: **" + query + "**\n\nPlease wait while I gather the latest data...",
-      timestamp: Date.now(),
-      hasReasoning: false,
-      isStreaming: true
-    });
-    
-    // System prompt for search
-    const searchSystem = "You are a helpful assistant with web search capability. " +
-      "Search for accurate, up-to-date information when needed, and provide clear, concise summaries of what you find. " +
-      "Always include your sources so users can learn more.";
-    
-    try {
-      console.log("Calling OpenAI API with web search capability");
-      
-      // First, let's use the standard completion API with tool calling
-      const response = await fetch("https://api.openai.com/v1/chat/completions", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${apiKey}`
-        },
-        body: JSON.stringify({
-          model: "gpt-4o",
-          messages: [
-            { role: "system", content: searchSystem },
-            { role: "user", content: `Please search the web for information about: ${query}` }
-          ],
-          tools: [
-            {
-              "type": "function",
-              "function": {
-                "name": "search_web",
-                "description": "Search the web for information",
-                "parameters": {
-                  "type": "object",
-                  "properties": {
-                    "query": {
-                      "type": "string",
-                      "description": "The search query"
-                    }
-                  },
-                  "required": ["query"]
-                }
-              }
-            }
-          ],
-          tool_choice: {
-            "type": "function",
-            "function": {
-              "name": "search_web"
-            }
-          },
-          max_tokens: 2000
-        })
-      });
-      
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => null) || await response.text();
-        console.error("Search API error:", response.status, errorData);
-        throw new Error(`API error: ${response.status} - ${JSON.stringify(errorData)}`);
-      }
-      
-      const data = await response.json();
-      console.log("Tool calling response:", data);
-      
-      // Get the search query from the tool call
-      let searchQuery = query;
-      if (data.choices && 
-          data.choices[0] && 
-          data.choices[0].message && 
-          data.choices[0].message.tool_calls && 
-          data.choices[0].message.tool_calls.length > 0) {
-        try {
-          const toolCall = data.choices[0].message.tool_calls[0];
-          const args = JSON.parse(toolCall.function.arguments);
-          searchQuery = args.query || query;
-        } catch (e) {
-          console.error("Error parsing tool call arguments:", e);
-        }
-      }
-      
-      // Now make a second request to get the actual search results
-      // For backwards compatibility, we'll still use the chat completions API
-      const followupResponse = await fetch("https://api.openai.com/v1/chat/completions", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${apiKey}`
-        },
-        body: JSON.stringify({
-          model: "gpt-4o",
-          messages: [
-            { role: "system", content: searchSystem },
-            { role: "user", content: `Please search the web for: "${searchQuery}" and provide a comprehensive summary of what you find. Include all sources at the end of your response in a Sources section.` },
-            { role: "assistant", content: "I'll search the web for information about this topic." },
-            { role: "user", content: "Please provide a well-formatted response with clear headings and include all sources as clickable links at the end." }
-          ],
-          max_tokens: 2000
-        })
-      });
-      
-      if (!followupResponse.ok) {
-        throw new Error(`Follow-up API error: ${followupResponse.status}`);
-      }
-      
-      const followupData = await followupResponse.json();
-      let formattedContent = followupData.choices[0].message.content || "";
-      
-      // Extract URLs for citation
-      const urlRegex = /(?:https?:\/\/[^\s)]+)/g;
-      const urls = formattedContent.match(urlRegex) || [];
-      
-      const sources = urls.map(url => ({
-        url: url,
-        title: extractDomainFromUrl(url),
-        snippet: "Source from web search"
-      }));
-      
-      // Ensure sources are included in the content
-      if (!formattedContent.toLowerCase().includes("sources:") && sources.length > 0) {
-        formattedContent += "\n\n**Sources:**\n";
-        sources.forEach((source, index) => {
-          formattedContent += `${index + 1}. [${source.title}](${source.url})\n`;
-        });
-      }
-      
-      // Update the message with search results
-      if (messages.value[searchMessageIndex]) {
-        messages.value[searchMessageIndex].content = formattedContent;
-        messages.value[searchMessageIndex].webSources = sources;
-        messages.value[searchMessageIndex].isStreaming = false;
-      }
-      
-      // Save to Firebase if needed
-      if (userId.value !== "demo-user" && messages.value[searchMessageIndex]) {
-        await saveMessageToFirebase(messages.value[searchMessageIndex]);
-      }
-      
-      showToastNotification("Web search completed", "success");
-      scrollToBottom();
-      
-      return { content: formattedContent, sources };
-      
-    } catch (apiError) {
-      console.error("Web search API error:", apiError);
-      
-      // Fallback to demo search results - UPDATE THE SAME MESSAGE
-      const mockSources = [
-        {
-          title: "Example Source 1",
-          url: "https://example.com/1",
-          snippet: "This is a demonstration search result since the actual search API encountered an error."
-        },
-        {
-          title: "Example Source 2",
-          url: "https://example.com/2",
-          snippet: "When the search API is properly configured, you'll see real results here."
-        }
-      ];
-      
-      const fallbackContent = `## Search Results (Demo Mode)\n\nI tried to search for information about "${query}" but encountered an API error. This is a demonstration of how search results would appear.\n\nIn a properly configured environment, you would see relevant information from the web here, along with proper sources.\n\n**Sources:**\n1. [Example Source 1](https://example.com/1)\n2. [Example Source 2](https://example.com/2)`;
-      
-      // Update the existing message instead of creating a new one
-      if (messages.value[searchMessageIndex]) {
-        messages.value[searchMessageIndex].content = fallbackContent;
-        messages.value[searchMessageIndex].webSources = mockSources;
-        messages.value[searchMessageIndex].isStreaming = false;
-      }
-      
-      showToastNotification("Using demo search results", "info");
-      scrollToBottom();
-      
-      return { content: fallbackContent, sources: mockSources };
-    }
-    
-  } catch (error) {
-    console.error("Web search outer error:", error);
-    showToastNotification("Search feature unavailable", "error");
-    return { content: "", sources: [] };
-  } finally {
-    isSearching.value = false;
-  }
+const goToHome = () => {
+  isHomePage.value = true;
+  currentChatId.value = null; // Reset current chat
+  messages.value = []; // Clear messages
 };
-// Add this function to your setup
-const triggerSearch = async (query, messageIndex) => {
-  if (!query) return;
-  
-  // Mark message as search suggested to prevent showing again
-  if (messages.value[messageIndex]) {
-    messages.value[messageIndex].searchSuggested = true;
-  }
-  
-  // Perform web search
-  const results = await performWebSearch(query);
-  
-  // After search is complete, generate a response using the search results
-  if (results && results.length > 0) {
-    const enhancedPrompt = getDawntasySystemPrompt() + `\n\n[WEB SEARCH RESULTS]\n${results.map((r, i) => 
-      `Source ${i+1}: ${r.title}\nURL: ${r.url}\nContent: ${r.snippet}\n\n`).join('')}`;
-    
-    sendMessage(`Please answer my question about "${query}" using the web search results you just found.`);
-  }
-};
-// Add this to your setup() function
-
-// Update the performWebSearch function to use the correct tools format
-
-
-// Helper function to extract hostname from URL
-const getHostnameFromUrl = (url) => {
-  try {
-    const hostname = new URL(url).hostname;
-    return hostname.replace(/^www\./, '');
-  } catch (e) {
-    return url;
-  }
-};
-// Add this to your setup() function
-const determineIfSearchNeeded = async (query) => {
-  // Quick checks for obvious cases
-  const queryLower = query.toLowerCase();
-  
-  // INSTANT YES cases
-  if (queryLower.includes('search for') || queryLower.includes('look up') || 
-      queryLower.includes('find information')) {
-    return true;
-  }
-  
-  // INSTANT NO cases
-  if (queryLower.includes('good news') || queryLower.includes('how are you') || 
-      queryLower.match(/^(hi|hello|hey|sup)\b/)) {
-    return false;
-  }
-  
-  try {
-    // Let the AI decide! 🧠
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${apiKey}`
-      },
-      body: JSON.stringify({
-        model: "o3-mini",
-        messages: [
-          { 
-            role: "system", 
-            content: "Determine if this query requires web search. Answer ONLY with 'true' or 'false'. Use 'true' for current events, specific facts, statistics, or information likely to be more recent than 2023. Use 'false' for opinions, hypotheticals, coding help, creative tasks, or conversation."
-          },
-          { role: "user", content: query }
-        ],
-        temperature: 0.1,
-        max_tokens: 5
-      })
-    });
-    
-    if (!response.ok) {
-      console.warn("Search determination API failed, using fallback");
-      return smartFallbackSearchCheck(query);
-    }
-    
-    const data = await response.json();
-    const decision = data.choices[0].message.content.trim().toLowerCase();
-    
-    console.log(`🔎 AI SEARCH DECISION: ${decision.toUpperCase()} for "${query}"`);
-    return decision === "true";
-  } catch (error) {
-    console.warn("Error in AI search determination:", error);
-    return smartFallbackSearchCheck(query);
-  }
-};
-
-// Super smart fallback if AI decision fails
-const smartFallbackSearchCheck = (query) => {
-  const queryLower = query.toLowerCase();
-  
-  // Advanced pattern matching
-  const factPatterns = [
-    /who is|what is|when did|where is|how many|why did/,
-    /latest|recent|current|today|now|update/,
-    /news about|happened in|statistics|data on|report on/
-  ];
-  
-  const conversationalPatterns = [
-    /thank you|thanks|appreciate|great|awesome/,
-    /can you help|would you|could you please|i need help/,
-    /my opinion|what do you think|how do you feel/
-  ];
-  
-  // Smart scoring system
-  let searchScore = 0;
-  factPatterns.forEach(pattern => { if (pattern.test(queryLower)) searchScore += 0.25; });
-  conversationalPatterns.forEach(pattern => { if (pattern.test(queryLower)) searchScore -= 0.2; });
-  
-  // Check for named entities
-  if (/[A-Z][a-z]+ [A-Z][a-z]+/.test(query)) searchScore += 0.3;
-  
-  // Check for dates, numbers, stats indicators
-  if (/\d{4}|\d+%|\d+ million|\d+ billion/.test(queryLower)) searchScore += 0.3;
-  
-  console.log(`🧮 FALLBACK SEARCH SCORE: ${searchScore.toFixed(2)} for "${query}"`);
-  return searchScore >= 0.3;
-};
-
-// Fallback heuristic-based determination if AI determination fails
-const fallbackSearchDetermination = (query) => {
-  const queryLower = query.toLowerCase();
-  
-  // Basic patterns that suggest factual queries
-  const factualPatterns = [
-    /who is|what is|when did|where is|how many|why did/,
-    /latest|recent|current|today|now|update/,
-    /news about|happened in|statistics|data on|report on/
-  ];
-  
-  // Check if any factual patterns match
-  const needsFactualInfo = factualPatterns.some(pattern => pattern.test(queryLower));
-  
-  // Check for named entities (proper nouns)
-  const hasNamedEntity = /[A-Z][a-z]+ [A-Z][a-z]+/.test(query);
-  
-  // Calculate a simple score
-  let searchScore = 0;
-  if (needsFactualInfo) searchScore += 0.6;
-  if (hasNamedEntity) searchScore += 0.4;
-  
-  console.log(`Fallback search score: ${searchScore} for query: "${query}"`);
-  return searchScore >= 0.6;
-};
-
-// Add this to your setup() function, after your reactive variables
-
-
-// Then call this in your setup function
+// REVOLUTIONARY CURSOR FIX - GUARANTEED TO WORK
+// Replace ALL previous cursor management with this
 const toggleSidebar = () => {
   isSidebarOpen.value = !isSidebarOpen.value;
 };
+const domAwareEditor = {
+  // Track core state
+  editor: null,
+  lastContent: null,
+  observer: null,
+  lastSelectionState: null,
+  ignoreNextUpdate: false,
+  isEditing: false,
+  updateCount: 0,
+  
+  // Initialize with the editor element
+  init(editorElement) {
+    if (!editorElement || !(editorElement instanceof Element)) {
+      console.error("Invalid editor element provided to domAwareEditor");
+      return;
+    }
+    
+    // Store reference to editor
+    this.editor = editorElement;
+    this.lastContent = editorElement.innerHTML;
+    
+    // Remove any existing event listeners
+    this.cleanup();
+    
+    // Add enhanced input tracking
+    this.editor.addEventListener('focus', this.handleFocus.bind(this));
+    this.editor.addEventListener('blur', this.handleBlur.bind(this));
+    this.editor.addEventListener('keydown', this.handleKeyDown.bind(this));
+    this.editor.addEventListener('input', this.handleInput.bind(this));
+    
+    // Use a high-quality DOM mutation observer to detect ALL changes
+    this.observer = new MutationObserver(this.handleMutation.bind(this));
+    this.observer.observe(this.editor, {
+      childList: true,
+      attributes: true,
+      characterData: true,
+      subtree: true,
+      characterDataOldValue: true
+    });
+    
+    console.log("DOM-aware editor initialized");
+  },
+  
+  // Clean up all listeners
+  cleanup() {
+    if (this.observer) {
+      this.observer.disconnect();
+      this.observer = null;
+    }
+    
+    if (this.editor) {
+      this.editor.removeEventListener('focus', this.handleFocus.bind(this));
+      this.editor.removeEventListener('blur', this.handleBlur.bind(this));
+      this.editor.removeEventListener('keydown', this.handleKeyDown.bind(this));
+      this.editor.removeEventListener('input', this.handleInput.bind(this));
+    }
+  },
+  
+  // Handle editor focus - capture initial selection state
+  handleFocus() {
+    this.isEditing = true;
+    this.captureSelectionState();
+  },
+  
+  // Handle editor blur - trigger final save
+  handleBlur() {
+    this.isEditing = false;
+    this.triggerContentSave();
+  },
+  
+  // Handle key presses - capture state before key actions
+  handleKeyDown(e) {
+    // Capture selection before key combo actions
+    if (e.ctrlKey || e.metaKey) {
+      this.captureSelectionState();
+    }
+    
+    // Handle special keys
+    if (e.key === 'Tab') {
+      e.preventDefault();
+      document.execCommand('insertHTML', false, '&nbsp;&nbsp;&nbsp;&nbsp;');
+      this.captureSelectionState();
+    }
+  },
+  
+  // Handle direct input events - main edit tracking
+  handleInput(e) {
+    // Only trigger save for real content changes
+    if (this.editor.innerHTML !== this.lastContent) {
+      this.lastContent = this.editor.innerHTML;
+      this.triggerContentSave();
+      this.captureSelectionState();
+    }
+  },
+  
+  // Handle ALL DOM mutations
+  handleMutation(mutations) {
+    // Skip if we triggered this mutation ourselves
+    if (this.ignoreNextUpdate) {
+      this.ignoreNextUpdate = false;
+      return;
+    }
+    
+    // Check if content actually changed
+    const hasContentChange = mutations.some(mutation => 
+      mutation.type === 'characterData' || 
+      mutation.type === 'childList' ||
+      (mutation.type === 'attributes' && mutation.target === this.editor)
+    );
+    
+    if (hasContentChange && this.isEditing) {
+      // Content changed, capture selection and trigger save
+      this.updateCount++;
+      this.captureSelectionState();
+      
+      // Limit save frequency to avoid performance issues
+      if (this.updateCount % 3 === 0) {
+        this.triggerContentSave();
+      }
+    }
+  },
+  
+  // Capture the current selection state for later restoration
+  captureSelectionState() {
+    const selection = window.getSelection();
+    if (!selection || selection.rangeCount === 0) return;
+    
+    const range = selection.getRangeAt(0);
+    if (!this.editor.contains(range.commonAncestorContainer)) return;
+    
+    // Store selection as path + offset for reliability
+    this.lastSelectionState = {
+      startPath: this.getNodePath(range.startContainer),
+      startOffset: range.startOffset,
+      endPath: this.getNodePath(range.endContainer),
+      endOffset: range.endOffset,
+      time: Date.now()
+    };
+  },
+  
+  // Get DOM path from editor root to specific node
+  getNodePath(node) {
+    const path = [];
+    let current = node;
+    
+    // Build path from node to editor root
+    while (current && current !== this.editor) {
+      const parent = current.parentNode;
+      if (!parent) break;
+      
+      // Find index of current node in parent's children
+      const children = Array.from(parent.childNodes);
+      const index = children.indexOf(current);
+      path.unshift(index);
+      current = parent;
+    }
+    
+    return path;
+  },
+  
+  // Restore previously saved selection state
+  restoreSelectionState() {
+    if (!this.lastSelectionState || !this.editor) return false;
+    
+    try {
+      // Find nodes by stored paths
+      const startNode = this.getNodeByPath(this.lastSelectionState.startPath);
+      const endNode = this.getNodeByPath(this.lastSelectionState.endPath);
+      
+      // Verify nodes were found
+      if (!startNode || !endNode) {
+        return this.fallbackRestore();
+      }
+      
+      // Create and apply range
+      const range = document.createRange();
+      
+      // Ensure offsets are valid
+      const startOffset = Math.min(this.lastSelectionState.startOffset, 
+                                   this.getNodeMaxOffset(startNode));
+      const endOffset = Math.min(this.lastSelectionState.endOffset, 
+                                 this.getNodeMaxOffset(endNode));
+      
+      range.setStart(startNode, startOffset);
+      range.setEnd(endNode, endOffset);
+      
+      // Apply selection
+      const selection = window.getSelection();
+      selection.removeAllRanges();
+      selection.addRange(range);
+      
+      return true;
+    } catch (e) {
+      console.warn("Error restoring selection:", e);
+      return this.fallbackRestore();
+    }
+  },
+  
+  // Get node by path from editor root
+  getNodeByPath(path) {
+    let current = this.editor;
+    
+    for (let i = 0; i < path.length; i++) {
+      const index = path[i];
+      
+      if (current.childNodes && index < current.childNodes.length) {
+        current = current.childNodes[index];
+      } else {
+        return null;
+      }
+    }
+    
+    return current;
+  },
+  
+  // Get maximum valid offset for a node
+  getNodeMaxOffset(node) {
+    if (node.nodeType === Node.TEXT_NODE) {
+      return node.textContent.length;
+    }
+    return node.childNodes.length;
+  },
+  
+  // Fallback selection restore method
+  fallbackRestore() {
+    try {
+      // Move to end of content as fallback
+      const range = document.createRange();
+      range.selectNodeContents(this.editor);
+      range.collapse(false);
+      
+      const selection = window.getSelection();
+      selection.removeAllRanges();
+      selection.addRange(range);
+      
+      return true;
+    } catch (e) {
+      console.error("Fallback selection restore failed:", e);
+      return false;
+    }
+  },
+  
+  // Trigger content save while preserving cursor
+  triggerContentSave() {
+    if (!this.editor || !journalEditor.value) return;
+    
+    // Debounce save operations
+    clearTimeout(this._saveTimeout);
+    this._saveTimeout = setTimeout(() => {
+      // Only save if content actually changed
+      if (this.lastContent !== this.editor.innerHTML) {
+        // Capture final content and selection
+        const finalContent = this.editor.innerHTML;
+        this.captureSelectionState();
+        
+        // Set flag to ignore next update (avoid loop)
+        this.ignoreNextUpdate = true;
+        
+        // Call the actual save function
+        if (typeof saveJournalContent === 'function') {
+          saveJournalContent(finalContent);
+        }
+        
+        // Restore selection AFTER save completes
+        setTimeout(() => {
+          this.restoreSelectionState();
+        }, 0);
+      }
+    }, 500);
+  }
+};
+
+// Replace saveJournalContent function with this version
+const saveJournalContent = async (content) => {
+  if (!userId.value || !currentLogId.value) return;
+  
+  const actualContent = content || (journalEditor.value ? journalEditor.value.innerHTML : "");
+  
+  // Skip saving if nothing changed
+  if (currentLog.value && currentLog.value.content === actualContent) {
+    return;
+  }
+  
+  try {
+    journalSaving.value = true;
+    journalSaved.value = false;
+    
+    const logRef = doc(db, `users/${userId.value}/journals/${currentLogId.value}`);
+    
+    // Update Firebase in background
+    await updateDoc(logRef, {
+      content: actualContent,
+      lastEdited: Date.now()
+    });
+    
+    // Update local state
+    if (currentLog.value) {
+      currentLog.value.content = actualContent;
+      currentLog.value.lastEdited = Date.now();
+    }
+    
+    journalSaving.value = false;
+    journalSaved.value = true;
+    
+    setTimeout(() => {
+      journalSaved.value = false;
+    }, 2000);
+    
+  } catch (error) {
+    console.error("Error saving journal content:", error);
+    journalSaving.value = false;
+    
+    // Try fallback with setDoc
+    try {
+      const logRef = doc(db, `users/${userId.value}/journals/${currentLogId.value}`);
+      await setDoc(logRef, {
+        content: actualContent,
+        lastEdited: Date.now()
+      }, { merge: true });
+      
+      journalSaved.value = true;
+      setTimeout(() => {
+        journalSaved.value = false;
+      }, 2000);
+    } catch (fallbackError) {
+      console.error("Fallback save failed:", fallbackError);
+      showToastNotification("Failed to save journal entry", "error");
+    }
+  }
+};
+
+// Add this to your onMounted hook to initialize the editor system
+onMounted(() => {
+  // Previous onMounted code...
+  
+  // Wait for journal editor to be available
+  const initJournalEditor = () => {
+    if (journalEditor.value) {
+      // Initialize the DOM-aware editor with the journal editor element
+      domAwareEditor.init(journalEditor.value);
+    } else {
+      // Retry after a delay
+      setTimeout(initJournalEditor, 500);
+    }
+  };
+  
+  // Start initialization
+  initJournalEditor();
+  
+  // Set up cleanup
+  onUnmounted(() => {
+    domAwareEditor.cleanup();
+    if (journalLogUnsubscribe.value) {
+      journalLogUnsubscribe.value();
+    }
+  });
+});
+// Add this to your setup() function, after your reactive variables
+
+// Then call this in your setup function
 
 // Make the function available in your return statement
 
@@ -1826,14 +1443,7 @@ const generateCards = async (message, topic) => {
   
   return cards;
 };
-const extractDomainFromUrl = (url) => {
-  try {
-    const domain = new URL(url).hostname.replace('www.', '');
-    return domain.charAt(0).toUpperCase() + domain.slice(1);
-  } catch (e) {
-    return url.split('/')[2] || url;
-  }
-};
+
 // Function to create a single card
 const createCard = (type, topic) => {
   let title, content, backContent;
@@ -2151,9 +1761,57 @@ const deployBranchToChat = async (chatId) => {
     isLoading.value = false;
   }
 };
-// Modify your sendMessage function
 const sendMessage = async (text) => {
-  const messageText = text || userInput.value.trim();
+      const messageText = text || userInput.value.trim();
+      
+      if (!messageText) return;
+      
+      if (!currentChatId.value) {
+        showNewChatPopup.value = true;
+        return;
+      }
+      // Add this before calling your API
+const relevantMemories = await memoryService.retrieveRelevantMemories(messageText);
+console.log('Retrieved relevant memories:', relevantMemories);
+
+// Generate memory references if any relevant memories found
+const memoryReference = memoryService.generateMemoryReferences(relevantMemories, messageText);
+
+// If we have a memory reference, prepend it to the prompt
+if (memoryReference) {
+  const memoryPrompt = `${memoryReference}. With that context in mind, respond to: ${messageText}`;
+  // Use memoryPrompt instead of messageText in your API call
+} else {
+  // Use original messageText
+}
+      // Add this logic to your sendMessage function, before calling the API
+if (messageText.toLowerCase().includes('generate html') || messageText.toLowerCase().includes('html code')) {
+  const htmlTemplate = `
+    <div class="custom-html">
+      <h1>Generated HTML</h1>
+      <p>Here's your requested HTML:</p>
+      <div class="code-display">
+        <pre><code>${messageText.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</code></pre>
+      </div>
+    </div>
+  `;
+  // Add this at the end of your sendMessage function, before the final closing brace
+if (messages.value[streamingMessageIndex]) {
+  const aiMessage = messages.value[streamingMessageIndex];
+  const accuracyMetrics = hyperAccuracyLearningSystem.processResponse(messageText, aiMessage);
+  console.log("Response processed by HYPER ACCURACY SYSTEM:", accuracyMetrics);
+  
+  // Add accuracy data to message metadata
+  aiMessage.accuracyMetrics = accuracyMetrics;
+}
+  // Add this to your sendMessage function before generating the AI response
+const memoryItem = {
+  id: `msg-${Date.now()}`,
+  role: "user",
+  content: messageText,
+  timestamp: Date.now()
+};
+const messageText = text || userInput.value.trim();
   
   if (!messageText) return;
   
@@ -2162,27 +1820,14 @@ const sendMessage = async (text) => {
     return;
   }
   
-  const userMessage = {
-    role: "user",
-    content: messageText,
-    timestamp: Date.now()
-  };
   
-  messages.value.push(userMessage);
   
-  // Save to Firebase AND process for memory! 🧠
-  let messageId = null;
+  // Process message for memory extraction
+  await enhancedMemoryService.processMessage(messageText, true);
+  
   if (userId.value !== "demo-user") {
     try {
-      messageId = await saveMessageToFirebase(userMessage);
-      
-      // Process user message for memory system
-      if (memorySystem && typeof memorySystem.processMessage === 'function') {
-        await memorySystem.processMessage(userMessage, {
-          chatId: currentChatId.value,
-          messageId
-        });
-      }
+      await saveMessageToFirebase(userMessage);
     } catch (error) {
       console.error("Error saving user message:", error);
     }
@@ -2192,204 +1837,174 @@ const sendMessage = async (text) => {
   if (inputField.value) {
     inputField.value.style.height = "auto";
   }
+  const userMessage = {
+    role: "user",
+    content: messageText,
+    timestamp: Date.now()
+  };
   
+  messages.value.push(userMessage);
   await nextTick();
   scrollToBottom();
+  const relevantMemories = await enhancedMemoryService.retrieveRelevantMemories(messageText);
+  console.log("Retrieved relevant memories:", relevantMemories);
   
-  if (imageEnabled.value) {
-    imageEnabled.value = false;
-    await generateImage(messageText);
-    return;
+  // Generate memory reference if we have relevant memories
+  let memoryReference = null;
+  if (relevantMemories.length > 0) {
+    memoryReference = enhancedMemoryService.generateMemoryReference(relevantMemories, messageText);
   }
   
-  isLoading.value = true;
-  
-  // DYNAMIC AI-POWERED search determination! 🔍
-  const shouldUseSearch = await determineIfSearchNeeded(messageText);
-  isThinkingDeeper.value = reasoningEnabled.value || logicEnabled.value;
-  thinkingText.value = shouldUseSearch ? "Researching..." : 
-                       reasoningEnabled.value ? "Thinking deeper..." :
-                       logicEnabled.value ? "Brainstorming..." :
-                       archmageEnabled.value ? "Contemplating miracles..." : 
-                       "Thinking...";
-  
-  const streamingMessageIndex = messages.value.length;
-  
-  try {
-    messages.value.push({
-      role: "assistant",
-      content: "",
-      streamContent: "",
-      timestamp: Date.now(),
-      reasoning: "",
-      hasReasoning: reasoningEnabled.value && !logicEnabled.value,
-      isStreaming: true
-    });
+  // Enhance the prompt with memory if available
+  let enhancedPrompt = messageText;
+  if (memoryReference) {
+    enhancedPrompt = `${memoryReference}
     
-    isStreaming.value = true;
-    
-    if (userId.value === "demo-user") {
-      await mockStreamingResponse(streamingMessageIndex, messageText);
-    } else {
-      // Get conversation history
-      const conversationHistory = messages.value
-        .slice(0, -1)
-        .map(msg => ({
-          role: msg.role,
-          content: msg.content
-        }));
+    With that context in mind, respond to: ${messageText}`;
+  }
+// Also add the AI response to memory
+  const htmlResponse = generateHTML(htmlTemplate);
+  
+  const aiMessage = {
+    role: "assistant",
+    content: `I've generated the HTML code for you. Here it is:
+\`\`\`html
+${messageText}
+\`\`\`
+
+Let me know if you need any modifications!`,
+    timestamp: Date.now(),
+    hasReasoning: false
+  };
+  
+  messages.value.push(aiMessage);
+  await saveMessageToFirebase(aiMessage);
+  
+  isLoading.value = false;
+  return;
+}
+      const userMessage = {
+        role: "user",
+        content: messageText,
+        timestamp: Date.now()
+      };
       
-      // Get base system prompt
-      let systemPrompt = getDawntasySystemPrompt();
+      messages.value.push(userMessage);
       
-      // MEMORY ENHANCEMENT! 🧠✨ Add relevant memories to prompt
-      if (memorySystem && typeof memorySystem.getRelevantMemories === 'function') {
-        const relevantMemories = memorySystem.getRelevantMemories(messageText);
+      if (userId.value !== "demo-user") {
+        try {
+          await saveMessageToFirebase(userMessage);
+        } catch (error) {
+          console.error("Error saving user message:", error);
+        }
+      }
+      
+      userInput.value = "";
+      if (inputField.value) {
+        inputField.value.style.height = "auto";
+      }
+      
+      await nextTick();
+      scrollToBottom();
+      
+      if (imageEnabled.value) {
+        imageEnabled.value = false;
+        await generateImage(messageText);
+        return;
+      }
+      
+      isLoading.value = true;
+      isThinkingDeeper.value = reasoningEnabled.value || logicEnabled.value;
+      
+      const streamingMessageIndex = messages.value.length;
+      
+      try {
+        messages.value.push({
+          role: "assistant",
+          content: "",
+          streamContent: "",
+          timestamp: Date.now(),
+          reasoning: "",
+          hasReasoning: reasoningEnabled.value && !logicEnabled.value,
+          isStreaming: true
+        });
         
-        if (relevantMemories && relevantMemories.length > 0) {
-          systemPrompt += "\n\n[MEMORY CONTEXT]\n";
+        isStreaming.value = true;
+        
+        if (userId.value === "demo-user") {
+          await mockStreamingResponse(streamingMessageIndex, messageText);
+        } else {
+          const conversationHistory = messages.value
+            .slice(0, -1)
+            .map(msg => ({
+              role: msg.role,
+              content: msg.content
+            }));
           
-          relevantMemories.forEach(memory => {
-            const daysAgo = Math.floor((Date.now() - memory.timestamp) / (1000 * 60 * 60 * 24));
-            const timeAgo = daysAgo === 0 ? "today" : 
-                           daysAgo === 1 ? "yesterday" : 
-                           `${daysAgo} days ago`;
+          const systemPrompt = getDawntasySystemPrompt();
+          
+          try {
+            const stream = await createStream(
+              conversationHistory,
+              systemPrompt,
+              10000
+            );
             
-            if (memory.type === 'topic') {
-              systemPrompt += `User discussed "${memory.content}" ${timeAgo}.\n`;
-            } else if (memory.type === 'preference') {
-              systemPrompt += `User ${memory.value === 'like' ? 'likes' : 'dislikes'} ${memory.content} (mentioned ${timeAgo}).\n`;
-            } else if (memory.type === 'conversation') {
-              systemPrompt += `Previous conversation about ${memory.topics.join(', ')} ${timeAgo}. Summary: ${memory.summary}\n`;
-            }
-          });
-          
-          systemPrompt += "\nUse this context to personalize your response naturally. Don't explicitly mention your memory unless directly asked.\n";
-        }
-      }
-      
-      try {
-        // Web search if needed
-        let webSearchResults = null;
-        if (shouldUseSearch) {
-          console.log("🔎 Performing web search for:", messageText);
-          webSearchResults = await performWebSearch(messageText);
-          
-          thinkingText.value = "Analyzing search results...";
-        }
-        
-        // Add search results to prompt if available
-        if (webSearchResults && webSearchResults.length > 0) {
-          systemPrompt += "\n\n[WEB SEARCH RESULTS]\n";
-          webSearchResults.forEach((result, index) => {
-            systemPrompt += `Source ${index + 1}: ${result.title}\nURL: ${result.url}\nContent: ${result.snippet}\n\n`;
-          });
-          systemPrompt += "Use these search results for accurate, up-to-date information. Include relevant citations.";
-        }
-        
-        const stream = await createStream(
-          conversationHistory,
-          systemPrompt,
-          10000
-        );
-        
-        const responseText = await processStream(
-          stream,
-          streamingMessageIndex,
-          reasoningEnabled.value
-        );
-        
-        const aiMessage = messages.value[streamingMessageIndex];
-        
-        // Add sources if web search was used
-        if (webSearchResults && webSearchResults.length > 0) {
-          aiMessage.webSources = webSearchResults;
-          
-          if (!aiMessage.content.toLowerCase().includes('sources:')) {
-            aiMessage.content += formatSourcesSection(webSearchResults);
+            const responseText = await processStream(
+              stream,
+              streamingMessageIndex,
+              reasoningEnabled.value
+            );
+            
+            const aiMessage = messages.value[streamingMessageIndex];
+            
+            await saveMessageToFirebase(aiMessage);
+            
+            logInteraction(messageText, aiMessage);
+
+            await memoryService.processMessage(aiMessage.content, false);
+            
+            await processSelfOptimization(messageText, aiMessage);
+          } catch (apiError) {
+            console.error("API error:", apiError);
+            
+            await mockStreamingResponse(streamingMessageIndex, messageText, true);
           }
         }
-        
-        // Save AI response to Firebase
-        const aiMessageId = await saveMessageToFirebase(aiMessage);
-        
-        // Process AI message for memory system 🧠
-        if (memorySystem && typeof memorySystem.processMessage === 'function') {
-          await memorySystem.processMessage(aiMessage, {
-            chatId: currentChatId.value,
-            messageId: aiMessageId
-          });
-        }
-        
-        // Check if it's time to summarize the conversation
-        if (shouldSummarizeConversation(messages.value) && 
-            memorySystem && typeof memorySystem.summarizeConversation === 'function') {
-          // Get current conversation segment
-          const currentSegment = getRecentMessageSegment(messages.value);
-          if (currentSegment.length >= 4) {
-            await memorySystem.summarizeConversation(currentChatId.value, currentSegment);
-          }
-        }
-        
-        logInteraction(messageText, aiMessage);
-        
-        await processSelfOptimization(messageText, aiMessage);
-      } catch (apiError) {
-        console.error("API error:", apiError);
-        
-        await mockStreamingResponse(streamingMessageIndex, messageText, true);
-      }
-    }
-  } catch (error) {
-    console.error("Error sending message:", error);
-    
-    if (messages.value[streamingMessageIndex]) {
-      messages.value[streamingMessageIndex].content =
-        "⚠️ I encountered an error while processing your request. Please try again later.";
-      messages.value[streamingMessageIndex].isStreaming = false;
-      
-      try {
-        await saveMessageToFirebase(messages.value[streamingMessageIndex]);
-      } catch (saveError) {
-        console.error("Error saving error message:", saveError);
-      }
-    }
-  } finally {
-    isLoading.value = false;
-    isStreaming.value = false;
-    
-    if (messages.value[streamingMessageIndex]) {
-      messages.value[streamingMessageIndex].isStreaming = false;
-    }
-    
-    scrollToBottom();
+        // After you've received the AI response and processed it
+
+// Store AI message in memory
+const aiMessage = messages.value[streamingMessageIndex];
+  if (aiMessage && aiMessage.content) {
+    await enhancedMemoryService.processMessage(aiMessage.content, false);
   }
-};
 
-// Smart functions to determine when to summarize conversations
-const shouldSummarizeConversation = (messagesList) => {
-  if (messagesList.length < 6) return false;
-  
-  // Check for significant time gap (30+ minutes)
-  const latestMsg = messagesList[messagesList.length - 1];
-  const prevMsg = messagesList[messagesList.length - 2];
-  const timeGap = latestMsg.timestamp - prevMsg.timestamp;
-  
-  if (timeGap > 30 * 60 * 1000) return true;
-  
-  // Summarize every 10 messages
-  return messagesList.length % 10 === 0;
-};
-
-// Get recent conversation segment for summarization
-const getRecentMessageSegment = (messagesList) => {
-  const maxSegmentSize = 10;
-  const startIdx = Math.max(0, messagesList.length - maxSegmentSize);
-  return messagesList.slice(startIdx);
-};
-
-// Helper function to format sources section
-
+// Rest of your existing code to save to Firebase, etc.
+      } catch (error) {
+        console.error("Error sending message:", error);
+        
+        if (messages.value[streamingMessageIndex]) {
+          messages.value[streamingMessageIndex].content =
+            "⚠️ I encountered an error while processing your request. Please try again later.";
+          messages.value[streamingMessageIndex].isStreaming = false;
+          
+          try {
+            await saveMessageToFirebase(messages.value[streamingMessageIndex]);
+          } catch (saveError) {
+            console.error("Error saving error message:", saveError);
+          }
+        }
+      } finally {
+        isLoading.value = false;
+        isStreaming.value = false;
+        
+        if (messages.value[streamingMessageIndex]) {
+          messages.value[streamingMessageIndex].isStreaming = false;
+        }
+        
+        scrollToBottom();
+      }
+    };
     
 // Add these functions to your main JavaScript file
 // Function to determine if cards would be relevant for the message
@@ -2460,7 +2075,6 @@ window.scrollCards = (direction) => {
 // Add this comprehensive cursor management system
 // Completely redesigned cursor management system
 // Completely redesigned cursor management system
-// Add this comprehensive cursor management system
 const cursorStateManager = {
   // Store full editor state
   savedState: null,
@@ -2670,52 +2284,6 @@ const handleJournalInput = (event) => {
 
 // Completely rewritten saveJournalContent function that prevents cursor movement
 
-// Enhanced journal input handler
-
-// Completely rewritten saveJournalContent function that prevents cursor movement
-// Add this to your onMounted hook
-onMounted(() => {
-  // Rest of your onMounted code...
-  
-  // Enhanced event listener for the journal editor
-  if (journalEditor.value) {
-    // Remove existing listeners to prevent duplicates
-    journalEditor.value.removeEventListener('input', saveJournalContent);
-    journalEditor.value.removeEventListener('input', handleJournalInput);
-    
-    // Add input handler with improved cursor management
-    journalEditor.value.addEventListener('input', handleJournalInput);
-    
-    // Initialize cursor state manager
-    cursorStateManager.lastContent = journalEditor.value.innerHTML;
-    
-    // Intercept any other methods that might change content
-    const originalSetHtml = Object.getOwnPropertyDescriptor(
-      Object.getPrototypeOf(journalEditor.value), 
-      'innerHTML'
-    ).set;
-    
-    // Override innerHTML setter to preserve cursor
-    Object.defineProperty(journalEditor.value, 'innerHTML', {
-      set: function(html) {
-        cursorStateManager.saveState(this);
-        originalSetHtml.call(this, html);
-        
-        // Wait for DOM updates
-        setTimeout(() => {
-          cursorStateManager.restoreState(this);
-        }, 0);
-      }
-    });
-  }
-  
-  // Add cleanup on component unmount
-  onUnmounted(() => {
-    if (journalLogUnsubscribe.value) {
-      journalLogUnsubscribe.value();
-    }
-  });
-});
 // Update journal editor setup
 onMounted(() => {
   // Existing code...
@@ -4836,366 +4404,10 @@ const identifyPatterns = (logsContent, moodAnalysis) => {
   return patterns;
 };
 // Journal Methods
-// REVOLUTIONARY CURSOR FIX - GUARANTEED TO WORK
-// Replace ALL previous cursor management with this
-
-const domAwareEditor = {
-  // Track core state
-  editor: null,
-  lastContent: null,
-  observer: null,
-  lastSelectionState: null,
-  ignoreNextUpdate: false,
-  isEditing: false,
-  updateCount: 0,
-  
-  // Initialize with the editor element
-  init(editorElement) {
-    if (!editorElement || !(editorElement instanceof Element)) {
-      console.error("Invalid editor element provided to domAwareEditor");
-      return;
-    }
-    
-    // Store reference to editor
-    this.editor = editorElement;
-    this.lastContent = editorElement.innerHTML;
-    
-    // Remove any existing event listeners
-    this.cleanup();
-    
-    // Add enhanced input tracking
-    this.editor.addEventListener('focus', this.handleFocus.bind(this));
-    this.editor.addEventListener('blur', this.handleBlur.bind(this));
-    this.editor.addEventListener('keydown', this.handleKeyDown.bind(this));
-    this.editor.addEventListener('input', this.handleInput.bind(this));
-    
-    // Use a high-quality DOM mutation observer to detect ALL changes
-    this.observer = new MutationObserver(this.handleMutation.bind(this));
-    this.observer.observe(this.editor, {
-      childList: true,
-      attributes: true,
-      characterData: true,
-      subtree: true,
-      characterDataOldValue: true
-    });
-    
-    console.log("DOM-aware editor initialized");
-  },
-  
-  // Clean up all listeners
-  cleanup() {
-    if (this.observer) {
-      this.observer.disconnect();
-      this.observer = null;
-    }
-    
-    if (this.editor) {
-      this.editor.removeEventListener('focus', this.handleFocus.bind(this));
-      this.editor.removeEventListener('blur', this.handleBlur.bind(this));
-      this.editor.removeEventListener('keydown', this.handleKeyDown.bind(this));
-      this.editor.removeEventListener('input', this.handleInput.bind(this));
-    }
-  },
-  
-  // Handle editor focus - capture initial selection state
-  handleFocus() {
-    this.isEditing = true;
-    this.captureSelectionState();
-  },
-  
-  // Handle editor blur - trigger final save
-  handleBlur() {
-    this.isEditing = false;
-    this.triggerContentSave();
-  },
-  
-  // Handle key presses - capture state before key actions
-  handleKeyDown(e) {
-    // Capture selection before key combo actions
-    if (e.ctrlKey || e.metaKey) {
-      this.captureSelectionState();
-    }
-    
-    // Handle special keys
-    if (e.key === 'Tab') {
-      e.preventDefault();
-      document.execCommand('insertHTML', false, '&nbsp;&nbsp;&nbsp;&nbsp;');
-      this.captureSelectionState();
-    }
-  },
-  
-  // Handle direct input events - main edit tracking
-  handleInput(e) {
-    // Only trigger save for real content changes
-    if (this.editor.innerHTML !== this.lastContent) {
-      this.lastContent = this.editor.innerHTML;
-      this.triggerContentSave();
-      this.captureSelectionState();
-    }
-  },
-  
-  // Handle ALL DOM mutations
-  handleMutation(mutations) {
-    // Skip if we triggered this mutation ourselves
-    if (this.ignoreNextUpdate) {
-      this.ignoreNextUpdate = false;
-      return;
-    }
-    
-    // Check if content actually changed
-    const hasContentChange = mutations.some(mutation => 
-      mutation.type === 'characterData' || 
-      mutation.type === 'childList' ||
-      (mutation.type === 'attributes' && mutation.target === this.editor)
-    );
-    
-    if (hasContentChange && this.isEditing) {
-      // Content changed, capture selection and trigger save
-      this.updateCount++;
-      this.captureSelectionState();
-      
-      // Limit save frequency to avoid performance issues
-      if (this.updateCount % 3 === 0) {
-        this.triggerContentSave();
-      }
-    }
-  },
-  
-  // Capture the current selection state for later restoration
-  captureSelectionState() {
-    const selection = window.getSelection();
-    if (!selection || selection.rangeCount === 0) return;
-    
-    const range = selection.getRangeAt(0);
-    if (!this.editor.contains(range.commonAncestorContainer)) return;
-    
-    // Store selection as path + offset for reliability
-    this.lastSelectionState = {
-      startPath: this.getNodePath(range.startContainer),
-      startOffset: range.startOffset,
-      endPath: this.getNodePath(range.endContainer),
-      endOffset: range.endOffset,
-      time: Date.now()
-    };
-  },
-  
-  // Get DOM path from editor root to specific node
-  getNodePath(node) {
-    const path = [];
-    let current = node;
-    
-    // Build path from node to editor root
-    while (current && current !== this.editor) {
-      const parent = current.parentNode;
-      if (!parent) break;
-      
-      // Find index of current node in parent's children
-      const children = Array.from(parent.childNodes);
-      const index = children.indexOf(current);
-      path.unshift(index);
-      current = parent;
-    }
-    
-    return path;
-  },
-  
-  // Restore previously saved selection state
-  restoreSelectionState() {
-    if (!this.lastSelectionState || !this.editor) return false;
-    
-    try {
-      // Find nodes by stored paths
-      const startNode = this.getNodeByPath(this.lastSelectionState.startPath);
-      const endNode = this.getNodeByPath(this.lastSelectionState.endPath);
-      
-      // Verify nodes were found
-      if (!startNode || !endNode) {
-        return this.fallbackRestore();
-      }
-      
-      // Create and apply range
-      const range = document.createRange();
-      
-      // Ensure offsets are valid
-      const startOffset = Math.min(this.lastSelectionState.startOffset, 
-                                   this.getNodeMaxOffset(startNode));
-      const endOffset = Math.min(this.lastSelectionState.endOffset, 
-                                 this.getNodeMaxOffset(endNode));
-      
-      range.setStart(startNode, startOffset);
-      range.setEnd(endNode, endOffset);
-      
-      // Apply selection
-      const selection = window.getSelection();
-      selection.removeAllRanges();
-      selection.addRange(range);
-      
-      return true;
-    } catch (e) {
-      console.warn("Error restoring selection:", e);
-      return this.fallbackRestore();
-    }
-  },
-  
-  // Get node by path from editor root
-  getNodeByPath(path) {
-    let current = this.editor;
-    
-    for (let i = 0; i < path.length; i++) {
-      const index = path[i];
-      
-      if (current.childNodes && index < current.childNodes.length) {
-        current = current.childNodes[index];
-      } else {
-        return null;
-      }
-    }
-    
-    return current;
-  },
-  
-  // Get maximum valid offset for a node
-  getNodeMaxOffset(node) {
-    if (node.nodeType === Node.TEXT_NODE) {
-      return node.textContent.length;
-    }
-    return node.childNodes.length;
-  },
-  
-  // Fallback selection restore method
-  fallbackRestore() {
-    try {
-      // Move to end of content as fallback
-      const range = document.createRange();
-      range.selectNodeContents(this.editor);
-      range.collapse(false);
-      
-      const selection = window.getSelection();
-      selection.removeAllRanges();
-      selection.addRange(range);
-      
-      return true;
-    } catch (e) {
-      console.error("Fallback selection restore failed:", e);
-      return false;
-    }
-  },
-  
-  // Trigger content save while preserving cursor
-  triggerContentSave() {
-    if (!this.editor || !journalEditor.value) return;
-    
-    // Debounce save operations
-    clearTimeout(this._saveTimeout);
-    this._saveTimeout = setTimeout(() => {
-      // Only save if content actually changed
-      if (this.lastContent !== this.editor.innerHTML) {
-        // Capture final content and selection
-        const finalContent = this.editor.innerHTML;
-        this.captureSelectionState();
-        
-        // Set flag to ignore next update (avoid loop)
-        this.ignoreNextUpdate = true;
-        
-        // Call the actual save function
-        if (typeof saveJournalContent === 'function') {
-          saveJournalContent(finalContent);
-        }
-        
-        // Restore selection AFTER save completes
-        setTimeout(() => {
-          this.restoreSelectionState();
-        }, 0);
-      }
-    }, 500);
-  }
+const openJournalModal = () => {
+  showJournalModal.value = true;
+  loadJournalLogs();
 };
-
-// Replace saveJournalContent function with this version
-const saveJournalContent = async (content) => {
-  if (!userId.value || !currentLogId.value) return;
-  
-  const actualContent = content || (journalEditor.value ? journalEditor.value.innerHTML : "");
-  
-  // Skip saving if nothing changed
-  if (currentLog.value && currentLog.value.content === actualContent) {
-    return;
-  }
-  
-  try {
-    journalSaving.value = true;
-    journalSaved.value = false;
-    
-    const logRef = doc(db, `users/${userId.value}/journals/${currentLogId.value}`);
-    
-    // Update Firebase in background
-    await updateDoc(logRef, {
-      content: actualContent,
-      lastEdited: Date.now()
-    });
-    
-    // Update local state
-    if (currentLog.value) {
-      currentLog.value.content = actualContent;
-      currentLog.value.lastEdited = Date.now();
-    }
-    
-    journalSaving.value = false;
-    journalSaved.value = true;
-    
-    setTimeout(() => {
-      journalSaved.value = false;
-    }, 2000);
-    
-  } catch (error) {
-    console.error("Error saving journal content:", error);
-    journalSaving.value = false;
-    
-    // Try fallback with setDoc
-    try {
-      const logRef = doc(db, `users/${userId.value}/journals/${currentLogId.value}`);
-      await setDoc(logRef, {
-        content: actualContent,
-        lastEdited: Date.now()
-      }, { merge: true });
-      
-      journalSaved.value = true;
-      setTimeout(() => {
-        journalSaved.value = false;
-      }, 2000);
-    } catch (fallbackError) {
-      console.error("Fallback save failed:", fallbackError);
-      showToastNotification("Failed to save journal entry", "error");
-    }
-  }
-};
-
-// Add this to your onMounted hook to initialize the editor system
-onMounted(() => {
-  // Previous onMounted code...
-  
-  // Wait for journal editor to be available
-  const initJournalEditor = () => {
-    if (journalEditor.value) {
-      // Initialize the DOM-aware editor with the journal editor element
-      domAwareEditor.init(journalEditor.value);
-    } else {
-      // Retry after a delay
-      setTimeout(initJournalEditor, 500);
-    }
-  };
-  
-  // Start initialization
-  initJournalEditor();
-  
-  // Set up cleanup
-  onUnmounted(() => {
-    domAwareEditor.cleanup();
-    if (journalLogUnsubscribe.value) {
-      journalLogUnsubscribe.value();
-    }
-  });
-});
 
 const closeJournalModal = () => {
   showJournalModal.value = false;
@@ -5206,183 +4418,46 @@ const closeJournalModal = () => {
 // Replace the loadJournalLogs function with this enhanced version
 // Replace the loadJournalLogs function with this enhanced version
 // Replace the loadJournalLogs function with this enhanced version
-// Replace the loadJournalLogs function with this enhanced version
-const loadJournalLogs = async (forceRefresh = false) => {
-  if (!userId.value) {
-    console.warn("Cannot load journal logs: No user ID");
-    return;
-  }
-  
-  if (journalLoadAttempts.value > 5) {
-    console.warn("Too many load attempts, resetting counter");
-    journalLoadAttempts.value = 0;
-  }
-  
-  journalLoadAttempts.value++;
-  console.log(`Loading journal logs (attempt ${journalLoadAttempts.value}) for user:`, userId.value);
+const loadJournalLogs = async () => {
+  if (!userId.value) return;
   
   try {
-    // CRITICAL: First clear existing data when force refreshing
-    if (forceRefresh) {
-      journalLogs.value = [];
-      filteredJournalLogs.value = [];
-      
-      // Clean up any existing subscription
-      if (journalLogUnsubscribe.value) {
-        journalLogUnsubscribe.value();
-        journalLogUnsubscribe.value = null;
-        journalSubscriptionActive.value = false;
-      }
-    }
     const logsRef = collection(db, `users/${userId.value}/journals`);
-    
-    // Create a clean query with explicit ordering
     const q = query(logsRef, orderBy("lastEdited", "desc"));
     
-    // IMPORTANT: Get initial snapshot FIRST before setting up listener
-    const initialSnapshot = await getDocs(q);
+    // Get initial data
+    const snapshot = await getDocs(q);
+    journalLogs.value = snapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
     
-    // Process the initial data
-    const initialLogs = initialSnapshot.docs.map(doc => {
-      const data = doc.data();
-      return {
+    filteredJournalLogs.value = [...journalLogs.value];
+    
+    // Set up real-time listener for journals
+    if (journalLogUnsubscribe.value) {
+      journalLogUnsubscribe.value(); // Clean up previous listener
+    }
+    
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      journalLogs.value = snapshot.docs.map(doc => ({
         id: doc.id,
-        title: data.title || "Untitled Log",
-        content: data.content || "",
-        created: data.created || Date.now(),
-        lastEdited: data.lastEdited || Date.now(),
-        createdBy: data.createdBy || userId.value
-      };
+        ...doc.data()
+      }));
+      filteredJournalLogs.value = journalSearch.value ? 
+        journalLogs.value.filter(log => log.title.toLowerCase().includes(journalSearch.value.toLowerCase())) :
+        [...journalLogs.value];
     });
     
-    console.log(`Found ${initialLogs.length} journal logs directly`);
-    
-    // CRITICAL: Force Vue to recognize this as a new array 
-    journalLogs.value = [...initialLogs];
-    filteredJournalLogs.value = [...initialLogs];
-    
-    // Wait for Vue to process the updates
-    await nextTick();
-    
-    // Now set up real-time listener ONLY if we don't already have one
-    if (!journalSubscriptionActive.value) {
-      if (journalLogUnsubscribe.value) {
-        journalLogUnsubscribe.value();
-      }
-      
-      // Add a unique identifier to the listener to help debugging
-      const listenerId = Date.now().toString();
-      console.log(`Setting up journal listener ${listenerId}`);
-      
-      const unsubscribe = onSnapshot(q, (snapshot) => {
-        console.log(`Journal snapshot received for listener ${listenerId}, docs:`, snapshot.size);
-        
-        if (snapshot.empty) {
-          console.log("Empty journal snapshot received");
-          return;
-        }
-        
-        const updatedLogs = snapshot.docs.map(doc => {
-          const data = doc.data();
-          return {
-            id: doc.id,
-            title: data.title || "Untitled Log",
-            content: data.content || "",
-            created: data.created || Date.now(),
-            lastEdited: data.lastEdited || Date.now(),
-            createdBy: data.createdBy || userId.value
-          };
-        });
-        
-        // CRITICAL: Use direct assignment AND force Vue reactivity update
-        journalLogs.value = [...updatedLogs];
-        
-        // Update filtered logs accordingly
-        if (journalSearch.value) {
-          filteredJournalLogs.value = updatedLogs.filter(log => 
-            log.title.toLowerCase().includes(journalSearch.value.toLowerCase()) ||
-            log.content.toLowerCase().includes(journalSearch.value.toLowerCase())
-          );
-        } else {
-          filteredJournalLogs.value = [...updatedLogs];
-        }
-        
-        console.log(`Journal logs updated: ${journalLogs.value.length}`);
-      }, (error) => {
-        console.error(`Journal listener ${listenerId} error:`, error);
-        journalSubscriptionActive.value = false;
-        
-        // Auto-retry on error after short delay
-        setTimeout(() => {
-          loadJournalLogs(true);
-        }, 2000);
-      });
-      
-      journalLogUnsubscribe.value = unsubscribe;
-      journalSubscriptionActive.value = true;
-    }
-    
-    // Add this safety check - force resubscribe if needed
-    if (journalLogs.value.length === 0 && initialLogs.length > 0) {
-      console.warn("Journal logs array is empty despite having data, forcing refresh");
-      setTimeout(() => loadJournalLogs(true), 500);
-    }
+    // Store the unsubscribe function for cleanup
+    journalLogUnsubscribe.value = unsubscribe;
     
   } catch (error) {
     console.error("Error loading journal logs:", error);
-    
-    // CRITICAL: Add error recovery with automatic retry
-    setTimeout(() => {
-      console.log("Retrying journal logs load after error");
-      loadJournalLogs(true);
-    }, 3000);
-    
-    showToastNotification("Issue loading journals, retrying...", "error");
+    showToastNotification("Failed to load journal logs", "error");
   }
-};
-const repairJournalSystem = async () => {
-  console.log("Running journal system repair");
-  
-  // Force clear any stuck state first
-  journalLogs.value = [];
-  filteredJournalLogs.value = [];
-  currentLog.value = null;
-  currentLogId.value = null;
-  
-  if (journalLogUnsubscribe.value) {
-    journalLogUnsubscribe.value();
-    journalLogUnsubscribe.value = null;
-  }
-  
-  // Wait for state clearing to complete
-  await nextTick();
-  
-  // Now try a fresh load with force refresh
-  loadJournalLogs(true);
-  
-  // Set up automatic periodic check for missing logs
-  setInterval(() => {
-    if (journalLogs.value.length === 0 && userId.value) {
-      console.log("Empty journal logs detected, attempting repair");
-      loadJournalLogs(true);
-    }
-  }, 10000); // Check every 10 seconds
 };
 
-// 4. Call this on open journal modal
-const openJournalModal = () => {
-  showJournalModal.value = true;
-  
-  // CRITICAL: Add this forced repair and load
-  repairJournalSystem();
-  
-  // Additional safety to ensure journals appear after short delay
-  setTimeout(() => {
-    if (journalLogs.value.length === 0) {
-      loadJournalLogs(true);
-    }
-  }, 2000);
-};
 // Ensure this function is called in onMounted lifecycle hook
 onMounted(() => {
   // Existing code...
@@ -6593,7 +5668,6 @@ const quantumCognitionEngine = reactive({
     };
   }
 });
-
 const processMindMapContent = (content) => {
     // Extract just the HTML part if there's markdown or other content
     const htmlMatch = content.match(/<div class=["']mind-map-box["'][\s\S]*?<\/div>/i);
@@ -6806,7 +5880,6 @@ const deleteMindMap = async (mindMapId) => {
     showToastNotification("Failed to delete mind map", "error");
   }
 };
-
 // Replace the current createMindMapVisualization function with this enhanced version
 // Enhanced visualization with dynamic text sizing
 const createMindMapVisualization = (centralTopic, branches = []) => {
@@ -7711,12 +6784,105 @@ const generateMindMapData = (centralTopic) => {
 };
 
 
-// Replace the existing performWebSearch function with this corrected version
-// COMPLETELY REVISED WEB SEARCH IMPLEMENTATION
-// COMPLETELY REVISED WEB SEARCH IMPLEMENTATION
-
-// Helper function to extract domain name from URL
-
+const performWebSearch = async (query) => {
+  try {
+    isLoading.value = true;
+    showToastNotification("Searching the web...", "info");
+    
+    const searchMessage = {
+      role: "assistant",
+      content: "🔍 Searching the web for: **" + query + "**\n\nPlease wait...",
+      timestamp: Date.now(),
+      hasReasoning: false,
+      isStreaming: true
+    };
+    
+    messages.value.push(searchMessage);
+    const searchIndex = messages.value.length - 1;
+    
+    // OpenAI API call for web search
+    const searchResponse = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${apiKey}`
+      },
+      body: JSON.stringify({
+        model: "gpt-4o-mini-search-preview",
+        messages: [
+          { 
+            role: "system", 
+            content: "You are a helpful web search assistant. Your task is to search for accurate information and provide results with proper citations."
+          },
+          { 
+            role: "user", 
+            content: `Please search for: ${query}. Provide a summary of the results with source links.`
+          }
+        ],
+        max_tokens: 2000,
+        search_tool: { enabled: true }
+      })
+    });
+    
+    if (!searchResponse.ok) {
+      const errorData = await searchResponse.json().catch(() => ({}));
+      throw new Error(`Search API error: ${searchResponse.status} ${errorData.error?.message || ''}`);
+    }
+    
+    const data = await searchResponse.json();
+    const searchResults = data.choices[0].message.content;
+    
+    // Extract sources
+    const sources = searchResults.match(/https?:\/\/[^\s)]+/g) || [];
+    
+    // Format the results with sources
+    let formattedResults = `## Search Results for: ${query}\n\n`;
+    formattedResults += searchResults;
+    
+    // Add sources section if not already included
+    if (!searchResults.toLowerCase().includes("sources:") && sources.length > 0) {
+      formattedResults += `\n\n---\n\n**Sources:**\n`;
+      sources.forEach((source, index) => {
+        formattedResults += `${index + 1}. [${source}](${source})\n`;
+      });
+    }
+    
+    // Update the message with the results
+    messages.value[searchIndex].content = formattedResults;
+    messages.value[searchIndex].isStreaming = false;
+    
+    await saveMessageToFirebase(messages.value[searchIndex]);
+    
+    // Store in quantum engine (if using)
+    if (quantumCognitionEngine && sources.length > 0) {
+      quantumCognitionEngine.webKnowledgeBase.set(query, {
+        content: searchResults,
+        sources: sources,
+        timestamp: Date.now(),
+        relevance: 0.95
+      });
+    }
+    
+    return { content: searchResults, sources };
+  } catch (error) {
+    console.error("Web search error:", error);
+    showToastNotification("Web search failed", "error");
+    
+    // Update the last message
+    if (messages.value.length > 0) {
+      const lastMessage = messages.value[messages.value.length - 1];
+      if (lastMessage.role === "assistant" && lastMessage.content.includes("Searching the web")) {
+        lastMessage.content = "⚠️ Web search failed. Please try again later or check your API key configuration.";
+        lastMessage.isStreaming = false;
+        await saveMessageToFirebase(lastMessage);
+      }
+    }
+    
+    return { content: "", sources: [] };
+  } finally {
+    isLoading.value = false;
+  }
+};
     console.log("Dawntasy book content loaded:", Object.keys(dawntasyBookContent.value));
     return dawntasyBookContent.value;
   } catch (error) {
@@ -7871,6 +7037,91 @@ onMounted(() => {
         }
       });
     });
+    const performWebSearch = async (query) => {
+  try {
+    isLoading.value = true;
+    showToastNotification("Searching the web...", "info");
+    
+    const searchMessage = {
+      role: "assistant",
+      content: "🔍 Searching the web for: **" + query + "**\n\nPlease wait...",
+      timestamp: Date.now(),
+      hasReasoning: false,
+      isStreaming: true
+    };
+    
+    messages.value.push(searchMessage);
+    const searchIndex = messages.value.length - 1;
+    
+    // Mock search results for demo
+    const mockResults = [
+      {
+        title: "Understanding " + query,
+        snippet: "This page provides detailed information about " + query + " with comprehensive examples and use cases.",
+        url: "https://example.com/search/" + encodeURIComponent(query)
+      },
+      {
+        title: query + " - Wikipedia",
+        snippet: "The definitive resource about " + query + " covering its history, applications, and related concepts.",
+        url: "https://en.wikipedia.org/wiki/" + encodeURIComponent(query.replace(/\s+/g, '_'))
+      },
+      {
+        title: "Latest Research on " + query,
+        snippet: "Recent scientific developments related to " + query + " from leading academic institutions.",
+        url: "https://scholar.example.org/" + encodeURIComponent(query)
+      }
+    ];
+    
+    // Format the results with sources
+    let formattedResults = `## Search Results for: ${query}\n\n`;
+    
+    mockResults.forEach((result, index) => {
+      formattedResults += `### ${index + 1}. ${result.title}\n`;
+      formattedResults += `${result.snippet}\n\n`;
+      formattedResults += `[Read more](${result.url})\n\n`;
+    });
+    
+    formattedResults += `\n\n---\n\n**Sources:**\n`;
+    mockResults.forEach((result, index) => {
+      formattedResults += `${index + 1}. [${result.title}](${result.url})\n`;
+    });
+    
+    // Update the message with the results
+    messages.value[searchIndex].content = formattedResults;
+    messages.value[searchIndex].isStreaming = false;
+    
+    await saveMessageToFirebase(messages.value[searchIndex]);
+    
+    // Store in quantum engine
+    mockResults.forEach(result => {
+      quantumCognitionEngine.webKnowledgeBase.set(query, {
+        title: result.title,
+        snippet: result.snippet,
+        url: result.url,
+        relevance: 0.8 + (Math.random() * 0.2)
+      });
+    });
+    
+    return mockResults;
+  } catch (error) {
+    console.error("Web search error:", error);
+    showToastNotification("Web search failed", "error");
+    
+    // Update the last message
+    if (messages.value.length > 0) {
+      const lastMessage = messages.value[messages.value.length - 1];
+      if (lastMessage.role === "assistant" && lastMessage.content.includes("Searching the web")) {
+        lastMessage.content = "⚠️ Web search failed. Please try again later.";
+        lastMessage.isStreaming = false;
+        await saveMessageToFirebase(lastMessage);
+      }
+    }
+    
+    return [];
+  } finally {
+    isLoading.value = false;
+  }
+};
     // Enable demo mode for development when authentication fails
     // Update the enableDemoMode function to support mind maps
 const enableDemoMode = () => {
@@ -7998,36 +7249,16 @@ const enableDemoMode = () => {
       }
     };
 
-    const loadChat = async (chatId) => {
-  if (currentChatId.value === chatId) return;
-  currentChatId.value = chatId;
-  await loadMessages(chatId);
-  
-  // Check if this is a new session with no messages
-  if (messages.value.length === 0 && memorySystem.lastInteractionDate) {
-    // Add a personalized welcome message based on memory
-    const welcomeMessage = {
-      role: "assistant",
-      content: memorySystem.generateGreeting(),
-      timestamp: Date.now(),
-      hasReasoning: false
+    const loadChat = (chatId) => {
+      if (currentChatId.value === chatId) return;
+      currentChatId.value = chatId;
+      loadMessages(chatId);
+      
+      // On mobile, close the sidebar after selecting a chat
+      if (window.innerWidth <= 768) {
+        isSidebarOpen.value = false;
+      }
     };
-    if (currentChatId.value && currentChatId.value !== chatId && messages.value.length > 0) {
-    await memorySystem.summarizeConversation(currentChatId.value, messages.value);
-  }
-  
-  currentChatId.value = chatId;
-  await loadMessages(chatId);
-
-    messages.value.push(welcomeMessage);
-    await saveMessageToFirebase(welcomeMessage);
-  }
-  
-  // On mobile, close the sidebar after selecting a chat
-  if (window.innerWidth <= 768) {
-    isSidebarOpen.value = false;
-  }
-};
 
     const loadMessages = async (chatId) => {
       if (!userId.value || !chatId) return;
@@ -8520,97 +7751,51 @@ const mockStreamingResponse = async (messageIndex, userPrompt, includeCards = fa
     };
 
     // **Utility Functions**
-    // Add this to your formatMessage function to display sources
-
-const formatMessage = (content) => {
-  if (!content) return "";
-  
-  // Process markdown syntax...
-  let formatted = content
-    .replace(/```([a-z]*)\n([\s\S]*?)```/g, (match, lang, code) => {
-      return `<pre class="code-block ${lang || ""}"><code>${code.trim()}</code></pre>`;
-    })
-    .replace(/`([^`]+)`/g, `<code class="inline-code">$1</code>`)
-.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
-.replace(/\*(.*?)\*/g, "<em>$1</em>")
-.replace(/__(.*?)__/g, "<u>$1</u>")
-.replace(/### (.*)/g, "<h3>$1</h3>")
-.replace(/## (.*)/g, "<h2>$1</h2>")
-.replace(/# (.*)/g, "<h1>$1</h1>")
-.replace(/\n/g, "<br>");
-  
-  // Check if the message has sources from web search
-  const sourcesMatch = content.match(/---\s*\n+\s*\*\*Sources:\*\*\s*\n([\s\S]*?)($|(?=\n\n))/);
-  if (sourcesMatch) {
-    // Extract the sources section and format it more nicely
-    const sourcesSection = sourcesMatch[0];
-    const cleanContent = content.replace(sourcesSection, '').trim();
-    
-    // Re-format the sources for better display
-    const sources = sourcesMatch[1].match(/\d+\.\s*\[(.*?)\]\((.*?)\)/g) || [];
-    
-    let formattedSources = `
-      <div class="sources-section">
-        <h4>Sources</h4>
-        <div class="sources-list">
-    `;
-    
-    sources.forEach((source, index) => {
-      const titleMatch = source.match(/\[(.*?)\]/);
-      const urlMatch = source.match(/\((.*?)\)/);
+    const formatMessage = (content) => {
+      if (!content) return "";
       
-      if (titleMatch && urlMatch) {
-        const title = titleMatch[1];
-        const url = urlMatch[1];
-        
-        formattedSources += `
-          <div class="source-item">
-            <span class="source-num">${index + 1}.</span>
-            <a href="${url}" class="source-link" target="_blank">${title}</a>
-          </div>
-        `;
-      }
-    });
-    
-    formattedSources += `
-        </div>
-      </div>
-    `;
-    
-    // Return content with nicely formatted sources
-    formatted = formatted.replace(/<br>---<br>[\s\S]*?Sources:[\s\S]*?$/, '') + formattedSources;
-  }
-  
-  // Process terms highlighting
-  const terms = [
-    "Time Smith",
-    "The Rift",
-    "Plain and Pale Clock",
-    "Dawntasy",
-    "Bear Village",
-    "Ursa Minor",
-    "Yaee",
-    "Thappnon",
-    "Solus",
-    "Dawntasy Saga",
-    "Lieutenant Sara",
-    "Isllandio",
-    "DawntasyAI",
-    "Jasper Jiang",
-    "Dawntasy Melodic",
-    "Dawntasy: Time's True Name",
-  ];
-  
-  terms.forEach((term) => {
-    const regex = new RegExp(`\\b${term}\\b`, "g");
-    formatted = formatted.replace(
-      regex,
-      `<span class="highlight-term">${term}</span>`
-    );
-  });
-  
-  return formatted;
-};
+      let formatted = content
+        .replace(/```([a-z]*)\n([\s\S]*?)```/g, (match, lang, code) => {
+          return `<pre class="code-block ${lang || ""}"><code>${code.trim()}</code></pre>`;
+        })
+        .replace(/`([^`]+)`/g, `<code class="inline-code">$1</code>`)
+        .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+        .replace(/\*(.*?)\*/g, "<em>$1</em>")
+        .replace(/__(.*?)__/g, "<u>$1</u>")
+        .replace(/### (.*)/g, "<h3>$1</h3>")
+        .replace(/## (.*)/g, "<h2>$1</h2>")
+        .replace(/# (.*)/g, "<h1>$1</h1>")
+        .replace(/\n/g, "<br>");
+      
+      const terms = [
+        "Time Smith",
+        "The Rift",
+        "Plain and Pale Clock",
+        "Dawntasy",
+        "Bear Village",
+        "Ursa Minor",
+        "Yaee",
+        "Thappnon",
+        "Solus",
+        "Dawntasy Saga",
+        "Lieutenant Sara",
+        "Isllandio",
+        "DawntasyAI",
+        "Jasper Jiang",
+        "Dawntasy Melodic",
+        "Dawntasy: Time's True Name",
+      ];
+      
+      terms.forEach((term) => {
+        const regex = new RegExp(`\\b${term}\\b`, "g");
+        formatted = formatted.replace(
+          regex,
+          `<span class="highlight-term">${term}</span>`
+        );
+      });
+      
+      return formatted;
+    };
 
     const formatTime = (timestamp) => {
       if (!timestamp) return "";
@@ -9530,20 +8715,7 @@ const processStream = async (stream, messageIndex, isReasoningMode = false) => {
   if (!stream) {
     throw new Error("No stream provided");
   }
-  if (messages.value[messageIndex]) {
-    let finalResponse = extracted.finalResponse || completeResponse;
-    
-    // Enhance the response with memories if appropriate
-    if (!isReasoningMode && Math.random() < 0.6) { // 60% chance to include memory
-      const userMessage = messages.value.find(m => m.role === 'user');
-      const userContent = userMessage ? userMessage.content : '';
-      finalResponse = memorySystem.enhanceResponseWithMemories(finalResponse, userContent);
-    }
-    
-    messages.value[messageIndex].content = finalResponse;
-    messages.value[messageIndex].reasoning = extracted.reasoning || "";
-    messages.value[messageIndex].hasReasoning = extracted.hasReasoning;
-  }
+  
   const reader = stream.getReader();
   let completeResponse = "";
   
@@ -9784,47 +8956,46 @@ I should structure my response with a clear introduction that establishes contex
       await simulateStreamingText(messageIndex, response);
     };
     
-    const simulateStreamingText = async (messageIndex, text) => {
-      let currentText = '';
-      const message = messages.value[messageIndex];
-      
-      if (reasoningEnabled.value && !logicEnabled.value && !text.includes('[REASONING_START]')) {
-        const reasoning = `[REASONING_START]\nAnalyzing the user's question...\nConsidering multiple perspectives...\nEvaluating the most helpful response...\nFormulating a clear explanation...\n[REASONING_END]\n\n`;
-        
-        for (let i = 0; i < reasoning.length; i++) {
-          currentText += reasoning[i];
-          message.streamContent = currentText;
-          await new Promise(resolve => setTimeout(resolve, 10));
-        }
-        
-        const extracted = extractReasoning(currentText);
-        message.reasoning = extracted.reasoning;
-        message.hasReasoning = true;
-        currentText = '';
-      }
-      
-      const typingSpeed = 30;
-      
-      for (let i = 0; i < text.length; i++) {
-        currentText += text[i];
-        message.streamContent = currentText;
-        await new Promise(resolve => setTimeout(resolve, typingSpeed));
-        
-        if (i % 10 === 0) {
-          await nextTick();
-          scrollToBottom();
-        }
-      }
-      
-      if (text.includes('[REASONING_START]') && text.includes('[REASONING_END]')) {
-        const extracted = extractReasoning(text);
-        message.content = extracted.finalResponse;
-        message.reasoning = extracted.reasoning;
-        message.hasReasoning = true;
-      } else {
-        message.content = text;
-      }
-    };
+    // Replace the simulateStreamingText function with this fade-in version
+const simulateStreamingText = async (messageIndex, text) => {
+  const message = messages.value[messageIndex];
+  
+  // If we have reasoning, we'll fade that in first
+  if (reasoningEnabled.value && !logicEnabled.value && !text.includes('[REASONING_START]')) {
+    const reasoning = `[REASONING_START]\nAnalyzing the user's question...\nConsidering multiple perspectives...\nEvaluating the most helpful response...\nFormulating a clear explanation...\n[REASONING_END]\n\n`;
+    
+    // Set the full reasoning text immediately (no character-by-character)
+    message.streamContent = reasoning;
+    await new Promise(resolve => setTimeout(resolve, 500)); // Short delay for fade-in effect
+    
+    const extracted = extractReasoning(reasoning);
+    message.reasoning = extracted.reasoning;
+    message.hasReasoning = true;
+    message.streamContent = "";
+  }
+  
+  // Set the full response text for fade-in effect
+  message.streamContent = text;
+  
+  // Add a CSS class for fade-in animation
+  message.fadeIn = true;
+  
+  // Allow time for the fade-in animation
+  await new Promise(resolve => setTimeout(resolve, 1000));
+  
+  // Process content with reasoning if needed
+  if (text.includes('[REASONING_START]') && text.includes('[REASONING_END]')) {
+    const extracted = extractReasoning(text);
+    message.content = extracted.finalResponse;
+    message.reasoning = extracted.reasoning;
+    message.hasReasoning = true;
+  } else {
+    message.content = text;
+  }
+  
+  // Remove the fade-in flag after animation completes
+  message.fadeIn = false;
+}
 
     const elaborateResponse = async (messageIndex) => {
       if (isLoading.value || messageIndex >= messages.value.length) return;
@@ -10032,32 +9203,6 @@ const contextualMemory = reactive({
   },
   
   // Retrieve relevant memories for a given input
-  getRelevantMemories(input) {
-    const query = input.toLowerCase();
-    const relevantMemories = [];
-    
-    // Check short-term memory first
-    this.shortTermMemory.forEach(memory => {
-      if (memory.content.toLowerCase().includes(query)) {
-        memory.accessCount += 1;
-        relevantMemories.push(memory);
-      }
-    });
-    
-    // Check long-term memory for important context
-    this.longTermMemory.forEach(memory => {
-      if (memory.content.toLowerCase().includes(query)) {
-        memory.accessCount += 1;
-        memory.lastAccessed = Date.now();
-        relevantMemories.push(memory);
-      }
-    });
-    
-    return {
-      memories: relevantMemories.slice(0, 5),
-      context: { ...this.conversationContext }
-    };
-  },
   
   // Enhance response with contextual awareness
   enhanceWithContext(baseResponse, context) {
@@ -10179,10 +9324,6 @@ getMaxTopicFrequency,
   isDeployingMindMap,
   mindMapVisualization,
   showSelectChatModal,
-  memorySystem,
-  memoryBankExpanded,
-  toggleMemoryBank,
-  topMemoryTopics,
   selectedMindMap,
   selectedBranch,
   mindMapContainer,
@@ -10294,45 +9435,7 @@ getMaxTopicFrequency,
   text-align: left;
   padding-right: 10px;
 }
-.search-suggestion {
-  margin-top: 8px;
-  margin-bottom: 4px;
-}
 
-.search-suggestion-content {
-  display: flex;
-  align-items: center;
-  padding: 6px 10px;
-  border-radius: 6px;
-  background: rgba(59, 130, 246, 0.1);
-  border: 1px solid rgba(59, 130, 246, 0.3);
-  font-size: 12px;
-}
-
-.search-icon {
-  margin-right: 6px;
-}
-
-.search-suggestion-text {
-  color: var(--text-secondary);
-}
-
-.search-suggestion-button {
-  margin-left: auto;
-  background: rgba(59, 130, 246, 0.2);
-  border: 1px solid rgba(59, 130, 246, 0.4);
-  color: #60a5fa;
-  border-radius: 4px;
-  padding: 3px 8px;
-  font-size: 11px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.search-suggestion-button:hover {
-  background: rgba(59, 130, 246, 0.3);
-  border-color: rgba(59, 130, 246, 0.6);
-}
 .header-actions {
   display: flex;
   justify-content: flex-end;
@@ -10420,146 +9523,7 @@ getMaxTopicFrequency,
   .modal-backdrop.active {
     display: block;
   }
-  /* Add this to your CSS section */
-.thinking-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-}
-
-.thinking-animation {
-  position: relative;
-  width: 80px;
-  height: 20px;
-}
-
-.thinking-text {
-  font-size: 15px;
-  font-weight: 500;
-  color: var(--text-secondary);
-  letter-spacing: 0.02em;
-}
-
-.thinking-deeper {
-  color: var(--reasoning-color);
-}
-
-.thinking-logic {
-  color: var(--logic-color);
-}
-
-.thinking-archmage {
-  color: var(--archmage-color);
-  font-weight: 600;
-}
-
-.thinking-search {
-  color: #60a5fa;
-}
-
-/* Dot pulse animation - super clean! */
-.dot-pulse {
-  position: relative;
-  left: -9999px;
-  width: 10px;
-  height: 10px;
-  border-radius: 5px;
-  background-color: var(--primary);
-  color: var(--primary);
-  box-shadow: 9999px 0 0 -5px;
-  animation: dot-pulse 1.5s infinite linear;
-  animation-delay: 0.25s;
-}
-
-.dot-pulse::before, .dot-pulse::after {
-  content: "";
-  display: inline-block;
-  position: absolute;
-  top: 0;
-  width: 10px;
-  height: 10px;
-  border-radius: 5px;
-  background-color: var(--primary);
-  color: var(--primary);
-}
-
-.dot-pulse::before {
-  box-shadow: 9984px 0 0 -5px;
-  animation: dot-pulse-before 1.5s infinite linear;
-  animation-delay: 0s;
-}
-
-.dot-pulse::after {
-  box-shadow: 10014px 0 0 -5px;
-  animation: dot-pulse-after 1.5s infinite linear;
-  animation-delay: 0.5s;
-}
-
-.thinking-deeper .dot-pulse,
-.thinking-deeper .dot-pulse::before,
-.thinking-deeper .dot-pulse::after {
-  background-color: var(--reasoning-color);
-  color: var(--reasoning-color);
-}
-
-.thinking-logic .dot-pulse,
-.thinking-logic .dot-pulse::before,
-.thinking-logic .dot-pulse::after {
-  background-color: var(--logic-color);
-  color: var(--logic-color);
-}
-
-.thinking-archmage .dot-pulse,
-.thinking-archmage .dot-pulse::before,
-.thinking-archmage .dot-pulse::after {
-  background-color: var(--archmage-color);
-  color: var(--archmage-color);
-}
-
-.thinking-search .dot-pulse,
-.thinking-search .dot-pulse::before,
-.thinking-search .dot-pulse::after {
-  background-color: #60a5fa;
-  color: #60a5fa;
-}
-
-@keyframes dot-pulse-before {
-  0% {
-    box-shadow: 9984px 0 0 -5px;
-  }
-  30% {
-    box-shadow: 9984px 0 0 2px;
-  }
-  60%, 100% {
-    box-shadow: 9984px 0 0 -5px;
-  }
-}
-
-@keyframes dot-pulse {
-  0% {
-    box-shadow: 9999px 0 0 -5px;
-  }
-  30% {
-    box-shadow: 9999px 0 0 2px;
-  }
-  60%, 100% {
-    box-shadow: 9999px 0 0 -5px;
-  }
-}
-
-@keyframes dot-pulse-after {
-  0% {
-    box-shadow: 10014px 0 0 -5px;
-  }
-  30% {
-    box-shadow: 10014px 0 0 2px;
-  }
-  60%, 100% {
-    box-shadow: 10014px 0 0 -5px;
-  }
-}
+  
   /* Improve spacing for mobile */
   .chat-entry, .mind-map-entry {
     padding: 14px;
@@ -10620,7 +9584,90 @@ getMaxTopicFrequency,
   .delete-button, .share-button, .deploy-button {
     padding: 6px;
   }
-  
+  /* Add to the style section */
+.home-button {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: linear-gradient(45deg, rgba(79, 70, 229, 0.1), rgba(139, 92, 246, 0.15));
+  color: white;
+  padding: 12px 16px;
+  border-radius: 10px;
+  border: 1px solid rgba(79, 70, 229, 0.3);
+  cursor: pointer;
+  margin: 12px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  font-weight: 600;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.home-button:before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(45deg, rgba(79, 70, 229, 0.3), rgba(139, 92, 246, 0.4));
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: 0;
+}
+
+.home-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 7px 14px rgba(0, 0, 0, 0.15), 0 0 10px rgba(79, 70, 229, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  border-color: rgba(79, 70, 229, 0.6);
+}
+
+.home-button:hover:before {
+  opacity: 1;
+}
+
+.home-button:active {
+  transform: translateY(1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+.home-icon-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+}
+
+.home-button svg {
+  color: #a5b4fc;
+  z-index: 2;
+  transition: all 0.3s ease;
+}
+
+.home-button:hover svg {
+  color: white;
+  transform: scale(1.1);
+}
+
+.home-icon-glow {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  background: radial-gradient(circle, rgba(79, 70, 229, 0.7) 0%, rgba(79, 70, 229, 0) 70%);
+  border-radius: 50%;
+  opacity: 0;
+  transition: all 0.3s ease;
+}
+
+.home-button:hover .home-icon-glow {
+  opacity: 1;
+  width: 30px;
+  height: 30px;
+}
+
+
+
   /* Add overlay for tapping outside to close */
   .modal-backdrop {
     position: fixed;
@@ -11011,6 +10058,15 @@ getMaxTopicFrequency,
   background-color: var(--primary);
   border-radius: 50%;
   margin-left: 6px;
+}
+/* Add to the style section */
+.message-content.fade-in {
+  animation: fadeInContent 1s ease;
+}
+
+@keyframes fadeInContent {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 .message-content {
   line-height: 1.6;
@@ -12841,83 +11897,7 @@ html, body {
   font-size: 12px;
   padding: 0 8px;
 }
-/* Memory Bank Styles */
-.memory-bank {
-  margin-top: 20px;
-  border-top: 1px solid var(--border-light);
-  padding-top: 10px;
-}
 
-.memory-bank-header {
-  display: flex;
-  align-items: center;
-  padding: 10px;
-  cursor: pointer;
-  font-weight: 500;
-  font-size: 14px;
-  transition: all 0.2s ease;
-}
-
-.memory-bank-header:hover {
-  background: rgba(255, 255, 255, 0.05);
-}
-
-.memory-icon {
-  margin-right: 8px;
-  display: flex;
-  align-items: center;
-  color: var(--primary);
-}
-
-.memory-bank-content {
-  padding: 10px;
-  background: rgba(15, 23, 42, 0.3);
-  border-radius: 6px;
-  margin: 0 10px 10px 10px;
-}
-
-.memory-stats {
-  display: flex;
-  justify-content: space-around;
-  margin-bottom: 12px;
-}
-
-.memory-stat {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.stat-value {
-  font-size: 18px;
-  font-weight: 600;
-  color: var(--primary);
-}
-
-.stat-label {
-  font-size: 12px;
-  color: var(--text-secondary);
-}
-
-.memory-topics h5 {
-  font-size: 13px;
-  margin: 0 0 8px 0;
-  color: var(--text-secondary);
-}
-
-.topic-list {
-  max-height: 150px;
-  overflow-y: auto;
-}
-
-.memory-topic {
-  padding: 4px 8px;
-  background: rgba(79, 70, 229, 0.1);
-  border-radius: 4px;
-  margin-bottom: 4px;
-  font-size: 12px;
-  color: white;
-}
 .heading-select:focus {
   outline: none;
   border-color: var(--primary);
