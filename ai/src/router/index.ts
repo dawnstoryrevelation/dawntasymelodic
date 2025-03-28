@@ -136,7 +136,18 @@ const routes: Array<RouteRecordRaw & { meta: EnhancedRouteMetadata }> = [
       transition: 'fade',
       title: 'Get a Taster - DawntasyAI' 
     }
+  },
+  {
+    path: '/agentchat',
+    name: 'AgentChatView',
+    component: () => import('@/views/AgentChatView.vue'),
+    meta: { 
+      requiresAuth: false,  // Changed to require auth but with special handling
+      transition: 'fade',
+      title: 'PGC Agent Chat - DawntasyAI' 
+    }
   }
+  
 ];
 
 // 🔥 FIXED: Simple root history with NO path prefix

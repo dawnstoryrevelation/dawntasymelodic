@@ -29,7 +29,7 @@
     "@vueuse/head": "^2.0.0",
     "animejs": "^3.2.2",
     "aos": "^2.3.4",
-    "axios": "^1.8.3",
+    "axios": "^1.8.4",
     "d3": "^7.9.0",
     "date-fns": "^4.1.0",
     "dompurify": "^3.2.4",
@@ -45,6 +45,7 @@
     "nprogress": "^0.2.0",
     "openai": "^4.86.2",
     "pinia": "^2.3.1",
+    "puppeteer": "^24.4.0",
     "remixicon": "^4.6.0",
     "three": "^0.161.0",
     "typed.js": "^2.1.0",
@@ -75,7 +76,9 @@
     "typescript": "^5.3.3",
     "vite": "^5.0.11",
     "vite-plugin-compression": "^0.5.1",
-    "vite-plugin-pwa": "^0.17.4"
+    "vite-plugin-pwa": "^0.17.4",
+    "webpack": "^5.98.0",
+    "webpack-cli": "^6.0.1"
   },
   "engines": {
     "node": "18"

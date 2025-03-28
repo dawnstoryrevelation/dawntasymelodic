@@ -183,6 +183,7 @@
               v-if="message.role === 'assistant' && message.isStreaming"
               class="message-content streaming-content"
             >
+            
               <span v-html="formatMessage(message.streamContent)"></span>
               <span class="cursor"></span>
             </div>
@@ -191,6 +192,100 @@
               v-if="message.role === 'assistant' && !message.isStreaming"
               class="message-actions"
             >
+            <div v-if="message.hasAttachment" class="message-attachment">
+    <div class="attachment-icon">
+      <svg v-if="message.attachment.type.startsWith('image/')" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+        <circle cx="8.5" cy="8.5" r="1.5" />
+        <polyline points="21 15 16 10 5 21" />
+      </svg>
+      <svg v-else xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+        <polyline points="14 2 14 8 20 8" />
+        <line x1="16" y1="13" x2="8" y2="13" />
+        <line x1="16" y1="17" x2="8" y2="17" />
+        <polyline points="10 9 9 9 8 9" />
+      </svg>
+    </div>
+    <div class="attachment-info">
+      <div class="attachment-name">{{ message.attachment.name }}</div>
+      <div class="attachment-size">{{ formatFileSize(message.attachment.size) }}</div>
+    </div>
+  </div>
+  
+  <!-- Image preview if available -->
+  <div v-if="message.attachment && message.attachment.previewUrl && message.attachment.type.startsWith('image/')" class="image-attachment-container">
+    <div class="image-attachment-preview">
+      <img :src="message.attachment.previewUrl" alt="Attached image" class="attachment-image" />
+      <div v-if="message.isProcessingFile" class="loading-overlay">
+        <div class="spinner">
+          <svg class="spinner-svg" viewBox="0 0 50 50">
+            <circle class="spinner-path" cx="25" cy="25" r="20" fill="none" stroke-width="4"></circle>
+          </svg>
+        </div>
+      </div>
+      <div v-if="message.isProcessingFile" class="processing-badge">Processing...</div>
+    </div>
+  </div>
+</div>
+<!-- ADD THIS AMAZING FILE DISPLAY to your message component -->
+<div v-if="message && message.hasAttachment" class="file-attachment-display">
+  <!-- IMAGE ATTACHMENTS - WITH PREVIEW! -->
+  <div v-if="message.attachment && message.attachment.type && message.attachment.type.startsWith('image/')" class="image-attachment">
+    <div class="image-preview-container">
+      <!-- Only show preview if we have the URL (it won't be in Firebase) -->
+      <img v-if="message.attachment.previewUrl" :src="message.attachment.previewUrl" alt="Attached image" class="preview-image" />
+      <!-- Show placeholder if no preview URL -->
+      <div v-else class="image-placeholder">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+          <circle cx="8.5" cy="8.5" r="1.5" />
+          <polyline points="21 15 16 10 5 21" />
+        </svg>
+        <span>{{ message.attachment.name }}</span>
+      </div>
+    </div>
+  </div>
+  
+  <!-- OTHER FILE TYPES - COOL FILE CARD! -->
+  <div v-else class="file-card">
+    <!-- File type icon based on extension -->
+    <div class="file-icon">
+      <svg v-if="getFileExtension(message.attachment.name) === 'pdf'" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#ff4757" stroke-width="2">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+        <polyline points="14 2 14 8 20 8" />
+        <path d="M9 15h6" />
+        <path d="M9 11h6" />
+      </svg>
+      <svg v-else-if="getFileExtension(message.attachment.name) === 'doc' || getFileExtension(message.attachment.name) === 'docx'" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#3742fa" stroke-width="2">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+        <polyline points="14 2 14 8 20 8" />
+        <path d="M9 15h6" />
+        <path d="M9 11h6" />
+      </svg>
+      <svg v-else-if="getFileExtension(message.attachment.name) === 'csv' || getFileExtension(message.attachment.name) === 'xls' || getFileExtension(message.attachment.name) === 'xlsx'" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#20bf6b" stroke-width="2">
+        <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+        <line x1="3" y1="9" x2="21" y2="9" />
+        <line x1="3" y1="15" x2="21" y2="15" />
+        <line x1="9" y1="3" x2="9" y2="21" />
+        <line x1="15" y1="3" x2="15" y2="21" />
+      </svg>
+      <svg v-else xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#5352ed" stroke-width="2">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+        <polyline points="14 2 14 8 20 8" />
+      </svg>
+    </div>
+    
+    <!-- File info -->
+    <div class="file-info">
+      <div class="file-name">{{ message.attachment.name }}</div>
+      <div class="file-meta">
+        <span class="file-type">{{ getFileExtension(message.attachment.name).toUpperCase() }}</span>
+        <span class="file-size">{{ formatFileSize(message.attachment.size) }}</span>
+      </div>
+    </div>
+  </div>
+</div>
               <button
                 v-if="message.hasReasoning"
                 class="action-button reasoning-button"
@@ -237,7 +332,9 @@
                 </button>
               </div>
             </div>
-            <div class="message-time">{{ formatTime(message.timestamp) }}</div>
+            <div class="message-time" v-if="message && message.timestamp">
+  {{ formatTime(message.timestamp) }}
+</div>
           </div>
 
           <!-- Replace the existing loading indicator with this enhanced version -->
@@ -312,6 +409,40 @@
           </div>
           <div class="toggle-spacer"></div>
           <div class="right-controls-container">
+            <!-- File Upload Button -->
+<button
+  class="mode-toggle-button file-upload-button"
+  @click="triggerFileUpload"
+  title="Upload File"
+>
+  <span class="toggle-icon">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+      <polyline points="17 8 12 3 7 8"></polyline>
+      <line x1="12" y1="3" x2="12" y2="15"></line>
+    </svg>
+  </span>
+  <span class="toggle-text">Upload</span>
+</button>
+
+<!-- Hidden File Input -->
+<input 
+  type="file" 
+  ref="fileInput" 
+  style="display: none;" 
+  @change="handleFileUpload" 
+/>
+
+<!-- File Display Area (shows up when file is selected) -->
+<div class="file-display" v-if="selectedFile">
+  <span class="file-name">Attached: {{ selectedFile.name }}</span>
+  <button class="remove-file-btn" @click="removeSelectedFile">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2">
+      <line x1="18" y1="6" x2="6" y2="18"></line>
+      <line x1="6" y1="6" x2="18" y2="18"></line>
+    </svg>
+  </button>
+</div>
             <div class="audio-recording-container">
               <button
                 class="audio-button microphone-button"
@@ -919,7 +1050,6 @@
         </div>
       </div>
     </div>
-  </div>
 </template>
 
 <script>
@@ -949,6 +1079,12 @@ const messages = ref([]);
 const savedChats = ref([]);
 const showMindMapModal = ref(false);
 const newMindMapTopic = ref("");
+// File handling
+const fileInput = ref(null);
+const selectedFile = ref(null);
+const fileContent = ref(null);
+const isProcessingFile = ref(false);
+const currentModel = ref("o3-mini"); // Default model
 const userId = ref(null);
 const branches = ref([]);
 // Journal State Variables
@@ -1011,78 +1147,148 @@ const showSelectChatModal = ref(false);
 const openBookLink = () => {
   window.open('https://www.amazon.com/Dawntasy-Circular-Dawn-breathtaking-fantasy-ebook/dp/B0DT74DLY5/', '_blank');
 };
+// ADD THIS FUNCTION to sanitize messages before saving to Firebase
+const prepareMessageForFirebase = (message) => {
+  // Create a clean copy without any circular references or binary data
+  const cleanMessage = { ...message };
+  
+  // If there's an attachment with preview URL (which could be a large base64 string)
+  if (cleanMessage.attachment && cleanMessage.attachment.previewUrl) {
+    // Remove the preview URL from what gets saved to Firebase
+    delete cleanMessage.attachment.previewUrl;
+  }
+  
+  return cleanMessage;
+};
+
+// THEN UPDATE your saveMessageToFirebase function:
+const saveMessageToFirebase = async (message) => {
+  if (!userId.value || !currentChatId.value) return null;
+  
+  if (userId.value === "demo-user") {
+    return "demo-message-id";
+  }
+  
+  try {
+    const messagesRef = collection(
+      db, 
+      `users/${userId.value}/chats/${currentChatId.value}/messages`
+    );
+    
+    // Use the sanitized version for Firebase
+    const firebaseMessage = prepareMessageForFirebase(message);
+    
+    const docRef = await addDoc(messagesRef, {
+      ...firebaseMessage,
+      timestamp: firebaseMessage.timestamp || Date.now()
+    });
+    
+    return docRef.id;
+  } catch (error) {
+    console.error("Error saving message to Firebase:", error);
+    return null;
+  }
+};
+const formatFileSize = (bytes) => {
+  if (bytes < 1024) return bytes + ' bytes';
+  else if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+  else return (bytes / 1048576).toFixed(1) + ' MB';
+};
+// File upload methods
+const triggerFileUpload = () => {
+  if (fileInput.value) {
+    fileInput.value.click();
+  }
+};
+
+const handleFileUpload = async (event) => {
+  const file = event.target.files[0];
+  if (!file) return;
+  
+  selectedFile.value = file;
+  
+  // Determine if we need to switch models based on file type
+  if (file.type.startsWith('image/')) {
+    currentModel.value = "gpt-4o"; // Switch to 4o for images
+    
+    // Create preview for images
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      fileContent.value = e.target.result; // This is the base64 data
+    };
+    reader.readAsDataURL(file);
+  } else {
+    currentModel.value = "o3-mini"; // Use default for non-images
+    
+    // Read text files
+    if (file.type === 'text/plain' || 
+        file.type === 'application/json' || 
+        file.type === 'text/csv' ||
+        file.type === 'text/html' ||
+        file.type === 'application/pdf') {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        fileContent.value = e.target.result;
+      };
+      reader.readAsText(file);
+    } else {
+      // For other file types, store the file object itself
+      fileContent.value = file;
+    }
+  }
+  
+  // Reset the input so the same file can be selected again
+  event.target.value = '';
+};
+
+const removeSelectedFile = () => {
+  selectedFile.value = null;
+  fileContent.value = null;
+  currentModel.value = "o3-mini"; // Reset to default model
+};
 // Enhanced journal logs loading function
 const loadJournalLogs = async () => {
   if (!userId.value) {
     console.log("Cannot load journal logs: No user ID available");
     return;
   }
-  
+
   try {
-    console.log(`Loading journal logs for user: ${userId.value}`);
     const logsRef = collection(db, `users/${userId.value}/journals`);
     const q = query(logsRef, orderBy("lastEdited", "desc"));
-    
-    // First, get the initial data
-    const snapshot = await getDocs(q);
-    
-    if (snapshot.empty) {
-      console.log("No journal logs found for user");
-      journalLogs.value = [];
-      filteredJournalLogs.value = [];
-      return;
-    }
-    
-    // Process and store the logs
-    const logs = snapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    }));
-    
-    console.log(`Loaded ${logs.length} journal logs`, logs);
-    
-    // Update the reactive variables
-    journalLogs.value = logs;
-    
-    // Apply any existing filters
-    if (journalSearch.value) {
-      filteredJournalLogs.value = logs.filter(log => 
-        log.title.toLowerCase().includes(journalSearch.value.toLowerCase()));
-    } else {
-      filteredJournalLogs.value = [...logs];
-    }
-    
-    // Setup real-time listener for changes
+
+    // Unsubscribe from previous listener if it exists
     if (journalLogUnsubscribe.value) {
-      journalLogUnsubscribe.value(); // Clean up previous listener
+      journalLogUnsubscribe.value();
     }
-    
-    // Create a new listener
-    journalLogUnsubscribe.value = onSnapshot(q, (updatedSnapshot) => {
-      const updatedLogs = updatedSnapshot.docs.map(doc => ({
+
+    // Real-time listener
+    journalLogUnsubscribe.value = onSnapshot(q, (snapshot) => {
+      const logs = snapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
       }));
       
-      // Force Vue to recognize the change by creating new arrays
-      journalLogs.value = [...updatedLogs];
-      
-      // Reapply filters
-      if (journalSearch.value) {
-        filteredJournalLogs.value = updatedLogs.filter(log => 
-          log.title.toLowerCase().includes(journalSearch.value.toLowerCase()));
-      } else {
-        filteredJournalLogs.value = [...updatedLogs];
+      journalLogs.value = logs;
+      filteredJournalLogs.value = journalSearch.value
+        ? logs.filter(log => log.title.toLowerCase().includes(journalSearch.value.toLowerCase()))
+        : logs;
+
+      // If a log is currently selected, update it
+      if (currentLogId.value) {
+        const updatedLog = logs.find(log => log.id === currentLogId.value);
+        currentLog.value = updatedLog || null;
       }
-      
-      console.log("Journal logs updated via listener", journalLogs.value.length);
     });
-    
   } catch (error) {
     console.error("Error loading journal logs:", error);
-    showToastNotification("Failed to load journal logs", "error");
   }
 };
+
+// Ensure this runs when userId changes
+watch(userId, () => {
+  loadJournalLogs();
+});
 
 // Enhanced function to open a journal log with error handling
 const openJournalLog = async (logId) => {
@@ -1224,6 +1430,10 @@ onMounted(() => {
     window.removeEventListener('resize', checkIfMobile);
   });
 });
+// Add these helper functions
+const getFileExtension = (filename) => {
+  return filename.split('.').pop().toLowerCase();
+};
 
 // Function to check if device is mobile
 const checkIfMobile = () => {
@@ -1947,38 +2157,38 @@ const deployBranchToChat = async (chatId) => {
 const sendMessage = async (text) => {
   const messageText = text || userInput.value.trim();
   
-  if (!messageText) return;
-  
+  if (!messageText && !selectedFile.value) return;
   if (!currentChatId.value) {
     showNewChatPopup.value = true;
     return;
   }
   
-  // 🔄 FIXED: Changed MemoryService to memoryService (lowercase)
-  const relevantMemories = await memoryService.retrieveRelevantMemories(messageText);
-  console.log('Retrieved relevant memories:', relevantMemories);
-
-  // Generate memory references if any relevant memories found
-  const memoryReference = memoryService.generateMemoryReference(relevantMemories, messageText);
-
-  // If we have a memory reference, prepend it to the prompt
-  let enhancedPrompt = messageText;
-  if (memoryReference) {
-    enhancedPrompt = `${memoryReference}. With that context in mind, respond to: ${messageText}`;
-    console.log('Enhanced prompt with memory:', enhancedPrompt);
-  }
-  
+  // Create base user message
   const userMessage = {
     role: "user",
     content: messageText,
     timestamp: Date.now()
   };
   
+  // Attach file if present
+  if (selectedFile.value) {
+    userMessage.hasAttachment = true;
+    userMessage.attachment = {
+      name: selectedFile.value.name,
+      type: selectedFile.value.type,
+      size: selectedFile.value.size
+    };
+    
+    // For images, add the preview URL
+    if (selectedFile.value.type.startsWith('image/')) {
+      userMessage.attachment.previewUrl = fileContent.value;
+    }
+  }
+  
+  // Add message to UI
   messages.value.push(userMessage);
   
-  // Process message for memory extraction
-  await memoryService.processMessage(messageText, true);
-  
+  // Save to Firebase
   if (userId.value !== "demo-user") {
     try {
       await saveMessageToFirebase(userMessage);
@@ -1987,6 +2197,7 @@ const sendMessage = async (text) => {
     }
   }
   
+  // Clear input
   userInput.value = "";
   if (inputField.value) {
     inputField.value.style.height = "auto";
@@ -1995,9 +2206,11 @@ const sendMessage = async (text) => {
   await nextTick();
   scrollToBottom();
   
-  if (imageEnabled.value) {
+  // For image mode, we don't need to toggle - just use the model we've already selected
+  if (imageEnabled.value && !selectedFile.value) {
     imageEnabled.value = false;
     await generateImage(messageText);
+    removeSelectedFile(); // Clean up file selection
     return;
   }
   
@@ -2007,6 +2220,7 @@ const sendMessage = async (text) => {
   const streamingMessageIndex = messages.value.length;
   
   try {
+    // Create initial AI message
     messages.value.push({
       role: "assistant",
       content: "",
@@ -2014,7 +2228,8 @@ const sendMessage = async (text) => {
       timestamp: Date.now(),
       reasoning: "",
       hasReasoning: reasoningEnabled.value && !logicEnabled.value,
-      isStreaming: true
+      isStreaming: true,
+      isProcessingFile: selectedFile.value ? true : false
     });
     
     isStreaming.value = true;
@@ -2022,6 +2237,7 @@ const sendMessage = async (text) => {
     if (userId.value === "demo-user") {
       await mockStreamingResponse(streamingMessageIndex, messageText);
     } else {
+      // Get conversation history
       const conversationHistory = messages.value
         .slice(0, -1)
         .map(msg => ({
@@ -2029,15 +2245,102 @@ const sendMessage = async (text) => {
           content: msg.content
         }));
       
-      // 🔥 IMPORTANT: Use the enhanced prompt with memory here
-      const systemPrompt = getDawntasySystemPrompt();
+      // Prepare the message content based on whether there's a file
+      let messageContent = messageText;
       
-      try {
+      // For files, format the API request differently
+      if (selectedFile.value) {
+        isProcessingFile.value = true;
+        
+        // Handle different file types
+        if (selectedFile.value.type.startsWith('image/')) {
+          // For images, we'll create a request with the image content
+          const apiRequest = {
+            model: "gpt-4o", // Use vision model
+            messages: [
+              { 
+                role: "system", 
+                content: getDawntasySystemPrompt() 
+              },
+              ...conversationHistory,
+              {
+                role: "user", 
+                content: [
+                  // Text portion
+                  {
+                    type: "text",
+                    text: messageText || "What's in this image?"
+                  },
+                  // Image portion
+                  {
+                    type: "image_url",
+                    image_url: {
+                      url: fileContent.value // base64 data from FileReader
+                    }
+                  }
+                ]
+              }
+            ]
+          };
+          
+          // Make the API call for vision
+          const response = await fetch("https://api.openai.com/v1/chat/completions", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${apiKey}`
+            },
+            body: JSON.stringify(apiRequest)
+          });
+          
+          if (!response.ok) {
+            throw new Error(`Vision API error: ${response.status}`);
+          }
+          
+          const data = await response.json();
+          const aiMessage = messages.value[streamingMessageIndex];
+          
+          // Update message with the response
+          aiMessage.content = data.choices[0].message.content;
+          aiMessage.isStreaming = false;
+          aiMessage.isProcessingFile = false;
+          
+          await saveMessageToFirebase(aiMessage);
+        } else {
+          // For text files, we can include the content directly
+          const filePrompt = `The user has uploaded a file named "${selectedFile.value.name}" with the following content:\n\n${fileContent.value}\n\nUser message: ${messageText}`;
+          
+          const stream = await createStream(
+            conversationHistory,
+            getDawntasySystemPrompt(),
+            10000,
+            filePrompt
+          );
+          
+          await processStream(
+            stream,
+            streamingMessageIndex,
+            reasoningEnabled.value
+          );
+          
+          // Update the message
+          const aiMessage = messages.value[streamingMessageIndex];
+          aiMessage.isProcessingFile = false;
+          
+          await saveMessageToFirebase(aiMessage);
+        }
+        
+        // Reset file state
+        removeSelectedFile();
+      } else {
+        // Regular message without file - use your existing code
+        const systemPrompt = getDawntasySystemPrompt();
+        
         const stream = await createStream(
           conversationHistory,
           systemPrompt,
           10000,
-          enhancedPrompt // Pass the enhanced prompt instead of using it directly in conversation history
+          messageText
         );
         
         const responseText = await processStream(
@@ -2051,15 +2354,9 @@ const sendMessage = async (text) => {
         await saveMessageToFirebase(aiMessage);
         
         logInteraction(messageText, aiMessage);
-
-        // 🔄 FIXED: Changed MemoryService to memoryService (lowercase)
         await memoryService.processMessage(aiMessage.content, false);
         
         await processSelfOptimization(messageText, aiMessage);
-      } catch (apiError) {
-        console.error("API error:", apiError);
-        
-        await mockStreamingResponse(streamingMessageIndex, messageText, true);
       }
     }
   } catch (error) {
@@ -2069,6 +2366,7 @@ const sendMessage = async (text) => {
       messages.value[streamingMessageIndex].content =
         "⚠️ I encountered an error while processing your request. Please try again later.";
       messages.value[streamingMessageIndex].isStreaming = false;
+      messages.value[streamingMessageIndex].isProcessingFile = false;
       
       try {
         await saveMessageToFirebase(messages.value[streamingMessageIndex]);
@@ -2078,10 +2376,12 @@ const sendMessage = async (text) => {
     }
   } finally {
     isLoading.value = false;
+    isProcessingFile.value = false;
     isStreaming.value = false;
     
     if (messages.value[streamingMessageIndex]) {
       messages.value[streamingMessageIndex].isStreaming = false;
+      messages.value[streamingMessageIndex].isProcessingFile = false;
     }
     
     scrollToBottom();
@@ -3017,7 +3317,8 @@ const proactiveAISystem = {
     // Save state for persistence
     this.saveState();
   },
-  
+  // Add these helper functions
+
   // Generate personalized suggestion content
   generateSuggestionContent(action) {
     // Style configuration
@@ -8972,47 +9273,6 @@ const extractReasoning = (text) => {
     finalResponse: text
   };
 };
-    const saveMessageToFirebase = async (message) => {
-      if (!userId.value || !currentChatId.value) return null;
-      
-      if (userId.value === "demo-user") {
-        return "demo-message-id";
-      }
-      
-      try {
-        const messagesRef = collection(
-          db, 
-          `users/${userId.value}/chats/${currentChatId.value}/messages`
-        );
-        
-        const docRef = await addDoc(messagesRef, {
-          ...message,
-          timestamp: message.timestamp || Date.now()
-        });
-        
-        return docRef.id;
-      } catch (error) {
-        console.error("Error saving message to Firebase:", error);
-        
-        if (error.code === "permission-denied") {
-          const permissionErrorMessage = {
-            role: "assistant",
-            content: "# Firebase Permissions Error\n\nI couldn't save this message to Firebase because of insufficient permissions. To fix this:\n\n1. Go to your Firebase Console → Firestore Database → Rules\n2. Update your rules to allow authenticated users to read/write:\n```\nrules_version = '2';\nservice cloud.firestore {\n  match /databases/{database}/documents {\n    match /{document=**} {\n      allow read, write: if request.auth != null;\n    }\n  }\n}\n```\n3. Reload the application",
-            timestamp: Date.now(),
-            hasReasoning: false,
-            isStreaming: false
-          };
-          
-          if (messages.value.length > 0 && messages.value[messages.value.length-1].role === "assistant") {
-            messages.value[messages.value.length-1] = permissionErrorMessage;
-          } else {
-            messages.value.push(permissionErrorMessage);
-          }
-        }
-        
-        return null;
-      }
-    };
 
     watch(messages, () => {
       nextTick(() => {
@@ -9389,6 +9649,15 @@ suggestFetchOperation,
   aiToolInput,
   aiToolTitle,
   aiToolDescription,
+  fileInput,
+  selectedFile,
+  fileContent,
+  isProcessingFile,
+  currentModel,
+  triggerFileUpload,
+  handleFileUpload,
+  removeSelectedFile,
+  formatFileSize,
   aiToolPlaceholder,
   showRenameLogModal,
   logToRename,
@@ -9441,6 +9710,9 @@ getMaxTopicFrequency,
   mindMapInput,
   branches, // Add this line
   closeMindMapModal,
+  getFileExtension,
+  formatFileSize,
+  prepareMessageForFirebase,
   createMindMap,
   toggleMindMapsExpanded,
   deployMindMap,
@@ -13076,7 +13348,124 @@ input:checked ~ .toggle-label {
   margin-bottom: 12px;
   line-height: 1.6;
 }
+/* File Upload Button & Display Styles */
+.file-upload-button {
+  background: linear-gradient(to right, #6366f1, #3b82f6);
+  transition: all 0.2s ease;
+}
 
+.file-upload-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}
+
+.file-display {
+  display: flex;
+  align-items: center;
+  margin-left: 10px;
+  padding: 5px 10px;
+  background: rgba(99, 102, 241, 0.1);
+  border-radius: 4px;
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  max-width: 200px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.file-name {
+  font-size: 0.85rem;
+  color: #6366f1;
+  margin-right: 5px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.remove-file-btn {
+  background: none;
+  border: none;
+  color: #6366f1;
+  cursor: pointer;
+  padding: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+.remove-file-btn:hover {
+  background: rgba(99, 102, 241, 0.1);
+}
+
+/* File attachment in messages */
+.message-attachment {
+  margin-top: 10px;
+  padding: 10px;
+  border-radius: 8px;
+  background: rgba(99, 102, 241, 0.05);
+  border: 1px solid rgba(99, 102, 241, 0.1);
+  display: flex;
+  align-items: center;
+}
+
+.attachment-icon {
+  margin-right: 10px;
+  color: #6366f1;
+}
+
+.attachment-image {
+  max-width: 100%;
+  max-height: 300px;
+  border-radius: 8px;
+  margin-top: 5px;
+}
+
+.image-attachment-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.image-attachment-preview {
+  position: relative;
+  margin-top: 5px;
+}
+
+.image-attachment-preview img {
+  max-width: 100%;
+  max-height: 300px;
+  border-radius: 8px;
+}
+
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+}
+
+.processing-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: #3b82f6;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% { opacity: 0.6; }
+  50% { opacity: 1; }
+  100% { opacity: 0.6; }
+}
 .select-log-list {
   max-height: 300px;
   overflow-y: auto;
@@ -13608,6 +13997,103 @@ input:checked ~ .toggle-label {
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
   }
+}
+/* UPGRADED File Attachment Styles */
+.file-attachment-display {
+  margin-top: 8px;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s;
+}
+
+.file-attachment-display:hover {
+  transform: translateY(-2px);
+}
+
+/* Image styles */
+.image-attachment {
+  width: 100%;
+}
+
+.image-preview-container {
+  position: relative;
+  max-height: 300px;
+  overflow: hidden;
+  background: rgba(99, 102, 241, 0.05);
+  border-radius: 8px;
+  display: flex;
+  justify-content: center;
+}
+
+.preview-image {
+  max-width: 100%;
+  max-height: 300px;
+  border-radius: 8px;
+  object-fit: contain;
+}
+
+.image-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  color: #6366f1;
+  background: rgba(99, 102, 241, 0.05);
+  border-radius: 8px;
+  min-height: 100px;
+}
+
+/* File card styles */
+.file-card {
+  display: flex;
+  align-items: center;
+  padding: 12px;
+  background: rgba(99, 102, 241, 0.05);
+  border: 1px solid rgba(99, 102, 241, 0.1);
+  border-radius: 8px;
+}
+
+.file-icon {
+  margin-right: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.file-info {
+  flex: 1;
+  overflow: hidden;
+}
+
+.file-name {
+  font-weight: 600;
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.file-meta {
+  display: flex;
+  gap: 8px;
+  font-size: 0.75rem;
+  color: rgba(107, 114, 128);
+}
+
+.file-type {
+  background: rgba(99, 102, 241, 0.1);
+  color: #6366f1;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: bold;
 }
 </style>
 
