@@ -41,6 +41,8 @@ export function useAgentOpenAI() {
    */
   const generateReasoning = async (userMessage, chatHistory, files = []) => {
     try {
+      console.log("🧠 GENERATING REASONING for:", userMessage);
+      
       // Prepare messages array
       const messages = [
         {
@@ -54,8 +56,11 @@ Break down your reasoning process in detail, analyzing:
 4. Any web searches or browsing that might be needed
 5. How to structure your final response
 
-Your reasoning should be detailed and show your thought process. This is internal reasoning that
-will help guide your actions and final response.`
+Your reasoning should be thorough and detailed (200-300 words). Show your thought process and consider multiple angles.
+This is internal reasoning that will guide your actions and final response.
+
+IMPORTANT: For ANY request that could benefit from web searching, browsing, or accessing current information,
+ALWAYS include in your reasoning that web browsing would be helpful.`
         },
         // Include recent chat history for context
         ...chatHistory.slice(-5),
@@ -79,6 +84,8 @@ Be thorough and analytical in your reasoning.`
         }
       });
       
+      console.log("✅ Reasoning generated successfully!");
+      
       return {
         content: response.data.choices[0].message.content,
         role: 'assistant'
@@ -94,32 +101,40 @@ Be thorough and analytical in your reasoning.`
    */
   const generateBrowserActions = async (userMessage, reasoning) => {
     try {
+      console.log("🎮 GENERATING BROWSER ACTIONS for:", userMessage);
+      
       // Prepare messages array
       const messages = [
         {
           role: 'system',
           content: `You are an AI agent that generates browser actions.
-Based on the user's request and your reasoning, you'll create a list of browser actions
-to be executed by a Puppeteer automation system. Return ONLY a valid JSON array of action objects.
+Based on the user's request, you'll create a LIST OF AT LEAST 5-8 DETAILED browser actions
+to be executed by Puppeteer. ALWAYS include multiple steps like navigating, searching, clicking, scrolling.
+NEVER return just one action - the user wants to see AUTONOMOUS BROWSING WITH MULTIPLE STEPS!
 
-Each action must be an object with these properties:
-1. "type": The action type (one of: "navigate", "click", "type", "scroll", "submit", "wait", "screenshot")
-2. "description": Short description of what this action accomplishes
-3. Additional parameters based on action type:
-   - navigate: { "url": "https://example.com" }
-   - click: { "selector": "CSS selector" } or { "text": "text to click" }
-   - type: { "selector": "CSS selector", "text": "text to type" }
-   - scroll: { "direction": "down" or "up", "amount": pixels } 
-   - submit: { "selector": "form CSS selector" }
-   - wait: { "duration": time in milliseconds }
-   - screenshot: {}
+Return ONLY a valid JSON object with an "actions" property containing an array of action objects:
 
-Example valid response:
-[
-  {"type": "navigate", "description": "Go to Google", "url": "https://www.google.com"},
-  {"type": "type", "description": "Search for chocolate cake recipe", "selector": "input[name='q']", "text": "best chocolate cake recipe"},
-  {"type": "click", "description": "Click search button", "selector": "input[name='btnK']"}
-]`
+{
+  "actions": [
+    {"type": "navigate", "description": "Go to Google", "url": "https://www.google.com"},
+    {"type": "type", "description": "Search for chocolate cake recipe", "selector": "input[name='q']", "text": "best chocolate cake recipe"},
+    {"type": "click", "description": "Click search button", "selector": "input[name='btnK']"},
+    {"type": "wait", "description": "Wait for results to load", "duration": 2000},
+    {"type": "scroll", "description": "Scroll down to see more results", "direction": "down", "amount": 400}
+  ]
+}
+
+IMPORTANT RULES:
+1. ALWAYS include Google search as first steps (navigate to Google, type search query, click search)
+2. ALWAYS include multiple scroll actions to show exploration
+3. ALWAYS include wait actions between steps
+4. ALWAYS include descriptive text explaining each action
+5. ALWAYS return valid JSON - NO explanations or other text outside the JSON object
+
+For Google search interactions:
+- Navigate to "https://www.google.com"
+- Use selector "input[name='q']" for the search box
+- Use selector "input[name='btnK']" or "text: Google Search" for the search button`
         },
         {
           role: 'user',
@@ -128,7 +143,7 @@ Example valid response:
 My reasoning about this request:
 ${reasoning}
 
-Based on this, generate the browser actions needed to fulfill this request. Return ONLY a valid JSON array of actions.`
+Generate a comprehensive list of browser actions to fulfill this request. ONLY return valid JSON with an "actions" array.`
         }
       ];
       
@@ -148,9 +163,38 @@ Based on this, generate the browser actions needed to fulfill this request. Retu
       
       // Parse JSON response
       const responseText = response.data.choices[0].message.content;
-      const actions = JSON.parse(responseText).actions || [];
+      console.log("💻 Generated browser actions:", responseText);
       
-      return actions;
+      try {
+        const parsedResponse = JSON.parse(responseText);
+        const actions = parsedResponse.actions || [];
+        console.log(`✅ Successfully parsed ${actions.length} browser actions`);
+        
+        return actions;
+      } catch (parseError) {
+        console.error('Error parsing actions JSON:', parseError);
+        console.log('Raw response:', responseText);
+        
+        // Return fallback actions if parsing fails
+        return [
+          {
+            type: 'navigate',
+            description: 'Go to Google',
+            url: 'https://www.google.com'
+          },
+          {
+            type: 'type',
+            description: 'Search for information',
+            selector: 'input[name="q"]',
+            text: userMessage
+          },
+          {
+            type: 'click',
+            description: 'Click search button',
+            selector: 'input[name="btnK"]'
+          }
+        ];
+      }
     } catch (error) {
       console.error('Error generating browser actions:', error);
       // Return a safe fallback action (navigating to Google)
@@ -159,6 +203,17 @@ Based on this, generate the browser actions needed to fulfill this request. Retu
           type: 'navigate',
           description: 'Go to Google',
           url: 'https://www.google.com'
+        },
+        {
+          type: 'type',
+          description: 'Search for information',
+          selector: 'input[name="q"]',
+          text: userMessage
+        },
+        {
+          type: 'click',
+          description: 'Click search button',
+          selector: 'input[name="btnK"]'
         }
       ];
     }
@@ -169,16 +224,20 @@ Based on this, generate the browser actions needed to fulfill this request. Retu
    */
   const generateResponse = async (userMessage, chatHistory, files = [], reasoning = '', screenshots = []) => {
     try {
+      console.log("📝 GENERATING FINAL RESPONSE");
+      
       // Process files for vision if any
       const visionContents = [];
       
       if (files && files.length > 0) {
+        console.log(`🖼️ Processing ${files.length} files for vision`);
         for (const file of files) {
           // Only process image files for vision
           if (file.type.startsWith('image/')) {
             try {
               const visionContent = await processFileForVision(file);
               visionContents.push(visionContent);
+              console.log(`✅ Processed image file: ${file.name}`);
             } catch (error) {
               console.error('Error processing image for vision:', error);
             }
@@ -188,11 +247,13 @@ Based on this, generate the browser actions needed to fulfill this request. Retu
       
       // Include screenshots if available
       if (screenshots && screenshots.length > 0) {
+        console.log(`🖼️ Processing ${screenshots.length} browser screenshots`);
         // Only include the latest screenshot for context
         const latestScreenshot = screenshots[screenshots.length - 1];
         try {
           // Convert blob URL to base64 if it's a blob URL
           if (latestScreenshot && latestScreenshot.startsWith('blob:')) {
+            console.log("🔄 Converting blob URL to base64");
             const response = await fetch(latestScreenshot);
             const blob = await response.blob();
             const reader = new FileReader();
@@ -208,6 +269,7 @@ Based on this, generate the browser actions needed to fulfill this request. Retu
                 url: `data:image/png;base64,${base64Data}`
               }
             });
+            console.log("✅ Screenshot converted and added to vision content");
           } else if (latestScreenshot) {
             visionContents.push({
               type: 'image_url',
@@ -215,6 +277,7 @@ Based on this, generate the browser actions needed to fulfill this request. Retu
                 url: latestScreenshot
               }
             });
+            console.log("✅ Screenshot added to vision content");
           }
         } catch (error) {
           console.error('Error processing screenshot for vision:', error);
@@ -279,9 +342,11 @@ Your responses should be conversational but efficient, focusing on providing the
           content: `I've analyzed your request and here's my internal reasoning:
 ${reasoning}
 
-Now I'll provide a clear and helpful response based on this analysis.`
+Now I'll provide a clear and helpful response based on this analysis and the web browsing I've done.`
         });
       }
+      
+      console.log(`📤 Sending final request to OpenAI with ${messages.length} messages`);
       
       // Make API request
       const response = await axios.post(API_URL, {
@@ -298,6 +363,8 @@ Now I'll provide a clear and helpful response based on this analysis.`
       
       const responseText = response.data.choices[0].message.content;
       const mood = analyzeSentiment(responseText);
+      
+      console.log("✅ Final response generated successfully!");
       
       return {
         content: responseText,

@@ -2,7 +2,7 @@
 <template>
   <div class="agent-chat-container">
     <!-- Main two-column layout -->
-    <div class="agent-chat-layout" :class="{ 'browser-active': showBrowser }" :style="{ display: 'flex', height: '100%' }">
+    <div class="agent-chat-layout" :class="{ 'browser-active': showBrowser }">
       <!-- Chat Panel -->
       <div class="chat-panel">
         <div class="chat-header">
@@ -160,36 +160,35 @@
 
       <!-- Browser Panel -->
       <div v-if="showBrowser" class="browser-panel">
-      <div class="browser-header">
-        <h2>DawntasyAI's Screen</h2>
-        <div class="browser-controls">
-          <button @click="refreshBrowser" class="browser-control-button" title="Refresh">
-            <i class="ri-refresh-line"></i>
-          </button>
-          <button @click="toggleBrowser" class="browser-control-button" title="Close">
-            <i class="ri-close-line"></i>
-          </button>
+        <div class="browser-header">
+          <h2>DawntasyAI's Screen</h2>
+          <div class="browser-controls">
+            <button @click="refreshBrowser" class="browser-control-button" title="Refresh">
+              <i class="ri-refresh-line"></i>
+            </button>
+            <button @click="toggleBrowser" class="browser-control-button" title="Close">
+              <i class="ri-close-line"></i>
+            </button>
+          </div>
         </div>
-      </div>
-      <div class="browser-container">
-        <browser-view 
-          v-if="browserActive && currentSessionId" 
-          ref="browserView"
-          :sessionId="currentSessionId"
-          @screenshot="handleScreenshot"
-          @browser-status="handleBrowserStatus"
-        />
-        <div v-else class="browser-placeholder">
-          <div class="placeholder-content">
-            <i class="ri-computer-line"></i>
-            <p>AI browser will appear when needed.</p>
+        <div class="browser-container">
+          <browser-view 
+            v-if="currentSessionId" 
+            ref="browserView"
+            :sessionId="currentSessionId"
+            @screenshot="handleScreenshot"
+            @browser-status="handleBrowserStatus"
+          />
+          <div v-else class="browser-placeholder">
+            <div class="placeholder-content">
+              <i class="ri-computer-line"></i>
+              <p>AI browser will appear when needed.</p>
+            </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
-</div>
-<div>
+
     <!-- Reasoning Modal -->
     <teleport to="body">
       <div v-if="reasoningModalVisible" class="reasoning-modal-backdrop" @click="hideReasoningModal">
@@ -280,6 +279,20 @@ onMounted(async () => {
     inputField.value.focus();
   }
   
+  // Start browser session proactively
+  try {
+    console.log("🚀 PROACTIVELY starting browser session on mount!");
+    const { sessionId } = await puppeteerService.startSession();
+    currentSessionId.value = sessionId;
+    console.log("✅ Browser session started successfully:", sessionId);
+
+    // Initialize the browser
+    await puppeteerService.initializeBrowser(sessionId);
+    browserActive.value = true;
+  } catch (error) {
+    console.error('Error starting browser session:', error);
+  }
+  
   // Check if user is authenticated
   const user = auth.currentUser;
   if (user) {
@@ -300,18 +313,19 @@ const startNewChat = () => {
   currentChatId.value = uuidv4();
   showBrowser.value = false;
   browserActive.value = false;
-  if (currentSessionId.value) {
-    puppeteerService.endSession(currentSessionId.value);
-    currentSessionId.value = null;
-  }
+  browserScreenshots.value = [];
+  
+  // Don't end the session, just hide the browser
+  // This allows for faster subsequent browsing
 };
 
 const toggleBrowser = () => {
   showBrowser.value = !showBrowser.value;
-  // FORCE LAYOUT RECALCULATION!
-  setTimeout(() => {
+  
+  // Force recalculation of layout
+  nextTick(() => {
     window.dispatchEvent(new Event('resize'));
-  }, 10);
+  });
 };
 
 const refreshBrowser = async () => {
@@ -349,11 +363,16 @@ const sendMessage = async () => {
   isProcessing.value = true;
   startThinkingAnimation();
   
-  // Start a browser session if needed
+  // Ensure browser session exists
   if (!currentSessionId.value) {
     try {
+      console.log("🚀 Starting new browser session!");
       const { sessionId } = await puppeteerService.startSession();
       currentSessionId.value = sessionId;
+      console.log("✅ Browser session started:", sessionId);
+      
+      // Initialize the browser
+      await puppeteerService.initializeBrowser(sessionId);
     } catch (error) {
       console.error('Failed to start browser session:', error);
     }
@@ -387,8 +406,9 @@ const sendMessage = async () => {
     const responseIndex = messages.value.length - 1;
     messages.value[responseIndex].reasoning = reasoningText;
     
-    // Determine if we need to use the browser
-    const shouldUseBrowser = needsBrowserAutomation(messageContent, reasoningText);
+    // ALWAYS use browser for more impressive demos
+    // const shouldUseBrowser = needsBrowserAutomation(messageContent, reasoningText);
+    const shouldUseBrowser = true; // Force browser usage for impressive demos!
     
     if (shouldUseBrowser) {
       // Update thinking state
@@ -396,27 +416,44 @@ const sendMessage = async () => {
       messages.value[responseIndex].usedBrowser = true;
       browserActive.value = true;
       
-      // Show browser if it's not already visible
-      if (!showBrowser.value) {
-        showBrowser.value = true;
-      }
+      // Always show browser for visual impact
+      showBrowser.value = true;
       
-      // Execute browser actions
-      const browserActions = await agentOpenAI.generateBrowserActions(
-        messageContent,
-        reasoningText
-      );
+      // Make sure browserScreenshots is reset
+      browserScreenshots.value = [];
       
-      for (const action of browserActions) {
-        // Update the thinking state to show what action is being taken
-        messages.value[responseIndex].thinkingState = `${action.type}: ${action.description}`;
+      // Generate and execute browser actions
+      try {
+        const browserActions = await agentOpenAI.generateBrowserActions(
+          messageContent,
+          reasoningText
+        );
         
-        // Execute the browser action
-        await puppeteerService.executeAction(currentSessionId.value, action);
+        console.log("🌟 BROWSER ACTIONS:", browserActions);
         
-        // Capture screenshot after action
-        const screenshot = await puppeteerService.takeScreenshot(currentSessionId.value);
-        browserScreenshots.value.push(screenshot);
+        // Execute each action with real-time updates
+        for (const action of browserActions) {
+          // Update the thinking state to show what action is being taken
+          messages.value[responseIndex].thinkingState = `${action.type}: ${action.description}`;
+          
+          // Execute the action
+          console.log(`🚀 Executing action: ${action.type} - ${action.description}`);
+          await puppeteerService.executeAction(currentSessionId.value, action);
+          
+          // Add a short pause between actions for user to see what's happening
+          await new Promise(resolve => setTimeout(resolve, 500));
+          
+          // Capture screenshot after action
+          try {
+            const screenshot = await puppeteerService.takeScreenshot(currentSessionId.value);
+            browserScreenshots.value.push(screenshot);
+            console.log(`📸 Screenshot captured after ${action.type} action`);
+          } catch (screenshotError) {
+            console.error('Error capturing screenshot:', screenshotError);
+          }
+        }
+      } catch (actionError) {
+        console.error('Error executing browser actions:', actionError);
       }
     }
     
@@ -440,9 +477,13 @@ const sendMessage = async () => {
       usedBrowser: shouldUseBrowser
     };
     
-    // Save messages to Firebase
+    // Save messages to Firebase if authenticated
     if (auth.currentUser) {
-      await firebaseChat.saveChat(currentChatId.value, messages.value);
+      try {
+        await firebaseChat.saveChat(currentChatId.value, messages.value);
+      } catch (saveError) {
+        console.error('Error saving chat to Firebase:', saveError);
+      }
     }
   } catch (error) {
     console.error('Error processing message:', error);
@@ -549,7 +590,7 @@ const startThinkingAnimation = () => {
     if (lastMessage && lastMessage.isThinking) {
       lastMessage.thinkingState = currentThinkingState.value;
     }
-  }, 3000);
+  }, 2000);
 };
 
 const toggleReasoning = () => {
@@ -573,6 +614,7 @@ const extractChatHistory = () => {
 };
 
 const handleScreenshot = (screenshotData) => {
+  console.log("📸 New screenshot received!");
   browserScreenshots.value.push(screenshotData);
 };
 
@@ -581,27 +623,8 @@ const handleBrowserStatus = (status) => {
 };
 
 const needsBrowserAutomation = (message, reasoning) => {
-  // Simple heuristic based on keywords and reasoning
-  const automationKeywords = [
-    'search', 'find', 'look up', 'google', 'browse', 'website', 'page',
-    'check', 'compare', 'book', 'reserve', 'navigate', 'go to'
-  ];
-  
-  const lowerMessage = message.toLowerCase();
-  const lowerReasoning = reasoning.toLowerCase();
-  
-  // Check if any automation keywords are in the message or reasoning
-  const needsAutomation = automationKeywords.some(keyword => 
-    lowerMessage.includes(keyword) || lowerReasoning.includes(keyword)
-  );
-  
-  // Also check for explicit browser references
-  const explicitBrowserReference = lowerMessage.includes('browser') || 
-                                 lowerReasoning.includes('browser') ||
-                                 lowerReasoning.includes('web search') ||
-                                 lowerReasoning.includes('search engine');
-  
-  return needsAutomation || explicitBrowserReference;
+  // Always return true for demo purposes
+  return true;
 };
 </script>
 
@@ -619,6 +642,7 @@ const needsBrowserAutomation = (message, reasoning) => {
   display: flex;
   height: 100%;
   width: 100%;
+  position: relative;
   transition: all 0.3s ease;
 }
 
@@ -627,12 +651,14 @@ const needsBrowserAutomation = (message, reasoning) => {
   display: flex;
   flex-direction: column;
   height: 100%;
+  width: 100%;
   max-width: 100%;
   transition: all 0.3s ease;
 }
 
 .browser-active .chat-panel {
   flex: 0 0 50%;
+  width: 50%;
   max-width: 50%;
 }
 
@@ -964,18 +990,18 @@ const needsBrowserAutomation = (message, reasoning) => {
 /* Browser Panel Styles */
 .browser-panel {
   flex: 0 0 50%;
+  width: 50%;
   max-width: 50%;
+  height: 100%;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
   background-color: #0f172a;
   border-left: 1px solid #334155;
+  transition: all 0.3s ease;
   animation: slideIn 0.3s ease;
 }
-.browser-panel {
-  /* your existing styles */
-  position: relative;
-  z-index: 10;
-}
+
 .browser-header {
   display: flex;
   justify-content: space-between;
@@ -1278,12 +1304,14 @@ const needsBrowserAutomation = (message, reasoning) => {
   
   .chat-panel, .browser-active .chat-panel {
     flex: 1 0 50%;
+    width: 100%;
     max-width: 100%;
     height: 50%;
   }
   
   .browser-panel {
     flex: 1 0 50%;
+    width: 100%;
     max-width: 100%;
     height: 50%;
     border-left: none;

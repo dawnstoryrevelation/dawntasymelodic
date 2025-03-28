@@ -93,7 +93,7 @@ const statusMessage = ref('Browser ready');
 // Services
 const puppeteerService = usePuppeteerService();
 
-// Polling interval
+// Polling interval for screenshot updates
 let screenshotInterval = null;
 
 // Methods
@@ -102,14 +102,16 @@ const startScreenshotPolling = () => {
     clearInterval(screenshotInterval);
   }
   
-  // Poll every 2 seconds
+  // Poll every 500ms for REAL-TIME updates!
   screenshotInterval = setInterval(async () => {
     if (props.sessionId && isActive.value) {
       try {
+        console.log("📸 Polling for fresh screenshot...");
         const screenshot = await puppeteerService.takeScreenshot(props.sessionId);
         if (screenshot) {
           currentScreenshot.value = screenshot;
           emit('screenshot', screenshot);
+          console.log("🎯 New screenshot captured!");
         }
         
         // Get current URL
@@ -122,7 +124,7 @@ const startScreenshotPolling = () => {
         console.error('Error polling browser status:', error);
       }
     }
-  }, 2000);
+  }, 500); // Super-fast updates for real-time experience!
 };
 
 const stopScreenshotPolling = () => {
@@ -169,10 +171,13 @@ const retryConnection = async () => {
   
   try {
     if (props.sessionId) {
+      console.log("🔄 Attempting to reconnect to browser session:", props.sessionId);
+      
       // Try to ping the session
       const status = await puppeteerService.getStatus(props.sessionId);
       
       if (status && status.active) {
+        console.log("✅ Session is active! Reconnecting...");
         isActive.value = true;
         currentUrl.value = status.url || 'about:blank';
         statusMessage.value = status.status || 'Browser reconnected';
@@ -187,6 +192,7 @@ const retryConnection = async () => {
         emit('browser-status', { active: true });
         startScreenshotPolling();
       } else {
+        console.log("❌ Session inactive. Restarting...");
         // Try to create a new session
         await puppeteerService.restartSession(props.sessionId);
         isActive.value = true;
@@ -220,10 +226,13 @@ const initializeBrowser = async () => {
       throw new Error('No session ID provided');
     }
     
+    console.log("🚀 Initializing browser with session ID:", props.sessionId);
+    
     // Check if the session exists
     const status = await puppeteerService.getStatus(props.sessionId);
     
     if (status && status.active) {
+      console.log("✅ Existing session found and active!");
       isActive.value = true;
       currentUrl.value = status.url || 'about:blank';
       statusMessage.value = status.status || 'Browser active';
@@ -238,6 +247,7 @@ const initializeBrowser = async () => {
       emit('browser-status', { active: true });
       startScreenshotPolling();
     } else {
+      console.log("🆕 No active session, initializing new one...");
       // Initialize the browser
       await puppeteerService.initializeBrowser(props.sessionId);
       isActive.value = true;
@@ -259,6 +269,7 @@ const initializeBrowser = async () => {
 
 // Watch for session ID changes
 watch(() => props.sessionId, (newSessionId, oldSessionId) => {
+  console.log("🔄 Session ID changed:", oldSessionId, "->", newSessionId);
   if (newSessionId && newSessionId !== oldSessionId) {
     initializeBrowser();
   } else if (!newSessionId) {
@@ -270,12 +281,14 @@ watch(() => props.sessionId, (newSessionId, oldSessionId) => {
 
 // Lifecycle hooks
 onMounted(() => {
+  console.log("🔌 BrowserView component mounted with sessionId:", props.sessionId);
   if (props.sessionId) {
     initializeBrowser();
   }
 });
 
 onUnmounted(() => {
+  console.log("🚫 BrowserView component unmounting, stopping polling");
   stopScreenshotPolling();
 });
 
@@ -456,6 +469,7 @@ defineExpose({
   width: 100%;
   height: 100%;
   object-fit: contain;
+  animation: fadeIn 0.2s ease;
 }
 
 .no-content {
@@ -503,10 +517,22 @@ defineExpose({
 
 .status-indicator.active .status-dot {
   background-color: #10b981;
+  animation: pulse 2s infinite;
 }
 
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); opacity: 0.7; }
+  50% { transform: scale(1.2); opacity: 1; }
+  100% { transform: scale(1); opacity: 0.7; }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 </style>
