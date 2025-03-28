@@ -162,7 +162,7 @@
 
 <script>
 import { ref, computed, watch, onMounted } from 'vue';
-import enhancedMemoryService from '../services/EnhancedMemoryService';
+import enhancedMemoryService from '../services/enhancedMemoryService';
 import { format } from 'date-fns';
 
 export default {
