@@ -5,8 +5,7 @@
         <!-- Chat Header -->
         <div class="chat-header">
           <div class="logo">
-            <img src="@/assets/dawntasy-logo.png" alt="DawntasyAI Logo" />
-            <h1>Dawntasy Q2 SentR</h1>
+            <h1>Dawntasy Q2 PGC</h1>
           </div>
           <div class="header-controls">
             <button class="reasoning-toggle" @click="toggleReasoningVisibility">
@@ -183,7 +182,7 @@
   <script>
   import { ref, computed, watch, nextTick, onMounted } from 'vue';
   import { collection, addDoc, onSnapshot, query, orderBy, serverTimestamp } from 'firebase/firestore';
-  import { db } from '@/firebase';
+  import { db } from '@/firebase/init';
   import axios from 'axios';
   
   export default {
