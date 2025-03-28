@@ -230,6 +230,7 @@ const auth = getAuth();
 // State variables
 const currentChatId = ref(null);
 const messages = ref([]);
+const shouldUseBrowser = true; 
 const inputMessage = ref('');
 const uploadedFiles = ref([]);
 const isProcessing = ref(false);
@@ -377,7 +378,7 @@ const sendMessage = async () => {
       console.error('Failed to start browser session:', error);
     }
   }
-  
+
   try {
     // Initialize response placeholder with thinking state
     const responsePlaceholder = {
@@ -407,9 +408,6 @@ const sendMessage = async () => {
     messages.value[responseIndex].reasoning = reasoningText;
     
     // ALWAYS use browser for more impressive demos
-    // const shouldUseBrowser = needsBrowserAutomation(messageContent, reasoningText);
-    const shouldUseBrowser = true; // Force browser usage for impressive demos!
-    
     if (shouldUseBrowser) {
       // Update thinking state
       messages.value[responseIndex].thinkingState = 'Browsing the web';
@@ -422,7 +420,7 @@ const sendMessage = async () => {
       // Make sure browserScreenshots is reset
       browserScreenshots.value = [];
       
-      // Generate and execute browser actions
+      // Generate and execute browser actions with MAXIMUM RESILIENCE!
       try {
         const browserActions = await agentOpenAI.generateBrowserActions(
           messageContent,
@@ -431,29 +429,37 @@ const sendMessage = async () => {
         
         console.log("🌟 BROWSER ACTIONS:", browserActions);
         
-        // Execute each action with real-time updates
+        // FAIL-PROOF ACTION EXECUTION LOOP!
         for (const action of browserActions) {
           // Update the thinking state to show what action is being taken
           messages.value[responseIndex].thinkingState = `${action.type}: ${action.description}`;
           
-          // Execute the action
-          console.log(`🚀 Executing action: ${action.type} - ${action.description}`);
-          await puppeteerService.executeAction(currentSessionId.value, action);
-          
-          // Add a short pause between actions for user to see what's happening
-          await new Promise(resolve => setTimeout(resolve, 500));
-          
-          // Capture screenshot after action
+          // SUPER-RESILIENT execution with try-catch for EACH action!
           try {
-            const screenshot = await puppeteerService.takeScreenshot(currentSessionId.value);
-            browserScreenshots.value.push(screenshot);
-            console.log(`📸 Screenshot captured after ${action.type} action`);
-          } catch (screenshotError) {
-            console.error('Error capturing screenshot:', screenshotError);
+            console.log(`🚀 Executing action: ${action.type} - ${action.description}`);
+            await puppeteerService.executeAction(currentSessionId.value, action);
+            
+            // SHORTER pause for MORE RESPONSIVE ACTION SEQUENCE!
+            await new Promise(resolve => setTimeout(resolve, 300));
+            
+            // Capture screenshot after action with ERROR HANDLING!
+            try {
+              const screenshot = await puppeteerService.takeScreenshot(currentSessionId.value);
+              browserScreenshots.value.push(screenshot);
+              console.log(`📸 Screenshot captured after ${action.type} action`);
+            } catch (screenshotError) {
+              console.error('Error capturing screenshot, BUT CONTINUING:', screenshotError);
+              // KEEP GOING ANYWAY - We prioritize actions over screenshots!
+            }
+          } catch (actionError) {
+            console.warn(`⚠️ Action ${action.type} failed but CONTINUING NEXT ACTION:`, actionError);
+            // DON'T STOP - Just go to the next action! THIS IS THE KEY FIX!
+            continue;
           }
         }
-      } catch (actionError) {
-        console.error('Error executing browser actions:', actionError);
+      } catch (actionSequenceError) {
+        console.error('🚨 Error in action sequence, but CONTINUING WITH RESPONSE!', actionSequenceError);
+        // Even if actions completely fail, we still generate a response!
       }
     }
     
