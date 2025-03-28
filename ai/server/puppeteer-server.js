@@ -1,10 +1,15 @@
 // server/puppeteer-server.js
-const express = require('express');
-const cors = require('cors');
-const puppeteer = require('puppeteer');
-const { v4: uuidv4 } = require('uuid');
-const fs = require('fs');
-const path = require('path');
+import express from 'express';
+import cors from 'cors';
+import puppeteer from 'puppeteer';
+import { v4 as uuidv4 } from 'uuid';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+// Get current file directory (ES Module version)
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Create Express app
 const app = express();
@@ -529,7 +534,7 @@ setInterval(cleanupInactiveSessions, 15 * 60 * 1000);
 
 // Start the server
 app.listen(port, () => {
-  console.log(`Puppeteer server listening on port ${port}`);
+  console.log(`🚀 Puppeteer server ROCKETING on port ${port}!`);
 });
 
 // Handle graceful shutdown
