@@ -13,6 +13,7 @@
         font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net;
         img-src 'self' data: blob: https://oaidalleapiprodscus.blob.core.windows.net https://via.placeholder.com;
         connect-src 'self' https://api.openai.com https://*.firebaseio.com https://*.googleapis.com https://platform.openai.com;">
+        <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' https://your-firebase-url.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com http://localhost:3000 ws://localhost:3000; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data:;">
 
     <!-- SEO & OPEN GRAPH -->
     <meta name="description" content="Dawntasy AI merges fantasy, music, and cutting-edge AI from the Dawntasy universe." />

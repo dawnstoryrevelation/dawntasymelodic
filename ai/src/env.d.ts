@@ -9,6 +9,7 @@ interface ImportMetaEnv {
     readonly VITE_FIREBASE_APP_ID: string;
     readonly measurementId: string;
     readonly VITE_OPENAI_API_KEY: string;
+    readonly VITE_PUPPETEER_API_URL: string;
 }
 
 interface ImportMeta {

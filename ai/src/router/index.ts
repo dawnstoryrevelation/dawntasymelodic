@@ -142,7 +142,7 @@ const routes: Array<RouteRecordRaw & { meta: EnhancedRouteMetadata }> = [
     name: 'AgentChatView',
     component: () => import('@/views/AgentChatView.vue'),
     meta: { 
-      requiresAuth: false,  // Changed to require auth but with special handling
+      requiresAuth: true,  // Changed to require auth but with special handling
       transition: 'fade',
       title: 'PGC Agent Chat - DawntasyAI' 
     }

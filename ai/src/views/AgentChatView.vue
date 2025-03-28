@@ -1,1218 +1,1284 @@
+<!-- src/views/AgentChatView.vue -->
 <template>
-    <div class="agent-chat-container">
-      <!-- Split Layout: Chat on left, Agent Screen on right when active -->
-      <div class="chat-section" :class="{ 'minimized': isAgentActive }">
-        <!-- Chat Header -->
+  <div class="agent-chat-container">
+    <!-- Main two-column layout -->
+    <div class="agent-chat-layout" :class="{ 'browser-active': showBrowser }">
+      <!-- Chat Panel -->
+      <div class="chat-panel">
         <div class="chat-header">
-          <div class="logo">
-            <h1>Dawntasy Q2 PGC</h1>
-          </div>
-          <div class="header-controls">
-            <button class="reasoning-toggle" @click="toggleReasoningVisibility">
-              {{ reasoningEnabled ? 'Hide Reasoning' : 'Show Reasoning' }}
+          <h1 class="chat-title">DawntasyAI Agent</h1>
+          <div class="chat-controls">
+            <button @click="startNewChat" class="control-button">
+              <i class="ri-add-line"></i> New Chat
+            </button>
+            <button v-if="showBrowser" @click="toggleBrowser" class="control-button">
+              <i class="ri-computer-line"></i> Hide Browser
+            </button>
+            <button v-else @click="toggleBrowser" class="control-button">
+              <i class="ri-computer-line"></i> Show Browser
             </button>
           </div>
         </div>
-  
-        <!-- Messages Container -->
-        <div class="messages-container" ref="messagesContainer">
-          <div v-for="(message, index) in messages" :key="index" 
-               :class="['message', message.role === 'user' ? 'user-message' : 'ai-message']">
-            
-            <!-- User Message -->
-            <div v-if="message.role === 'user'" class="message-content">
-              <div class="message-text">{{ message.content }}</div>
-              <div v-if="message.attachments && message.attachments.length > 0" class="attachments">
-                <div v-for="(file, fileIndex) in message.attachments" :key="fileIndex" class="attachment">
-                  <div class="file-preview">
-                    <img v-if="isImageFile(file.name)" :src="file.url" alt="Image preview" class="image-preview" />
-                    <div v-else class="file-icon">
-                      <i class="fas fa-file"></i>
-                    </div>
-                  </div>
-                  <div class="file-name">{{ file.name }}</div>
-                </div>
-              </div>
-            </div>
-  
-            <!-- AI Message -->
-            <div v-else class="message-content">
-              <!-- Thinking States -->
-              <div v-if="message.thinking && message.thinking.length > 0" class="thinking-states">
-                <div v-for="(state, stateIndex) in message.thinking" :key="stateIndex" class="thinking-state">
-                  <div class="thinking-indicator">
-                    <div class="dot"></div>
-                    <div class="dot"></div>
-                    <div class="dot"></div>
-                  </div>
-                  <div class="thinking-text">{{ state }}</div>
-                </div>
-              </div>
-              
-              <!-- AI Response -->
-              <div class="message-text" v-html="formatMessage(message.content)"></div>
-              
-              <!-- Reasoning Toggle Button -->
-              <div v-if="message.reasoning" class="reasoning-toggle-container">
-                <button @click="showReasoningModal(message.reasoning)" class="reasoning-button">
-                  View Thinking Process
+
+        <!-- Chat Messages Area -->
+        <div ref="messagesContainer" class="messages-container">
+          <div v-if="messages.length === 0" class="empty-chat">
+            <div class="empty-chat-content">
+              <h2>Welcome to DawntasyAI Agent</h2>
+              <p>Ask me to search the web, analyze images, or help with complex tasks.</p>
+              <div class="suggestion-chips">
+                <button @click="insertSuggestion('Search for the latest AI research papers')" class="suggestion-chip">
+                  Search for AI research
+                </button>
+                <button @click="insertSuggestion('Find me a chocolate cake recipe')" class="suggestion-chip">
+                  Find a cake recipe
+                </button>
+                <button @click="insertSuggestion('What movies are playing near me?')" class="suggestion-chip">
+                  Find movies nearby
                 </button>
               </div>
             </div>
           </div>
-  
-          <!-- Typing Indicator -->
-          <div v-if="isTyping" class="message ai-message thinking">
-            <div class="thinking-indicator">
-              <div class="dot"></div>
-              <div class="dot"></div>
-              <div class="dot"></div>
+
+          <div v-for="(message, index) in messages" :key="index" class="message-wrapper"
+            :class="{ 'user-message': message.role === 'user', 'ai-message': message.role === 'assistant' }">
+            
+            <!-- User Message -->
+            <div v-if="message.role === 'user'" class="message user-message">
+              <div class="message-content">
+                <p>{{ message.content }}</p>
+                <div v-if="message.files && message.files.length > 0" class="file-attachments">
+                  <div v-for="(file, fileIndex) in message.files" :key="fileIndex" class="file-attachment">
+                    <div class="file-preview" v-if="isImageFile(file)">
+                      <img :src="file.dataUrl" alt="Uploaded image" />
+                    </div>
+                    <div class="file-info">
+                      <span class="file-name">{{ file.name }}</span>
+                      <span class="file-size">{{ formatFileSize(file.size) }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div class="thinking-text">{{ currentThinkingState }}</div>
+
+            <!-- AI Message -->
+            <div v-else-if="message.role === 'assistant'" class="message ai-message">
+              <div class="ai-avatar">
+                <div class="ai-icon" :class="message.mood || 'neutral'">
+                  <i class="ri-robot-line"></i>
+                </div>
+              </div>
+              <div class="message-content">
+                <!-- Thinking/Processing States -->
+                <div v-if="message.isThinking" class="thinking-indicator">
+                  <span class="thinking-text">{{ message.thinkingState }}</span>
+                  <span class="thinking-dots"><span>.</span><span>.</span><span>.</span></span>
+                </div>
+
+                <!-- Regular Message Content -->
+                <div v-else>
+                  <div class="markdown-content" v-html="formatMessage(message.content)"></div>
+                </div>
+
+                <!-- Reasoning Toggle Button -->
+                <div v-if="message.reasoning" class="reasoning-toggle">
+                  <button @click="showReasoningModal(message)" class="reasoning-button">
+                    <i class="ri-brain-line"></i> View Thinking Process
+                  </button>
+                </div>
+
+                <!-- Browser Toggle (only for actions that used browser) -->
+                <div v-if="message.usedBrowser" class="browser-toggle">
+                  <button @click="toggleBrowser" class="browser-button">
+                    <i class="ri-computer-line"></i> {{ showBrowser ? 'Hide' : 'Show' }} Browser
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Current Thinking Message (if AI is currently processing) -->
+          <div v-if="isProcessing" class="message-wrapper ai-message">
+            <div class="ai-avatar">
+              <div class="ai-icon thinking">
+                <i class="ri-brain-line"></i>
+              </div>
+            </div>
+            <div class="message-content">
+              <div class="thinking-indicator">
+                <span class="thinking-text">{{ currentThinkingState }}</span>
+                <span class="thinking-dots"><span>.</span><span>.</span><span>.</span></span>
+              </div>
+            </div>
           </div>
         </div>
-  
+
         <!-- Input Area -->
         <div class="input-container">
-          <div class="toolbar">
-            <button class="toolbar-button" @click="toggleAgentMode">
-              <i class="fas fa-robot"></i>
-              <span>{{ isAgentMode ? 'Agent: ON' : 'Agent: OFF' }}</span>
-            </button>
-            
-            <!-- File Upload Button -->
-            <div class="file-upload">
-              <button class="toolbar-button" @click="triggerFileUpload">
-                <i class="fas fa-plus"></i>
+          <div class="file-preview-bar" v-if="uploadedFiles.length > 0">
+            <div v-for="(file, index) in uploadedFiles" :key="index" class="file-preview-item">
+              <span class="file-name">Attached: {{ file.name }}</span>
+              <button @click="removeFile(index)" class="remove-file-button">
+                <i class="ri-close-line"></i>
               </button>
-              <input
-                type="file"
-                ref="fileInput"
-                multiple
-                @change="handleFileUpload"
-                style="display: none"
-              />
             </div>
-            
-            <!-- Attached Files Display -->
-            <div v-if="attachedFiles.length > 0" class="attached-files">
-              <div v-for="(file, index) in attachedFiles" :key="index" class="attached-file">
-                <span>Attached: {{ file.name }}</span>
-                <button @click="removeFile(index)" class="remove-file">×</button>
-              </div>
-            </div>
-            
-            <!-- Microphone Button -->
-            <button class="toolbar-button" @click="toggleMicrophone">
-              <i class="fas" :class="isListening ? 'fa-microphone-alt' : 'fa-microphone'"></i>
-            </button>
           </div>
-          
           <div class="input-area">
             <textarea
-              v-model="userInput"
-              placeholder="Message DawntasyAI..."
+              ref="inputField"
+              v-model="inputMessage"
               @keydown.enter.prevent="sendMessage"
+              placeholder="Message DawntasyAI Agent..."
               rows="1"
-              ref="messageInput"
+              class="message-input"
             ></textarea>
-            <button @click="sendMessage" :disabled="isTyping || (!userInput.trim() && attachedFiles.length === 0)" class="send-button">
-              <i class="fas fa-paper-plane"></i>
+            <div class="input-buttons">
+              <label class="upload-button">
+                <i class="ri-add-line"></i>
+                <input 
+                  type="file" 
+                  @change="handleFileUpload" 
+                  multiple 
+                  accept="image/*, .pdf, .doc, .docx, .txt, .csv, .xls, .xlsx"
+                  hidden
+                />
+              </label>
+              <button 
+                class="reasoning-toggle-button" 
+                :class="{ 'active': showReasoning }"
+                @click="toggleReasoning"
+              >
+                <i class="ri-brain-line"></i>
+              </button>
+              <button class="send-button" @click="sendMessage" :disabled="isProcessing || !canSendMessage">
+                <i class="ri-send-plane-fill"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Browser Panel -->
+      <div v-show="showBrowser" class="browser-panel">
+        <div class="browser-header">
+          <h2>DawntasyAI's Screen</h2>
+          <div class="browser-controls">
+            <button @click="refreshBrowser" class="browser-control-button" title="Refresh">
+              <i class="ri-refresh-line"></i>
+            </button>
+            <button @click="toggleBrowser" class="browser-control-button" title="Close">
+              <i class="ri-close-line"></i>
             </button>
           </div>
         </div>
-      </div>
-  
-      <!-- Agent Screen Section (Right Side) -->
-      <div v-if="isAgentActive" class="agent-screen-section">
-        <div class="agent-screen-header">
-          <h2>DawntasyAI's Screen</h2>
-          <button @click="closeAgentScreen" class="close-button">×</button>
-        </div>
-        <div class="agent-screen-content">
-          <div v-if="loadingAgentScreen" class="loading-screen">
-            <div class="loading-spinner"></div>
-            <p>Initializing autonomous browsing...</p>
-          </div>
-          <div v-else-if="agentScreenError" class="error-screen">
-            <i class="fas fa-exclamation-triangle"></i>
-            <p>{{ agentScreenError }}</p>
-          </div>
-          <div v-else class="browser-view">
-            <div class="browser-header">
-              <div class="browser-controls">
-                <span class="browser-control red"></span>
-                <span class="browser-control yellow"></span>
-                <span class="browser-control green"></span>
-              </div>
-              <div class="browser-address-bar">
-                <i class="fas fa-lock"></i>
-                <span>{{ currentBrowserUrl }}</span>
-              </div>
-            </div>
-            <div class="browser-content">
-              <img v-if="browserScreenshot" :src="browserScreenshot" alt="Browser Screenshot" class="browser-screenshot" />
-              <div v-else class="browser-placeholder">
-                <p>Agent is preparing to browse...</p>
-              </div>
-            </div>
-            <div class="browser-status-bar">
-              <div class="browser-status">
-                <i class="fas fa-circle" :class="isAgentBrowsing ? 'browsing' : 'idle'"></i>
-                <span>{{ browserStatusText }}</span>
-              </div>
+        <div class="browser-container">
+          <div v-if="!browserActive" class="browser-placeholder">
+            <div class="placeholder-content">
+              <i class="ri-computer-line"></i>
+              <p>AI browser will appear here when needed.</p>
             </div>
           </div>
-        </div>
-      </div>
-  
-      <!-- Reasoning Modal -->
-      <div v-if="showReasoning" class="modal reasoning-modal">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h2>AI Reasoning Process</h2>
-            <button @click="closeReasoningModal" class="close-button">×</button>
-          </div>
-          <div class="modal-body" v-html="currentReasoningText"></div>
+          <browser-view 
+            v-else 
+            ref="browserView"
+            :sessionId="currentSessionId"
+            @screenshot="handleScreenshot"
+            @browser-status="handleBrowserStatus"
+          />
         </div>
       </div>
     </div>
-  </template>
+
+    <!-- Reasoning Modal -->
+    <teleport to="body">
+      <div v-if="reasoningModalVisible" class="reasoning-modal-backdrop" @click="hideReasoningModal">
+        <div class="reasoning-modal" @click.stop>
+          <div class="reasoning-modal-header">
+            <h2>DawntasyAI's Thinking Process</h2>
+            <button @click="hideReasoningModal" class="close-modal-button">
+              <i class="ri-close-line"></i>
+            </button>
+          </div>
+          <div class="reasoning-modal-content">
+            <div class="reasoning-text" v-html="formatMessage(selectedReasoning)"></div>
+          </div>
+        </div>
+      </div>
+    </teleport>
+  </div>
+</template>
+
+<script setup>
+import { ref, computed, onMounted, watch, nextTick } from 'vue';
+import { v4 as uuidv4 } from 'uuid';
+import { marked } from 'marked';
+import DOMPurify from 'dompurify';
+import hljs from 'highlight.js';
+import 'highlight.js/styles/github-dark.css';
+import BrowserView from '@/components/agent/BrowserView.vue';
+import { useAgentOpenAI } from '@/services/agentOpenAI';
+import { usePuppeteerService } from '@/services/puppeteerService';
+import { useFirebaseChat } from '@/services/agentFirebase';
+import { getAuth } from 'firebase/auth';
+
+// Initialize services
+const agentOpenAI = useAgentOpenAI();
+const puppeteerService = usePuppeteerService();
+const firebaseChat = useFirebaseChat();
+const auth = getAuth();
+
+// State variables
+const currentChatId = ref(null);
+const messages = ref([]);
+const inputMessage = ref('');
+const uploadedFiles = ref([]);
+const isProcessing = ref(false);
+const currentThinkingState = ref('Thinking');
+const thinkingStates = [
+  'Thinking',
+  'Analyzing your request',
+  'Processing information',
+  'Searching the web',
+  'Examining data',
+  'Gathering resources',
+  'Comparing options',
+  'Synthesizing information',
+  'Evaluating solutions',
+  'Planning next steps',
+  'Formulating response'
+];
+
+// Browser state
+const showBrowser = ref(false);
+const browserActive = ref(false);
+const currentSessionId = ref(null);
+const browserScreenshots = ref([]);
+
+// Reasoning state
+const showReasoning = ref(true);
+const reasoningModalVisible = ref(false);
+const selectedReasoning = ref('');
+
+// DOM references
+const messagesContainer = ref(null);
+const inputField = ref(null);
+const browserView = ref(null);
+
+// Computed properties
+const canSendMessage = computed(() => {
+  return inputMessage.value.trim() !== '' || uploadedFiles.value.length > 0;
+});
+
+// Initialize chat
+onMounted(async () => {
+  // Generate a new chat ID if not loaded from existing chat
+  currentChatId.value = uuidv4();
   
-  <script>
-  import { ref, computed, watch, nextTick, onMounted } from 'vue';
-  import { collection, addDoc, onSnapshot, query, orderBy, serverTimestamp } from 'firebase/firestore';
-  import { db } from '@/firebase/init';
-  import axios from 'axios';
+  // Auto focus the input field
+  if (inputField.value) {
+    inputField.value.focus();
+  }
   
-  export default {
-    name: 'AgentChatView',
-    
-    setup() {
-      // State
-      const userInput = ref('');
-      const messages = ref([]);
-      const isTyping = ref(false);
-      const isAgentMode = ref(true);
-      const reasoningEnabled = ref(true);
-      const attachedFiles = ref([]);
-      const isListening = ref(false);
-      const fileInput = ref(null);
-      const messagesContainer = ref(null);
-      const messageInput = ref(null);
-      
-      // Agent screen state
-      const isAgentActive = ref(false);
-      const loadingAgentScreen = ref(false);
-      const agentScreenError = ref('');
-      const browserScreenshot = ref('');
-      const currentBrowserUrl = ref('https://www.google.com');
-      const isAgentBrowsing = ref(false);
-      const browserStatusText = ref('Agent ready');
-      
-      // Reasoning modal state
-      const showReasoning = ref(false);
-      const currentReasoningText = ref('');
-      const currentThinkingState = ref('Thinking...');
-      
-      // Thinking states pool
-      const thinkingStates = [
-        "Thinking...",
-        "Analyzing request...",
-        "Processing information...",
-        "Searching knowledge base...",
-        "Exploring options...",
-        "Connecting concepts...",
-        "Evaluating context...",
-        "Crafting response...",
-        "Reviewing facts...",
-        "Considering implications...",
-        "Organizing thoughts...",
-        "Examining patterns...",
-        "Synthesizing ideas...",
-        "Reviewing previous context...",
-        "Formulating hypothesis..."
-      ];
-      
-      // Firestore collection reference
-      const messagesCollectionRef = collection(db, 'agentMessages');
-      
-      // Methods
-      const formatMessage = (text) => {
-        if (!text) return '';
-        // Replace URLs with clickable links
-        const urlRegex = /(https?:\/\/[^\s]+)/g;
-        return text.replace(urlRegex, '<a href="$1" target="_blank">$1</a>');
-      };
-      
-      const scrollToBottom = async () => {
-        await nextTick();
-        if (messagesContainer.value) {
-          messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight;
-        }
-      };
-      
-      const sendMessage = async () => {
-        if ((!userInput.value.trim() && attachedFiles.value.length === 0) || isTyping.value) return;
-        
-        const userMessage = {
-          role: 'user',
-          content: userInput.value.trim(),
-          timestamp: serverTimestamp(),
-          attachments: [...attachedFiles.value]
-        };
-        
-        messages.value.push(userMessage);
-        userInput.value = '';
-        scrollToBottom();
-        
-        // Save message to Firestore
-        try {
-          await addDoc(messagesCollectionRef, userMessage);
-        } catch (error) {
-          console.error('Error saving message:', error);
-        }
-        
-        // Clear attached files
-        attachedFiles.value = [];
-        
-        // Generate AI response
-        generateResponse(userMessage);
-      };
-      
-      const generateResponse = async (userMessage) => {
-        isTyping.value = true;
-        
-        // Show thinking states
-        const thinkingInterval = setInterval(() => {
-          currentThinkingState.value = thinkingStates[Math.floor(Math.random() * thinkingStates.length)];
-        }, 2000);
-        
-        // Generate thinking steps
-        const thinking = [];
-        for (let i = 0; i < 4; i++) {
-          const randomState = thinkingStates[Math.floor(Math.random() * thinkingStates.length)];
-          thinking.push(randomState);
-          await new Promise(resolve => setTimeout(resolve, 1000));
-        }
-        
-        // Initiate agent browsing if in agent mode
-        if (isAgentMode.value && userMessage.content.includes('search') || 
-            userMessage.content.includes('browse') || 
-            userMessage.content.includes('find')) {
-          activateAgentScreen();
-        }
-        
-        // Generate reasoning
-        let reasoning = '';
-        if (reasoningEnabled.value) {
-          reasoning = generateReasoningText(userMessage.content);
-        }
-        
-        // Mock API call to OpenAI with delay
-        setTimeout(async () => {
-          clearInterval(thinkingInterval);
-          isTyping.value = false;
-          
-          // Add AI response
-          const aiMessage = {
-            role: 'assistant',
-            content: await mockOpenAIResponse(userMessage),
-            timestamp: serverTimestamp(),
-            thinking: thinking,
-            reasoning: reasoning
-          };
-          
-          messages.value.push(aiMessage);
-          scrollToBottom();
-          
-          // Save AI response to Firestore
-          try {
-            await addDoc(messagesCollectionRef, aiMessage);
-          } catch (error) {
-            console.error('Error saving AI response:', error);
-          }
-          
-          // If agent mode is active, update browser simulation
-          if (isAgentActive.value) {
-            simulateBrowserNavigation();
-          }
-        }, 3000);
-      };
-      
-      const mockOpenAIResponse = async (userMessage) => {
-        // In a real implementation, this would call the OpenAI API
-        // For now, we'll return a mock response
-        
-        let response = "I've analyzed your request and found some relevant information.";
-        
-        // Check for file attachments
-        if (userMessage.attachments && userMessage.attachments.length > 0) {
-          const hasImages = userMessage.attachments.some(file => isImageFile(file.name));
-          
-          if (hasImages) {
-            response += " I've analyzed the image(s) you provided using Vision OCR.";
-            response += " The image appears to contain [example text that would be detected by OCR].";
-          } else {
-            response += " I've analyzed the file(s) you uploaded.";
-            response += " The content includes [example analysis of the file content].";
-          }
-        }
-        
-        // Add web browsing context if agent mode
-        if (isAgentMode.value && (userMessage.content.includes('search') || 
-                                  userMessage.content.includes('browse') || 
-                                  userMessage.content.includes('find'))) {
-          response += " Based on my web search, I found several relevant results that address your query.";
-          response += " I've navigated through several pages to find the most accurate information.";
-          response += " You can see the process in the browser view.";
-        }
-        
-        return response;
-      };
-      
-      const generateReasoningText = (userPrompt) => {
-        // Generate mock reasoning text (would be from the AI in real implementation)
-        let reasoning = "Hmm. So the user just asked ";
-        
-        if (userPrompt.includes('search') || userPrompt.includes('find')) {
-          reasoning += "to perform several web searches. Let's investigate this. First, let's break this down. ";
-          reasoning += "What do we need? Aha! We need to first undergo a comprehensive Google search for relevant information. ";
-          reasoning += "The query seems to be about '" + userPrompt.split(' ').slice(0, 3).join(' ') + "...' which suggests ";
-          reasoning += "I should focus on authoritative sources. Let me plan my approach: ";
-          reasoning += "1. Analyze the key terms in the query to identify search parameters ";
-          reasoning += "2. Formulate specific search strings to maximize relevance ";
-          reasoning += "3. Evaluate search results for credibility and relevance ";
-          reasoning += "4. Extract and synthesize information from multiple sources ";
-          reasoning += "5. Structure the findings in a coherent, helpful response ";
-          reasoning += "Let me proceed with this structured approach to ensure I provide accurate information.";
-        } else if (userPrompt.includes('file') || userPrompt.includes('image')) {
-          reasoning += "to analyze a file or image. I'll need to carefully examine the contents. ";
-          reasoning += "For images, I'll use my vision capabilities to identify visual elements, text through OCR, ";
-          reasoning += "and contextual information. For documents, I'll parse the text, understand the structure, ";
-          reasoning += "and extract key information. Let me methodically work through this to ensure I catch all important details.";
-        } else {
-          reasoning += "a question that requires careful consideration. Let me think step by step through this. ";
-          reasoning += "The essence of this query appears to be about '" + userPrompt.split(' ').slice(0, 3).join(' ') + "...' ";
-          reasoning += "I need to consider multiple angles here. What's the underlying need? ";
-          reasoning += "What context might be missing that I should account for? ";
-          reasoning += "What level of detail would be most helpful in my response? ";
-          reasoning += "Let me construct a response that addresses the core question while providing valuable context.";
-        }
-        
-        return reasoning;
-      };
-      
-      const triggerFileUpload = () => {
-        fileInput.value.click();
-      };
-      
-      const handleFileUpload = (event) => {
-        const files = event.target.files;
-        if (!files.length) return;
-        
-        Array.from(files).forEach(file => {
-          const reader = new FileReader();
-          reader.onload = (e) => {
-            attachedFiles.value.push({
-              name: file.name,
-              type: file.type,
-              size: file.size,
-              url: e.target.result
-            });
-          };
-          reader.readAsDataURL(file);
-        });
-        
-        // Reset file input for future uploads
-        event.target.value = '';
-      };
-      
-      const removeFile = (index) => {
-        attachedFiles.value.splice(index, 1);
-      };
-      
-      const isImageFile = (filename) => {
-        const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp'];
-        return imageExtensions.some(ext => filename.toLowerCase().endsWith(ext));
-      };
-      
-      const toggleMicrophone = () => {
-        isListening.value = !isListening.value;
-        // Microphone functionality would be implemented here
-      };
-      
-      const toggleAgentMode = () => {
-        isAgentMode.value = !isAgentMode.value;
-        if (!isAgentMode.value && isAgentActive.value) {
-          closeAgentScreen();
-        }
-      };
-      
-      const toggleReasoningVisibility = () => {
-        reasoningEnabled.value = !reasoningEnabled.value;
-      };
-      
-      const showReasoningModal = (reasoningText) => {
-        currentReasoningText.value = reasoningText;
-        showReasoning.value = true;
-      };
-      
-      const closeReasoningModal = () => {
-        showReasoning.value = false;
-      };
-      
-      // Agent screen methods
-      const activateAgentScreen = () => {
-        isAgentActive.value = true;
-        loadingAgentScreen.value = true;
-        agentScreenError.value = '';
-        browserScreenshot.value = '';
-        
-        // Simulate loading delay
-        setTimeout(() => {
-          loadingAgentScreen.value = false;
-          simulateBrowserInit();
-        }, 2000);
-      };
-      
-      const closeAgentScreen = () => {
-        isAgentActive.value = false;
-        browserScreenshot.value = '';
-        currentBrowserUrl.value = 'https://www.google.com';
-      };
-      
-      const simulateBrowserInit = () => {
-        // In a real implementation, this would initialize Puppeteer
-        // For now, we'll use a placeholder image
-        browserScreenshot.value = 'https://via.placeholder.com/800x600?text=Google+Search+Page';
-        currentBrowserUrl.value = 'https://www.google.com';
-        browserStatusText.value = 'Browser initialized';
-      };
-      
-      const simulateBrowserNavigation = () => {
-        // Simulate browser navigation
-        isAgentBrowsing.value = true;
-        browserStatusText.value = 'Searching...';
-        
-        // Sequence of browser events
-        setTimeout(() => {
-          browserScreenshot.value = 'https://via.placeholder.com/800x600?text=Search+Results+Page';
-          currentBrowserUrl.value = 'https://www.google.com/search?q=example+search';
-          browserStatusText.value = 'Analyzing search results';
-        }, 2000);
-        
-        setTimeout(() => {
-          browserScreenshot.value = 'https://via.placeholder.com/800x600?text=Clicking+Result+1';
-          currentBrowserUrl.value = 'https://example.com/result-page';
-          browserStatusText.value = 'Reading content';
-        }, 4000);
-        
-        setTimeout(() => {
-          browserScreenshot.value = 'https://via.placeholder.com/800x600?text=Scrolling+Down+Page';
-          browserStatusText.value = 'Finding relevant information';
-        }, 6000);
-        
-        setTimeout(() => {
-          isAgentBrowsing.value = false;
-          browserStatusText.value = 'Information gathered';
-        }, 8000);
-      };
-      
-      // Load messages from Firestore
-      onMounted(() => {
-        const q = query(messagesCollectionRef, orderBy('timestamp', 'asc'));
-        
-        onSnapshot(q, (snapshot) => {
-          const fetchedMessages = [];
-          snapshot.forEach((doc) => {
-            fetchedMessages.push({ id: doc.id, ...doc.data() });
-          });
-          
-          // Filter out messages that might have incorrect timestamp
-          messages.value = fetchedMessages.filter(msg => msg.role && (msg.role === 'user' || msg.role === 'assistant'));
-          scrollToBottom();
-        });
-      });
-      
-      // Auto-resize textarea
-      watch(userInput, async () => {
-        await nextTick();
-        if (messageInput.value) {
-          messageInput.value.style.height = 'auto';
-          messageInput.value.style.height = messageInput.value.scrollHeight + 'px';
-        }
-      });
-      
-      // Reset to chat view when agent mode is turned off
-      watch(isAgentMode, (newValue) => {
-        if (!newValue) {
-          isAgentActive.value = false;
-        }
-      });
-      
-      return {
-        userInput,
-        messages,
-        isTyping,
-        isAgentMode,
-        reasoningEnabled,
-        attachedFiles,
-        isListening,
-        fileInput,
-        messagesContainer,
-        messageInput,
-        isAgentActive,
-        loadingAgentScreen,
-        agentScreenError,
-        browserScreenshot,
-        currentBrowserUrl,
-        isAgentBrowsing,
-        browserStatusText,
-        showReasoning,
-        currentReasoningText,
-        currentThinkingState,
-        formatMessage,
-        sendMessage,
-        triggerFileUpload,
-        handleFileUpload,
-        removeFile,
-        isImageFile,
-        toggleMicrophone,
-        toggleAgentMode,
-        toggleReasoningVisibility,
-        showReasoningModal,
-        closeReasoningModal,
-        activateAgentScreen,
-        closeAgentScreen
-      };
+  // Check if user is authenticated
+  const user = auth.currentUser;
+  if (user) {
+    try {
+      // Load chat history if this is an existing chat
+      // Implement this when you have the chat ID from the route
+    } catch (error) {
+      console.error('Error loading chat history:', error);
     }
+  }
+});
+
+// Methods
+const startNewChat = () => {
+  messages.value = [];
+  uploadedFiles.value = [];
+  inputMessage.value = '';
+  currentChatId.value = uuidv4();
+  showBrowser.value = false;
+  browserActive.value = false;
+  if (currentSessionId.value) {
+    puppeteerService.endSession(currentSessionId.value);
+    currentSessionId.value = null;
+  }
+};
+
+const toggleBrowser = () => {
+  showBrowser.value = !showBrowser.value;
+};
+
+const refreshBrowser = async () => {
+  if (browserView.value && browserActive.value) {
+    await browserView.value.refresh();
+  }
+};
+
+const sendMessage = async () => {
+  if (isProcessing.value || (!inputMessage.value.trim() && uploadedFiles.value.length === 0)) {
+    return;
+  }
+
+  const messageContent = inputMessage.value.trim();
+  
+  // Add user message to chat
+  const userMessage = {
+    role: 'user',
+    content: messageContent,
+    timestamp: new Date(),
+    files: [...uploadedFiles.value]
   };
-  </script>
   
-  <style scoped>
-  .agent-chat-container {
-    display: flex;
-    width: 100%;
-    height: 100vh;
-    background-color: #121212;
-    color: #f0f0f0;
-    font-family: 'Inter', sans-serif;
+  messages.value.push(userMessage);
+  
+  // Clear input and files
+  inputMessage.value = '';
+  uploadedFiles.value = [];
+  
+  // Scroll to bottom
+  await nextTick();
+  scrollToBottom();
+  
+  // Start processing
+  isProcessing.value = true;
+  startThinkingAnimation();
+  
+  // Start a browser session if needed
+  if (!currentSessionId.value) {
+    try {
+      const { sessionId } = await puppeteerService.startSession();
+      currentSessionId.value = sessionId;
+    } catch (error) {
+      console.error('Failed to start browser session:', error);
+    }
   }
   
-  /* Split Layout Styling */
-  .chat-section {
-    flex: 1;
-    display: flex;
+  try {
+    // Initialize response placeholder with thinking state
+    const responsePlaceholder = {
+      role: 'assistant',
+      content: '',
+      timestamp: new Date(),
+      isThinking: true,
+      thinkingState: currentThinkingState.value,
+      mood: 'thinking',
+      reasoning: '',
+      usedBrowser: false
+    };
+    
+    messages.value.push(responsePlaceholder);
+    
+    // Generate reasoning first
+    const reasoningResponse = await agentOpenAI.generateReasoning(
+      messageContent, 
+      extractChatHistory(),
+      userMessage.files
+    );
+    
+    const reasoningText = reasoningResponse.content;
+    
+    // Update placeholder with reasoning
+    const responseIndex = messages.value.length - 1;
+    messages.value[responseIndex].reasoning = reasoningText;
+    
+    // Determine if we need to use the browser
+    const shouldUseBrowser = needsBrowserAutomation(messageContent, reasoningText);
+    
+    if (shouldUseBrowser) {
+      // Update thinking state
+      messages.value[responseIndex].thinkingState = 'Browsing the web';
+      messages.value[responseIndex].usedBrowser = true;
+      browserActive.value = true;
+      
+      // Show browser if it's not already visible
+      if (!showBrowser.value) {
+        showBrowser.value = true;
+      }
+      
+      // Execute browser actions
+      const browserActions = await agentOpenAI.generateBrowserActions(
+        messageContent,
+        reasoningText
+      );
+      
+      for (const action of browserActions) {
+        // Update the thinking state to show what action is being taken
+        messages.value[responseIndex].thinkingState = `${action.type}: ${action.description}`;
+        
+        // Execute the browser action
+        await puppeteerService.executeAction(currentSessionId.value, action);
+        
+        // Capture screenshot after action
+        const screenshot = await puppeteerService.takeScreenshot(currentSessionId.value);
+        browserScreenshots.value.push(screenshot);
+      }
+    }
+    
+    // Generate final response
+    const finalResponse = await agentOpenAI.generateResponse(
+      messageContent,
+      extractChatHistory(),
+      userMessage.files,
+      reasoningText,
+      browserScreenshots.value
+    );
+    
+    // Update message with final response
+    messages.value[responseIndex] = {
+      role: 'assistant',
+      content: finalResponse.content,
+      timestamp: new Date(),
+      isThinking: false,
+      mood: finalResponse.mood || 'neutral',
+      reasoning: reasoningText,
+      usedBrowser: shouldUseBrowser
+    };
+    
+    // Save messages to Firebase
+    if (auth.currentUser) {
+      await firebaseChat.saveChat(currentChatId.value, messages.value);
+    }
+  } catch (error) {
+    console.error('Error processing message:', error);
+    
+    // Add error message
+    messages.value.push({
+      role: 'assistant',
+      content: 'I encountered an error while processing your request. Please try again.',
+      timestamp: new Date(),
+      isThinking: false,
+      mood: 'sad'
+    });
+  } finally {
+    isProcessing.value = false;
+    
+    // Scroll to bottom
+    await nextTick();
+    scrollToBottom();
+  }
+};
+
+const handleFileUpload = (event) => {
+  const files = Array.from(event.target.files);
+  
+  files.forEach(file => {
+    // Create a reader for file preview
+    const reader = new FileReader();
+    
+    reader.onload = (e) => {
+      uploadedFiles.value.push({
+        name: file.name,
+        type: file.type,
+        size: file.size,
+        file: file,
+        dataUrl: e.target.result
+      });
+    };
+    
+    reader.readAsDataURL(file);
+  });
+  
+  // Reset the input element
+  event.target.value = '';
+};
+
+const removeFile = (index) => {
+  uploadedFiles.value.splice(index, 1);
+};
+
+const formatMessage = (content) => {
+  if (!content) return '';
+  
+  // Configure marked with highlighting
+  marked.setOptions({
+    highlight: function(code, lang) {
+      if (lang && hljs.getLanguage(lang)) {
+        return hljs.highlight(code, { language: lang }).value;
+      }
+      return hljs.highlightAuto(code).value;
+    },
+    breaks: true
+  });
+  
+  // Convert markdown to HTML and sanitize
+  const rawHtml = marked.parse(content);
+  return DOMPurify.sanitize(rawHtml);
+};
+
+const formatFileSize = (bytes) => {
+  if (bytes < 1024) return bytes + ' B';
+  else if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+  else return (bytes / 1048576).toFixed(1) + ' MB';
+};
+
+const isImageFile = (file) => {
+  return file && file.type && file.type.startsWith('image/');
+};
+
+const scrollToBottom = () => {
+  if (messagesContainer.value) {
+    messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight;
+  }
+};
+
+const insertSuggestion = (suggestion) => {
+  inputMessage.value = suggestion;
+  inputField.value.focus();
+};
+
+const startThinkingAnimation = () => {
+  // Rotate through thinking states
+  let stateIndex = 0;
+  const intervalId = setInterval(() => {
+    stateIndex = (stateIndex + 1) % thinkingStates.length;
+    currentThinkingState.value = thinkingStates[stateIndex];
+    
+    // Update the last message if it's a thinking message
+    if (!isProcessing.value) {
+      clearInterval(intervalId);
+      return;
+    }
+    
+    const lastMessage = messages.value[messages.value.length - 1];
+    if (lastMessage && lastMessage.isThinking) {
+      lastMessage.thinkingState = currentThinkingState.value;
+    }
+  }, 3000);
+};
+
+const toggleReasoning = () => {
+  showReasoning.value = !showReasoning.value;
+};
+
+const showReasoningModal = (message) => {
+  selectedReasoning.value = message.reasoning;
+  reasoningModalVisible.value = true;
+};
+
+const hideReasoningModal = () => {
+  reasoningModalVisible.value = false;
+};
+
+const extractChatHistory = () => {
+  return messages.value.map(msg => ({
+    role: msg.role,
+    content: msg.content
+  }));
+};
+
+const handleScreenshot = (screenshotData) => {
+  browserScreenshots.value.push(screenshotData);
+};
+
+const handleBrowserStatus = (status) => {
+  browserActive.value = status.active;
+};
+
+const needsBrowserAutomation = (message, reasoning) => {
+  // Simple heuristic based on keywords and reasoning
+  const automationKeywords = [
+    'search', 'find', 'look up', 'google', 'browse', 'website', 'page',
+    'check', 'compare', 'book', 'reserve', 'navigate', 'go to'
+  ];
+  
+  const lowerMessage = message.toLowerCase();
+  const lowerReasoning = reasoning.toLowerCase();
+  
+  // Check if any automation keywords are in the message or reasoning
+  const needsAutomation = automationKeywords.some(keyword => 
+    lowerMessage.includes(keyword) || lowerReasoning.includes(keyword)
+  );
+  
+  // Also check for explicit browser references
+  const explicitBrowserReference = lowerMessage.includes('browser') || 
+                                 lowerReasoning.includes('browser') ||
+                                 lowerReasoning.includes('web search') ||
+                                 lowerReasoning.includes('search engine');
+  
+  return needsAutomation || explicitBrowserReference;
+};
+</script>
+
+<style scoped>
+.agent-chat-container {
+  height: 100vh;
+  width: 100%;
+  overflow: hidden;
+  background-color: #0f172a;
+  color: white;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.agent-chat-layout {
+  display: flex;
+  height: 100%;
+  width: 100%;
+  transition: all 0.3s ease;
+}
+
+.chat-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  max-width: 100%;
+  transition: all 0.3s ease;
+}
+
+.browser-active .chat-panel {
+  flex: 0 0 50%;
+  max-width: 50%;
+}
+
+.chat-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background-color: #1e293b;
+  border-bottom: 1px solid #334155;
+}
+
+.chat-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #60a5fa;
+  margin: 0;
+}
+
+.chat-controls {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.control-button {
+  background-color: #334155;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.control-button:hover {
+  background-color: #475569;
+}
+
+.messages-container {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.message-wrapper {
+  display: flex;
+  flex-direction: column;
+  max-width: 90%;
+  animation: fadeIn 0.3s ease;
+}
+
+.user-message {
+  align-self: flex-end;
+}
+
+.ai-message {
+  align-self: flex-start;
+  display: flex;
+  gap: 0.75rem;
+}
+
+.message {
+  padding: 1rem;
+  border-radius: 12px;
+  position: relative;
+}
+
+.user-message .message-content {
+  background-color: #3b82f6;
+  color: white;
+  border-radius: 12px;
+  padding: 1rem;
+}
+
+.ai-message .message-content {
+  background-color: #1e293b;
+  color: white;
+  border-radius: 12px;
+  padding: 1rem;
+}
+
+.ai-avatar {
+  width: 2.5rem;
+  height: 2.5rem;
+  flex-shrink: 0;
+}
+
+.ai-icon {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background-color: #3b82f6;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.25rem;
+}
+
+.ai-icon.thinking {
+  background-color: #8b5cf6;
+  animation: pulse 2s infinite;
+}
+
+.ai-icon.excited {
+  background-color: #f59e0b;
+}
+
+.ai-icon.happy {
+  background-color: #10b981;
+}
+
+.ai-icon.sad {
+  background-color: #6b7280;
+}
+
+.thinking-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.thinking-text {
+  font-weight: 500;
+}
+
+.thinking-dots {
+  display: flex;
+}
+
+.thinking-dots span {
+  opacity: 0;
+  animation: dotFade 1.4s infinite;
+  animation-fill-mode: both;
+}
+
+.thinking-dots span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.thinking-dots span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+.reasoning-toggle, .browser-toggle {
+  margin-top: 0.75rem;
+}
+
+.reasoning-button, .browser-button {
+  background-color: transparent;
+  color: #60a5fa;
+  border: 1px solid #60a5fa;
+  border-radius: 6px;
+  padding: 0.375rem 0.75rem;
+  font-size: 0.875rem;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.reasoning-button:hover, .browser-button:hover {
+  background-color: rgba(96, 165, 250, 0.1);
+}
+
+.input-container {
+  padding: 1rem;
+  background-color: #1e293b;
+  border-top: 1px solid #334155;
+}
+
+.file-preview-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.file-preview-item {
+  background-color: #334155;
+  color: white;
+  border-radius: 6px;
+  padding: 0.375rem 0.75rem;
+  font-size: 0.875rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.remove-file-button {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  font-size: 1rem;
+}
+
+.remove-file-button:hover {
+  color: white;
+}
+
+.input-area {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-end;
+}
+
+.message-input {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  background-color: #334155;
+  color: white;
+  border: 1px solid #475569;
+  border-radius: 12px;
+  resize: none;
+  font-family: inherit;
+  font-size: 1rem;
+  line-height: 1.5;
+  max-height: 150px;
+  transition: all 0.2s;
+}
+
+.message-input:focus {
+  outline: none;
+  border-color: #60a5fa;
+  box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.3);
+}
+
+.input-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.upload-button, .reasoning-toggle-button, .send-button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  border: none;
+  background-color: #334155;
+  color: white;
+  font-size: 1.25rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.upload-button:hover, .reasoning-toggle-button:hover, .send-button:hover {
+  background-color: #475569;
+}
+
+.reasoning-toggle-button.active {
+  background-color: #3b82f6;
+}
+
+.send-button {
+  background-color: #3b82f6;
+}
+
+.send-button:hover {
+  background-color: #2563eb;
+}
+
+.send-button:disabled {
+  background-color: #334155;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.file-attachments {
+  margin-top: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.file-attachment {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  padding: 0.5rem;
+}
+
+.file-preview {
+  width: 3rem;
+  height: 3rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #334155;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.file-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.file-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.file-name {
+  font-weight: 500;
+}
+
+.file-size {
+  font-size: 0.75rem;
+  color: #94a3b8;
+}
+
+/* Browser Panel Styles */
+.browser-panel {
+  flex: 0 0 50%;
+  max-width: 50%;
+  display: flex;
+  flex-direction: column;
+  background-color: #0f172a;
+  border-left: 1px solid #334155;
+  animation: slideIn 0.3s ease;
+}
+
+.browser-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background-color: #1e293b;
+  border-bottom: 1px solid #334155;
+}
+
+.browser-header h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #60a5fa;
+  margin: 0;
+}
+
+.browser-controls {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.browser-control-button {
+  background-color: #334155;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.browser-control-button:hover {
+  background-color: #475569;
+}
+
+.browser-container {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+}
+
+.browser-placeholder {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #1e293b;
+}
+
+.placeholder-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  color: #94a3b8;
+  text-align: center;
+  padding: 2rem;
+}
+
+.placeholder-content i {
+  font-size: 3rem;
+}
+
+.placeholder-content p {
+  font-size: 1.125rem;
+}
+
+/* Empty Chat Styles */
+.empty-chat {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.empty-chat-content {
+  max-width: 30rem;
+  padding: 2rem;
+}
+
+.empty-chat h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #60a5fa;
+  margin-bottom: 1rem;
+}
+
+.empty-chat p {
+  font-size: 1.125rem;
+  color: #94a3b8;
+  margin-bottom: 2rem;
+}
+
+.suggestion-chips {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.suggestion-chip {
+  background-color: #334155;
+  color: white;
+  border: none;
+  border-radius: 9999px;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.suggestion-chip:hover {
+  background-color: #3b82f6;
+}
+
+/* Reasoning Modal Styles */
+.reasoning-modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease;
+}
+
+.reasoning-modal {
+  width: 90%;
+  max-width: 48rem;
+  max-height: 80vh;
+  background-color: #1e293b;
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  animation: scaleIn 0.2s ease;
+}
+
+.reasoning-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background-color: #334155;
+  border-bottom: 1px solid #475569;
+}
+
+.reasoning-modal-header h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #60a5fa;
+  margin: 0;
+}
+
+.close-modal-button {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  font-size: 1.25rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+.close-modal-button:hover {
+  color: white;
+}
+
+.reasoning-modal-content {
+  flex: 1;
+  padding: 1.5rem;
+  overflow-y: auto;
+}
+
+.reasoning-text {
+  line-height: 1.7;
+}
+
+/* Markdown content styles */
+.markdown-content {
+  line-height: 1.7;
+}
+
+.markdown-content p {
+  margin-top: 0;
+  margin-bottom: 1rem;
+}
+
+.markdown-content h1, 
+.markdown-content h2, 
+.markdown-content h3, 
+.markdown-content h4 {
+  margin-top: 1.5rem;
+  margin-bottom: 1rem;
+  color: #60a5fa;
+  font-weight: 600;
+}
+
+.markdown-content h1 {
+  font-size: 1.5rem;
+}
+
+.markdown-content h2 {
+  font-size: 1.25rem;
+}
+
+.markdown-content h3 {
+  font-size: 1.125rem;
+}
+
+.markdown-content h4 {
+  font-size: 1rem;
+}
+
+.markdown-content ul, 
+.markdown-content ol {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  padding-left: 1.5rem;
+}
+
+.markdown-content li {
+  margin-bottom: 0.5rem;
+}
+
+.markdown-content a {
+  color: #60a5fa;
+  text-decoration: underline;
+}
+
+.markdown-content code {
+  background-color: #334155;
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+  font-family: 'Fira Code', monospace;
+  font-size: 0.875em;
+}
+
+.markdown-content pre {
+  background-color: #0f172a;
+  padding: 1rem;
+  border-radius: 6px;
+  overflow-x: auto;
+  margin-top: 0;
+  margin-bottom: 1rem;
+}
+
+.markdown-content pre code {
+  background-color: transparent;
+  padding: 0;
+  border-radius: 0;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideIn {
+  from { transform: translateX(100px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes scaleIn {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+@keyframes dotFade {
+  0%, 80%, 100% { opacity: 0; }
+  40% { opacity: 1; }
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+  .agent-chat-layout {
     flex-direction: column;
-    height: 100%;
-    transition: all 0.3s ease;
   }
   
-  .chat-section.minimized {
-    flex: 0.4;
-  }
-  
-  .agent-screen-section {
-    flex: 0.6;
-    border-left: 1px solid #2c2c2c;
-    display: flex;
-    flex-direction: column;
-    transition: all 0.3s ease;
-  }
-  
-  /* Header Styling */
-  .chat-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 15px 20px;
-    background-color: #1a1a1a;
-    border-bottom: 1px solid #2c2c2c;
-  }
-  
-  .logo {
-    display: flex;
-    align-items: center;
-  }
-  
-  .logo img {
-    height: 32px;
-    margin-right: 10px;
-  }
-  
-  .logo h1 {
-    font-size: 1.3rem;
-    font-weight: 600;
-    color: #4169e1; /* Royal Blue */
-    margin: 0;
-  }
-  
-  .header-controls button {
-    background-color: #2c2c2c;
-    color: #4682b4; /* Cerulean */
-    border: none;
-    border-radius: 4px;
-    padding: 8px 12px;
-    font-size: 0.9rem;
-    cursor: pointer;
-    transition: all 0.2s ease;
-  }
-  
-  .header-controls button:hover {
-    background-color: #363636;
-  }
-  
-  /* Messages Container */
-  .messages-container {
-    flex: 1;
-    overflow-y: auto;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-  }
-  
-  .message {
-    display: flex;
-    flex-direction: column;
-    max-width: 85%;
-  }
-  
-  .user-message {
-    align-self: flex-end;
-  }
-  
-  .ai-message {
-    align-self: flex-start;
-  }
-  
-  .message-content {
-    padding: 12px 16px;
-    border-radius: 18px;
-    position: relative;
-  }
-  
-  .user-message .message-content {
-    background-color: #4169e1; /* Royal Blue */
-    color: white;
-    border-bottom-right-radius: 4px;
-  }
-  
-  .ai-message .message-content {
-    background-color: #2c2c2c;
-    color: #f0f0f0;
-    border-bottom-left-radius: 4px;
-  }
-  
-  .message-text {
-    font-size: 0.95rem;
-    line-height: 1.5;
-    white-space: pre-wrap;
-    word-break: break-word;
-  }
-  
-  .message-text a {
-    color: #4682b4; /* Cerulean */
-    text-decoration: underline;
-  }
-  
-  /* Attachments */
-  .attachments {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin-top: 10px;
-  }
-  
-  .attachment {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    max-width: 120px;
-  }
-  
-  .file-preview {
-    width: 100px;
-    height: 80px;
-    background-color: #1a1a1a;
-    border-radius: 8px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    overflow: hidden;
-  }
-  
-  .image-preview {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-  
-  .file-icon {
-    font-size: 2rem;
-    color: #4682b4; /* Cerulean */
-  }
-  
-  .file-name {
-    font-size: 0.8rem;
-    margin-top: 5px;
-    text-align: center;
+  .chat-panel, .browser-active .chat-panel {
+    flex: 1 0 50%;
     max-width: 100%;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    height: 50%;
   }
   
-  /* Thinking Indicator */
-  .thinking {
-    display: flex;
-    align-items: center;
-    gap: 10px;
+  .browser-panel {
+    flex: 1 0 50%;
+    max-width: 100%;
+    height: 50%;
+    border-left: none;
+    border-top: 1px solid #334155;
   }
-  
-  .thinking-indicator {
-    display: flex;
-    gap: 5px;
-  }
-  
-  .dot {
-    width: 8px;
-    height: 8px;
-    background-color: #4682b4; /* Cerulean */
-    border-radius: 50%;
-    animation: pulse 1.5s infinite;
-  }
-  
-  .dot:nth-child(2) {
-    animation-delay: 0.3s;
-  }
-  
-  .dot:nth-child(3) {
-    animation-delay: 0.6s;
-  }
-  
-  @keyframes pulse {
-    0%, 100% { opacity: 0.4; transform: scale(0.8); }
-    50% { opacity: 1; transform: scale(1.2); }
-  }
-  
-  .thinking-text {
-    font-size: 0.9rem;
-    color: #a0a0a0;
-  }
-  
-  /* Thinking States */
-  .thinking-states {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    margin-bottom: 12px;
-    opacity: 0.7;
-  }
-  
-  .thinking-state {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 0.85rem;
-    color: #a0a0a0;
-  }
-  
-  /* Reasoning Button */
-  .reasoning-toggle-container {
-    margin-top: 10px;
-    display: flex;
-    justify-content: flex-start;
-  }
-  
-  .reasoning-button {
-    background-color: transparent;
-    color: #4682b4; /* Cerulean */
-    border: 1px solid #4682b4;
-    border-radius: 4px;
-    padding: 5px 10px;
-    font-size: 0.8rem;
-    cursor: pointer;
-    transition: all 0.2s ease;
-  }
-  
-  .reasoning-button:hover {
-    background-color: rgba(70, 130, 180, 0.1);
-  }
-  
-  /* Input Container */
-  .input-container {
-    padding: 15px 20px;
-    background-color: #1a1a1a;
-    border-top: 1px solid #2c2c2c;
-  }
-  
-  .toolbar {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    margin-bottom: 10px;
-  }
-  
-  .toolbar-button {
-    background-color: transparent;
-    color: #a0a0a0;
-    border: none;
-    padding: 5px;
-    border-radius: 4px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    font-size: 0.9rem;
-    transition: all 0.2s ease;
-  }
-  
-  .toolbar-button:hover {
-    color: #4682b4; /* Cerulean */
-    background-color: rgba(70, 130, 180, 0.1);
-  }
-  
-  .toolbar-button i {
-    font-size: 1.1rem;
-  }
-  
-  /* Attached Files Display in Toolbar */
-  .attached-files {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    flex-wrap: wrap;
-  }
-  
-  .attached-file {
-    background-color: #2c2c2c;
-    padding: 4px 8px;
-    border-radius: 4px;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    font-size: 0.8rem;
-  }
-  
-  .remove-file {
-    background: none;
-    border: none;
-    color: #a0a0a0;
-    font-size: 1rem;
-    cursor: pointer;
-    line-height: 1;
-    padding: 0;
-    margin-left: 5px;
-  }
-  
-  .remove-file:hover {
-    color: #ff5252;
-  }
-  
-  /* Input Area */
-  .input-area {
-    display: flex;
-    align-items: flex-end;
-    gap: 10px;
-    background-color: #2c2c2c;
-    border-radius: 8px;
-    padding: 10px 15px;
-  }
-  
-  textarea {
-    flex: 1;
-    background-color: transparent;
-    border: none;
-    outline: none;
-    color: #f0f0f0;
-    font-size: 0.95rem;
-    font-family: inherit;
-    resize: none;
-    max-height: 150px;
-    line-height: 1.5;
-  }
-  
-  textarea::placeholder {
-    color: #a0a0a0;
-  }
-  
-  .send-button {
-    background-color: #4169e1; /* Royal Blue */
-    color: white;
-    border: none;
-    border-radius: 50%;
-    width: 36px;
-    height: 36px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    cursor: pointer;
-    transition: all 0.2s ease;
-  }
-  
-  .send-button:hover {
-    background-color: #3a5fcd;
-  }
-  
-  .send-button:disabled {
-    background-color: #2c2c2c;
-    color: #666;
-    cursor: not-allowed;
-  }
-  
-  /* Agent Screen Styling */
-  .agent-screen-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 15px 20px;
-    background-color: #1a1a1a;
-    border-bottom: 1px solid #2c2c2c;
-  }
-  
-  .agent-screen-header h2 {
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: #4682b4; /* Cerulean */
-    margin: 0;
-  }
-  
-  .close-button {
-    background: none;
-    border: none;
-    color: #a0a0a0;
-    font-size: 1.5rem;
-    cursor: pointer;
-    line-height: 1;
-  }
-  
-  .close-button:hover {
-    color: #ff5252;
-  }
-  
-  .agent-screen-content {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-  }
-  
-  .loading-screen {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    height: 100%;
-    gap: 20px;
-  }
-  
-  .loading-spinner {
-    width: 50px;
-    height: 50px;
-    border: 5px solid #2c2c2c;
-    border-top: 5px solid #4682b4; /* Cerulean */
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-  }
-  
-  @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  }
-  
-  .error-screen {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    height: 100%;
-    gap: 20px;
-    color: #ff5252;
-  }
-  
-  .error-screen i {
-    font-size: 3rem;
-  }
-  
-  /* Browser View */
-  .browser-view {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-  }
-  
-  .browser-header {
-    display: flex;
-    flex-direction: column;
-    background-color: #2c2c2c;
-    padding: 10px;
-    border-bottom: 1px solid #3c3c3c;
-  }
-  
-  .browser-controls {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 8px;
-  }
-  
-  .browser-control {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-  }
-  
-  .browser-control.red {
-    background-color: #ff5f56;
-  }
-  
-  .browser-control.yellow {
-    background-color: #ffbd2e;
-  }
-  
-  .browser-control.green {
-    background-color: #27c93f;
-  }
-  
-  .browser-address-bar {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background-color: #1a1a1a;
-    padding: 8px 12px;
-    border-radius: 4px;
-    font-size: 0.9rem;
-  }
-  
-  .browser-address-bar i {
-    color: #27c93f;
-    font-size: 0.8rem;
-  }
-  
-  .browser-content {
-    flex: 1;
-    overflow: auto;
-    background-color: white;
-    position: relative;
-  }
-  
-  .browser-screenshot {
-    width: 100%;
-    height: auto;
-    display: block;
-  }
-  
-  .browser-placeholder {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100%;
-    color: #666;
-    background-color: #f5f5f5;
-  }
-  
-  .browser-status-bar {
-    padding: 8px 12px;
-    background-color: #2c2c2c;
-    border-top: 1px solid #3c3c3c;
-  }
-  
-  .browser-status {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 0.85rem;
-    color: #a0a0a0;
-  }
-  
-  .browser-status i {
-    font-size: 0.7rem;
-  }
-  
-  .browser-status i.browsing {
-    color: #27c93f;
-  }
-  
-  .browser-status i.idle {
-    color: #a0a0a0;
-  }
-  
-  /* Reasoning Modal */
-  .modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.7);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-  }
-  
-  .modal-content {
-    background-color: #1a1a1a;
-    border-radius: 8px;
-    width: 90%;
-    max-width: 600px;
-    max-height: 80vh;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    box-shadow: 0 4px 25px rgba(0, 0, 0, 0.3);
-  }
-  
-  .modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 15px 20px;
-    background-color: #2c2c2c;
-    border-bottom: 1px solid #3c3c3c;
-  }
-  
-  .modal-header h2 {
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: #4682b4; /* Cerulean */
-    margin: 0;
-  }
-  
-  .modal-body {
-    padding: 20px;
-    overflow-y: auto;
-    font-size: 0.95rem;
-    line-height: 1.6;
-    max-height: calc(80vh - 60px);
-    white-space: pre-wrap;
-  }
-  
-  /* Responsive Design */
-  @media (max-width: 768px) {
-    .agent-chat-container {
-      flex-direction: column;
-    }
-    
-    .chat-section {
-      height: 50vh;
-    }
-    
-    .chat-section.minimized {
-      height: 30vh;
-      flex: none;
-    }
-    
-    .agent-screen-section {
-      height: 70vh;
-      flex: none;
-      border-left: none;
-      border-top: 1px solid #2c2c2c;
-    }
-    
-    .modal-content {
-      width: 95%;
-    }
-  }
-  </style>
+}
+</style>
