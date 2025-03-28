@@ -2,7 +2,7 @@
 <template>
   <div class="agent-chat-container">
     <!-- Main two-column layout -->
-    <div class="agent-chat-layout" :class="{ 'browser-active': showBrowser }">
+    <div class="agent-chat-layout" :class="{ 'browser-active': showBrowser }" :style="{ display: 'flex', height: '100%' }">
       <!-- Chat Panel -->
       <div class="chat-panel">
         <div class="chat-header">
@@ -159,34 +159,37 @@
       </div>
 
       <!-- Browser Panel -->
-      <div v-show="showBrowser" class="browser-panel">
-        <div class="browser-header">
-          <h2>DawntasyAI's Screen</h2>
-          <div class="browser-controls">
-            <button @click="refreshBrowser" class="browser-control-button" title="Refresh">
-              <i class="ri-refresh-line"></i>
-            </button>
-            <button @click="toggleBrowser" class="browser-control-button" title="Close">
-              <i class="ri-close-line"></i>
-            </button>
+      <div v-if="showBrowser" class="browser-panel">
+      <div class="browser-header">
+        <h2>DawntasyAI's Screen</h2>
+        <div class="browser-controls">
+          <button @click="refreshBrowser" class="browser-control-button" title="Refresh">
+            <i class="ri-refresh-line"></i>
+          </button>
+          <button @click="toggleBrowser" class="browser-control-button" title="Close">
+            <i class="ri-close-line"></i>
+          </button>
+        </div>
+      </div>
+      <div class="browser-container">
+        <browser-view 
+          v-if="browserActive && currentSessionId" 
+          ref="browserView"
+          :sessionId="currentSessionId"
+          @screenshot="handleScreenshot"
+          @browser-status="handleBrowserStatus"
+        />
+        <div v-else class="browser-placeholder">
+          <div class="placeholder-content">
+            <i class="ri-computer-line"></i>
+            <p>AI browser will appear when needed.</p>
           </div>
         </div>
       </div>
-        </div>
-          <browser-view 
-  v-if="browserActive && currentSessionId" 
-  ref="browserView"
-  :sessionId="currentSessionId || ''"
-  @screenshot="handleScreenshot"
-  @browser-status="handleBrowserStatus"
-/>
-<div v-else class="browser-placeholder">
-  <div class="placeholder-content">
-    <i class="ri-computer-line"></i>
-    <p>AI browser will appear when needed.</p>
+    </div>
   </div>
 </div>
-
+<div>
     <!-- Reasoning Modal -->
     <teleport to="body">
       <div v-if="reasoningModalVisible" class="reasoning-modal-backdrop" @click="hideReasoningModal">
@@ -305,6 +308,10 @@ const startNewChat = () => {
 
 const toggleBrowser = () => {
   showBrowser.value = !showBrowser.value;
+  // FORCE LAYOUT RECALCULATION!
+  setTimeout(() => {
+    window.dispatchEvent(new Event('resize'));
+  }, 10);
 };
 
 const refreshBrowser = async () => {
@@ -964,7 +971,11 @@ const needsBrowserAutomation = (message, reasoning) => {
   border-left: 1px solid #334155;
   animation: slideIn 0.3s ease;
 }
-
+.browser-panel {
+  /* your existing styles */
+  position: relative;
+  z-index: 10;
+}
 .browser-header {
   display: flex;
   justify-content: space-between;
