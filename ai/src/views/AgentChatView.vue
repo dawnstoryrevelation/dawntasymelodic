@@ -171,23 +171,21 @@
             </button>
           </div>
         </div>
-        <div class="browser-container">
-          <div v-if="!browserActive" class="browser-placeholder">
-            <div class="placeholder-content">
-              <i class="ri-computer-line"></i>
-              <p>AI browser will appear here when needed.</p>
-            </div>
-          </div>
-          <browser-view 
-            v-else 
-            ref="browserView"
-            :sessionId="currentSessionId"
-            @screenshot="handleScreenshot"
-            @browser-status="handleBrowserStatus"
-          />
-        </div>
       </div>
-    </div>
+        </div>
+          <browser-view 
+  v-if="browserActive && currentSessionId" 
+  ref="browserView"
+  :sessionId="currentSessionId || ''"
+  @screenshot="handleScreenshot"
+  @browser-status="handleBrowserStatus"
+/>
+<div v-else class="browser-placeholder">
+  <div class="placeholder-content">
+    <i class="ri-computer-line"></i>
+    <p>AI browser will appear when needed.</p>
+  </div>
+</div>
 
     <!-- Reasoning Modal -->
     <teleport to="body">

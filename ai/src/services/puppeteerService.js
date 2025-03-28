@@ -6,7 +6,7 @@ import axios from 'axios';
  */
 export function usePuppeteerService() {
   // API endpoint for Puppeteer service
-  const API_BASE_URL = import.meta.env.VITE_PUPPETEER_API_URL || '/api/puppeteer';
+  const API_BASE_URL = 'http://localhost:3001';
   
   /**
    * Start a new Puppeteer browser session
