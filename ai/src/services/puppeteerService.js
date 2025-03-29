@@ -1,395 +1,119 @@
 // src/services/puppeteerService.js
+import axios from 'axios';
+
 /**
  * Service to interact with the Puppeteer backend
- * ENHANCED WITH HYPER-TURBO ERROR HANDLING & RESILIENCE
+ * SUPERCHARGED FOR MAXIMUM RESILIENCE AND RELIABILITY!
  */
 export function usePuppeteerService() {
-  // API endpoint for Puppeteer service
+  // 🔥 HARDCODED URL FOR GUARANTEED CONNECTION! 🔥
   const API_BASE_URL = 'http://localhost:3001/api/puppeteer';
   
-  // Debug helper function with throttling to reduce console noise
-  const logRequest = (method, endpoint, data = null) => {
-    // Only log significant operations to reduce noise
-    if (endpoint.includes('screenshot') || endpoint.includes('status')) return;
-    
-    console.log(`🔌 ${method.toUpperCase()} ${API_BASE_URL}${endpoint}${data ? ' with data' : ''}`);
-    if (data && method === 'POST' && (endpoint.includes('action') || endpoint.includes('navigate'))) {
-      console.log('🔍 Request payload:', JSON.stringify(data).slice(0, 100) + (JSON.stringify(data).length > 100 ? '...' : ''));
-    }
-  };
-
-  /**
-   * EXTREME RESILIENCE fetch with multiple fallback mechanisms
-   * This function NEVER gives up - it always returns something useful
-   */
-  const fetchWithRetry = async (url, options, retries = 2) => {
-    // Track request attempts for diagnostics
-    const maxRetries = retries;
-    const startTime = Date.now();
-    let attemptCount = 0;
-    
-    try {
-      // Add timeout to prevent hanging requests - shorter timeout for faster recovery
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
-      
-      // Add traceable request ID for logging
-      const requestId = Math.random().toString(36).substring(2, 10);
-      
-      const enhancedOptions = {
-        ...options,
-        signal: controller.signal,
-        headers: {
-          ...options.headers,
-          'X-Request-ID': requestId,
-          'X-Retry-Enabled': 'true'
-        }
-      };
-      
-      attemptCount++;
-      console.log(`🔄 Request ${requestId} attempt ${attemptCount}/${maxRetries + 1}`);
-      
-      try {
-        const response = await fetch(url, enhancedOptions);
-        clearTimeout(timeoutId);
-        
-        // SUPER-POWERED TYPE ACTION HANDLING
-        if (options.method === 'POST' && 
-            url.includes('action') && 
-            options.body) {
-              
-          const actionData = JSON.parse(options.body);
-          
-          // For ANY action type, if we get a 500+ error, provide simulated success
-          if (response.status >= 500) {
-            console.warn(`⚠️ Server error ${response.status} for ${actionData.type} action - providing fallback`);
-            return {
-              status: 'action_simulated',
-              action: actionData.type,
-              result: { 
-                success: true, 
-                message: `${actionData.type} simulation after server error ${response.status}` 
-              }
-            };
-          }
-          
-          // Special handling for clicks that fail
-          if (actionData.type === 'click' && !response.ok) {
-            console.warn(`⚠️ Click action returned ${response.status} - providing fallback`);
-            return {
-              status: 'action_simulated',
-              action: 'click',
-              result: { 
-                success: true, 
-                message: 'Click simulation (fallback response)' 
-              }
-            };
-          }
-          
-          // Always make typing succeed
-          if (actionData.type === 'type' && !response.ok) {
-            console.warn(`⚠️ Type action returned ${response.status} - providing fallback`);
-            return {
-              status: 'action_completed',
-              action: 'type',
-              result: { 
-                success: true, 
-                message: 'Typing simulation (fallback response)' 
-              }
-            };
-          }
-        }
-        
-        // Content endpoint special handling
-        if (url.includes('/content') && response.status === 404) {
-          console.warn('⚠️ Content endpoint not found (404) - returning empty content');
-          return { content: '' };
-        }
-        
-        // Enhanced CAPTCHA detection for any response
-        if (response.ok) {
-          // For JSON responses, check for CAPTCHA patterns in data
-          if (response.headers.get('content-type')?.includes('application/json')) {
-            const data = await response.json();
-            
-            // Check URL for CAPTCHA patterns
-            if (data.url && isCaptchaUrl(data.url)) {
-              console.warn('⚠️ CAPTCHA pattern detected in URL!');
-              data.captchaDetected = true;
-            }
-            
-            // Check page title for CAPTCHA patterns
-            if (data.title && CAPTCHA_PATTERNS.some(pattern => 
-              data.title.toLowerCase().includes(pattern))) {
-              console.warn('⚠️ CAPTCHA pattern detected in page title!');
-              data.captchaDetected = true;
-            }
-            
-            return data;
-          }
-          
-          // For non-JSON responses, return the response object
-          return response;
-        }
-        
-        // If response is not OK, try to parse error
-        const errorText = await response.text();
-        let errorData;
-        
-        try {
-          errorData = JSON.parse(errorText);
-        } catch {
-          errorData = { error: errorText || 'Unknown error' };
-        }
-        
-        throw new Error(`Server responded with ${response.status}: ${errorData.error || 'Unknown error'}`);
-      } catch (fetchError) {
-        // If this is a fetch error (network, timeout, etc.), we'll retry
-        throw fetchError;
-      }
-    } catch (error) {
-      // Calculate retry delay with exponential backoff
-      const retryDelay = Math.min(1000 * Math.pow(1.5, maxRetries - retries), 5000);
-      
-      // Handle AbortController timeout
-      if (error.name === 'AbortError') {
-        console.warn(`⏱️ Request timed out after 10 seconds (attempt ${attemptCount}/${maxRetries + 1})`);
-        
-        // If we have retries left, try again with increased timeout
-        if (retries > 0) {
-          console.log(`🔄 Retrying with ${retries} attempts left (waiting ${retryDelay}ms)`);
-          await new Promise(resolve => setTimeout(resolve, retryDelay));
-          return fetchWithRetry(url, options, retries - 1);
-        }
-        
-        // Special handling for different request types when all retries exhausted
-        return generateFallbackResponse(url, options);
-      }
-      
-      // Regular error with retries remaining
-      if (retries > 0) {
-        console.warn(`⚠️ Request failed: ${error.message}, retrying... (${retries} retries left)`);
-        await new Promise(resolve => setTimeout(resolve, retryDelay));
-        return fetchWithRetry(url, options, retries - 1);
-      }
-      
-      // If we're out of retries, generate appropriate fallback response
-      return generateFallbackResponse(url, options, error);
-    }
+  // Debug helper function - CRITICAL FOR DEBUGGING!
+  const logRequest = (method, endpoint) => {
+    console.log(`🔌 ${method.toUpperCase()} ${API_BASE_URL}${endpoint}`);
   };
   
   /**
-   * Generate appropriate fallback responses for different request types
-   * This ensures the agent workflow NEVER crashes completely
-   */
-  const generateFallbackResponse = (url, options, error = null) => {
-    const errorMessage = error ? error.message : 'Maximum retries exceeded';
-    console.warn(`⚠️ All retries failed for ${url} - generating fallback response`);
-    
-    try {
-      // Parse action type if this is an action request
-      let actionType = 'unknown';
-      if (options.method === 'POST' && url.includes('action') && options.body) {
-        try {
-          const actionData = JSON.parse(options.body);
-          actionType = actionData.type || 'unknown';
-        } catch {
-          // Ignore parsing errors
-        }
-      }
-      
-      // Generate response based on URL and request type
-      if (url.includes('/session') && options.method === 'POST' && !url.includes('action')) {
-        // Session creation/initialization
-        return {
-          status: 'created',
-          sessionId: `fallback-${Date.now()}`,
-          message: 'Fallback session created'
-        };
-      }
-      else if (url.includes('/navigate')) {
-        // Navigation requests
-        return {
-          status: 'navigation_simulated',
-          url: options.body ? JSON.parse(options.body).url : 'about:blank',
-          message: 'Navigation simulated after error'
-        };
-      }
-      else if (url.includes('/action')) {
-        // Action requests (click, type, etc.)
-        return {
-          status: 'action_simulated',
-          action: actionType,
-          result: { 
-            success: true, 
-            message: `${actionType} simulation after all retries failed: ${errorMessage}`
-          }
-        };
-      }
-      else if (url.includes('/screenshot')) {
-        // Screenshot requests - can't generate a real screenshot
-        console.error('❌ Screenshot failed completely:', errorMessage);
-        return null;
-      }
-      else if (url.includes('/content')) {
-        // Content requests
-        return { content: '' };
-      }
-      else if (url.includes('/status')) {
-        // Status requests
-        return { active: false, error: errorMessage };
-      }
-      else {
-        // Generic fallback for other request types
-        return { 
-          status: 'error_handled',
-          message: 'Operation simulated after error',
-          error: errorMessage
-        };
-      }
-    } catch (fallbackError) {
-      console.error('❌ Error generating fallback response:', fallbackError);
-      return { 
-        status: 'critical_error',
-        error: 'Failed to generate fallback response',
-        message: 'Contact system administrator'
-      };
-    }
-  };
-  
-  // List of CAPTCHA detection patterns
-  const CAPTCHA_PATTERNS = [
-    'captcha',
-    'recaptcha',
-    'hcaptcha',
-    'bot-check',
-    'security-check',
-    'human-verification',
-    'challenge',
-    'cloudflare',
-    'are-you-a-robot',
-    'verify',
-    'robot',
-    'not a robot',
-    'security verification',
-    'human test'
-  ];
-  
-  /**
-   * Check if URL is likely a CAPTCHA
-   */
-  const isCaptchaUrl = (url) => {
-    if (!url) return false;
-    
-    const captchaPatterns = [
-      'captcha',
-      'recaptcha',
-      'hcaptcha',
-      'bot-check',
-      'security-check',
-      'human-verification',
-      'challenge',
-      'cloudflare',
-      'are-you-a-robot',
-      'verify'
-    ];
-    
-    const lowercaseUrl = url.toLowerCase();
-    return captchaPatterns.some(pattern => lowercaseUrl.includes(pattern));
-  };
-  
-  /**
-   * Start a new Puppeteer browser session with enhanced error handling
+   * Start a new Puppeteer browser session - ULTRA-RELIABLE!
    */
   const startSession = async () => {
     try {
       logRequest('POST', '/session');
-      const data = await fetchWithRetry(`${API_BASE_URL}/session`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' }
+      
+      // EXTENDED TIMEOUT FOR RELIABILITY!
+      const response = await axios.post(`${API_BASE_URL}/session`, {}, {
+        timeout: 15000
       });
       
-      console.log('🚀 Session created:', data.sessionId);
-      return data;
+      console.log('🚀 Session created:', response.data);
+      return response.data;
     } catch (error) {
       console.error('Error starting Puppeteer session:', error);
-      throw new Error(`Failed to start browser session: ${error.message}`);
+      
+      // ATTEMPT DIRECT RETRY for maximum resilience!
+      try {
+        console.log('⚠️ First attempt failed - TRYING AGAIN!');
+        const retryResponse = await axios.post(`${API_BASE_URL}/session`, {}, {
+          timeout: 30000 // EXTENDED TIMEOUT for retry!
+        });
+        
+        console.log('✅ Session created on retry:', retryResponse.data);
+        return retryResponse.data;
+      } catch (retryError) {
+        throw new Error(`Failed to start browser session: ${error.message}`);
+      }
     }
   };
   
   /**
-   * End a Puppeteer browser session with graceful error handling
+   * End a Puppeteer browser session
    */
   const endSession = async (sessionId) => {
-    if (!sessionId) {
-      console.warn('⚠️ Attempted to end session without sessionId');
-      return { success: false, message: 'No session ID provided' };
-    }
-    
     try {
       logRequest('DELETE', `/session/${sessionId}`);
-      await fetchWithRetry(`${API_BASE_URL}/session/${sessionId}`, {
-        method: 'DELETE'
-      });
+      await axios.delete(`${API_BASE_URL}/session/${sessionId}`);
       console.log('🚫 Session ended:', sessionId);
       return { success: true };
     } catch (error) {
       console.error('Error ending Puppeteer session:', error);
-      // Don't throw - just log the error and return success anyway
-      return { success: true, warning: error.message };
+      // Don't throw - just log the error and continue
+      return { success: false, error: error.message };
     }
   };
   
   /**
-   * Initialize browser for a session with robust error handling
+   * Initialize browser for a session
    */
   const initializeBrowser = async (sessionId) => {
-    if (!sessionId) {
-      throw new Error('Session ID is required to initialize browser');
-    }
-    
     try {
       logRequest('POST', `/session/${sessionId}/initialize`);
-      const data = await fetchWithRetry(`${API_BASE_URL}/session/${sessionId}/initialize`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' }
+      const response = await axios.post(`${API_BASE_URL}/session/${sessionId}/initialize`, {}, {
+        timeout: 20000 // EXTENDED TIMEOUT for initialization
       });
-      
-      console.log('🌐 Browser initialized:', data);
-      return data;
+      console.log('🌐 Browser initialized:', response.data);
+      return response.data;
     } catch (error) {
       console.error('Error initializing browser:', error);
-      // Try restarting the session before giving up
+      
+      // RETRY MECHANISM FOR MAXIMUM RESILIENCE!
       try {
-        console.log('🔄 Attempting to restart session instead');
-        return await restartSession(sessionId);
-      } catch (restartError) {
-        console.error('Failed to restart session:', restartError);
+        console.log('⚠️ Initialization failed - TRYING AGAIN with restart!');
+        const restartResponse = await axios.post(`${API_BASE_URL}/session/${sessionId}/restart`, {}, {
+          timeout: 30000
+        });
+        
+        console.log('🔄 Browser restarted instead:', restartResponse.data);
+        return restartResponse.data;
+      } catch (retryError) {
         throw new Error(`Failed to initialize browser: ${error.message}`);
       }
     }
   };
   
   /**
-   * Restart a browser session with improved recovery
+   * Restart a browser session
    */
   const restartSession = async (sessionId) => {
-    if (!sessionId) {
-      throw new Error('Session ID is required to restart browser');
-    }
-    
     try {
       logRequest('POST', `/session/${sessionId}/restart`);
-      const data = await fetchWithRetry(`${API_BASE_URL}/session/${sessionId}/restart`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' }
+      const response = await axios.post(`${API_BASE_URL}/session/${sessionId}/restart`, {}, {
+        timeout: 20000
       });
-      
-      console.log('🔄 Session restarted:', data);
-      return data;
+      console.log('🔄 Session restarted:', response.data);
+      return response.data;
     } catch (error) {
       console.error('Error restarting browser session:', error);
-      throw new Error(`Failed to restart browser session: ${error.message}`);
+      
+      // If restart fails, try creating a new session
+      try {
+        console.log('⚠️ Restart failed - trying to create a new session');
+        const newSessionResponse = await startSession();
+        console.log('✅ Created new replacement session:', newSessionResponse);
+        return { ...newSessionResponse, replaced: true };
+      } catch (createError) {
+        throw new Error(`Failed to restart browser session: ${error.message}`);
+      }
     }
   };
   
@@ -397,312 +121,173 @@ export function usePuppeteerService() {
    * Refresh the browser page
    */
   const refreshBrowser = async (sessionId) => {
-    if (!sessionId) {
-      throw new Error('Session ID is required to refresh browser');
-    }
-    
     try {
       logRequest('POST', `/session/${sessionId}/refresh`);
-      const data = await fetchWithRetry(`${API_BASE_URL}/session/${sessionId}/refresh`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' }
-      });
-      
-      console.log('🔄 Browser refreshed:', data);
-      return data;
+      const response = await axios.post(`${API_BASE_URL}/session/${sessionId}/refresh`);
+      console.log('🔄 Browser refreshed:', response.data);
+      return response.data;
     } catch (error) {
       console.error('Error refreshing browser:', error);
-      throw new Error(`Failed to refresh browser: ${error.message}`);
-    }
-  };
-  
-  /**
-   * Get the status of a session with simplified error handling to prevent disruptions
-   */
-  const getStatus = async (sessionId) => {
-    if (!sessionId) {
-      return { active: false, error: 'No session ID provided' };
-    }
-    
-    try {
-      // Don't log status requests to reduce console noise
-      const response = await fetch(`${API_BASE_URL}/session/${sessionId}/status`);
       
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
-        console.warn(`⚠️ Status check error: ${errorData.error || 'Unknown error'}`);
-        return { active: false, error: errorData.error || 'Unknown error' };
-      }
-      
-      return await response.json();
-    } catch (error) {
-      console.warn('Non-critical error getting browser status:', error.message);
-      // Return a default response instead of throwing
-      return { active: false, error: error.message };
-    }
-  };
-  
-  /**
-   * Take a screenshot of the current browser page with HYPER-RESILIENT error handling
-   * Multiple fallback mechanisms to ensure we always get some visual feedback
-   */
-  const takeScreenshot = async (sessionId) => {
-    if (!sessionId) {
-      console.warn('⚠️ Cannot take screenshot without session ID');
-      return null;
-    }
-    
-    let fallbackAttempted = false;
-    
-    try {
-      // Try direct screenshot first - with shorter timeout for faster recovery
-      try {
-        const response = await fetch(`${API_BASE_URL}/session/${sessionId}/screenshot`, {
-          signal: AbortSignal.timeout(8000) // 8 second timeout
-        });
-        
-        if (response.ok) {
-          // Get the blob and create an object URL
-          const blob = await response.blob();
-          return URL.createObjectURL(blob);
-        } else {
-          throw new Error(`Screenshot failed with status ${response.status}`);
-        }
-      } catch (directError) {
-        // First screenshot attempt failed, try alternative approaches
-        console.warn('⚠️ Direct screenshot failed:', directError.message);
-        fallbackAttempted = true;
-        
-        // Try first fallback: check if session is alive
-        try {
-          const status = await getStatus(sessionId);
-          
-          if (status && status.active) {
-            console.log('✅ Session is active - screenshot failed but session alive');
-            
-            // If we've gotten a screenshot earlier in this session, use that
-            if (window._lastSuccessfulScreenshot) {
-              console.log('🖼️ Using last successful screenshot as fallback');
-              return window._lastSuccessfulScreenshot;
-            }
-            
-            // Otherwise return null but don't throw
-            return null;
-          }
-          
-          // If session is not active, try to restart it
-          console.warn('⚠️ Session appears inactive, attempting restart');
-          await restartSession(sessionId);
-          
-          // Try screenshot again after restart
-          const retryResponse = await fetch(`${API_BASE_URL}/session/${sessionId}/screenshot`, {
-            signal: AbortSignal.timeout(5000) // 5 second timeout on retry
-          });
-          
-          if (retryResponse.ok) {
-            const blob = await retryResponse.blob();
-            const screenshotUrl = URL.createObjectURL(blob);
-            
-            // Save this for future fallbacks
-            window._lastSuccessfulScreenshot = screenshotUrl;
-            
-            return screenshotUrl;
-          }
-        } catch (statusError) {
-          console.error('❌ Session status check also failed:', statusError.message);
-        }
-      }
-      
-      // If we get here, all screenshot attempts failed
-      console.error('❌ All screenshot methods failed');
-      return null;
-    } catch (error) {
-      console.error('❌ Screenshot error:', error.message);
-      return null;
-    }
-  };
-  
-  /**
-   * Navigate to a URL with enhanced error handling and CAPTCHA detection
-   */
-  const navigateToUrl = async (sessionId, url) => {
-    if (!sessionId) {
-      throw new Error('Session ID is required for navigation');
-    }
-    
-    if (!url) {
-      throw new Error('URL is required');
-    }
-    
-    try {
-      logRequest('POST', `/session/${sessionId}/navigate`, { url });
-      console.log(`🌐 Navigating to: ${url}`);
-      
-      const data = await fetchWithRetry(`${API_BASE_URL}/session/${sessionId}/navigate`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url })
-      });
-      
-      // Check for CAPTCHA detection
-      if (data.captchaDetected) {
-        console.warn('⚠️ CAPTCHA detected! Taking evasive action...');
-        // The calling code will handle this flag to take appropriate action
-      }
-      
-      console.log('✅ Navigation complete:', data);
-      return data;
-    } catch (error) {
-      console.error('Error navigating to URL:', error);
-      
-      // Return a partial success to allow the workflow to continue
+      // Don't fail completely - return a status object
       return { 
         success: false, 
-        error: error.message,
-        status: 'navigation_error',
-        url: url
+        status: 'refresh_failed',
+        error: error.message
       };
     }
   };
   
   /**
-   * Execute a browser action with MAXIMUM RESILIENCE error handling and recovery
-   * Action types: click, type, scroll, wait, etc.
+   * Get the status of a session - WITH RETRY!
    */
-  // BULLETPROOF executeAction function with payload validation!
-// ULTRA-SIMPLIFIED ACTION EXECUTION - Guaranteed to work!
-// ADD THIS HYPER-RELIABLE ACTION SYSTEM TO YOUR puppeteerService.js
-// This version is GUARANTEED to work!
-
-// ATOMIC ACTION EXECUTION - Minimalist Payloads Only!
-// 💥 NUCLEAR-GRADE ACTION SYSTEM - 100% GUARANTEED! 💥
-// Replace your executeAction function in puppeteerService.js with this
-
-// ATOMIC ACTION EXECUTION - SERVER-COMPATIBLE GUARANTEED!
-// 🔥🔥🔥 LEGENDARY ACTION SYSTEM - ZERO POSSIBILITY OF FAILURE! 🔥🔥🔥
-
-// ULTRA-MINIMALIST actions with STRING PAYLOADS that CANNOT fail!
-// ✨ ULTRA-MINIMALIST ACTION SYSTEM FOR PUPPETEERSERVICE.JS ✨
-// REPLACE YOUR ENTIRE executeAction FUNCTION WITH THIS!!!
-
-const executeAction = async (sessionId, action) => {
-  if (!sessionId) {
-    console.log('⚠️ No session ID - simulating success');
-    return { success: true };
-  }
-  
-  try {
-    // SUPER-SIMPLE STRING PAYLOADS - GUARANTEED TO WORK!
-    let actionJson = '';
-    
-    if (action?.type === 'click') {
-      actionJson = '{"type":"click"}';
-    } 
-    else if (action?.type === 'type') {
-      actionJson = '{"type":"type","selector":"input[name=\\"q\\"]","text":"Hello world"}';
-    }
-    else if (action?.type === 'navigate') {
-      actionJson = '{"type":"navigate","url":"https://www.google.com"}';
-    }
-    else if (action?.type === 'scroll') {
-      actionJson = '{"type":"scroll","direction":"down","amount":300}';
-    }
-    else {
-      actionJson = '{"type":"wait","duration":1000}';
-    }
-    
-    console.log(`📡 SENDING: ${actionJson}`);
-    
-    // DIRECT FETCH - NO MIDDLEWARE!
-    const response = await fetch(`http://localhost:3001/api/puppeteer/session/${sessionId}/action`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: actionJson
-    });
-    
-    if (response.ok) {
-      console.log('✅ SUCCESS!');
-      return { success: true };
-    } else {
-      console.warn(`⚠️ Server returned ${response.status}`);
-      return { success: true, simulated: true };
-    }
-  } catch (error) {
-    console.error('❌ Action error:', error.message);
-    return { success: true, simulated: true };
-  }
-};
-  
-  /**
-   * Get HTML content of the current page with hyper-resilient error handling
-   * This function now NEVER fails - it always returns something usable
-   */
-  const getPageContent = async (sessionId) => {
-    if (!sessionId) {
-      console.warn('⚠️ Cannot get page content without session ID');
-      return ''; // Return empty content as fallback
-    }
-    
+  const getStatus = async (sessionId) => {
     try {
-      // First attempt direct content endpoint
-      try {
-        const response = await fetch(`${API_BASE_URL}/session/${sessionId}/content`, {
-          signal: AbortSignal.timeout(5000) // Shorter timeout - fail fast
-        });
-        
-        if (response.ok) {
-          const data = await response.json();
-          return data.content || '';
-        }
-        
-        // If 404, the endpoint might not exist - try alternative
-        console.warn(`⚠️ Content endpoint returned ${response.status} - trying alternative method`);
-      } catch (directError) {
-        console.warn('⚠️ Direct content fetch failed:', directError.message);
-      }
-      
-      // Alternative: Use screenshot as indicator and return placeholder
-      try {
-        // Just check if we can take a screenshot to verify session is alive
-        await takeScreenshot(sessionId);
-        console.log('✅ Session is alive according to screenshot - returning placeholder content');
-        return '<html><body><p>Content extraction unavailable but session is active</p></body></html>';
-      } catch (screenshotError) {
-        console.warn('⚠️ Screenshot check also failed:', screenshotError.message);
-      }
-      
-      // Last resort - return empty content with indicator
-      return '<html><body><p>Content extraction failed</p></body></html>';
+      // Don't log status requests to reduce noise
+      const response = await axios.get(`${API_BASE_URL}/session/${sessionId}/status`, {
+        timeout: 5000
+      });
+      return response.data;
     } catch (error) {
-      console.error('Error getting page content:', error);
-      // Return minimal HTML rather than empty string
-      return '<html><body><p>Error getting content</p></body></html>';
+      console.error('Error getting browser status:', error);
+      
+      // Try once more with an extended timeout
+      try {
+        console.log('⚠️ Status check failed - retrying with extended timeout');
+        const retryResponse = await axios.get(`${API_BASE_URL}/session/${sessionId}/status`, {
+          timeout: 10000
+        });
+        return retryResponse.data;
+      } catch (retryError) {
+        // If still failing, return a fallback status
+        return {
+          active: false,
+          url: 'unknown',
+          status: 'error',
+          lastActivity: new Date()
+        };
+      }
     }
   };
   
   /**
-   * Handle CAPTCHA detection and avoidance
+   * Take a screenshot of the current browser page - WITH MULTIPLE RETRIES!
    */
-  const handleCaptcha = async (sessionId) => {
-    if (!sessionId) {
-      throw new Error('Session ID is required to handle CAPTCHA');
+  const takeScreenshot = async (sessionId) => {
+    // Try up to 3 times to get a screenshot
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      try {
+        // Only log first attempt to reduce noise
+        if (attempt === 1) {
+          console.log(`📸 Taking screenshot for session ${sessionId}`);
+        }
+        
+        const response = await axios.get(`${API_BASE_URL}/session/${sessionId}/screenshot`, {
+          responseType: 'blob',
+          timeout: attempt * 5000 // Increase timeout with each attempt
+        });
+        
+        return URL.createObjectURL(response.data);
+      } catch (error) {
+        console.error(`Error taking screenshot (attempt ${attempt}/3):`, error);
+        
+        if (attempt === 3) {
+          // All attempts failed
+          console.log('❌ All screenshot attempts failed');
+          // Return a fallback screenshot or throw error
+          throw new Error(`Failed to take screenshot after multiple attempts: ${error.message}`);
+        } else {
+          // Wait before next attempt
+          await new Promise(r => setTimeout(r, 1000));
+          console.log(`🔄 Retrying screenshot (attempt ${attempt + 1}/3)...`);
+        }
+      }
     }
-    
+  };
+  
+  /**
+   * Navigate to a URL - WITH ENHANCED ERROR HANDLING
+   */
+  const navigateToUrl = async (sessionId, url) => {
     try {
-      logRequest('POST', `/session/${sessionId}/handle-captcha`);
-      const data = await fetchWithRetry(`${API_BASE_URL}/session/${sessionId}/handle-captcha`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' }
+      logRequest('POST', `/session/${sessionId}/navigate`);
+      console.log(`🌐 Navigating to: ${url}`);
+      
+      const response = await axios.post(`${API_BASE_URL}/session/${sessionId}/navigate`, { url }, {
+        timeout: 30000 // Extended timeout for navigation
       });
       
-      console.log('🤖 CAPTCHA handling attempt:', data);
-      return data;
+      console.log('✅ Navigation complete:', response.data);
+      return response.data;
     } catch (error) {
-      console.error('Error handling CAPTCHA:', error);
-      // Return a partial success to allow workflow to continue
+      console.error('Error navigating to URL:', error);
+      
+      // Try to refresh the browser and continue
+      try {
+        console.log('⚠️ Navigation failed - trying to refresh browser');
+        await refreshBrowser(sessionId);
+        return { 
+          success: false, 
+          status: 'navigation_failed_but_refreshed',
+          error: error.message
+        };
+      } catch (refreshError) {
+        throw new Error(`Failed to navigate to URL: ${error.message}`);
+      }
+    }
+  };
+  
+  /**
+   * Execute a browser action - SUPERCHARGED WITH ERROR HANDLING
+   * Action types: click, type, scroll, etc.
+   */
+  const executeAction = async (sessionId, action) => {
+    try {
+      logRequest('POST', `/session/${sessionId}/action`);
+      console.log(`🎮 Executing action: ${action.type} - ${action.description || ''}`);
+      
+      // ENHANCED TIMEOUT BASED ON ACTION TYPE for maximum reliability!
+      let timeout = 10000; // Default timeout
+      
+      // Adjust timeout based on action type
+      if (action.type === 'navigate') {
+        timeout = 30000; // Longer timeout for navigation
+      } else if (action.type === 'type') {
+        timeout = 15000; // Medium timeout for typing
+      } else if (action.type === 'click') {
+        timeout = 20000; // Medium-long timeout for clicks (they might cause navigation)
+      }
+      
+      const response = await axios.post(`${API_BASE_URL}/session/${sessionId}/action`, action, {
+        timeout
+      });
+      
+      console.log(`✅ Action executed: ${action.type}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error executing browser action:', error);
+      
+      // Special handling for different action types
+      if (action.type === 'click' || action.type === 'type') {
+        // For interactive actions, try a simple refresh and continue
+        console.log('⚠️ Interactive action failed - attempting recovery');
+        try {
+          await refreshBrowser(sessionId);
+          return { 
+            status: 'warning',
+            success: false,
+            message: `Action failed but browser refreshed: ${error.message}`
+          };
+        } catch (refreshError) {
+          // Even if refresh fails, don't halt execution
+          console.error('Recovery failed:', refreshError);
+        }
+      }
+      
+      // Don't throw - return a status object so execution can continue
       return { 
-        success: false, 
-        status: 'captcha_handling_failed',
+        status: 'error',
+        success: false,
         error: error.message
       };
     }
@@ -717,8 +302,6 @@ const executeAction = async (sessionId, action) => {
     getStatus,
     takeScreenshot,
     navigateToUrl,
-    executeAction,
-    getPageContent,
-    handleCaptcha
+    executeAction
   };
 }
