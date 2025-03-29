@@ -1233,142 +1233,90 @@ app.get('/api/puppeteer/session/:sessionId/content', async (req, res) => {
 });
 
 // Take a screenshot with fallbacks
+// Take a screenshot with full validation
+// Take a screenshot with MAXIMUM validation
 app.get('/api/puppeteer/session/:sessionId/screenshot', async (req, res) => {
   const { sessionId } = req.params;
   
-  if (sessions.has(sessionId)) {
-    try {
-      const session = sessions.get(sessionId);
-      
-      // Take a screenshot with timeout
-      let screenshotBuffer = null;
-      try {
-        // Optimize screenshot for performance
-        const screenshotOptions = {
-          path: path.join(screenshotsDir, `${sessionId}-${Date.now()}.png`),
-          type: 'png',
-          fullPage: false,
-          quality: 80,
-          omitBackground: false
-        };
-        
-        // Set a timeout for screenshot capture
-        screenshotBuffer = await Promise.race([
-          session.page.screenshot(screenshotOptions),
-          new Promise((_, reject) => 
-            setTimeout(() => reject(new Error('Screenshot timed out')), 10000)
-          )
-        ]);
-      } catch (screenshotError) {
-        logger.error(`Screenshot error: ${screenshotError.message}`);
-        
-        // Try a fallback method - evaluate a simple script to check if page is responsive
-        try {
-          const isPageResponsive = await session.page.evaluate(() => true).catch(() => false);
-          
-          if (isPageResponsive) {
-            // Try with different options
-            screenshotBuffer = await session.page.screenshot({
-              type: 'png',
-              fullPage: false,
-              quality: 60,
-              clip: { x: 0, y: 0, width: 800, height: 600 }
-            });
-          } else {
-            throw new Error('Page is not responsive');
-          }
-        } catch (fallbackError) {
-          logger.error(`Fallback screenshot also failed: ${fallbackError.message}`);
-          
-          // Create a simple error image - a red square with white text
-          // This ensures clients get SOME response rather than an error
-          const { createCanvas } = require('canvas');
-          const canvas = createCanvas(800, 600);
-          const ctx = canvas.getContext('2d');
-          
-          // Draw error message
-          ctx.fillStyle = '#ff0000';
-          ctx.fillRect(0, 0, 800, 600);
-          ctx.fillStyle = '#ffffff';
-          ctx.font = '24px Arial';
-          ctx.fillText('Screenshot Error', 50, 50);
-          ctx.font = '16px Arial';
-          ctx.fillText(`Session: ${sessionId}`, 50, 80);
-          ctx.fillText(`Error: ${screenshotError.message}`, 50, 110);
-          ctx.fillText(`URL: ${session.url || 'unknown'}`, 50, 140);
-          ctx.fillText(`Time: ${new Date().toISOString()}`, 50, 170);
-          
-          screenshotBuffer = canvas.toBuffer('image/png');
-        }
-      }
-      
-      // Update last activity
-      session.lastActivity = new Date();
-      
-      // Set appropriate headers
-      res.set('Content-Type', 'image/png');
-      res.set('Content-Length', screenshotBuffer.length);
-      
-      // Send the screenshot
-      res.send(screenshotBuffer);
-    } catch (error) {
-      logger.error(`Critical error taking screenshot for session ${sessionId}:`, error);
-      
-      // Create a simple error image
-      try {
-        const { createCanvas } = require('canvas');
-        const canvas = createCanvas(800, 600);
-        const ctx = canvas.getContext('2d');
-        
-        // Draw error message
-        ctx.fillStyle = '#ff0000';
-        ctx.fillRect(0, 0, 800, 600);
-        ctx.fillStyle = '#ffffff';
-        ctx.font = '24px Arial';
-        ctx.fillText('Critical Screenshot Error', 50, 50);
-        ctx.font = '16px Arial';
-        ctx.fillText(`Session: ${sessionId}`, 50, 80);
-        ctx.fillText(`Error: ${error.message}`, 50, 110);
-        ctx.fillText(`Time: ${new Date().toISOString()}`, 50, 170);
-        
-        const buffer = canvas.toBuffer('image/png');
-        
-        res.set('Content-Type', 'image/png');
-        res.set('Content-Length', buffer.length);
-        res.send(buffer);
-      } catch (canvasError) {
-        // Absolute last resort if even canvas fails
-        res.status(500).json({ error: error.message });
-      }
+  try {
+    // Session existence check
+    if (!sessions.has(sessionId)) {
+      throw new Error('Session not found');
     }
-  } else {
-    // Create a "session not found" image instead of 404 error
+    
+    const session = sessions.get(sessionId);
+    
+    // Browser validation
+    if (!session.browser || !session.browser.isConnected()) {
+      throw new Error('Browser disconnected');
+    }
+    
+    // Page validation
+    const pages = await session.browser.pages();
+    if (!session.page || !pages.includes(session.page)) {
+      throw new Error('Page no longer active');
+    }
+    
+    // Page readiness check
+    await session.page.waitForFunction(
+      'document.readyState === "complete"',
+      { timeout: 5000 }
+    ).catch(() => {
+      throw new Error('Page not ready');
+    });
+    
+    // Dialog handling
+    if (session.page._disconnected) {
+      throw new Error('Page disconnected');
+    }
+    
+    // Actual screenshot attempt
+    const screenshotBuffer = await session.page.screenshot({
+      type: 'png',
+      fullPage: false,
+      clip: { x: 0, y: 0, width: 1280, height: 720 },
+      timeout: 15000
+    });
+    
+    res.set('Content-Type', 'image/png');
+    return res.send(screenshotBuffer);
+
+  } catch (error) {
+    logger.error(`Critical screenshot error for ${sessionId}:`, error);
+    
+    // Fallback image generation with enhanced error handling
     try {
-      const { createCanvas } = require('canvas');
-      const canvas = createCanvas(800, 600);
+      // Verify canvas is installed
+      const { createCanvas } = await import('canvas');
+      createCanvas = createCanvas.default || createCanvas;
+      
+      const canvas = createCanvas(1280, 720);
       const ctx = canvas.getContext('2d');
       
-      // Draw message
-      ctx.fillStyle = '#000060';
-      ctx.fillRect(0, 0, 800, 600);
+      // Error message styling
+      ctx.fillStyle = '#ff4444';
+      ctx.fillRect(0, 0, 1280, 720);
       ctx.fillStyle = '#ffffff';
       ctx.font = '24px Arial';
-      ctx.fillText('Session Not Found', 50, 50);
+      ctx.fillText('Screenshot Error', 50, 50);
       ctx.font = '16px Arial';
-      ctx.fillText(`Session ID: ${sessionId}`, 50, 80);
-      ctx.fillText(`Time: ${new Date().toISOString()}`, 50, 110);
+      ctx.fillText(`Session: ${sessionId}`, 50, 80);
+      ctx.fillText(`Error: ${error.message}`, 50, 110);
+      ctx.fillText(`Time: ${new Date().toISOString()}`, 50, 140);
       
       const buffer = canvas.toBuffer('image/png');
-      
       res.set('Content-Type', 'image/png');
-      res.set('Content-Length', buffer.length);
-      res.send(buffer);
+      return res.send(buffer);
+      
     } catch (canvasError) {
-      res.status(404).json({ error: 'Session not found' });
+      logger.error('Canvas error:', canvasError);
+      return res.status(500).json({
+        error: 'Critical error generating fallback image',
+        details: canvasError.message
+      });
     }
   }
 });
-
 // Navigate to URL with comprehensive error handling
 app.post('/api/puppeteer/session/:sessionId/navigate', async (req, res) => {
   const { sessionId } = req.params;
@@ -1490,117 +1438,82 @@ app.post('/api/puppeteer/session/:sessionId/navigate', async (req, res) => {
 });
 
 // Execute a browser action with error resilience
+// Execute a browser action with error resilience
 app.post('/api/puppeteer/session/:sessionId/action', async (req, res) => {
   const { sessionId } = req.params;
   const action = req.body;
-  
+
+  // EXTRA LOGGING TO SEE WHAT WE RECEIVED
+  console.log("🔍 Received action payload:", JSON.stringify(action));
+
+  // CHECK FOR VALID ACTION PAYLOAD
   if (!action || !action.type) {
-    return res.status(400).json({ error: 'Action type is required' });
+    console.error("❌ MISSING OR INVALID ACTION PAYLOAD:", JSON.stringify(action));
+    return res.status(400).json({ error: 'Action type is required and must be specified in the payload.' });
   }
-  
+
   if (sessions.has(sessionId)) {
     try {
       const session = sessions.get(sessionId);
-      
-      // Update last activity
+
+      // VERIFY BROWSER AND PAGE STATUS
+      if (!session.browser.isConnected()) {
+        throw new Error('Browser is disconnected');
+      }
+      try {
+        const pages = await session.browser.pages();
+        if (!pages.includes(session.page)) {
+          throw new Error('Page is no longer active');
+        }
+      } catch (pageCheckError) {
+        throw new Error('Failed to verify page status');
+      }
+
+      // UPDATE SESSION STATUS
       session.lastActivity = new Date();
       session.status = `executing ${action.type}`;
-      
-      logger.info(`🎮 Executing action: ${action.type} - ${action.description || ''}`);
-      
-      // Track this action
+      console.info(`🚀 Executing action: ${action.type} - ${action.description || ''}`);
+
+      // TRACK THE ACTION
       session.actions.push({
         type: action.type,
         time: new Date(),
         description: action.description
       });
-      
-      // Execute the appropriate action with enhanced error handling
+
+      // EXECUTE THE ACTION BASED ON THE ACTION TYPE
       let actionResult = { success: false, message: '' };
-      
       switch (action.type) {
-        case 'navigate':
-          if (!action.url) {
-            return res.status(400).json({ error: 'URL is required for navigate action' });
-          }
-          
-          try {
-            let formattedUrl = action.url;
-            if (!formattedUrl.startsWith('http://') && !formattedUrl.startsWith('https://')) {
-              formattedUrl = 'https://' + formattedUrl;
-            }
-            
-            logger.info(`🌐 Navigating to: ${formattedUrl}`);
-            
-            // Navigation with retries
-            let navigationSuccess = false;
-            for (let attempt = 1; attempt <= 3; attempt++) {
-              try {
-                await session.page.goto(formattedUrl, {
-                  waitUntil: 'networkidle2',
-                  timeout: 30000
-                });
-                navigationSuccess = true;
-                break;
-              } catch (navAttemptError) {
-                logger.warn(`Navigation attempt ${attempt} failed: ${navAttemptError.message}`);
-                if (attempt < 3) await new Promise(resolve => setTimeout(resolve, 1000));
-              }
-            }
-            
-            if (!navigationSuccess) {
-              throw new Error('Navigation failed after multiple attempts');
-            }
-            
-            logger.success(`✅ Navigation complete: ${formattedUrl}`);
-            
-            session.url = formattedUrl;
-            session.performance.navigationCount++;
-            actionResult = { success: true, message: 'Navigation successful' };
-          } catch (navError) {
-            logger.error(`Navigation error:`, navError);
-            actionResult = { success: false, message: `Navigation error: ${navError.message}` };
-          }
-          break;
-          
         case 'click':
           try {
-            // Call our super-resilient click function
+            // Primary click attempt
             const clickSuccess = await performClick(
               session.page, 
               action.selector, 
               action.text
             );
-            
             if (clickSuccess) {
-              logger.success(`✅ Click successful`);
+              console.info('✓ Click successful');
               actionResult = { success: true, message: 'Click successful' };
             } else {
               throw new Error('Click operation failed');
             }
-            
             session.performance.clickCount++;
-            
-            // Wait for potential page load
+            // Wait for potential navigation after click
             try {
               await session.page.waitForNavigation({ 
                 timeout: 5000, 
                 waitUntil: 'networkidle0' 
               }).catch(() => {
-                // This is expected to time out if no navigation happens
-                logger.info('No navigation after click');
+                // Ignore timeout if no navigation occurs
               });
             } catch (navTimeoutError) {
-              // This is fine, might not navigate
-              logger.info('No navigation after click - continuing');
+              console.info('No navigation after click - continuing');
             }
           } catch (clickActionError) {
-            logger.error(`Click error:`, clickActionError);
-            
-            // Try a JavaScript-based fallback click
+            // JavaScript fallback click attempt
             try {
-              logger.info('Attempting JavaScript fallback click');
-              
+              console.info('Attempting JavaScript fallback click');
               const jsClickSuccess = await session.page.evaluate((selector, searchText) => {
                 // Try by selector first
                 if (selector) {
@@ -1610,7 +1523,6 @@ app.post('/api/puppeteer/session/:sessionId/action', async (req, res) => {
                     return true;
                   }
                 }
-                
                 // Try by text if selector fails
                 if (searchText) {
                   const elements = Array.from(document.querySelectorAll('a, button, [role="button"], input[type="submit"], .btn'));
@@ -1622,22 +1534,18 @@ app.post('/api/puppeteer/session/:sessionId/action', async (req, res) => {
                     }
                   }
                 }
-                
-                // Try alternative approaches - any button or link
+                // Try any visible button as last resort
                 const buttons = document.querySelectorAll('button, input[type="submit"], [role="button"]');
                 if (buttons.length > 0) {
                   buttons[0].click();
                   return true;
                 }
-                
                 return false;
               }, action.selector, action.text);
-              
               if (jsClickSuccess) {
-                logger.success('✅ JavaScript fallback click succeeded');
+                console.info('✓ JavaScript fallback click succeeded');
                 actionResult = { success: true, message: 'JavaScript click successful' };
-                
-                // Wait briefly for any navigation
+                // Short navigation wait after JS click
                 try {
                   await session.page.waitForNavigation({ 
                     timeout: 3000, 
@@ -1650,35 +1558,32 @@ app.post('/api/puppeteer/session/:sessionId/action', async (req, res) => {
                 throw new Error('JavaScript click fallback also failed');
               }
             } catch (jsClickError) {
-              logger.error('JavaScript fallback click failed:', jsClickError);
-              actionResult = { success: false, message: `Click error: ${clickActionError.message}` };
+              console.error('JavaScript fallback click failed:', jsClickError);
+              actionResult = { 
+                success: false, 
+                message: `Click error: ${clickActionError.message}` 
+              };
             }
           }
           break;
-          
         case 'type':
           try {
             const selector = action.selector;
             const text = action.text || '';
-            
             if (!selector) {
-              logger.warn('No selector provided for type action - will try generic selectors');
+              console.warn('No selector provided for type action - will try generic selectors');
             }
-            
             // Use our super-resilient type function
             const typeSuccess = await performType(session.page, selector, text);
-            
             if (typeSuccess) {
-              logger.success(`✅ Typing successful: "${text.substring(0, 30)}${text.length > 30 ? '...' : ''}"`);
+              console.info(`✅ Typing successful: "${text.substring(0, 30)}${text.length > 30 ? '...' : ''}"`);
               actionResult = { success: true, message: 'Typing successful' };
             } else {
               throw new Error('Type operation failed');
             }
-            
             session.performance.typeCount++;
           } catch (typeError) {
-            logger.error(`Type error:`, typeError);
-            
+            console.error(`Type error:`, typeError);
             // Always return success for type actions to keep workflows moving
             actionResult = { 
               success: true, 
@@ -1686,16 +1591,11 @@ app.post('/api/puppeteer/session/:sessionId/action', async (req, res) => {
             };
           }
           break;
-          
         case 'scroll':
-          // Scroll the page
           try {
             const direction = action.direction || 'down';
             const amount = action.amount || 500;
-            
-            logger.info(`📜 Scrolling ${direction}: ${amount}px`);
-            
-            // Scroll with retry
+            console.info(`📜 Scrolling ${direction}: ${amount}px`);
             let scrollSuccess = false;
             for (let attempt = 1; attempt <= 3; attempt++) {
               try {
@@ -1716,39 +1616,31 @@ app.post('/api/puppeteer/session/:sessionId/action', async (req, res) => {
                     return true;
                   }, amount);
                 }
-                
                 scrollSuccess = true;
                 break;
               } catch (scrollAttemptError) {
-                logger.warn(`Scroll attempt ${attempt} failed: ${scrollAttemptError.message}`);
+                console.warn(`Scroll attempt ${attempt} failed: ${scrollAttemptError.message}`);
                 if (attempt < 3) await new Promise(resolve => setTimeout(resolve, 500));
               }
             }
-            
             if (!scrollSuccess) {
               throw new Error('Scroll failed after multiple attempts');
             }
-            
             // Small delay to allow smooth scrolling to complete
             await new Promise(resolve => setTimeout(resolve, 500));
-            
-            logger.success(`✅ Scroll complete`);
+            console.info(`✅ Scroll complete`);
             actionResult = { success: true, message: `Scrolled ${direction}: ${amount}px` };
           } catch (scrollError) {
-            logger.error(`Scroll error:`, scrollError);
+            console.error(`Scroll error:`, scrollError);
             actionResult = { success: false, message: `Scroll error: ${scrollError.message}` };
           }
           break;
-          
         case 'submit':
-          // Submit a form
           try {
             if (!action.selector) {
               return res.status(400).json({ error: 'Selector is required for submit action' });
             }
-            
-            logger.info(`📝 Submitting form: ${action.selector}`);
-            
+            console.info(`📝 Submitting form: ${action.selector}`);
             // Try direct form submission first
             const submitSuccess = await session.page.evaluate((selector) => {
               const form = document.querySelector(selector);
@@ -1758,7 +1650,6 @@ app.post('/api/puppeteer/session/:sessionId/action', async (req, res) => {
               }
               return false;
             }, action.selector);
-            
             if (!submitSuccess) {
               // Try clicking a submit button inside the form
               const clickSuccess = await session.page.evaluate((selector) => {
@@ -1772,21 +1663,19 @@ app.post('/api/puppeteer/session/:sessionId/action', async (req, res) => {
                 }
                 return false;
               }, action.selector);
-              
               if (clickSuccess) {
-                logger.success(`✅ Clicked submit button in form`);
+                console.info(`✅ Clicked submit button in form`);
                 actionResult = { success: true, message: 'Clicked submit button' };
               } else {
                 // Last resort: press Enter key
                 await session.page.keyboard.press('Enter');
-                logger.success(`✅ Pressed Enter key as form submission fallback`);
+                console.info(`✅ Pressed Enter key as form submission fallback`);
                 actionResult = { success: true, message: 'Pressed Enter to submit form' };
               }
             } else {
-              logger.success(`✅ Form submitted`);
+              console.info(`✅ Form submitted`);
               actionResult = { success: true, message: 'Form submitted successfully' };
             }
-            
             // Wait for navigation after form submission
             try {
               await session.page.waitForNavigation({ 
@@ -1794,102 +1683,73 @@ app.post('/api/puppeteer/session/:sessionId/action', async (req, res) => {
                 waitUntil: 'networkidle2' 
               });
             } catch (navTimeoutError) {
-              // This is fine, might not navigate
-              logger.info('No navigation after form submission - continuing');
+              console.info('No navigation after form submission - continuing');
             }
           } catch (submitError) {
-            logger.error(`Submit error:`, submitError);
+            console.error(`Submit error:`, submitError);
             actionResult = { success: false, message: `Submit error: ${submitError.message}` };
           }
           break;
-          
         case 'wait':
-          // Wait for a specified duration
           try {
             const duration = action.duration || 1000;
-            
-            logger.info(`⏱️ Waiting for ${duration}ms`);
-            
+            console.info(`⏱️ Waiting for ${duration}ms`);
             await new Promise(resolve => setTimeout(resolve, duration));
-            
-            logger.success(`✅ Wait complete`);
+            console.info(`✅ Wait complete`);
             actionResult = { success: true, message: `Waited for ${duration}ms` };
           } catch (waitError) {
-            logger.error(`Wait error:`, waitError);
+            console.error(`Wait error:`, waitError);
             actionResult = { success: false, message: `Wait error: ${waitError.message}` };
           }
           break;
-          
-        // SPECIAL ACTION: Evaluate JavaScript
         case 'js-eval':
           try {
             if (!action.code) {
               return res.status(400).json({ error: 'Code is required for js-eval action' });
             }
-            
-            logger.info(`🧪 Evaluating JavaScript: ${action.description || ''}`);
-            
+            console.info(`🧪 Evaluating JavaScript: ${action.description || ''}`);
             const result = await session.page.evaluate((code) => {
-              // Wrap in try-catch to prevent page crashes
               try {
                 return eval(code);
               } catch (e) {
                 return { error: e.message };
               }
             }, action.code);
-            
-            logger.success(`✅ JavaScript evaluated successfully`);
-            actionResult = { 
-              success: true, 
-              message: 'JavaScript evaluated', 
-              result 
-            };
+            console.info(`✅ JavaScript evaluated successfully`);
+            actionResult = { success: true, message: 'JavaScript evaluated', result };
           } catch (jsError) {
-            logger.error(`JavaScript evaluation error:`, jsError);
-            actionResult = { 
-              success: false, 
-              message: `JavaScript error: ${jsError.message}` 
-            };
+            console.error(`JavaScript evaluation error:`, jsError);
+            actionResult = { success: false, message: `JavaScript error: ${jsError.message}` };
           }
           break;
-          
-        // SPECIAL ACTION: Press keyboard key
         case 'keyboard':
           try {
             if (!action.key) {
               return res.status(400).json({ error: 'Key is required for keyboard action' });
             }
-            
-            logger.info(`⌨️ Pressing key: ${action.key}`);
-            
+            console.info(`⌨️ Pressing key: ${action.key}`);
             await session.page.keyboard.press(action.key);
-            
-            logger.success(`✅ Key press successful: ${action.key}`);
+            console.info(`✅ Key press successful: ${action.key}`);
             actionResult = { success: true, message: `Pressed key: ${action.key}` };
           } catch (keyError) {
-            logger.error(`Keyboard error:`, keyError);
+            console.error(`Keyboard error:`, keyError);
             actionResult = { success: false, message: `Keyboard error: ${keyError.message}` };
           }
           break;
-          
         default:
+          console.error(`Unknown action type received: ${action.type}`);
           return res.status(400).json({ error: `Unknown action type: ${action.type}` });
       }
-      
+
       // Check for CAPTCHA after action
       try {
         const captchaDetected = await detectCaptcha(session.page);
         if (captchaDetected) {
-          logger.warn('🛡️ CAPTCHA detected after action! Taking evasive action...');
-          
-          // Try to evade CAPTCHA
+          console.warn('🛡️ CAPTCHA detected after action! Taking evasive action...');
           const evaded = await evadeCaptcha(session.page);
-          
-          // Update current URL after evasion
           const currentUrl = await session.page.url();
           session.url = currentUrl;
-          
-          res.status(200).json({
+          return res.status(200).json({
             status: 'action_completed_with_captcha',
             action: action.type,
             url: currentUrl,
@@ -1897,42 +1757,37 @@ app.post('/api/puppeteer/session/:sessionId/action', async (req, res) => {
             captchaDetected: true,
             captchaEvaded: evaded
           });
-          return;
         }
       } catch (captchaError) {
-        logger.error('Error checking for CAPTCHA:', captchaError);
+        console.error('Error checking for CAPTCHA:', captchaError);
       }
-      
+
       // Take a screenshot after action
       try {
         const screenshotPath = path.join(screenshotsDir, `${sessionId}-${Date.now()}.png`);
         await session.page.screenshot({ path: screenshotPath, fullPage: false });
       } catch (screenshotError) {
-        logger.error('Error taking screenshot after action:', screenshotError);
+        console.error('Error taking screenshot after action:', screenshotError);
       }
-      
-      // Get current URL after action
+
+      // Update current URL after action
       try {
         const currentUrl = await session.page.url();
         session.url = currentUrl;
       } catch (urlError) {
-        logger.error('Error getting current URL:', urlError);
+        console.error('Error getting current URL:', urlError);
       }
-      
-      logger.success(`✅ Action execution complete: ${action.type}`);
-      
-      res.status(200).json({
+
+      console.info(`✅ Action execution complete: ${action.type}`);
+      return res.status(200).json({
         status: 'action_completed',
         action: action.type,
         url: session.url,
         result: actionResult
       });
     } catch (error) {
-      logger.error(`Error executing action in session ${sessionId}:`, error);
-      
-      // CRITICAL: Always return 200 with error details rather than 500
-      // This allows client to continue without crashing
-      res.status(200).json({ 
+      console.error(`Error executing action in session ${sessionId}:`, error);
+      return res.status(200).json({ 
         status: 'action_error',
         action: action.type,
         error: error.message,
@@ -1941,9 +1796,11 @@ app.post('/api/puppeteer/session/:sessionId/action', async (req, res) => {
       });
     }
   } else {
-    res.status(404).json({ error: 'Session not found' });
+    return res.status(404).json({ error: 'Session not found' });
   }
 });
+
+
 
 // CAPTCHA handling endpoint
 app.post('/api/puppeteer/session/:sessionId/handle-captcha', async (req, res) => {
