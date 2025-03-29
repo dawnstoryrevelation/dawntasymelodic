@@ -173,49 +173,53 @@ const navigateUrl = ref('');
 
 // Action feedback timing
 const ACTION_FEEDBACK_DURATION = 1500;
-watch(() => [props.currentAction, props.actionData], ([newAction, newData], [oldAction]) => {
-  if (newAction === 'type' && props.actionData.text) {
-    // Reset typing state
-    visibleTypingText.value = '';
-    isTypingComplete.value = false;
-    keyPressEffects.value = [];
-    
-    // Clear existing interval
-    if (typingInterval) clearInterval(typingInterval);
-    
-    // Start typing animation
-    let charIndex = 0;
-    const textToType = props.actionData.text;
-    
-    typingInterval = setInterval(() => {
-      if (charIndex < textToType.length) {
-        // Add character to visible text
-        visibleTypingText.value += textToType.charAt(charIndex);
-        
-        // Add key press effect at random position
-        keyPressEffects.value.push({
-          char: textToType.charAt(charIndex),
-          x: Math.floor(Math.random() * 80) + 10, // Random position 10-90%
-          delay: Math.floor(Math.random() * 200) // Random delay
-        });
-        
-        // Remove old key press effects to avoid too many elements
-        if (keyPressEffects.value.length > 8) {
-          keyPressEffects.value.shift();
+watch(
+  () => [props.currentAction, props.actionData],
+  ([newAction, newData], [oldAction]) => {
+    if (newAction === 'type' && newData?.text) {  // Changed props.actionData.text to newData?.text
+      // Reset typing state
+      visibleTypingText.value = '';
+      isTypingComplete.value = false;
+      keyPressEffects.value = [];
+      
+      // Clear existing interval
+      if (typingInterval) clearInterval(typingInterval);
+      
+      // Start typing animation
+      let charIndex = 0;
+      const textToType = newData.text;  // Changed props.actionData.text to newData.text
+      
+      typingInterval = setInterval(() => {
+        if (charIndex < textToType.length) {
+          // Add character to visible text
+          visibleTypingText.value += textToType.charAt(charIndex);
+          
+          // Add key press effect at random position
+          keyPressEffects.value.push({
+            char: textToType.charAt(charIndex),
+            x: Math.floor(Math.random() * 80) + 10,
+            delay: Math.floor(Math.random() * 200)
+          });
+          
+          // Remove old key press effects to avoid too many elements
+          if (keyPressEffects.value.length > 8) {
+            keyPressEffects.value.shift();
+          }
+          
+          charIndex++;
+        } else {
+          // Typing complete
+          isTypingComplete.value = true;
+          clearInterval(typingInterval);
         }
-        
-        charIndex++;
-      } else {
-        // Typing complete
-        isTypingComplete.value = true;
-        clearInterval(typingInterval);
-      }
-    }, typingSpeed);
-  } else if (oldAction === 'type' && newAction !== 'type') {
-    // Clean up typing interval when action changes
-    if (typingInterval) clearInterval(typingInterval);
-  }
-}, { immediate: true });
+      }, typingSpeed);
+    } else if (oldAction === 'type' && newAction !== 'type') {
+      // Clean up typing interval when action changes
+      if (typingInterval) clearInterval(typingInterval);
+    }
+  },
+  { immediate: true }
+);
 
 // Format URL for display (truncate if too long)
 const formatUrl = (url) => {
