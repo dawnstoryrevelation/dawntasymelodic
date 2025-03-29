@@ -510,20 +510,43 @@ const executeBrowserActions = async (actions) => {
       }
       
       // Extract page info after navigation actions
-      if (action.type === 'navigate' || (action.type === 'click' && result.url !== browsedPages.value[browsedPages.value.length - 1]?.url)) {
-        try {
-          // Get current page content
-          const pageContent = await puppeteerService.getPageContent(browserSessionId.value);
-          
-          // Extract and store page info
-          if (pageContent) {
-            const pageInfo = await agentOpenAI.extractPageInfo(pageContent, result.url || action.url);
-            browsedPages.value.push(pageInfo);
-          }
-        } catch (error) {
-          console.error('Error extracting page info:', error);
-        }
+      // Extract page info after navigation actions
+if (action.type === 'navigate' || (action.type === 'click' && result.url !== browsedPages.value[browsedPages.value.length - 1]?.url)) {
+  try {
+    // Get current page content
+    const pageContent = await puppeteerService.getPageContent(browserSessionId.value)
+      .catch(error => {
+        console.warn("⚠️ Could not get page content, continuing anyway:", error.message);
+        return null;
+      });
+    
+    // Extract and store page info if content was retrieved
+    if (pageContent) {
+      try {
+        const pageInfo = await agentOpenAI.extractPageInfo(pageContent, result.url || action.url);
+        browsedPages.value.push(pageInfo);
+      } catch (error) {
+        console.warn("⚠️ Could not extract page info:", error.message);
+        // Still add basic page info
+        browsedPages.value.push({
+          url: result.url || action.url || "Unknown URL",
+          title: "Webpage", 
+          timestamp: new Date().toISOString()
+        });
       }
+    } else {
+      // Add minimal page info when content can't be retrieved
+      browsedPages.value.push({
+        url: result.url || action.url || "Unknown URL",
+        title: "Visited Page", 
+        timestamp: new Date().toISOString()
+      });
+    }
+  } catch (error) {
+    console.error('Error processing page:', error);
+    // Don't let this error stop the process
+  }
+}
       
       // Pause briefly between actions for visual feedback
       await new Promise(resolve => setTimeout(resolve, 400));
