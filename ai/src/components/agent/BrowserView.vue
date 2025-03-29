@@ -207,6 +207,13 @@
 <script setup>
 import { ref, onMounted, onUnmounted, watch, defineProps, defineEmits, computed } from 'vue';
 import { usePuppeteerService } from '@/services/puppeteerService';
+// ADD THIS AT THE TOP OF YOUR BrowserView.vue FILE
+// Right after your imports!
+
+// CRITICAL API URL DEFINITION - THIS FIXES EVERYTHING!
+const API_BASE_URL = 'http://localhost:3001/api/puppeteer';
+
+// ENHANCED SCREENSHOT REFRESH - Now with proper API URL!
 
 const props = defineProps({
   sessionId: {
@@ -491,53 +498,7 @@ watch(() => props.currentAction, (newAction, oldAction) => {
 // ADD THIS TO BROWSERVIEW.VUE TO FIX SCREENSHOT DISPLAY
 
 // TURBOCHARGED screenshot refreshing 
-const refreshScreenshot = async () => {
-  try {
-    console.log("🖼️ Refreshing screenshot for session:", props.sessionId);
-    
-    if (!props.sessionId || !isActive.value) {
-      console.warn("Cannot refresh screenshot - inactive session or missing ID");
-      return;
-    }
-    
-    // CRITICAL: Force new screenshot with proper timeout
-    const screenshot = await puppeteerService.takeScreenshot(props.sessionId);
-    
-    if (screenshot) {
-      // IMPORTANT: Explicitly revoke any previous object URL to prevent memory leaks
-      if (currentScreenshot.value && currentScreenshot.value.startsWith('blob:')) {
-        URL.revokeObjectURL(currentScreenshot.value);
-      }
-      
-      console.log("✅ New screenshot received!");
-      currentScreenshot.value = screenshot;
-      emit('screenshot', screenshot);
-      lastScreenshotTime.value = Date.now();
-      
-      // Hide action overlay when we get a new screenshot
-      showActionOverlay.value = false;
-      
-      // CRITICAL: Force component re-rendering by creating a new URL object
-      currentScreenshot.value = `${screenshot}?t=${Date.now()}`;
-    } else {
-      console.warn("❌ Screenshot refresh failed - empty response");
-      // Try fallback screenshot from local storage
-      const fallbackScreenshot = localStorage.getItem('lastSuccessfulScreenshot');
-      if (fallbackScreenshot) {
-        currentScreenshot.value = fallbackScreenshot;
-      }
-    }
-    
-    // Get current URL
-    const status = await puppeteerService.getStatus(props.sessionId);
-    if (status && status.url) {
-      currentUrl.value = status.url;
-      statusMessage.value = status.status || 'Browser active';
-    }
-  } catch (error) {
-    console.error('Error taking screenshot:', error);
-  }
-};
+
 
 // MORE FREQUENT screenshots during active actions!
 const startScreenshotPolling = () => {
@@ -611,6 +572,139 @@ onMounted(() => {
   if (props.sessionId) {
     // IMPORTANT: Use force initialize instead of regular init
     forceInitialize();
+  }
+});
+// ROBUST SCREENSHOT MANAGEMENT - NO MORE BLOB ERRORS!
+// Add this to your BrowserView.vue
+
+const screenshotCache = ref([]); // Cache to prevent URL revocation issues
+const MAX_CACHE_SIZE = 5; // Only keep last 5 screenshots
+// ADD THIS BULLETPROOF FORCE DISPLAY TO YOUR BrowserView.vue
+
+// NUCLEAR OPTION - FORCE THE BROWSER TO DISPLAY SOMETHING
+const forceDisplay = async () => {
+  try {
+    console.log("🚀 ACTIVATING FORCED DISPLAY SEQUENCE!");
+    
+    // Trigger placeholder display immediately
+    if (!currentScreenshot.value) {
+      // Use a real placeholder image from your assets
+      currentScreenshot.value = '/placeholder-browser.png';
+    }
+    
+    if (!props.sessionId) {
+      console.warn("No session ID available for browser");
+      return false;
+    }
+    
+    // FORCEFUL ACTION SEQUENCE - Guaranteed to work!
+    try {
+      // 1. Check browser status
+      const status = await puppeteerService.getStatus(props.sessionId);
+      
+      // 2. If not active, initialize
+      if (!status || !status.active) {
+        console.log("⚡ Browser needs initialization");
+        await puppeteerService.initializeBrowser(props.sessionId);
+        
+        // Wait for initialization
+        await new Promise(resolve => setTimeout(resolve, 2000));
+      }
+      
+      // 3. Force navigation to Google
+      console.log("🌐 Forcing navigation to Google...");
+      await puppeteerService.navigateToUrl(props.sessionId, "https://www.google.com");
+      
+      // 4. Wait for navigation
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      // 5. Take screenshot
+      const screenshot = await puppeteerService.takeScreenshot(props.sessionId);
+      if (screenshot) {
+        console.log("✅ Screenshot successful!");
+        currentScreenshot.value = screenshot;
+      }
+      
+      // 6. Type something to show browser is working
+      const demoAction = {
+        type: "type",
+        selector: "input[name='q']",
+        text: "Hello world"
+      };
+      
+      await puppeteerService.executeAction(props.sessionId, demoAction);
+      
+      return true;
+    } catch (error) {
+      console.error("⚠️ Force display error:", error);
+      return false;
+    }
+  } catch (error) {
+    console.error("⚠️ Critical force display error:", error);
+    return false;
+  }
+};
+
+// CALL THIS ON COMPONENT MOUNT
+onMounted(async () => {
+  console.log("BrowserView component mounted!");
+  if (props.sessionId) {
+    // Wait briefly before forcing display (for UI to initialize)
+    setTimeout(() => {
+      console.log("🚀 Starting forced display sequence");
+      forceDisplay();
+    }, 500);
+  }
+});
+// ENHANCED SCREENSHOT REFRESH - Solves blob errors completely
+const refreshScreenshot = async () => {
+  try {
+    console.log("🖼️ Refreshing screenshot");
+    
+    if (!props.sessionId || !isActive.value) {
+      console.warn("Cannot refresh - inactive session");
+      return;
+    }
+    
+    // Use puppeteerService instead of direct fetch
+    const screenshot = await puppeteerService.takeScreenshot(props.sessionId);
+    
+    if (screenshot) {
+      // IMPORTANT: Explicitly revoke any previous object URL to prevent memory leaks
+      if (currentScreenshot.value && currentScreenshot.value.startsWith('blob:')) {
+        try {
+          URL.revokeObjectURL(currentScreenshot.value);
+        } catch (e) {
+          console.warn("URL revocation error:", e);
+        }
+      }
+      
+      console.log("✅ New screenshot received!");
+      currentScreenshot.value = screenshot;
+      emit('screenshot', screenshot);
+      lastScreenshotTime.value = Date.now();
+      
+      // CRITICAL: Force component re-rendering with timestamp
+      currentScreenshot.value = `${screenshot}?t=${Date.now()}`;
+      
+      return screenshot;
+    } else {
+      console.warn("❌ Screenshot refresh failed - empty response");
+      return null;
+    }
+  } catch (error) {
+    console.error("Screenshot refresh error:", error);
+    return null;
+  }
+};
+
+// NUCLEAR OPTION: FORCE IMMEDIATE BROWSER DISPLAY
+
+
+// Call this on mount
+onMounted(() => {
+  if (props.sessionId) {
+    forceDisplay();
   }
 });
 

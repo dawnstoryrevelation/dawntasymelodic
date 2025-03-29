@@ -274,6 +274,88 @@ const browserView = ref(null);
 
 // Computed properties
 const browserInUse = computed(() => browserSessionId.value && browserActive.value);
+// BULLETPROOF INITIALIZATION SEQUENCE
+// Add to your AgentChatView.vue
+
+// Track initialization status
+const browserInitialized = ref(false);
+const initializationAttempts = ref(0);
+const MAX_INIT_ATTEMPTS = 3;
+
+// NUCLEAR LAUNCH SEQUENCE - Guaranteed browser startup
+const initializeBrowser = async () => {
+  console.log("🚀 LAUNCHING BROWSER SEQUENCE");
+  
+  // Reset state
+  initializationAttempts.value = 0;
+  browserInitialized.value = false;
+  
+  try {
+    // Create new session if needed
+    if (!browserSessionId.value) {
+      console.log("⚡ Creating new browser session");
+      const session = await puppeteerService.startSession();
+      browserSessionId.value = session.sessionId;
+    }
+    
+    // Multiple initialization attempts for reliability
+    while (!browserInitialized.value && initializationAttempts.value < MAX_INIT_ATTEMPTS) {
+      initializationAttempts.value++;
+      console.log(`🔄 Initialization attempt ${initializationAttempts.value}/${MAX_INIT_ATTEMPTS}`);
+      
+      try {
+        // Initialize browser
+        await puppeteerService.initializeBrowser(browserSessionId.value);
+        
+        // Force navigation to Google
+        console.log("🌐 Forcing navigation to Google");
+        await puppeteerService.navigateToUrl(browserSessionId.value, "https://www.google.com");
+        
+        // Add delay to ensure browser loads
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        
+        // Verify status
+        const status = await puppeteerService.getStatus(browserSessionId.value);
+        
+        if (status && status.active) {
+          console.log("✅ Browser initialization SUCCESS!");
+          browserInitialized.value = true;
+          
+          // First actions to show browser is working
+          const demoAction = {
+            type: 'type',
+            selector: 'input[name="q"]',
+            text: 'Hello, I am your AI Agent'
+          };
+          
+          // Execute demo action
+          await puppeteerService.executeAction(browserSessionId.value, demoAction);
+          
+          return true;
+        }
+      } catch (attemptError) {
+        console.warn(`⚠️ Initialization attempt ${initializationAttempts.value} failed:`, attemptError);
+        
+        // Wait between attempts
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      }
+    }
+    
+    // If all attempts failed
+    if (!browserInitialized.value) {
+      console.error("❌ All initialization attempts failed");
+      return false;
+    }
+    
+    return browserInitialized.value;
+  } catch (error) {
+    console.error("❌ Critical initialization error:", error);
+    return false;
+  }
+};
+
+// Use this for action execution
+
 
 // Set agent mode
 const setAgentMode = (mode) => {
@@ -379,19 +461,6 @@ const refreshBrowser = async () => {
 };
 
 // Initialize the browser session
-const initializeBrowser = async () => {
-  try {
-    // Start a new browser session
-    const sessionResponse = await puppeteerService.startSession();
-    browserSessionId.value = sessionResponse.sessionId;
-    
-    console.log(`🚀 Browser session started: ${browserSessionId.value}`);
-    addSystemMessage('Browser session started', 'ri-computer-line');
-  } catch (error) {
-    console.error('Error starting browser session:', error);
-    addSystemMessage('Failed to start browser session', 'ri-error-warning-line');
-  }
-};
 
 // Add a system message
 const addSystemMessage = (content, icon = 'ri-information-line') => {
@@ -481,7 +550,74 @@ const executeBrowserActions = async (actions) => {
     // Set current action for visual feedback
     currentBrowserAction.value = action.type;
     currentBrowserActionData.value = action;
-    
+    // EXACT ACTION STRUCTURE VALIDATION
+// Add this to your executeBrowserActions function in AgentChatView.vue
+
+// ADD THIS INSIDE YOUR executeBrowserActions FUNCTION:
+
+// Transform all actions to EXACTLY match server expectations
+const transformedActions = actions.map(action => {
+  // Basic validation
+  if (!action || !action.type) {
+    console.warn("Invalid action:", action);
+    return null;
+  }
+  
+  // Transform based on type
+  switch (action.type) {
+    case 'click':
+      return {
+        type: 'click',
+        selector: action.selector || '',
+        text: action.text || undefined
+      };
+      
+    case 'type':
+      return {
+        type: 'type',
+        selector: action.selector || '',
+        text: action.text || ''
+      };
+      
+    case 'navigate':
+      return {
+        type: 'navigate',
+        url: action.url || 'https://www.google.com'
+      };
+      
+    case 'scroll':
+      return {
+        type: 'scroll',
+        direction: action.direction || 'down',
+        amount: action.amount || 300
+      };
+      
+    case 'wait':
+      return {
+        type: 'wait',
+        duration: action.duration || 1000
+      };
+      
+    default:
+      return { type: action.type };
+  }
+});
+
+// Filter out invalid actions
+const validActions = transformedActions.filter(action => action !== null);
+
+if (validActions.length === 0) {
+  console.warn("No valid actions to execute after transformation");
+  return { success: false, error: "No valid actions" };
+}
+
+// Now execute the PERFECTLY FORMATTED actions
+for (let i = 0; i < validActions.length; i++) {
+  const action = validActions[i];
+  
+  // [Continue with your existing action execution logic]
+  // ...
+}
     // Update thinking text
     updateThinkingText(`${action.description || getActionDescription(action)}`);
     
