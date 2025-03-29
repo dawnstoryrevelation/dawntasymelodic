@@ -1,4 +1,3 @@
-<!-- src/components/agent/BrowserView.vue -->
 <template>
   <div class="browser-view">
     <!-- Browser Loading Indicator -->
@@ -45,56 +44,87 @@
       <!-- Browser Content -->
       <div class="browser-content">
         <!-- Show screenshot if we have one -->
-        <img v-if="currentScreenshot" 
-             :src="currentScreenshot" 
-             alt="Browser screenshot" 
-             class="browser-screenshot" 
+        <img v-if="currentScreenshot"
+             :src="currentScreenshot"
+             alt="Browser screenshot"
+             class="browser-screenshot"
              :class="{ 'action-typing': currentAction === 'type', 'action-clicking': currentAction === 'click', 'action-scrolling': currentAction === 'scroll' }" />
         
         <!-- Activity Overlay for Real-time Visual Feedback -->
-        <div v-if="showActionOverlay" class="action-overlay">
-          <div v-if="currentAction === 'type'" class="typing-indicator">
-            <div class="typing-animation">
-              <span class="typing-cursor">|</span>
-              <span class="typing-text">{{ typingText }}</span>
+        <div v-if="currentAction === 'type'" class="typing-indicator">
+          <div class="typing-cursor-container">
+            <!-- Text being typed with animated cursor -->
+            <span class="typing-text">{{ visibleTypingText }}</span>
+            <span class="typing-cursor" :class="{ 'cursor-blink': isTypingComplete }">|</span>
+          </div>
+          <div class="key-press-animation">
+            <div v-for="(key, index) in keyPressEffects"
+                 :key="index"
+                 class="key-press"
+                 :style="{ left: `${key.x}%`, animationDelay: `${key.delay}ms` }">
+              {{ key.char }}
             </div>
-            <div class="action-label">Typing...</div>
           </div>
-          
-          <div v-else-if="currentAction === 'click'" class="click-indicator">
-            <div class="click-animation"></div>
-            <div class="action-label">Clicking...</div>
+          <div class="action-label">
+            <span class="action-icon"><i class="ri-keyboard-line"></i></span>
+            <span>Typing...</span>
           </div>
-          
-          <div v-else-if="currentAction === 'scroll'" class="scroll-indicator">
-            <div class="scroll-animation" :class="scrollDirection"></div>
-            <div class="action-label">Scrolling {{ scrollDirection }}...</div>
+        </div>
+        <!-- Click Animation with ENHANCED Visual Feedback -->
+        <div v-else-if="currentAction === 'click'" class="click-indicator">
+          <div class="click-animation">
+            <div class="click-ripple"></div>
+            <div class="click-pointer"></div>
+            <div class="click-highlight"></div>
           </div>
-          
-          <div v-else-if="currentAction === 'navigate'" class="navigate-indicator">
-            <div class="navigate-animation"></div>
-            <div class="action-label">Navigating to {{ navigateUrl }}...</div>
+          <div class="action-label">
+            <span class="action-icon"><i class="ri-cursor-line"></i></span>
+            <span>Clicking...</span>
+          </div>
+        </div>
+        <!-- Scroll Animation with ENHANCED Visual Feedback -->
+        <div v-else-if="currentAction === 'scroll'" class="scroll-indicator">
+          <div class="scroll-track">
+            <div class="scroll-thumb" :class="scrollDirection"></div>
+          </div>
+          <div class="scroll-arrows" :class="scrollDirection">
+            <div class="scroll-arrow" v-for="n in 3" :key="n"></div>
+          </div>
+          <div class="action-label">
+            <span class="action-icon"><i class="ri-mouse-line"></i></span>
+            <span>Scrolling {{ scrollDirection }}...</span>
+          </div>
+        </div>
+        <!-- Navigation Animation with ENHANCED Visual Feedback -->
+        <div v-else-if="currentAction === 'navigate'" class="navigate-indicator">
+          <div class="navigate-url-container">
+            <i class="ri-global-line"></i>
+            <div class="navigate-url">{{ formatUrl(navigateUrl) }}</div>
+          </div>
+          <div class="navigate-animation">
+            <div class="navigate-progress"></div>
+            <div class="navigate-dots">
+              <div class="navigate-dot" v-for="n in 3" :key="n"></div>
+            </div>
+          </div>
+          <div class="action-label">
+            <span class="action-icon"><i class="ri-arrow-right-line"></i></span>
+            <span>Navigating...</span>
           </div>
         </div>
         
-        <!-- Show placeholder if no screenshot -->
-        <div v-if="!currentScreenshot" class="no-content">
-          <i class="ri-computer-line"></i>
-          <p>Waiting for browser activity...</p>
+        <!-- Browser Status Bar -->
+        <div class="browser-status-bar">
+          <div class="status-indicator" :class="{ 'active': isActive }">
+            <span class="status-dot"></span>
+            <span class="status-text">{{ isActive ? 'Active' : 'Idle' }}</span>
+          </div>
+          <div class="status-action" v-if="currentAction">
+            <i class="ri-robot-line"></i>
+            <span>{{ actionStatusMessage }}</span>
+          </div>
+          <div class="status-info">{{ statusMessage }}</div>
         </div>
-      </div>
-      
-      <!-- Browser Status Bar -->
-      <div class="browser-status-bar">
-        <div class="status-indicator" :class="{ 'active': isActive }">
-          <span class="status-dot"></span>
-          <span class="status-text">{{ isActive ? 'Active' : 'Idle' }}</span>
-        </div>
-        <div class="status-action" v-if="currentAction">
-          <i class="ri-robot-line"></i>
-          <span>{{ actionStatusMessage }}</span>
-        </div>
-        <div class="status-info">{{ statusMessage }}</div>
       </div>
     </div>
   </div>
@@ -128,6 +158,11 @@ const hasError = ref(false);
 const errorMessage = ref('');
 const currentUrl = ref('about:blank');
 const currentScreenshot = ref(null);
+const visibleTypingText = ref('');
+const isTypingComplete = ref(false);
+const keyPressEffects = ref([]);
+const typingSpeed = 80; // ms per character
+let typingInterval = null;
 const isActive = ref(false);
 const statusMessage = ref('Browser ready');
 const lastScreenshotTime = ref(0);
@@ -138,7 +173,56 @@ const navigateUrl = ref('');
 
 // Action feedback timing
 const ACTION_FEEDBACK_DURATION = 1500;
+watch(() => [props.currentAction, props.actionData], ([newAction, newData], [oldAction]) => {
+  if (newAction === 'type' && props.actionData.text) {
+    // Reset typing state
+    visibleTypingText.value = '';
+    isTypingComplete.value = false;
+    keyPressEffects.value = [];
+    
+    // Clear existing interval
+    if (typingInterval) clearInterval(typingInterval);
+    
+    // Start typing animation
+    let charIndex = 0;
+    const textToType = props.actionData.text;
+    
+    typingInterval = setInterval(() => {
+      if (charIndex < textToType.length) {
+        // Add character to visible text
+        visibleTypingText.value += textToType.charAt(charIndex);
+        
+        // Add key press effect at random position
+        keyPressEffects.value.push({
+          char: textToType.charAt(charIndex),
+          x: Math.floor(Math.random() * 80) + 10, // Random position 10-90%
+          delay: Math.floor(Math.random() * 200) // Random delay
+        });
+        
+        // Remove old key press effects to avoid too many elements
+        if (keyPressEffects.value.length > 8) {
+          keyPressEffects.value.shift();
+        }
+        
+        charIndex++;
+      } else {
+        // Typing complete
+        isTypingComplete.value = true;
+        clearInterval(typingInterval);
+      }
+    }, typingSpeed);
+  } else if (oldAction === 'type' && newAction !== 'type') {
+    // Clean up typing interval when action changes
+    if (typingInterval) clearInterval(typingInterval);
+  }
+}, { immediate: true });
 
+// Format URL for display (truncate if too long)
+const formatUrl = (url) => {
+  if (!url) return '';
+  if (url.length <= 40) return url;
+  return url.substring(0, 20) + '...' + url.substring(url.length - 20);
+};
 // Computed status message for current action
 const actionStatusMessage = computed(() => {
   switch(props.currentAction) {
@@ -614,7 +698,314 @@ defineExpose({
   animation: fadeIn 0.2s ease;
   transition: transform 0.3s ease;
 }
+.typing-cursor-container {
+  display: inline-block;
+  background: rgba(255, 255, 255, 0.15);
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-family: monospace;
+  font-size: 16px;
+  min-width: 280px;
+  text-align: left;
+  margin-bottom: 10px;
+  position: relative;
+  min-height: 20px;
+}
 
+.typing-text {
+  white-space: nowrap;
+  overflow: hidden;
+  max-width: 300px;
+}
+
+.typing-cursor {
+  display: inline-block;
+  color: #3b82f6;
+  font-weight: bold;
+  animation: cursor-blink 0.8s infinite;
+}
+
+.typing-cursor.cursor-blink {
+  animation: cursor-blink 0.8s infinite;
+}
+
+.key-press-animation {
+  position: relative;
+  height: 40px;
+  width: 100%;
+  overflow: hidden;
+}
+
+.key-press {
+  position: absolute;
+  background: rgba(59, 130, 246, 0.7);
+  border-radius: 4px;
+  padding: 2px 6px;
+  color: white;
+  font-size: 12px;
+  animation: key-float 1s forwards;
+  opacity: 0;
+}
+
+@keyframes key-float {
+  0% { transform: translateY(20px); opacity: 0; }
+  20% { opacity: 1; }
+  100% { transform: translateY(-20px); opacity: 0; }
+}
+
+/* CLICK ANIMATION ENHANCEMENTS */
+.click-animation {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  margin-bottom: 15px;
+}
+
+.click-ripple {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 10px;
+  height: 10px;
+  background-color: rgba(59, 130, 246, 0.7);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  animation: click-ripple 1.2s cubic-bezier(0, 0.2, 0.8, 1) infinite;
+}
+
+.click-pointer {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 16px;
+  height: 16px;
+  border: 3px solid white;
+  border-radius: 50%;
+  background: #3b82f6;
+  transform: translate(-50%, -50%);
+  animation: click-pulse 1.2s infinite;
+}
+
+.click-highlight {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.3) 0%, rgba(59, 130, 246, 0) 70%);
+  transform: translate(-50%, -50%);
+  animation: click-highlight 1.2s infinite;
+}
+
+@keyframes click-ripple {
+  0% { width: 0; height: 0; opacity: 1; }
+  100% { width: 80px; height: 80px; opacity: 0; }
+}
+
+@keyframes click-pulse {
+  0% { transform: translate(-50%, -50%) scale(1); }
+  50% { transform: translate(-50%, -50%) scale(0.8); }
+  100% { transform: translate(-50%, -50%) scale(1); }
+}
+
+@keyframes click-highlight {
+  0% { opacity: 0.8; transform: translate(-50%, -50%) scale(0.5); }
+  100% { opacity: 0; transform: translate(-50%, -50%) scale(1.5); }
+}
+
+/* SCROLL ANIMATION ENHANCEMENTS */
+.scroll-track {
+  width: 8px;
+  height: 100px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  margin: 0 auto 15px;
+  position: relative;
+}
+
+.scroll-thumb {
+  width: 8px;
+  height: 20px;
+  background: #3b82f6;
+  border-radius: 4px;
+  position: absolute;
+  left: 0;
+}
+
+.scroll-thumb.down {
+  animation: scroll-down 1.5s infinite;
+}
+
+.scroll-thumb.up {
+  animation: scroll-up 1.5s infinite;
+}
+
+.scroll-arrows {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 60px;
+  margin-bottom: 15px;
+}
+
+.scroll-arrows.down {
+  flex-direction: column;
+}
+
+.scroll-arrows.up {
+  flex-direction: column-reverse;
+}
+
+.scroll-arrow {
+  width: 14px;
+  height: 14px;
+  border-right: 3px solid #3b82f6;
+  border-bottom: 3px solid #3b82f6;
+  margin: 3px 0;
+}
+
+.scroll-arrows.down .scroll-arrow {
+  transform: rotate(45deg);
+  animation: fade-arrows-down 1.5s infinite;
+}
+
+.scroll-arrows.up .scroll-arrow {
+  transform: rotate(-135deg);
+  animation: fade-arrows-up 1.5s infinite;
+}
+
+.scroll-arrows .scroll-arrow:nth-child(1) { animation-delay: 0s; }
+.scroll-arrows .scroll-arrow:nth-child(2) { animation-delay: 0.2s; }
+.scroll-arrows .scroll-arrow:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes scroll-down {
+  0% { top: 0; }
+  80%, 100% { top: calc(100% - 20px); }
+}
+
+@keyframes scroll-up {
+  0% { bottom: 0; }
+  80%, 100% { bottom: calc(100% - 20px); }
+}
+
+@keyframes fade-arrows-down {
+  0% { opacity: 0; transform: rotate(45deg) translate(-5px, -5px); }
+  50% { opacity: 1; }
+  100% { opacity: 0; transform: rotate(45deg) translate(5px, 5px); }
+}
+
+@keyframes fade-arrows-up {
+  0% { opacity: 0; transform: rotate(-135deg) translate(-5px, -5px); }
+  50% { opacity: 1; }
+  100% { opacity: 0; transform: rotate(-135deg) translate(5px, 5px); }
+}
+
+/* NAVIGATION ANIMATION ENHANCEMENTS */
+.navigate-indicator {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.navigate-url-container {
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 8px 12px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  max-width: 300px;
+  overflow: hidden;
+}
+
+.navigate-url-container i {
+  margin-right: 8px;
+  color: #3b82f6;
+}
+
+.navigate-url {
+  font-family: monospace;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.navigate-animation {
+  width: 280px;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  margin-bottom: 15px;
+  position: relative;
+  overflow: hidden;
+}
+
+.navigate-progress {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+  animation: progress-bar 2.5s infinite;
+  border-radius: 3px;
+}
+
+.navigate-dots {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  transform: translateY(-50%);
+}
+
+.navigate-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: white;
+  margin: 0 3px;
+  opacity: 0.8;
+  animation: dot-pulse 1.5s infinite;
+}
+
+.navigate-dot:nth-child(1) { animation-delay: 0s; }
+.navigate-dot:nth-child(2) { animation-delay: 0.3s; }
+.navigate-dot:nth-child(3) { animation-delay: 0.6s; }
+
+@keyframes progress-bar {
+  0% { width: 0; }
+  80% { width: 100%; }
+  100% { width: 100%; }
+}
+
+@keyframes dot-pulse {
+  0%, 100% { transform: scale(1); opacity: 0.5; }
+  50% { transform: scale(1.5); opacity: 1; }
+}
+
+/* COMMON ACTION LABEL STYLING */
+.action-label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 500;
+  color: #e2e8f0;
+  margin-top: 5px;
+}
+
+.action-icon {
+  margin-right: 6px;
+  color: #3b82f6;
+}
+
+/* GENERAL ANIMATION KEYFRAMES */
+@keyframes cursor-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
 /* Action-specific screenshot effects */
 .browser-screenshot.action-typing {
   filter: brightness(1.05);
