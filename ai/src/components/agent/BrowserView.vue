@@ -1,5 +1,4 @@
 <!-- src/components/agent/BrowserView.vue -->
-<!-- TO INSTALL: Save this file to src/components/agent/BrowserView.vue -->
 <template>
   <div class="browser-view">
     <!-- Browser Loading Indicator -->
@@ -46,10 +45,40 @@
       <!-- Browser Content -->
       <div class="browser-content">
         <!-- Show screenshot if we have one -->
-        <img v-if="currentScreenshot" :src="currentScreenshot" alt="Browser screenshot" class="browser-screenshot" />
+        <img v-if="currentScreenshot" 
+             :src="currentScreenshot" 
+             alt="Browser screenshot" 
+             class="browser-screenshot" 
+             :class="{ 'action-typing': currentAction === 'type', 'action-clicking': currentAction === 'click', 'action-scrolling': currentAction === 'scroll' }" />
+        
+        <!-- Activity Overlay for Real-time Visual Feedback -->
+        <div v-if="showActionOverlay" class="action-overlay">
+          <div v-if="currentAction === 'type'" class="typing-indicator">
+            <div class="typing-animation">
+              <span class="typing-cursor">|</span>
+              <span class="typing-text">{{ typingText }}</span>
+            </div>
+            <div class="action-label">Typing...</div>
+          </div>
+          
+          <div v-else-if="currentAction === 'click'" class="click-indicator">
+            <div class="click-animation"></div>
+            <div class="action-label">Clicking...</div>
+          </div>
+          
+          <div v-else-if="currentAction === 'scroll'" class="scroll-indicator">
+            <div class="scroll-animation" :class="scrollDirection"></div>
+            <div class="action-label">Scrolling {{ scrollDirection }}...</div>
+          </div>
+          
+          <div v-else-if="currentAction === 'navigate'" class="navigate-indicator">
+            <div class="navigate-animation"></div>
+            <div class="action-label">Navigating to {{ navigateUrl }}...</div>
+          </div>
+        </div>
         
         <!-- Show placeholder if no screenshot -->
-        <div v-else class="no-content">
+        <div v-if="!currentScreenshot" class="no-content">
           <i class="ri-computer-line"></i>
           <p>Waiting for browser activity...</p>
         </div>
@@ -61,6 +90,10 @@
           <span class="status-dot"></span>
           <span class="status-text">{{ isActive ? 'Active' : 'Idle' }}</span>
         </div>
+        <div class="status-action" v-if="currentAction">
+          <i class="ri-robot-line"></i>
+          <span>{{ actionStatusMessage }}</span>
+        </div>
         <div class="status-info">{{ statusMessage }}</div>
       </div>
     </div>
@@ -68,17 +101,25 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, watch, defineProps, defineEmits } from 'vue';
+import { ref, onMounted, onUnmounted, watch, defineProps, defineEmits, computed } from 'vue';
 import { usePuppeteerService } from '@/services/puppeteerService';
 
 const props = defineProps({
   sessionId: {
     type: String,
     required: true
+  },
+  currentAction: {
+    type: String,
+    default: null
+  },
+  actionData: {
+    type: Object,
+    default: () => ({})
   }
 });
 
-const emit = defineEmits(['screenshot', 'browser-status']);
+const emit = defineEmits(['screenshot', 'browser-status', 'action-completed']);
 
 // State variables
 const isLoading = ref(true);
@@ -89,42 +130,136 @@ const currentUrl = ref('about:blank');
 const currentScreenshot = ref(null);
 const isActive = ref(false);
 const statusMessage = ref('Browser ready');
+const lastScreenshotTime = ref(0);
+const showActionOverlay = ref(false);
+const typingText = ref('');
+const scrollDirection = ref('down');
+const navigateUrl = ref('');
+
+// Action feedback timing
+const ACTION_FEEDBACK_DURATION = 1500;
+
+// Computed status message for current action
+const actionStatusMessage = computed(() => {
+  switch(props.currentAction) {
+    case 'type':
+      return `Typing "${props.actionData.text?.substring(0, 20)}${props.actionData.text?.length > 20 ? '...' : ''}"`;
+    case 'click':
+      return `Clicking ${props.actionData.description || 'element'}`;
+    case 'scroll':
+      return `Scrolling ${props.actionData.direction || 'down'}`;
+    case 'navigate':
+      return `Navigating to ${props.actionData.url || 'new page'}`;
+    case 'wait':
+      return `Waiting ${props.actionData.duration ? (props.actionData.duration/1000) + 's' : ''}`;
+    default:
+      return props.currentAction ? `Performing ${props.currentAction}` : '';
+  }
+});
 
 // Services
 const puppeteerService = usePuppeteerService();
 
 // Polling interval for screenshot updates
 let screenshotInterval = null;
+let actionFeedbackTimer = null;
+
+// Watch for action changes to show visual feedback
+watch(() => props.currentAction, (newAction, oldAction) => {
+  if (newAction && newAction !== oldAction) {
+    // Reset any existing action feedback
+    clearTimeout(actionFeedbackTimer);
+    
+    // Set up action-specific visual feedback
+    if (newAction === 'type' && props.actionData.text) {
+      typingText.value = '';
+      const textToType = props.actionData.text;
+      showActionOverlay.value = true;
+      
+      // Simulate typing character by character
+      let charIndex = 0;
+      const typeInterval = setInterval(() => {
+        if (charIndex < textToType.length) {
+          typingText.value += textToType.charAt(charIndex);
+          charIndex++;
+        } else {
+          clearInterval(typeInterval);
+          // Don't hide overlay yet - wait for screenshot update
+        }
+      }, 50);
+    } 
+    else if (newAction === 'scroll' && props.actionData.direction) {
+      scrollDirection.value = props.actionData.direction;
+      showActionOverlay.value = true;
+    }
+    else if (newAction === 'navigate' && props.actionData.url) {
+      navigateUrl.value = props.actionData.url;
+      showActionOverlay.value = true;
+    }
+    else if (newAction === 'click') {
+      showActionOverlay.value = true;
+    }
+    
+    // Schedule to hide the action overlay after delay
+    // (this gets reset if a new screenshot arrives before the timeout)
+    actionFeedbackTimer = setTimeout(() => {
+      showActionOverlay.value = false;
+    }, ACTION_FEEDBACK_DURATION);
+    
+    // Force a screenshot refresh immediately when an action begins
+    if (props.sessionId && isActive.value) {
+      refreshScreenshot();
+    }
+  }
+});
 
 // Methods
+const refreshScreenshot = async () => {
+  try {
+    const screenshot = await puppeteerService.takeScreenshot(props.sessionId);
+    if (screenshot) {
+      currentScreenshot.value = screenshot;
+      emit('screenshot', screenshot);
+      lastScreenshotTime.value = Date.now();
+      // Hide action overlay when we get a new screenshot
+      showActionOverlay.value = false;
+    }
+    
+    // Get current URL
+    const status = await puppeteerService.getStatus(props.sessionId);
+    if (status && status.url) {
+      currentUrl.value = status.url;
+      statusMessage.value = status.status || 'Browser active';
+    }
+  } catch (error) {
+    console.error('Error taking screenshot:', error);
+  }
+};
+
 const startScreenshotPolling = () => {
   if (screenshotInterval) {
     clearInterval(screenshotInterval);
   }
   
-  // Poll every 500ms for REAL-TIME updates!
+  // Adaptive polling for real-time updates
+  // Poll more frequently during active actions, less frequently when idle
   screenshotInterval = setInterval(async () => {
     if (props.sessionId && isActive.value) {
-      try {
-        console.log("📸 Polling for fresh screenshot...");
-        const screenshot = await puppeteerService.takeScreenshot(props.sessionId);
-        if (screenshot) {
-          currentScreenshot.value = screenshot;
-          emit('screenshot', screenshot);
-          console.log("🎯 New screenshot captured!");
-        }
-        
-        // Get current URL
-        const status = await puppeteerService.getStatus(props.sessionId);
-        if (status && status.url) {
-          currentUrl.value = status.url;
-          statusMessage.value = status.status || 'Browser active';
-        }
-      } catch (error) {
-        console.error('Error polling browser status:', error);
+      // Determine polling frequency based on activity
+      const now = Date.now();
+      const timeElapsed = now - lastScreenshotTime.value;
+      
+      // More frequent updates during actions (every 300ms)
+      // Less frequent when idle (every 1500ms)
+      const shouldUpdate = 
+        (props.currentAction && timeElapsed > 300) || 
+        (!props.currentAction && timeElapsed > 1500);
+      
+      if (shouldUpdate) {
+        await refreshScreenshot();
       }
     }
-  }, 500); // Super-fast updates for real-time experience!
+  }, 200); // Check frequently, but only take screenshots based on conditions
 };
 
 const stopScreenshotPolling = () => {
@@ -241,6 +376,7 @@ const initializeBrowser = async () => {
       const screenshot = await puppeteerService.takeScreenshot(props.sessionId);
       if (screenshot) {
         currentScreenshot.value = screenshot;
+        lastScreenshotTime.value = Date.now();
         emit('screenshot', screenshot);
       }
       
@@ -290,6 +426,9 @@ onMounted(() => {
 onUnmounted(() => {
   console.log("🚫 BrowserView component unmounting, stopping polling");
   stopScreenshotPolling();
+  if (actionFeedbackTimer) {
+    clearTimeout(actionFeedbackTimer);
+  }
 });
 
 // Expose methods to parent
@@ -307,6 +446,9 @@ defineExpose({
   flex-direction: column;
   background-color: #0f172a;
   position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
 }
 
 .browser-loading {
@@ -470,6 +612,158 @@ defineExpose({
   height: 100%;
   object-fit: contain;
   animation: fadeIn 0.2s ease;
+  transition: transform 0.3s ease;
+}
+
+/* Action-specific screenshot effects */
+.browser-screenshot.action-typing {
+  filter: brightness(1.05);
+}
+
+.browser-screenshot.action-clicking {
+  transform: scale(0.995);
+  transition: transform 0.15s ease;
+}
+
+.browser-screenshot.action-scrolling {
+  animation: subtle-scroll 0.5s ease;
+}
+
+/* Visual feedback for actions */
+.action-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.typing-indicator, .click-indicator, .scroll-indicator, .navigate-indicator {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1rem;
+  background-color: rgba(0, 0, 0, 0.8);
+  border-radius: 8px;
+  color: white;
+}
+
+.typing-animation {
+  font-family: monospace;
+  font-size: 1.25rem;
+  margin-bottom: 0.5rem;
+  display: flex;
+}
+
+.typing-cursor {
+  animation: cursor-blink 1s step-end infinite;
+}
+
+.click-animation {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: rgba(59, 130, 246, 0.6);
+  animation: click-pulse 0.6s ease-out;
+  margin-bottom: 0.5rem;
+}
+
+.scroll-animation {
+  width: 30px;
+  height: 50px;
+  margin-bottom: 0.5rem;
+  position: relative;
+}
+
+.scroll-animation.down::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  height: 100%;
+  width: 4px;
+  background-color: #3b82f6;
+  transform: translateX(-50%);
+}
+
+.scroll-animation.down::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  border-right: 4px solid #3b82f6;
+  border-bottom: 4px solid #3b82f6;
+  transform: translateX(-50%) rotate(45deg);
+  animation: scroll-down 1s infinite;
+}
+
+.scroll-animation.up::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  height: 100%;
+  width: 4px;
+  background-color: #3b82f6;
+  transform: translateX(-50%);
+}
+
+.scroll-animation.up::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  border-left: 4px solid #3b82f6;
+  border-top: 4px solid #3b82f6;
+  transform: translateX(-50%) rotate(45deg);
+  animation: scroll-up 1s infinite;
+}
+
+.navigate-animation {
+  width: 50px;
+  height: 20px;
+  margin-bottom: 0.5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.navigate-animation::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  height: 2px;
+  width: 100%;
+  background-color: #3b82f6;
+  transform: translateY(-50%);
+}
+
+.navigate-animation::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 50%;
+  width: 10px;
+  height: 10px;
+  border-top: 2px solid #3b82f6;
+  border-right: 2px solid #3b82f6;
+  transform: translateY(-50%) rotate(45deg);
+  animation: navigate-arrow 1.5s infinite;
+}
+
+.action-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #94a3b8;
 }
 
 .no-content {
@@ -520,6 +814,14 @@ defineExpose({
   animation: pulse 2s infinite;
 }
 
+.status-action {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  color: #3b82f6;
+  font-weight: 500;
+}
+
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
@@ -534,5 +836,39 @@ defineExpose({
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
+}
+
+@keyframes cursor-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+@keyframes click-pulse {
+  0% { transform: scale(0.2); opacity: 1; }
+  100% { transform: scale(2); opacity: 0; }
+}
+
+@keyframes scroll-down {
+  0% { opacity: 0; transform: translateX(-50%) translateY(-20px) rotate(45deg); }
+  50% { opacity: 1; }
+  100% { opacity: 0; transform: translateX(-50%) translateY(0) rotate(45deg); }
+}
+
+@keyframes scroll-up {
+  0% { opacity: 0; transform: translateX(-50%) translateY(20px) rotate(45deg); }
+  50% { opacity: 1; }
+  100% { opacity: 0; transform: translateX(-50%) translateY(0) rotate(45deg); }
+}
+
+@keyframes navigate-arrow {
+  0% { opacity: 0; right: 100%; }
+  50% { opacity: 1; right: 50%; }
+  100% { opacity: 0; right: 0; }
+}
+
+@keyframes subtle-scroll {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(5px); }
+  100% { transform: translateY(0); }
 }
 </style>
