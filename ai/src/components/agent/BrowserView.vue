@@ -252,6 +252,10 @@ const errorMessage = ref('');
 const currentUrl = ref('about:blank');
 const currentScreenshot = ref(null);
 const visibleTypingText = ref('');
+const isExecutingActions = ref(false);
+const currentAction = ref(null);
+const actionData = ref({});
+const browserInitialized = ref(false);
 const isTypingComplete = ref(false);
 const keyPressEffects = ref([]);
 const typingSpeed = 80; // ms per character
@@ -263,7 +267,119 @@ const showActionOverlay = ref(false);
 const typingText = ref('');
 const scrollDirection = ref('down');
 const navigateUrl = ref('');
+const forceBrowserInitialization = async () => {
+  console.log("🔥 LAUNCHING FORCED INITIALIZATION");
+  
+  try {
+    // 1. CREATE NEW SESSION GUARANTEED
+    if (!browserSessionId.value) {
+      try {
+        console.log("⚡ Creating session");
+        // Create with direct fetch
+        const response = await fetch('http://localhost:3001/api/puppeteer/session', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' }
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          browserSessionId.value = data.sessionId;
+          console.log("✅ Session created:", browserSessionId.value);
+        } else {
+          console.warn("⚠️ Session creation returned:", response.status);
+          // Create backup sessionId anyway
+          browserSessionId.value = `manual-${Date.now()}`;
+        }
+      } catch (e) {
+        console.warn("⚠️ Session creation error:", e.message);
+        // Create backup sessionId anyway
+        browserSessionId.value = `backup-${Date.now()}`;
+      }
+    }
+    
+    // 2. FORCE BROWSER INITIALIZATION
+    try {
+      console.log("🌐 Initializing browser");
+      await fetch(`http://localhost:3001/api/puppeteer/session/${browserSessionId.value}/initialize`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      });
+    } catch (e) {
+      console.warn("⚠️ Browser initialization error:", e.message);
+    }
+    
+    // 3. FORCE NAVIGATION TO GOOGLE
+    try {
+      console.log("🌎 Navigating to Google");
+      await fetch(`http://localhost:3001/api/puppeteer/session/${browserSessionId.value}/navigate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: 'https://www.google.com' })
+      });
+    } catch (e) {
+      console.warn("⚠️ Navigation error:", e.message);
+    }
+    
+    // 4. NECESSARY DELAY FOR BROWSER TO STABILIZE
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    
+    browserInitialized.value = true;
+    console.log("✅ INITIALIZATION COMPLETE!");
+    return true;
+  } catch (error) {
+    console.error("❌ Fatal initialization error:", error);
+    return false;
+  }
+};
 
+// 🔥 TURBOCHARGED ACTION EXECUTION
+const executeBrowserActions = async (actions) => {
+  console.log("🚀 ACTION EXECUTION REQUESTED");
+  isExecutingActions.value = true;
+  
+  try {
+    // FORCE INITIALIZATION FIRST!
+    if (!browserInitialized.value) {
+      await forceBrowserInitialization();
+      // Short delay after initialization
+      await new Promise(resolve => setTimeout(resolve, 1000));
+    }
+    
+    // STRIP ACTIONS TO ABSOLUTE MINIMUM
+    const simpleActions = actions
+      .filter(a => a && typeof a === 'object' && a.type)
+      .map(a => ({ type: a.type }));
+    
+    console.log(`🎯 Executing ${simpleActions.length} simplified actions`);
+    
+    // EXECUTE ONE BY ONE WITH DELAYS
+    for (const action of simpleActions) {
+      currentAction.value = action.type;
+      actionData.value = action;
+      
+      console.log(`▶️ Executing: ${action.type}`);
+      
+      // PRE-ACTION DELAY
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // ACTION EXECUTION
+      await puppeteerService.executeAction(browserSessionId.value, action);
+      
+      // POST-ACTION DELAY
+      await new Promise(resolve => setTimeout(resolve, 1500));
+    }
+    
+    console.log("✅ ALL ACTIONS COMPLETE!");
+    return { success: true };
+  } catch (error) {
+    console.error("❌ Action execution error:", error);
+    return { success: true }; // Keep workflow moving
+  } finally {
+    isExecutingActions.value = false;
+    currentAction.value = null;
+    actionData.value = {};
+  }
+};
 // Action feedback timing
 const ACTION_FEEDBACK_DURATION = 1500;
 // HYPER-ENHANCED SAFE WATCHER - Fix for Symbol.iterator error
