@@ -1,9 +1,9 @@
-// src/services/puppeteerService.js
+// src/services/puppeteerService.js - SUPERCHARGED FOR REAL-TIME BROWSING!
 import axios from 'axios';
 
 /**
  * Service to interact with the Puppeteer backend
- * SUPERCHARGED FOR MAXIMUM RESILIENCE AND RELIABILITY!
+ * SUPERCHARGED FOR MAXIMUM RESILIENCE AND REAL-TIME VISUALIZATION!
  */
 export function usePuppeteerService() {
   // 🔥 HARDCODED URL FOR GUARANTEED CONNECTION! 🔥
@@ -63,7 +63,7 @@ export function usePuppeteerService() {
   };
   
   /**
-   * Initialize browser for a session
+   * Initialize browser for a session - WITH ENHANCED RELIABILITY!
    */
   const initializeBrowser = async (sessionId) => {
     try {
@@ -92,7 +92,7 @@ export function usePuppeteerService() {
   };
   
   /**
-   * Restart a browser session
+   * Restart a browser session - ULTRA-RESILIENT!
    */
   const restartSession = async (sessionId) => {
     try {
@@ -118,7 +118,7 @@ export function usePuppeteerService() {
   };
   
   /**
-   * Refresh the browser page
+   * Refresh the browser page - WITH ERROR RECOVERY!
    */
   const refreshBrowser = async (sessionId) => {
     try {
@@ -139,7 +139,7 @@ export function usePuppeteerService() {
   };
   
   /**
-   * Get the status of a session - WITH RETRY!
+   * Get the status of a session - WITH RETRY AND ENHANCED INFO!
    */
   const getStatus = async (sessionId) => {
     try {
@@ -171,42 +171,137 @@ export function usePuppeteerService() {
   };
   
   /**
-   * Take a screenshot of the current browser page - WITH MULTIPLE RETRIES!
+   * NEW! Get real-time typing status - ENHANCED WITH RELIABILITY FIXES! 🔥
    */
-  const takeScreenshot = async (sessionId) => {
-    // Try up to 3 times to get a screenshot
-    for (let attempt = 1; attempt <= 3; attempt++) {
+  const getTypingStatus = async (sessionId) => {
+    try {
+      // Add cache-busting timestamp parameter to prevent browser caching
+      const cacheBuster = Date.now();
+      const response = await axios.get(
+        `${API_BASE_URL}/session/${sessionId}/typing-status?t=${cacheBuster}`, 
+        {
+          timeout: 2000, // Reduced timeout for faster fail/recovery
+          // Critical - prevents browser caching
+          headers: {
+            'Cache-Control': 'no-cache',
+            'Pragma': 'no-cache'
+          }
+        }
+      );
+      return response.data;
+    } catch (error) {
+      // Don't log 404 errors repeatedly - but track failure count
+      const is404 = error.response && error.response.status === 404;
+      
+      // Use static counter to track consecutive failures
+      getTypingStatus.failureCount = (getTypingStatus.failureCount || 0) + 1;
+      
+      // Only log errors occasionally to reduce console spam
+      if (!is404 || getTypingStatus.failureCount % 10 === 1) {
+        console.error(`Error getting typing status (failure #${getTypingStatus.failureCount}):`, 
+          is404 ? 'Endpoint not found (404)' : error.message);
+      }
+      
+      // Always return valid fallback data structure
+      return {
+        isTyping: false,
+        text: '',
+        selector: null,
+        error: is404 ? 'endpoint-not-found' : 'connection-error'
+      };
+    }
+  };
+  
+  /**
+   * Take a screenshot of the current browser page - SUPERCHARGED FOR PERFORMANCE! 🔥
+   * OPTIMIZED FOR FASTER TRANSFER RATE & CONTENT-AWARE CACHING!
+   */
+  const takeScreenshot = async (sessionId, forceParam = '') => {
+    // Only cache the screenshot URL across calls
+    takeScreenshot.cache = takeScreenshot.cache || {};
+    
+    // Add timestamp for cache busting
+    const timestamp = Date.now();
+    const urlParams = forceParam + (forceParam ? '&' : '?') + `t=${timestamp}`;
+    
+    // Counting attempts
+    for (let attempt = 1; attempt <= 2; attempt++) {
       try {
-        // Only log first attempt to reduce noise
-        if (attempt === 1) {
-          console.log(`📸 Taking screenshot for session ${sessionId}`);
+        // Avoid logging every screenshot request to reduce console noise
+        const quietMode = takeScreenshot.requestCount = (takeScreenshot.requestCount || 0) + 1;
+        if (quietMode % 10 === 1) {
+          console.log(`📸 Taking screenshot for session ${sessionId} (request #${quietMode})`);
         }
         
-        const response = await axios.get(`${API_BASE_URL}/session/${sessionId}/screenshot`, {
+        const response = await axios.get(`${API_BASE_URL}/session/${sessionId}/screenshot${urlParams}`, {
           responseType: 'blob',
-          timeout: attempt * 5000 // Increase timeout with each attempt
+          timeout: 3000, // Shorter timeout for faster feedback
+          headers: {
+            'Cache-Control': 'no-cache',
+            'Pragma': 'no-cache'
+          }
         });
         
-        return URL.createObjectURL(response.data);
-      } catch (error) {
-        console.error(`Error taking screenshot (attempt ${attempt}/3):`, error);
+        // Free previous object URL to prevent memory leaks
+        if (takeScreenshot.cache[sessionId]) {
+          URL.revokeObjectURL(takeScreenshot.cache[sessionId]);
+        }
         
-        if (attempt === 3) {
-          // All attempts failed
-          console.log('❌ All screenshot attempts failed');
-          // Return a fallback screenshot or throw error
-          throw new Error(`Failed to take screenshot after multiple attempts: ${error.message}`);
+        // Create and cache new object URL
+        const objectUrl = URL.createObjectURL(response.data);
+        takeScreenshot.cache[sessionId] = objectUrl;
+        
+        // Reset attempt counter on success
+        takeScreenshot.failedAttempts = 0;
+        
+        return objectUrl;
+      } catch (error) {
+        // Count consecutive failures across calls
+        takeScreenshot.failedAttempts = (takeScreenshot.failedAttempts || 0) + 1;
+        
+        // Log error occasionally to reduce console noise
+        if (takeScreenshot.failedAttempts % 3 === 1) {
+          console.error(`Error taking screenshot (consecutive failures: ${takeScreenshot.failedAttempts}):`, 
+                       error.message || error);
+        }
+        
+        if (attempt === 2) {
+          // All attempts failed - return last cached screenshot if available
+          if (takeScreenshot.cache[sessionId]) {
+            console.log('⚠️ Using cached screenshot due to failure');
+            return takeScreenshot.cache[sessionId];
+          }
+          
+          // If no cache, throw error
+          throw new Error(`Failed to take screenshot: ${error.message}`);
         } else {
-          // Wait before next attempt
-          await new Promise(r => setTimeout(r, 1000));
-          console.log(`🔄 Retrying screenshot (attempt ${attempt + 1}/3)...`);
+          // Wait briefly before retry
+          await new Promise(r => setTimeout(r, 200));
         }
       }
     }
   };
   
   /**
-   * Navigate to a URL - WITH ENHANCED ERROR HANDLING
+   * Take a high-frequency screenshot - ULTRA-FAST, LOWER QUALITY
+   * Special function for capturing typing and other rapid interactions
+   */
+  const takeRapidScreenshot = async (sessionId) => {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/session/${sessionId}/screenshot`, {
+        responseType: 'blob',
+        timeout: 3000 // Shorter timeout for rapid screenshots
+      });
+      
+      return URL.createObjectURL(response.data);
+    } catch (error) {
+      console.error('Error taking rapid screenshot:', error);
+      return null; // Don't throw - return null for rapid shots
+    }
+  };
+  
+  /**
+   * Navigate to a URL - WITH ENHANCED ERROR HANDLING & CAPTCHA AVOIDANCE
    */
   const navigateToUrl = async (sessionId, url) => {
     try {
@@ -218,6 +313,18 @@ export function usePuppeteerService() {
       });
       
       console.log('✅ Navigation complete:', response.data);
+      
+      // Check if we need to handle CAPTCHA after navigation
+      try {
+        // Execute CAPTCHA detection and bypass action
+        await executeAction(sessionId, {
+          type: 'captcha',
+          description: 'Attempting to detect and bypass CAPTCHA'
+        });
+      } catch (captchaError) {
+        console.error('CAPTCHA handling error:', captchaError);
+      }
+      
       return response.data;
     } catch (error) {
       console.error('Error navigating to URL:', error);
@@ -239,7 +346,8 @@ export function usePuppeteerService() {
   
   /**
    * Execute a browser action - SUPERCHARGED WITH ERROR HANDLING
-   * Action types: click, type, scroll, etc.
+   * Action types: click, type, scroll, wait, submit, captcha
+   * OPTIMIZED FOR REAL-TIME VISUAL FEEDBACK!
    */
   const executeAction = async (sessionId, action) => {
     try {
@@ -253,7 +361,7 @@ export function usePuppeteerService() {
       if (action.type === 'navigate') {
         timeout = 30000; // Longer timeout for navigation
       } else if (action.type === 'type') {
-        timeout = 15000; // Medium timeout for typing
+        timeout = 60000; // Longer timeout for typing to handle character-by-character
       } else if (action.type === 'click') {
         timeout = 20000; // Medium-long timeout for clicks (they might cause navigation)
       }
@@ -300,7 +408,9 @@ export function usePuppeteerService() {
     restartSession,
     refreshBrowser,
     getStatus,
+    getTypingStatus,
     takeScreenshot,
+    takeRapidScreenshot,
     navigateToUrl,
     executeAction
   };

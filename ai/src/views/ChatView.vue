@@ -374,7 +374,7 @@
                   <path d="M14 4h6v6h-6zM4 14h6v6H4zM17 20l-3-16M4 8h10M9 8V4" />
                 </svg>
               </span>
-              <span class="toggle-text">Logic</span>
+              <span class="toggle-text">Reason</span>
             </button>
             <button
               class="mode-image-toggle-button image-toggle-button"
@@ -403,7 +403,7 @@
                   <path d="M12 8V6M12 14v-3M15 14l-3 3-3-3" />
                 </svg>
               </span>
-              <span class="toggle-text">ARCHMAGE</span>
+              <span class="toggle-text">Facet Think</span>
               <span class="badge-limited">Limited</span>
             </button>
           </div>
@@ -9025,7 +9025,7 @@ We propose **Quantum Thermodynamic Reinforcement Learning (QTRL)**, a framework 
     const toggleLogic = () => {
       if (reasoningEnabled.value) reasoningEnabled.value = false;
       logicEnabled.value = !logicEnabled.value;
-      showToastNotification(`Logic mode ${logicEnabled.value ? 'enabled' : 'disabled'}`, "info");
+      showToastNotification(`Reasoning mode ${logicEnabled.value ? 'enabled' : 'disabled'}`, "info");
     };
 
     const toggleImage = () => {
@@ -9035,7 +9035,7 @@ We propose **Quantum Thermodynamic Reinforcement Learning (QTRL)**, a framework 
     
     const toggleArchmage = () => {
       archmageEnabled.value = !archmageEnabled.value;
-      showToastNotification(`Archmage mode ${archmageEnabled.value ? 'enabled' : 'disabled'}`, "info");
+      showToastNotification(`Multifaceted mode ${archmageEnabled.value ? 'enabled' : 'disabled'}`, "info");
     };
 
     // **Reasoning Modal**

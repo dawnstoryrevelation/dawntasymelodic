@@ -1,4 +1,4 @@
-// server/puppeteer-server.js - COPY THIS ENTIRE FILE!
+// server/puppeteer-server.js - HYPER-OPTIMIZED FOR REAL-TIME BROWSING!
 import express from 'express';
 import cors from 'cors';
 import puppeteer from 'puppeteer';
@@ -44,8 +44,8 @@ const cleanupOldScreenshots = () => {
     const stats = fs.statSync(filePath);
     const fileAge = now - stats.mtime.getTime();
     
-    // Delete files older than 10 minutes (600000 ms) for FASTER CLEANUP
-    if (fileAge > 600000) {
+    // Delete files older than 5 minutes (300000 ms) for FASTER CLEANUP
+    if (fileAge > 300000) {
       fs.unlinkSync(filePath);
       cleanedCount++;
     }
@@ -56,8 +56,8 @@ const cleanupOldScreenshots = () => {
   }
 };
 
-// Run cleanup every 5 minutes for PERFORMANCE BOOST
-setInterval(cleanupOldScreenshots, 5 * 60 * 1000);
+// Run cleanup every 3 minutes for PERFORMANCE BOOST
+setInterval(cleanupOldScreenshots, 3 * 60 * 1000);
 
 // 🚀 TURBO-CHARGED SESSION CREATOR
 app.post('/api/puppeteer/session', async (req, res) => {
@@ -74,7 +74,9 @@ app.post('/api/puppeteer/session', async (req, res) => {
         '--disable-dev-shm-usage',
         '--disable-accelerated-2d-canvas',
         '--disable-gpu',
-        '--window-size=1280,800'
+        '--window-size=1280,800',
+        '--enable-features=NetworkService',
+        '--disable-features=IsolateOrigins,site-per-process'
       ]
     });
     
@@ -88,8 +90,23 @@ app.post('/api/puppeteer/session', async (req, res) => {
       deviceScaleFactor: 1
     });
     
-    // Set MAXIMUM PERFORMANCE USER AGENT
+    // Set ADVANCED USER AGENT - ANTI-CAPTCHA TECH!
     await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.127 Safari/537.36');
+    
+    // ADDITIONAL ANTI-DETECTION MEASURES
+    await page.evaluateOnNewDocument(() => {
+      // Override the navigator properties
+      Object.defineProperty(navigator, 'webdriver', {
+        get: () => false
+      });
+      // Add language and platform for extra realism
+      Object.defineProperty(navigator, 'languages', {
+        get: () => ['en-US', 'en', 'es']
+      });
+      Object.defineProperty(navigator, 'plugins', {
+        get: () => [1, 2, 3, 4, 5]
+      });
+    });
     
     // SPEED-OPTIMIZE BY BLOCKING ADS & TRACKERS!
     await page.setRequestInterception(true);
@@ -106,7 +123,8 @@ app.post('/api/puppeteer/session', async (req, res) => {
         url.includes('facebook') ||
         url.includes('analytics') ||
         url.includes('tracker') ||
-        url.includes('advertisement')
+        url.includes('advertisement') ||
+        url.includes('captcha') && !url.includes('api/captcha')
       ) {
         request.abort();
       } else {
@@ -130,6 +148,13 @@ app.post('/api/puppeteer/session', async (req, res) => {
         navigationCount: 0,
         clickCount: 0,
         typeCount: 0
+      },
+      // Add streaming capability to capture real-time typing - NEW!
+      streaming: {
+        isTyping: false,
+        currentSelector: null,
+        textBuffer: '',
+        typingSpeed: 50 // ms per character
       }
     });
     
@@ -180,6 +205,31 @@ app.post('/api/puppeteer/session/:sessionId/initialize', async (req, res) => {
       // Set EXTRA PAGE OPTIONS for maximum compatibility
       await session.page.setJavaScriptEnabled(true);
       await session.page.setDefaultNavigationTimeout(30000);
+      
+      // ANTI-CAPTCHA PREP
+      await session.page.evaluate(() => {
+        // Add randomized mouse movements
+        let lastMove = Date.now();
+        document.addEventListener('mousemove', () => {
+          lastMove = Date.now();
+        });
+        
+        // Simulate occasional random mouse movements
+        setInterval(() => {
+          if (Date.now() - lastMove > 3000) {
+            const x = Math.floor(Math.random() * window.innerWidth);
+            const y = Math.floor(Math.random() * window.innerHeight);
+            const event = new MouseEvent('mousemove', {
+              view: window,
+              bubbles: true,
+              cancelable: true,
+              clientX: x,
+              clientY: y
+            });
+            document.dispatchEvent(event);
+          }
+        }, 5000);
+      });
       
       // POWER MOVE: Use a faster performing website for startup!
       await session.page.goto('https://www.google.com', {
@@ -235,7 +285,9 @@ app.post('/api/puppeteer/session/:sessionId/restart', async (req, res) => {
           '--disable-dev-shm-usage',
           '--disable-accelerated-2d-canvas',
           '--disable-gpu',
-          '--window-size=1280,800'
+          '--window-size=1280,800',
+          '--enable-features=NetworkService',
+          '--disable-features=IsolateOrigins,site-per-process'
         ]
       });
       
@@ -251,6 +303,19 @@ app.post('/api/puppeteer/session/:sessionId/restart', async (req, res) => {
       
       // Set MAXIMUM PERFORMANCE USER AGENT
       await newPage.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.127 Safari/537.36');
+      
+      // ANTI-DETECTION MEASURES
+      await newPage.evaluateOnNewDocument(() => {
+        Object.defineProperty(navigator, 'webdriver', {
+          get: () => false
+        });
+        Object.defineProperty(navigator, 'languages', {
+          get: () => ['en-US', 'en', 'es']
+        });
+        Object.defineProperty(navigator, 'plugins', {
+          get: () => [1, 2, 3, 4, 5]
+        });
+      });
       
       // Navigate to Google
       await newPage.goto('https://www.google.com', {
@@ -270,6 +335,12 @@ app.post('/api/puppeteer/session/:sessionId/restart', async (req, res) => {
           navigationCount: 1,
           clickCount: 0,
           typeCount: 0
+        },
+        streaming: {
+          isTyping: false,
+          currentSelector: null,
+          textBuffer: '',
+          typingSpeed: 50
         }
       });
       
@@ -344,6 +415,11 @@ app.get('/api/puppeteer/session/:sessionId/status', async (req, res) => {
         }
       }
       
+      // Get current typing status - NEW!
+      const isTyping = session.streaming.isTyping;
+      const typingSelector = session.streaming.currentSelector;
+      const typingText = session.streaming.textBuffer;
+      
       // Update last activity
       session.lastActivity = new Date();
       
@@ -351,7 +427,11 @@ app.get('/api/puppeteer/session/:sessionId/status', async (req, res) => {
         active: isActive,
         url: currentUrl,
         status: session.status,
-        lastActivity: session.lastActivity
+        lastActivity: session.lastActivity,
+        // NEW: Include real-time typing status
+        isTyping,
+        typingSelector,
+        typingText
       });
     } catch (error) {
       console.error(`💥 ERROR getting status for session ${sessionId}:`, error);
@@ -362,7 +442,7 @@ app.get('/api/puppeteer/session/:sessionId/status', async (req, res) => {
   }
 });
 
-// Take a screenshot
+// Take a screenshot - ULTRA-FAST VERSION WITH CHANGE DETECTION! 🔥
 app.get('/api/puppeteer/session/:sessionId/screenshot', async (req, res) => {
   const { sessionId } = req.params;
   
@@ -370,12 +450,75 @@ app.get('/api/puppeteer/session/:sessionId/screenshot', async (req, res) => {
     try {
       const session = sessions.get(sessionId);
       
-      // Take a screenshot
-      const screenshotPath = path.join(screenshotsDir, `${sessionId}-${Date.now()}.png`);
-      await session.page.screenshot({ path: screenshotPath, fullPage: false });
+      // NEW: Check if session has lastScreenshotHash to avoid duplicates
+      if (!session.lastScreenshotHash) {
+        session.lastScreenshotHash = '';
+        session.lastScreenshotTime = 0;
+        session.consecutiveDuplicates = 0;
+      }
       
-      // Update last activity
+      // NEW: Skip if too soon (debounce screenshots)
+      const now = Date.now();
+      const minTimeBetweenScreenshots = 250; // ms
+      if (now - session.lastScreenshotTime < minTimeBetweenScreenshots) {
+        // If called too frequently, send the previous screenshot or placeholder
+        if (session.lastScreenshotPath && fs.existsSync(session.lastScreenshotPath)) {
+          return res.sendFile(session.lastScreenshotPath, {}, (err) => {
+            if (err) console.error('Error sending cached screenshot:', err);
+          });
+        }
+      }
+      
+      // Check current page content hash to detect if page actually changed
+      const pageContent = await session.page.evaluate(() => {
+        // Get simplified DOM to detect real changes
+        return document.body.innerHTML.replace(/\s+/g, ' ').trim().slice(0, 1000);
+      });
+      
+      // Generate simple hash of page content
+      const crypto = require('crypto');
+      const contentHash = crypto.createHash('md5').update(pageContent).digest('hex');
+      
+      // If content hasn't changed and not forced, reuse last screenshot
+      if (contentHash === session.lastScreenshotHash && 
+          session.lastScreenshotPath && 
+          fs.existsSync(session.lastScreenshotPath) &&
+          !req.query.force) {
+          
+        session.consecutiveDuplicates++;
+        
+        // Only log every few duplicates to reduce noise
+        if (session.consecutiveDuplicates % 5 === 0) {
+          console.log(`📸 Skipping identical screenshot (${session.consecutiveDuplicates} consecutive duplicates)`);
+        }
+        
+        // After too many duplicates, force a new screenshot anyway as failsafe
+        if (session.consecutiveDuplicates > 15) {
+          console.log(`📸 Forcing new screenshot after ${session.consecutiveDuplicates} duplicates`);
+        } else {
+          // Send the previous screenshot
+          session.lastScreenshotTime = now;
+          return res.sendFile(session.lastScreenshotPath, {}, (err) => {
+            if (err) console.error('Error sending cached screenshot:', err);
+          });
+        }
+      }
+      
+      // If content changed, take a new screenshot
+      const screenshotPath = path.join(screenshotsDir, `${sessionId}-${Date.now()}.png`);
+      await session.page.screenshot({ 
+        path: screenshotPath, 
+        fullPage: false,
+        quality: 75,  // Lower quality = faster transfer
+        type: 'jpeg'  // JPEG is faster than PNG
+      });
+      
+      // Update cache information
+      session.lastScreenshotHash = contentHash;
+      session.lastScreenshotPath = screenshotPath;
+      session.lastScreenshotTime = now;
       session.lastActivity = new Date();
+      session.consecutiveDuplicates = 0;
       
       // Send the screenshot file
       res.sendFile(screenshotPath, {}, (err) => {
@@ -385,7 +528,16 @@ app.get('/api/puppeteer/session/:sessionId/screenshot', async (req, res) => {
       });
     } catch (error) {
       console.error(`💥 ERROR taking screenshot for session ${sessionId}:`, error);
-      res.status(500).json({ error: error.message });
+      
+      // Attempt to send a previous screenshot rather than failing
+      const session = sessions.get(sessionId);
+      if (session?.lastScreenshotPath && fs.existsSync(session.lastScreenshotPath)) {
+        return res.sendFile(session.lastScreenshotPath, {}, (err) => {
+          if (err) console.error('Error sending fallback screenshot:', err);
+        });
+      } else {
+        res.status(500).json({ error: error.message });
+      }
     }
   } else {
     res.status(404).json({ error: 'Session not found' });
@@ -412,6 +564,29 @@ app.post('/api/puppeteer/session/:sessionId/navigate', async (req, res) => {
       }
       
       console.log(`🌐 NAVIGATING TO URL: ${formattedUrl}`);
+      
+      // ADVANCED ANTI-CAPTCHA NAVIGATION
+      await session.page.evaluateOnNewDocument(() => {
+        window.navigator.chrome = {
+          runtime: {}
+        };
+        
+        // Randomize screen dimensions slightly
+        Object.defineProperty(window.screen, 'width', {
+          get: function() { return 1280 + Math.floor(Math.random() * 20); }
+        });
+        Object.defineProperty(window.screen, 'height', {
+          get: function() { return 800 + Math.floor(Math.random() * 20); }
+        });
+        
+        // Simulate real browser behavior
+        const originalQuery = window.navigator.permissions.query;
+        window.navigator.permissions.query = (parameters) => (
+          parameters.name === 'notifications' ?
+            Promise.resolve({ state: Notification.permission }) :
+            originalQuery(parameters)
+        );
+      });
       
       // Navigate to URL
       await session.page.goto(formattedUrl, {
@@ -440,7 +615,7 @@ app.post('/api/puppeteer/session/:sessionId/navigate', async (req, res) => {
   }
 });
 
-// 💪 FORTIFIED BROWSER ACTION EXECUTOR!
+// 💪 FORTIFIED BROWSER ACTION EXECUTOR - ENHANCED FOR REALTIME ACTIONS!
 app.post('/api/puppeteer/session/:sessionId/action', async (req, res) => {
   const { sessionId } = req.params;
   const action = req.body;
@@ -507,8 +682,32 @@ app.post('/api/puppeteer/session/:sessionId/action', async (req, res) => {
             // TURBOCHARGED CLICKING with MULTIPLE SELECTOR STRATEGIES!
             if (action.selector) {
               try {
-                // STRATEGY 1: Standard selector
+                // STRATEGY 1: Standard selector - WITH VISUAL CURSOR EFFECT!
                 await session.page.waitForSelector(action.selector, { timeout: 5000 });
+                
+                // NEW! Add visual clicking effect by adding a temporary highlight!
+                await session.page.evaluate((selector) => {
+                  const element = document.querySelector(selector);
+                  if (element) {
+                    // Save original styles
+                    const originalOutline = element.style.outline;
+                    const originalTransition = element.style.transition;
+                    
+                    // Add highlight effect
+                    element.style.outline = '3px solid #ff5733';
+                    element.style.transition = 'all 0.3s ease';
+                    
+                    // Revert after a delay
+                    setTimeout(() => {
+                      element.style.outline = originalOutline;
+                      element.style.transition = originalTransition;
+                    }, 500);
+                  }
+                }, action.selector);
+                
+                // PERFORM HUMANLIKE CLICK with small delays
+                await session.page.hover(action.selector);
+                await new Promise(r => setTimeout(r, 100 + Math.random() * 200));
                 await session.page.click(action.selector);
                 console.log(`✅ CLICKED ELEMENT: ${action.selector}`);
               } catch (clickError) {
@@ -518,7 +717,16 @@ app.post('/api/puppeteer/session/:sessionId/action', async (req, res) => {
                 const jsClickSuccess = await session.page.evaluate((selector) => {
                   const element = document.querySelector(selector);
                   if (element) {
-                    element.click();
+                    // Visual click effect
+                    const originalBackgroundColor = element.style.backgroundColor;
+                    element.style.backgroundColor = 'rgba(255, 87, 51, 0.3)';
+                    
+                    // Click with delay
+                    setTimeout(() => {
+                      element.style.backgroundColor = originalBackgroundColor;
+                      element.click();
+                    }, 200);
+                    
                     return true;
                   }
                   return false;
@@ -544,7 +752,16 @@ app.post('/api/puppeteer/session/:sessionId/action', async (req, res) => {
                 for (const el of elements) {
                   const text = el.innerText || el.textContent || el.value || '';
                   if (text.toLowerCase().includes(lowerSearchText)) {
-                    el.click();
+                    // Add visual click effect
+                    const originalOutline = el.style.outline;
+                    el.style.outline = '3px solid #ff5733';
+                    
+                    // Click with delay
+                    setTimeout(() => {
+                      el.style.outline = originalOutline;
+                      el.click();
+                    }, 200);
+                    
                     return true;
                   }
                 }
@@ -554,7 +771,16 @@ app.post('/api/puppeteer/session/:sessionId/action', async (req, res) => {
                   const text = el.innerText || el.textContent || el.value || '';
                   const words = lowerSearchText.split(' ');
                   if (words.some(word => text.toLowerCase().includes(word))) {
-                    el.click();
+                    // Add visual click effect
+                    const originalOutline = el.style.outline;
+                    el.style.outline = '3px solid #ff5733';
+                    
+                    // Click with delay
+                    setTimeout(() => {
+                      el.style.outline = originalOutline;
+                      el.click();
+                    }, 200);
+                    
                     return true;
                   }
                 }
@@ -600,54 +826,160 @@ app.post('/api/puppeteer/session/:sessionId/action', async (req, res) => {
               return res.status(400).json({ error: 'Text is required for type action' });
             }
             
-            // GOOGLE SEARCH BOX SPECIAL HANDLING!
+            // Set up session streaming status for REAL-TIME TYPING!
+            session.streaming.isTyping = true;
+            session.streaming.currentSelector = action.selector;
+            session.streaming.textBuffer = '';
+            
+            // GOOGLE SEARCH BOX SPECIAL HANDLING - SUPERCHARGED! 🔥
             if (action.selector === 'input[name="q"]' || 
                 action.selector.includes('search') || 
                 action.selector.includes('query')) {
               
-              console.log(`🔍 SPECIAL HANDLING for search input`);
+              console.log(`🔍 SPECIAL HANDLING for search input: "${action.text}"`);
               
-              // Try multiple selector strategies
-              const searchBoxSelectors = [
-                'input[name="q"]',
-                'input[title="Search"]',
-                'input.gLFyf',
-                'textarea[name="q"]',
-                'input[type="search"]',
-                'input.search-box',
-                'input.searchbox',
-                'input#search',
-                '[role="search"] input'
-              ];
-              
-              let typeSuccess = false;
-              
-              for (const selector of searchBoxSelectors) {
-                try {
-                  const elementExists = await session.page.evaluate(
-                    selector => !!document.querySelector(selector),
-                    selector
-                  );
+              // TURBOCHARGED GOOGLE SEARCH HANDLING!
+              try {
+                // ULTRA-RELIABLE DIRECT INJECTION APPROACH
+                const injectionSuccess = await session.page.evaluate((searchText) => {
+                  try {
+                    // Look for ANY visible input that might be a search box
+                    const inputs = Array.from(document.querySelectorAll('input:not([type="hidden"]), textarea'));
+                    const searchInputs = inputs.filter(el => {
+                      const isVisible = el.offsetWidth > 0 && el.offsetHeight > 0;
+                      const isSearchLike = (
+                        el.name === 'q' || 
+                        el.id?.includes('search') || 
+                        el.placeholder?.toLowerCase().includes('search') ||
+                        el.className?.toLowerCase().includes('search') ||
+                        el.ariaLabel?.toLowerCase().includes('search')
+                      );
+                      
+                      return isVisible && isSearchLike;
+                    });
+                    
+                    if (searchInputs.length > 0) {
+                      // Found a search input!
+                      const searchInput = searchInputs[0];
+                      
+                      // Focus with dramatic effect
+                      searchInput.focus();
+                      searchInput.style.boxShadow = '0 0 0 2px rgba(59, 130, 246, 0.7)';
+                      
+                      // Clear any existing text
+                      searchInput.value = '';
+                      
+                      // Dispatch focus/select events
+                      searchInput.dispatchEvent(new Event('focus', { bubbles: true }));
+                      searchInput.dispatchEvent(new Event('select', { bubbles: true }));
+                      
+                      // Set value directly - INSTANT TYPING!
+                      searchInput.value = searchText;
+                      
+                      // Trigger input events to ensure JS detects the change
+                      searchInput.dispatchEvent(new Event('input', { bubbles: true }));
+                      searchInput.dispatchEvent(new Event('change', { bubbles: true }));
+                      
+                      // Return success with details
+                      return {
+                        success: true,
+                        selector: searchInput.tagName.toLowerCase() + 
+                                 (searchInput.id ? `#${searchInput.id}` : '') +
+                                 (searchInput.name ? `[name="${searchInput.name}"]` : '')
+                      };
+                    }
+                    return { success: false, reason: "No visible search inputs found" };
+                  } catch (err) {
+                    return { success: false, error: err.toString() };
+                  }
+                }, action.text);
+                
+                if (injectionSuccess.success) {
+                  console.log(`🔥 DIRECT INJECTION SUCCESSFUL into ${injectionSuccess.selector}`);
+                  typeSuccess = true;
                   
-                  if (elementExists) {
-                    // Clear existing text first
-                    await session.page.evaluate(
-                      selector => { document.querySelector(selector).value = '' },
+                  // Take screenshot of the successful typing
+                  const screenshotPath = path.join(screenshotsDir, `${sessionId}-typing-success-${Date.now()}.png`);
+                  await session.page.screenshot({ 
+                    path: screenshotPath, 
+                    fullPage: false,
+                    type: 'jpeg',
+                    quality: 80
+                  });
+                  
+                  // Add small delay to simulate "finishing typing"
+                  await new Promise(r => setTimeout(r, 300));
+                } else {
+                  console.log("⚠️ Direct injection failed, falling back to traditional typing");
+                }
+              } catch (directError) {
+                console.error("💥 Error during direct injection:", directError);
+              }
+              
+              // If direct injection failed, try traditional selectors
+              if (!typeSuccess) {
+                // Try multiple selector strategies
+                const searchBoxSelectors = [
+                  'input[name="q"]',
+                  'input[title="Search"]',
+                  'input.gLFyf',
+                  'textarea[name="q"]',
+                  'input[type="search"]',
+                  'input.search-box',
+                  'input.searchbox',
+                  'input#search',
+                  '[role="search"] input',
+                  'form input[type="text"]', // Generic fallback
+                  'input:not([type="hidden"])' // Last resort
+                ];
+                
+                let typeSuccess = false;
+                let effectiveSelector = null;
+                
+                for (const selector of searchBoxSelectors) {
+                  try {
+                    const elementExists = await session.page.evaluate(
+                      selector => !!document.querySelector(selector),
                       selector
                     );
                     
-                    // Type the text
-                    await session.page.type(selector, action.text, { delay: 50 });
-                    
-                    console.log(`✅ TYPED TEXT into ${selector}: "${action.text}"`);
-                    typeSuccess = true;
-                    break;
-                  }
-                } catch (selectorError) {
-                  // Try next selector
-                  console.log(`⚠️ Selector ${selector} failed, trying next one...`);
-                }
-              }
+                    if (elementExists) {
+                      effectiveSelector = selector;
+                      
+                      // CRITICAL: Wait for element to be properly loaded
+                      await session.page.waitForSelector(selector, { timeout: 2000 });
+                      
+                      // Clear existing text first
+                      await session.page.evaluate(
+                        selector => { 
+                          const element = document.querySelector(selector);
+                          if (element) {
+                            element.value = '';
+                            // Force clear
+                            element.setAttribute('value', '');
+                          }
+                        },
+                        selector
+                      );
+                      
+                      // Focus element with click first to ensure activation
+                      await session.page.click(selector, { clickCount: 3 }); // Triple click to select all text
+                      
+                      // Add visible focus effect
+                      await session.page.evaluate((selector) => {
+                        const element = document.querySelector(selector);
+                        if (element) {
+                          element.focus();
+                          
+                          // Add visual focus effect
+                          const originalBoxShadow = element.style.boxShadow;
+                          element.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.7)';
+                          
+                          setTimeout(() => {
+                            element.style.boxShadow = originalBoxShadow;
+                          }, 600);
+                        }
+                      }, selector);
               
               // If all selectors failed, try direct JavaScript injection
               if (!typeSuccess) {
@@ -657,6 +989,16 @@ app.post('/api/puppeteer/session/:sessionId/action', async (req, res) => {
                   const inputs = document.querySelectorAll('input, textarea');
                   for (const input of inputs) {
                     if (input.type !== 'hidden' && input.offsetParent !== null) {
+                      // Add visual focus effect
+                      input.focus();
+                      const originalBoxShadow = input.style.boxShadow;
+                      input.style.boxShadow = '0 0 0 2px rgba(59, 130, 246, 0.5)';
+                      
+                      setTimeout(() => {
+                        input.style.boxShadow = originalBoxShadow;
+                      }, 600);
+                      
+                      // Set value and dispatch events
                       input.value = text;
                       input.dispatchEvent(new Event('input', { bubbles: true }));
                       return true;
@@ -665,6 +1007,10 @@ app.post('/api/puppeteer/session/:sessionId/action', async (req, res) => {
                   return false;
                 }, action.text);
               }
+              
+              // Update session after typing
+              session.streaming.isTyping = false;
+              session.streaming.textBuffer = '';
               
               if (!typeSuccess) {
                 return res.status(200).json({
@@ -683,8 +1029,46 @@ app.post('/api/puppeteer/session/:sessionId/action', async (req, res) => {
                   action.selector
                 );
                 
-                // Type with a delay for stability
-                await session.page.type(action.selector, action.text, { delay: 30 });
+                // Add focus effect
+                await session.page.evaluate((selector) => {
+                  const element = document.querySelector(selector);
+                  if (element) {
+                    element.focus();
+                    
+                    // Visual effect
+                    const originalBoxShadow = element.style.boxShadow;
+                    element.style.boxShadow = '0 0 0 2px rgba(59, 130, 246, 0.5)';
+                    
+                    setTimeout(() => {
+                      element.style.boxShadow = originalBoxShadow;
+                    }, 600);
+                  }
+                }, action.selector);
+                
+                // REAL-TIME CHARACTER-BY-CHARACTER TYPING!
+                for (let i = 0; i < action.text.length; i++) {
+                  const char = action.text[i];
+                  
+                  // Update the buffer for status endpoint
+                  session.streaming.textBuffer = action.text.substring(0, i + 1);
+                  
+                  // Type the character with human-like delay
+                  await session.page.type(action.selector, char, { delay: 30 });
+                  
+                  // Take screenshots during typing
+                  if (i % 5 === 0 || i === action.text.length - 1) {
+                    const screenshotPath = path.join(screenshotsDir, `${sessionId}-typing-${Date.now()}.png`);
+                    await session.page.screenshot({ 
+                      path: screenshotPath, 
+                      fullPage: false,
+                      type: 'jpeg',
+                      quality: 75
+                    });
+                  }
+                  
+                  // Randomized typing delay
+                  await new Promise(r => setTimeout(r, 30 + Math.random() * 50));
+                }
                 
                 console.log(`✅ TYPED TEXT: "${action.text}"`);
               } catch (typeError) {
@@ -695,6 +1079,15 @@ app.post('/api/puppeteer/session/:sessionId/action', async (req, res) => {
                   (selector, text) => {
                     const el = document.querySelector(selector);
                     if (el) {
+                      // Visual focus effect
+                      el.focus();
+                      const originalBoxShadow = el.style.boxShadow;
+                      el.style.boxShadow = '0 0 0 2px rgba(59, 130, 246, 0.5)';
+                      
+                      setTimeout(() => {
+                        el.style.boxShadow = originalBoxShadow;
+                      }, 600);
+                      
                       el.value = text;
                       el.dispatchEvent(new Event('input', { bubbles: true }));
                       return true;
@@ -714,9 +1107,17 @@ app.post('/api/puppeteer/session/:sessionId/action', async (req, res) => {
               }
             }
             
+            // Reset typing status
+            session.streaming.isTyping = false;
+            session.streaming.textBuffer = '';
             session.performance.typeCount++;
           } catch (typeActionError) {
             console.error(`⚠️ Type error but CONTINUING:`, typeActionError);
+            
+            // Reset typing status
+            session.streaming.isTyping = false;
+            session.streaming.textBuffer = '';
+            
             return res.status(200).json({
               status: 'warning',
               message: `Typing issue but continuing: ${typeActionError.message}`
@@ -724,22 +1125,61 @@ app.post('/api/puppeteer/session/:sessionId/action', async (req, res) => {
           }
           break;
           
-        case 'scroll':
-          // Scroll the page
+        case 'scroll': {
+          // Scroll the page with VISUAL FEEDBACK
+          
           try {
             const direction = action.direction || 'down';
             const amount = action.amount || 500;
             
             console.log(`📜 SCROLLING ${direction.toUpperCase()}: ${amount}px`);
             
-            if (direction === 'down') {
-              await session.page.evaluate((scrollAmount) => {
-                window.scrollBy(0, scrollAmount);
-              }, amount);
-            } else if (direction === 'up') {
-              await session.page.evaluate((scrollAmount) => {
-                window.scrollBy(0, -scrollAmount);
-              }, amount);
+            // SMOOTH SCROLLING implementation for visual appeal!
+            await session.page.evaluate(({ direction, amount }) => {
+              return new Promise((resolve) => {
+                const duration = 500; // ms
+                const start = window.scrollY;
+                let target = start;
+                
+                if (direction === 'down') {
+                  target = start + amount;
+                } else if (direction === 'up') {
+                  target = Math.max(0, start - amount);
+                }
+                
+                const startTime = performance.now();
+                
+                function step(timestamp) {
+                  const elapsed = timestamp - startTime;
+                  const progress = Math.min(elapsed / duration, 1);
+                  
+                  // Ease-out function for natural scrolling
+                  const easeProgress = 1 - Math.pow(1 - progress, 3);
+                  
+                  const currentPosition = start + (target - start) * easeProgress;
+                  window.scrollTo(0, currentPosition);
+                  
+                  if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                  } else {
+                    resolve();
+                  }
+                }
+                
+                window.requestAnimationFrame(step);
+              });
+            }, { direction, amount });
+            
+            // Take scrolling screenshots
+            for (let i = 0; i < 3; i++) {
+              await new Promise(r => setTimeout(r, 150));
+              const screenshotPath = path.join(screenshotsDir, `${sessionId}-scroll-${i}-${Date.now()}.png`);
+              await session.page.screenshot({ 
+                path: screenshotPath, 
+                fullPage: false,
+                type: 'jpeg',
+                quality: 75 
+              });
             }
             
             console.log(`✅ SCROLL COMPLETE`);
@@ -751,15 +1191,43 @@ app.post('/api/puppeteer/session/:sessionId/action', async (req, res) => {
             });
           }
           break;
+        }
           
         case 'submit':
-          // Submit a form
+          // Submit a form with VISUAL FEEDBACK
           try {
             if (!action.selector) {
               return res.status(400).json({ error: 'Selector is required for submit action' });
             }
             
             console.log(`📝 SUBMITTING FORM: ${action.selector}`);
+            
+            // Visual feedback for form submission
+            await session.page.evaluate((selector) => {
+              const form = document.querySelector(selector);
+              if (form) {
+                // Add visual highlight effect
+                const originalOutline = form.style.outline;
+                form.style.outline = '2px solid #3b82f6';
+                form.style.boxShadow = '0 0 10px rgba(59, 130, 246, 0.5)';
+                
+                setTimeout(() => {
+                  form.style.outline = originalOutline;
+                  form.style.boxShadow = '';
+                  
+                  // Find and highlight submit button
+                  const submitButton = form.querySelector('input[type="submit"], button[type="submit"], button:not([type])');
+                  if (submitButton) {
+                    const originalButtonBg = submitButton.style.backgroundColor;
+                    submitButton.style.backgroundColor = 'rgba(59, 130, 246, 0.3)';
+                    
+                    setTimeout(() => {
+                      submitButton.style.backgroundColor = originalButtonBg;
+                    }, 300);
+                  }
+                }, 400);
+              }
+            }, action.selector);
             
             // Try direct form submission first
             const submitSuccess = await session.page.evaluate((selector) => {
@@ -815,6 +1283,52 @@ app.post('/api/puppeteer/session/:sessionId/action', async (req, res) => {
             
             console.log(`⏱️ WAITING for ${duration}ms`);
             
+            // ADVANCED: Show visual timer on page for long waits
+            if (duration > 2000) {
+              await session.page.evaluate((duration) => {
+                // Create timer element
+                const timer = document.createElement('div');
+                timer.id = 'ai-agent-timer';
+                timer.style.cssText = `
+                  position: fixed;
+                  top: 20px;
+                  right: 20px;
+                  background: rgba(59, 130, 246, 0.8);
+                  color: white;
+                  padding: 10px 15px;
+                  border-radius: 8px;
+                  font-family: sans-serif;
+                  font-size: 14px;
+                  z-index: 9999;
+                  transition: opacity 0.3s ease;
+                `;
+                
+                // Calculate end time
+                const endTime = Date.now() + duration;
+                timer.textContent = `AI waiting: ${Math.ceil(duration/1000)}s`;
+                
+                // Add to page
+                document.body.appendChild(timer);
+                
+                // Update timer
+                const interval = setInterval(() => {
+                  const remaining = Math.max(0, endTime - Date.now());
+                  timer.textContent = `AI waiting: ${Math.ceil(remaining/1000)}s`;
+                  
+                  if (remaining <= 0) {
+                    clearInterval(interval);
+                    timer.style.opacity = 0;
+                    setTimeout(() => {
+                      if (timer.parentNode) {
+                        timer.parentNode.removeChild(timer);
+                      }
+                    }, 300);
+                  }
+                }, 100);
+                
+              }, duration);
+            }
+            
             await new Promise(resolve => setTimeout(resolve, duration));
             
             console.log(`✅ WAIT COMPLETE`);
@@ -824,6 +1338,102 @@ app.post('/api/puppeteer/session/:sessionId/action', async (req, res) => {
               status: 'warning',
               message: `Wait issue but continuing: ${waitError.message}`
             });
+          }
+          break;
+          
+        case 'captcha':
+          // Special case: Handle CAPTCHA bypass
+          try {
+            console.log('🛡️ ATTEMPTING CAPTCHA BYPASS');
+            
+            // Check for common CAPTCHA types
+            const captchaResult = await session.page.evaluate(() => {
+              // Check for reCAPTCHA
+              const recaptchaFrames = document.querySelectorAll('iframe[src*="recaptcha"]');
+              if (recaptchaFrames.length > 0) {
+                return { type: 'recaptcha', found: true };
+              }
+              
+              // Check for "I'm not a robot" checkbox
+              const robotCheckboxes = document.querySelectorAll('input[type="checkbox"][aria-label*="robot"], div.recaptcha-checkbox');
+              if (robotCheckboxes.length > 0) {
+                return { type: 'checkbox', found: true };
+              }
+              
+              // Check for CloudFlare protection
+              if (document.title.includes('Cloudflare') || document.body.textContent.includes('Checking your browser')) {
+                return { type: 'cloudflare', found: true };
+              }
+              
+              return { found: false };
+            });
+            
+            // Implementation varies by CAPTCHA type
+            if (captchaResult.found) {
+              console.log(`🛡️ DETECTED CAPTCHA TYPE: ${captchaResult.type}`);
+              
+              // CAPTCHA WORKAROUNDS (basic, not guaranteed to work)
+              if (captchaResult.type === 'checkbox') {
+                // Try clicking the checkbox with humanlike behavior
+                await session.page.evaluate(() => {
+                  const checkboxes = document.querySelectorAll('input[type="checkbox"][aria-label*="robot"], div.recaptcha-checkbox');
+                  if (checkboxes.length > 0) {
+                    // Add human-like randomized movement
+                    const checkbox = checkboxes[0];
+                    const rect = checkbox.getBoundingClientRect();
+                    
+                    // Create synthetic events
+                    const mouseOver = new MouseEvent('mouseover', {
+                      bubbles: true,
+                      cancelable: true,
+                      view: window,
+                      clientX: rect.left + rect.width / 2,
+                      clientY: rect.top + rect.height / 2
+                    });
+                    
+                    const mouseDown = new MouseEvent('mousedown', {
+                      bubbles: true,
+                      cancelable: true,
+                      view: window,
+                      clientX: rect.left + rect.width / 2,
+                      clientY: rect.top + rect.height / 2
+                    });
+                    
+                    const mouseUp = new MouseEvent('mouseup', {
+                      bubbles: true,
+                      cancelable: true,
+                      view: window,
+                      clientX: rect.left + rect.width / 2,
+                      clientY: rect.top + rect.height / 2
+                    });
+                    
+                    // Dispatch events with human-like timing
+                    checkbox.dispatchEvent(mouseOver);
+                    setTimeout(() => {
+                      checkbox.dispatchEvent(mouseDown);
+                      setTimeout(() => {
+                        checkbox.dispatchEvent(mouseUp);
+                        checkbox.click();
+                      }, 120);
+                    }, 200);
+                  }
+                });
+                
+                await new Promise(r => setTimeout(r, 2000));
+              } else if (captchaResult.type === 'cloudflare') {
+                // For CloudFlare, we often just need to wait
+                console.log('⏱️ Waiting for CloudFlare check to complete...');
+                await new Promise(r => setTimeout(r, 8000));
+              }
+              
+              // Take screenshot after CAPTCHA attempt
+              const screenshotPath = path.join(screenshotsDir, `${sessionId}-captcha-attempt-${Date.now()}.png`);
+              await session.page.screenshot({ path: screenshotPath, fullPage: false });
+            } else {
+              console.log('✅ No CAPTCHA detected');
+            }
+          } catch (captchaError) {
+            console.error('⚠️ CAPTCHA handling error:', captchaError);
           }
           break;
           
@@ -838,7 +1448,12 @@ app.post('/api/puppeteer/session/:sessionId/action', async (req, res) => {
       
       // ALWAYS take a screenshot after action, regardless of success/failure
       const screenshotPath = path.join(screenshotsDir, `${sessionId}-${Date.now()}.png`);
-      await session.page.screenshot({ path: screenshotPath, fullPage: false });
+      await session.page.screenshot({ 
+        path: screenshotPath, 
+        fullPage: false,
+        type: 'jpeg',
+        quality: 85
+      });
       
       // Get current URL after action
       const currentUrl = await session.page.url();
@@ -863,6 +1478,51 @@ app.post('/api/puppeteer/session/:sessionId/action', async (req, res) => {
     }
   } else {
     res.status(404).json({ error: 'Session not found' });
+  }
+});
+
+// NEW! Get real-time typing status - FIXED AND IMPROVED! 🔥
+app.get('/api/puppeteer/session/:sessionId/typing-status', async (req, res) => {
+  const { sessionId } = req.params;
+  
+  if (sessions.has(sessionId)) {
+    try {
+      const session = sessions.get(sessionId);
+      
+      // Make sure streaming object exists with proper properties
+      if (!session.streaming) {
+        session.streaming = {
+          isTyping: false,
+          textBuffer: '',
+          currentSelector: null,
+          typingSpeed: 50
+        };
+      }
+      
+      res.status(200).json({
+        isTyping: session.streaming.isTyping,
+        text: session.streaming.textBuffer || '',
+        selector: session.streaming.currentSelector,
+        timestamp: Date.now() // Add timestamp for caching control
+      });
+    } catch (error) {
+      console.error('Error getting typing status:', error);
+      // Return a safe fallback response instead of error
+      res.status(200).json({
+        isTyping: false,
+        text: '',
+        selector: null,
+        error: error.message
+      });
+    }
+  } else {
+    // Return empty status instead of 404 for better resilience
+    res.status(200).json({
+      isTyping: false,
+      text: '',
+      selector: null,
+      message: 'Session not found but continuing gracefully'
+    });
   }
 });
 
