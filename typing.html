@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Advanced Typing Test</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            text-align: center;
+        }
+        #textDisplay {
+            width: 80%;
+            margin: 20px auto;
+            border: 1px solid #ccc;
+            padding: 20px;
+            font-size: 1.2em;
+            min-height: 100px;
+        }
+        #textInput {
+            width: 80%;
+            margin: 10px auto;
+            padding: 10px;
+            font-size: 1.2em;
+        }
+        #results {
+            margin-top: 20px;
+            font-weight: bold;
+        }
+        .incorrect {
+            background-color: #ffe0e0;
+        }
+        .correct {
+          background-color: #e0ffe0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Advanced Typing Test</h1>
+    <div id="textDisplay"></div>
+    <input type="text" id="textInput" placeholder="Start typing..." autofocus>
+    <div id="results"></div>
+
+    <script>
+        const textDisplay = document.getElementById("textDisplay");
+        const textInput = document.getElementById("textInput");
+        const results = document.getElementById("results");
+
+        let textArray = [];
+        let wordIndex = 0;
+        let startTime;
+        let timerInterval;
+
+        function generateText() {
+            const words = ["the", "quick", "brown", "fox", "jumps", "over", "lazy", "dog", "hello", "world", "programming", "javascript", "html", "css", "typing", "test", "advanced", "dynamic", "generate", "assess"]; //add more words to increase variety
+            textArray = [];
+            for (let i = 0; i < 50; i++) { //adjust the number of words generated
+                textArray.push(words[Math.floor(Math.random() * words.length)]);
+            }
+            textDisplay.textContent = textArray.join(" ");
+            wordIndex = 0;
+        }
+
+        function startTest() {
+            generateText();
+            startTime = new Date().getTime();
+            textInput.value = "";
+            textInput.disabled = false;
+            textInput.focus();
+            results.textContent = "";
+        }
+
+        function endTest() {
+            const endTime = new Date().getTime();
+            const timeTaken = (endTime - startTime) / 60000; // time in minutes
+            const typedText = textInput.value;
+            const typedWords = typedText.split(" ");
+            let correctWords = 0;
+
+            for (let i = 0; i < typedWords.length; i++) {
+                if (typedWords[i] === textArray[i]) {
+                    correctWords++;
+                }
+            }
+
+            const wpm = Math.round(correctWords / timeTaken);
+            const accuracy = Math.round((correctWords / textArray.length) * 100);
+
+            results.textContent = `WPM: ${wpm}, Accuracy: ${accuracy}%`;
+            textInput.disabled = true;
+        }
+
+        textInput.addEventListener("input", () => {
+          const typedText = textInput.value;
+          const currentWord = textArray[wordIndex];
+          const displayedText = textDisplay.textContent.split(" ");
+          if (typedText === currentWord + " ") {
+            wordIndex++;
+            textInput.value = "";
+            if (wordIndex === textArray.length) {
+              endTest();
+            }
+            displayedText[wordIndex-1] = "<span class='correct'>" + displayedText[wordIndex-1] + "</span>";
+            textDisplay.innerHTML = displayedText.join(" ");
+
+          }
+          if(typedText.length > currentWord.length && !typedText.endsWith(" ")){
+            textInput.classList.add("incorrect");
+          } else {
+            textInput.classList.remove("incorrect");
+          }
+
+        });
+
+        textInput.addEventListener("keydown", (event) => {
+          if(event.key === " "){
+            const typedText = textInput.value.trim();
+            const currentWord = textArray[wordIndex];
+            if(typedText !== currentWord){
+              textInput.classList.add("incorrect");
+            } else {
+              textInput.classList.remove("incorrect");
+            }
+          }
+        });
+        startTest();
+    </script>
+</body>
+</html>
