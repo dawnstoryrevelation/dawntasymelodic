@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Mini Chatbot</title>
+    <style>
+        body {
+            font-family: sans-serif;
+        }
+        #chat-container {
+            width: 400px;
+            margin: 20px auto;
+            border: 1px solid #ccc;
+            padding: 10px;
+            height: 300px;
+            overflow-y: scroll;
+        }
+        #user-input {
+            width: 380px;
+            margin: 10px auto;
+            padding: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div id="chat-container"></div>
+    <input type="text" id="user-input" placeholder="Type your message...">
+
+    <script>
+        const chatContainer = document.getElementById("chat-container");
+        const userInput = document.getElementById("user-input");
+
+        function appendMessage(sender, message) {
+            const messageElement = document.createElement("p");
+            messageElement.textContent = `${sender}: ${message}`;
+            chatContainer.appendChild(messageElement);
+            chatContainer.scrollTop = chatContainer.scrollHeight; // Scroll to bottom
+        }
+
+        function getBotResponse(message) {
+            const lowerMessage = message.toLowerCase();
+
+            if (lowerMessage.includes("hello") || lowerMessage.includes("hi")) {
+                return "Hello! How can I help you?";
+            } else if (lowerMessage.includes("how are you")) {
+                return "I'm doing well, thank you!";
+            } else if (lowerMessage.includes("what is your name")) {
+                return "I'm a mini chatbot.";
+            } else if (lowerMessage.includes("goodbye") || lowerMessage.includes("bye")) {
+                return "Goodbye!";
+            } else if (lowerMessage.includes("time")) {
+                return `The current time is: ${new Date().toLocaleTimeString()}`;
+            } else if (lowerMessage.includes("date")) {
+                return `Today's date is: ${new Date().toLocaleDateString()}`;
+            } else {
+                return "I'm sorry, I don't understand.";
+            }
+        }
+
+        userInput.addEventListener("keyup", function(event) {
+            if (event.key === "Enter") {
+                const userMessage = userInput.value;
+                appendMessage("You", userMessage);
+                userInput.value = "";
+
+                const botResponse = getBotResponse(userMessage);
+                setTimeout(() => appendMessage("Bot", botResponse), 500); // Simulate a slight delay
+            }
+        });
+
+    </script>
+</body>
+</html>
