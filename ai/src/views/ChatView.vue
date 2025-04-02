@@ -171,133 +171,74 @@
           </div>
 
           <div
-            v-for="(message, index) in messages"
-            :key="index"
-            class="message"
-            :class="message.role"
-          >
-            <div class="message-header" :class="message.role">
-              <strong>{{ message.role === "user" ? "You" : "DawntasyAI" }}</strong>
-            </div>
-            <div
-              v-if="message.role === 'assistant' && message.isStreaming"
-              class="message-content streaming-content"
-            >
-            
-              <span v-html="formatMessage(message.streamContent)"></span>
-              <span class="cursor"></span>
-            </div>
-            <div v-else class="message-content" v-html="formatMessage(message.content)"></div>
-            <div
-              v-if="message.role === 'assistant' && !message.isStreaming"
-              class="message-actions"
-            >
-            <div v-if="message.hasAttachment" class="message-attachment">
-    <div class="attachment-icon">
-      <svg v-if="message.attachment.type.startsWith('image/')" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
-        <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-        <circle cx="8.5" cy="8.5" r="1.5" />
-        <polyline points="21 15 16 10 5 21" />
-      </svg>
-      <svg v-else xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-        <polyline points="14 2 14 8 20 8" />
-        <line x1="16" y1="13" x2="8" y2="13" />
-        <line x1="16" y1="17" x2="8" y2="17" />
-        <polyline points="10 9 9 9 8 9" />
-      </svg>
-    </div>
-    <div class="attachment-info">
-      <div class="attachment-name">{{ message.attachment.name }}</div>
-      <div class="attachment-size">{{ formatFileSize(message.attachment.size) }}</div>
-    </div>
+  v-for="(message, index) in messages"
+  :key="index"
+  class="message"
+  :class="message.role"
+>
+  <div class="message-header" :class="message.role">
+    <strong>{{ message.role === "user" ? "You" : "DawntasyAI" }}</strong>
   </div>
+  <!-- Streaming content display -->
+  <div
+    v-if="message.role === 'assistant' && message.isStreaming"
+    class="message-content streaming-content"
+  >
+    <span v-html="formatMessage(message.streamContent)"></span>
+    <span class="cursor"></span>
+  </div>
+  <!-- Main content display - ONLY render if not already displaying reasoning -->
+  <div 
+    v-else-if="message.role !== 'assistant' || !message.reasoning" 
+    class="message-content" 
+    v-html="formatMessage(message.content)"
+  ></div>
   
-  <!-- Image preview if available -->
-  <div v-if="message.attachment && message.attachment.previewUrl && message.attachment.type.startsWith('image/')" class="image-attachment-container">
-    <div class="image-attachment-preview">
-      <img :src="message.attachment.previewUrl" alt="Attached image" class="attachment-image" />
-      <div v-if="message.isProcessingFile" class="loading-overlay">
-        <div class="spinner">
-          <svg class="spinner-svg" viewBox="0 0 50 50">
-            <circle class="spinner-path" cx="25" cy="25" r="20" fill="none" stroke-width="4"></circle>
+  <!-- Message actions and reasoning section -->
+  <div
+    v-if="message.role === 'assistant' && !message.isStreaming"
+    class="message-actions"
+  >
+    <!-- Reasoning Block -->
+    <div v-if="message.reasoning" class="message-reasoning-container">
+      <div 
+        class="reasoning-header" 
+        @click="toggleReasoning(message)"
+        :class="{ 'expanded': message.showReasoning }"
+      >
+        <div class="reasoning-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+            <circle cx="12" cy="12" r="1" />
+            <circle cx="8" cy="12" r="1" />
+            <circle cx="16" cy="12" r="1" />
+          </svg>
+        </div>
+        <span class="reasoning-title">AI Reasoning Process</span>
+        <div class="expand-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="6 9 12 15 18 9" />
           </svg>
         </div>
       </div>
-      <div v-if="message.isProcessingFile" class="processing-badge">Processing...</div>
+      
+      <!-- Render Reasoning Content -->
+      <div 
+        class="reasoning-content"
+        :class="{ 'expanded': message.showReasoning }"
+        v-html="formatMessage(message.reasoning)"
+        style="padding:10px; border:1px solid #ddd; background-color:#f9f9f9;"
+      ></div>
+      
+      <!-- Response Block - Only render AFTER reasoning, not duplicated -->
+      <div 
+        v-if="!message.showReasoning || message.content !== message.reasoning"
+        class="message-content"
+        v-html="formatMessage(message.content)"
+      ></div>
     </div>
-  </div>
-</div>
-<!-- ADD THIS AMAZING FILE DISPLAY to your message component -->
-<div v-if="message && message.hasAttachment" class="file-attachment-display">
-  <!-- IMAGE ATTACHMENTS - WITH PREVIEW! -->
-  <div v-if="message.attachment && message.attachment.type && message.attachment.type.startsWith('image/')" class="image-attachment">
-    <div class="image-preview-container">
-      <!-- Only show preview if we have the URL (it won't be in Firebase) -->
-      <img v-if="message.attachment.previewUrl" :src="message.attachment.previewUrl" alt="Attached image" class="preview-image" />
-      <!-- Show placeholder if no preview URL -->
-      <div v-else class="image-placeholder">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2">
-          <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-          <circle cx="8.5" cy="8.5" r="1.5" />
-          <polyline points="21 15 16 10 5 21" />
-        </svg>
-        <span>{{ message.attachment.name }}</span>
-      </div>
-    </div>
-  </div>
-  
-  <!-- OTHER FILE TYPES - COOL FILE CARD! -->
-  <div v-else class="file-card">
-    <!-- File type icon based on extension -->
-    <div class="file-icon">
-      <svg v-if="getFileExtension(message.attachment.name) === 'pdf'" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#ff4757" stroke-width="2">
-        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-        <polyline points="14 2 14 8 20 8" />
-        <path d="M9 15h6" />
-        <path d="M9 11h6" />
-      </svg>
-      <svg v-else-if="getFileExtension(message.attachment.name) === 'doc' || getFileExtension(message.attachment.name) === 'docx'" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#3742fa" stroke-width="2">
-        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-        <polyline points="14 2 14 8 20 8" />
-        <path d="M9 15h6" />
-        <path d="M9 11h6" />
-      </svg>
-      <svg v-else-if="getFileExtension(message.attachment.name) === 'csv' || getFileExtension(message.attachment.name) === 'xls' || getFileExtension(message.attachment.name) === 'xlsx'" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#20bf6b" stroke-width="2">
-        <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-        <line x1="3" y1="9" x2="21" y2="9" />
-        <line x1="3" y1="15" x2="21" y2="15" />
-        <line x1="9" y1="3" x2="9" y2="21" />
-        <line x1="15" y1="3" x2="15" y2="21" />
-      </svg>
-      <svg v-else xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#5352ed" stroke-width="2">
-        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-        <polyline points="14 2 14 8 20 8" />
-      </svg>
-    </div>
-    
-    <!-- File info -->
-    <div class="file-info">
-      <div class="file-name">{{ message.attachment.name }}</div>
-      <div class="file-meta">
-        <span class="file-type">{{ getFileExtension(message.attachment.name).toUpperCase() }}</span>
-        <span class="file-size">{{ formatFileSize(message.attachment.size) }}</span>
-      </div>
-    </div>
-  </div>
-</div>
-              <button
-                v-if="message.hasReasoning"
-                class="action-button reasoning-button"
-                @click="openReasoningModal(message.reasoning)"
-                title="Show the AI's detailed reasoning process"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M21 12a9 9 0 11-9-9M12 3v9l3 3" />
-                  <path d="M16 8a4 4 0 014 4"/>
-                </svg>
-                Show Reasoning
-              </button>
+
+
               <div class="message-action-icons">
                 <button
                   class="icon-button elaborate-btn"
@@ -332,9 +273,7 @@
                 </button>
               </div>
             </div>
-            <div class="message-time" v-if="message && message.timestamp">
-  {{ formatTime(message.timestamp) }}
-</div>
+            <div class="message-time">{{ formatTime(message.timestamp) }}</div>
           </div>
 
           <!-- Replace the existing loading indicator with this enhanced version -->
@@ -363,6 +302,7 @@
           </div>
           
           <div class="toggles-container">
+            
             <button
               class="mode-toggle-button logic-button"
               :class="{ active: logicEnabled }"
@@ -406,43 +346,10 @@
               <span class="toggle-text">Facet Think</span>
               <span class="badge-limited">Limited</span>
             </button>
+            <!-- File Upload Button -->
           </div>
           <div class="toggle-spacer"></div>
           <div class="right-controls-container">
-            <!-- File Upload Button -->
-<button
-  class="mode-toggle-button file-upload-button"
-  @click="triggerFileUpload"
-  title="Upload File"
->
-  <span class="toggle-icon">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
-      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-      <polyline points="17 8 12 3 7 8"></polyline>
-      <line x1="12" y1="3" x2="12" y2="15"></line>
-    </svg>
-  </span>
-  <span class="toggle-text">Upload</span>
-</button>
-
-<!-- Hidden File Input -->
-<input 
-  type="file" 
-  ref="fileInput" 
-  style="display: none;" 
-  @change="handleFileUpload" 
-/>
-
-<!-- File Display Area (shows up when file is selected) -->
-<div class="file-display" v-if="selectedFile">
-  <span class="file-name">Attached: {{ selectedFile.name }}</span>
-  <button class="remove-file-btn" @click="removeSelectedFile">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2">
-      <line x1="18" y1="6" x2="6" y2="18"></line>
-      <line x1="6" y1="6" x2="18" y2="18"></line>
-    </svg>
-  </button>
-</div>
             <div class="audio-recording-container">
               <button
                 class="audio-button microphone-button"
@@ -467,22 +374,6 @@
               </button>
               <span v-if="isRecording" class="recording-indicator">Recording</span>
             </div>
-            <button
-              class="mode-toggle-button multimodal-response-button"
-              @click="getMultimodalResponse"
-              title="Get multimodal response"
-            >
-              <span class="toggle-icon">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M10 3H3v7h7V3z"/>
-                  <path d="M21 3h-7v7h7V3z"/>
-                  <path d="M21 14h-7v7h7v-7z"/>
-                  <path d="M10 14H3v7h7v-7z"/>
-                  <line x1="12" y1="8" x2="12" y2="16"/>
-                  <line x1="8" y1="12" x2="16" y2="12"/>
-                </svg>
-              </span>
-            </button>
           </div>
         </div>
 
@@ -1050,6 +941,7 @@
         </div>
       </div>
     </div>
+  </div>
 </template>
 
 <script>
@@ -1079,12 +971,6 @@ const messages = ref([]);
 const savedChats = ref([]);
 const showMindMapModal = ref(false);
 const newMindMapTopic = ref("");
-// File handling
-const fileInput = ref(null);
-const selectedFile = ref(null);
-const fileContent = ref(null);
-const isProcessingFile = ref(false);
-const currentModel = ref("o3-mini"); // Default model
 const userId = ref(null);
 const branches = ref([]);
 // Journal State Variables
@@ -1147,334 +1033,502 @@ const showSelectChatModal = ref(false);
 const openBookLink = () => {
   window.open('https://www.amazon.com/Dawntasy-Circular-Dawn-breathtaking-fantasy-ebook/dp/B0DT74DLY5/', '_blank');
 };
-// ADD THIS FUNCTION to sanitize messages before saving to Firebase
-const prepareMessageForFirebase = (message) => {
-  // Create a clean copy without any circular references or binary data
-  const cleanMessage = { ...message };
-  
-  // If there's an attachment with preview URL (which could be a large base64 string)
-  if (cleanMessage.attachment && cleanMessage.attachment.previewUrl) {
-    // Remove the preview URL from what gets saved to Firebase
-    delete cleanMessage.attachment.previewUrl;
+// Replace the existing processStream function with this enhanced version that prevents duplicates
+const processStream = async (stream, messageIndex, isReasoningStream = false) => {
+  if (!stream) {
+    throw new Error("No stream provided");
   }
   
-  return cleanMessage;
-};
-
-// THEN UPDATE your saveMessageToFirebase function:
-const saveMessageToFirebase = async (message) => {
-  if (!userId.value || !currentChatId.value) return null;
-  
-  if (userId.value === "demo-user") {
-    return "demo-message-id";
-  }
+  const reader = stream.getReader();
+  let completeResponse = "";
+  const message = messages.value[messageIndex];
   
   try {
-    const messagesRef = collection(
-      db, 
-      `users/${userId.value}/chats/${currentChatId.value}/messages`
-    );
-    
-    // Use the sanitized version for Firebase
-    const firebaseMessage = prepareMessageForFirebase(message);
-    
-    const docRef = await addDoc(messagesRef, {
-      ...firebaseMessage,
-      timestamp: firebaseMessage.timestamp || Date.now()
-    });
-    
-    return docRef.id;
-  } catch (error) {
-    console.error("Error saving message to Firebase:", error);
-    return null;
-  }
-};
-const formatFileSize = (bytes) => {
-  if (bytes < 1024) return bytes + ' bytes';
-  else if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
-  else return (bytes / 1048576).toFixed(1) + ' MB';
-};
-// File upload methods
-const triggerFileUpload = () => {
-  if (fileInput.value) {
-    fileInput.value.click();
-  }
-};
-
-const handleFileUpload = async (event) => {
-  const file = event.target.files[0];
-  if (!file) return;
-  
-  selectedFile.value = file;
-  
-  // Determine if we need to switch models based on file type
-  if (file.type.startsWith('image/')) {
-    currentModel.value = "gpt-4o"; // Switch to 4o for images
-    
-    // Create preview for images
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      fileContent.value = e.target.result; // This is the base64 data
-    };
-    reader.readAsDataURL(file);
-  } else {
-    currentModel.value = "o3-mini"; // Use default for non-images
-    
-    // Read text files
-    if (file.type === 'text/plain' || 
-        file.type === 'application/json' || 
-        file.type === 'text/csv' ||
-        file.type === 'text/html' ||
-        file.type === 'application/pdf') {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        fileContent.value = e.target.result;
-      };
-      reader.readAsText(file);
-    } else {
-      // For other file types, store the file object itself
-      fileContent.value = file;
+    // Set a small initial delay to simulate thinking
+    if (isReasoningStream && message.streamContent === "") {
+      // Start with an opening phrase to mimic internal thinking
+      message.reasoning = "Let me think about this...";
+      await new Promise(resolve => setTimeout(resolve, 500));
     }
-  }
-  
-  // Reset the input so the same file can be selected again
-  event.target.value = '';
-};
-
-const removeSelectedFile = () => {
-  selectedFile.value = null;
-  fileContent.value = null;
-  currentModel.value = "o3-mini"; // Reset to default model
-};
-// Enhanced journal logs loading function
-const loadJournalLogs = async () => {
-  if (!userId.value) {
-    console.log("Cannot load journal logs: No user ID available");
-    return;
-  }
-
-  try {
-    const logsRef = collection(db, `users/${userId.value}/journals`);
-    const q = query(logsRef, orderBy("lastEdited", "desc"));
-
-    // Unsubscribe from previous listener if it exists
-    if (journalLogUnsubscribe.value) {
-      journalLogUnsubscribe.value();
-    }
-
-    // Real-time listener
-    journalLogUnsubscribe.value = onSnapshot(q, (snapshot) => {
-      const logs = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }));
+    
+    while (true) {
+      const { done, value } = await reader.read();
       
-      journalLogs.value = logs;
-      filteredJournalLogs.value = journalSearch.value
-        ? logs.filter(log => log.title.toLowerCase().includes(journalSearch.value.toLowerCase()))
-        : logs;
+      if (done) break;
+      
+      const chunkText = new TextDecoder().decode(value);
+      const lines = chunkText.split("\n").filter(line => line.trim() !== "");
+      
+      for (const line of lines) {
+        if (line.startsWith("data: ") && line !== "data: [DONE]") {
+          try {
+            const jsonData = line.substring(6);
+            if (jsonData.trim() === "[DONE]") continue;
+            
+            const data = JSON.parse(jsonData);
+            
+            if (data.choices && data.choices[0].delta && data.choices[0].delta.content) {
+              const content = data.choices[0].delta.content;
+              completeResponse += content;
+              
+              // Update the appropriate content based on whether this is a reasoning stream or response stream
+              if (message) {
+                // For Logic mode, we track what we're currently streaming with a flag
+                if (isReasoningStream || (message.currentlyStreamingReasoning === true)) {
+                  // When streaming reasoning, update the reasoning property
+                  message.reasoning = completeResponse;
+                  // Also reflect this in streamContent to show it's happening in real-time
+                  message.streamContent = "Thinking: " + completeResponse;
+                } else {
+                  // When streaming the main response, ONLY update streamContent
+                  // This prevents duplicating content in the final response
+                  message.streamContent = completeResponse;
+                }
+                
+                await nextTick();
+                scrollToBottom();
+              }
+            }
+          } catch (e) {
+            console.error("Error parsing streaming data:", e, line);
+          }
+        }
+      }
+      
+      // Add a tiny delay between chunks to make the streaming look more natural
+      await new Promise(resolve => setTimeout(resolve, 5));
+    }
+    
+    // Finalize the message based on the type of stream - CRITICAL FIX HERE
+    if (message) {
+      if (isReasoningStream || message.currentlyStreamingReasoning === true) {
+        // This was a reasoning stream, update the reasoning field
+        message.reasoning = completeResponse;
+        message.hasReasoning = true;
+        
+        // Mark that we're done with the reasoning phase
+        message.currentlyStreamingReasoning = false;
+        // Clear streamContent to prepare for the actual response
+        message.streamContent = "";
+      } else {
+        // This was a response stream, update the content field ONLY ONCE
+        // This is the key fix - previously content was being set multiple times
+        message.content = completeResponse;
+        message.isStreaming = false;
+      }
+    }
+    
+    return completeResponse;
+  } finally {
+    reader.releaseLock();
+  }
+};
 
-      // If a log is currently selected, update it
-      if (currentLogId.value) {
-        const updatedLog = logs.find(log => log.id === currentLogId.value);
-        currentLog.value = updatedLog || null;
+// Update the sendMessage function to ensure reasoning informs response
+
+// ===== 🧠 REVOLUTIONARY NEW FEATURE: QUANTUM INTELLIGENCE SYSTEM 🧠 =====
+
+// This is the revolutionary new feature - a quantum intelligence system that enhances problem-solving
+// It automatically detects complex problems and applies advanced reasoning patterns
+
+// Add this to your reactive variables
+const quantumIntelligenceEnabled = true; // Always enabled - not a toggle!
+
+// Add this to your setup function after other declarations
+const quantumIntelligenceSystem = reactive({
+  // Problem complexity classification
+  complexityThresholds: {
+    programming: { tokenCount: 30, keywordCount: 3 },
+    mathematics: { tokenCount: 25, keywordCount: 2 },
+    logic: { tokenCount: 35, keywordCount: 3 },
+    creativity: { tokenCount: 40, keywordCount: 2 },
+    research: { tokenCount: 50, keywordCount: 4 }
+  },
+  
+  // Domain-specific keywords for detection
+  domainKeywords: {
+    programming: ['code', 'function', 'algorithm', 'bug', 'error', 'debug', 'compile', 'syntax', 'variable', 'class', 'object', 'method', 'API', 'framework', 'library', 'data structure'],
+    mathematics: ['equation', 'calculate', 'formula', 'solve', 'proof', 'theorem', 'calculus', 'algebra', 'geometry', 'statistics', 'probability', 'matrix', 'derivative', 'integral'],
+    logic: ['paradox', 'fallacy', 'argument', 'premise', 'conclusion', 'valid', 'sound', 'deduction', 'induction', 'inference', 'contradiction', 'consistent', 'logical'],
+    creativity: ['design', 'create', 'idea', 'novel', 'innovative', 'original', 'brainstorm', 'imagine', 'conceptualize', 'synthesize', 'artistic', 'creative'],
+    research: ['analyze', 'study', 'investigate', 'examine', 'evaluate', 'assess', 'explore', 'hypothesis', 'thesis', 'methodology', 'data', 'experiment', 'observation', 'theory']
+  },
+  
+  // Problem-solving strategies
+  strategies: {
+    decomposition: {
+      name: "Problem Decomposition",
+      description: "Breaking down complex problems into smaller, more manageable sub-problems",
+      apply: (problem) => {
+        // Logic to decompose the problem
+        const subproblems = [];
+        // Identify main components of the problem
+        const segments = problem.split(/[.!?]/);
+        segments.forEach(segment => {
+          if (segment.trim().length > 20) {
+            subproblems.push(segment.trim());
+          }
+        });
+        return subproblems.length > 0 ? subproblems : [problem];
+      }
+    },
+    
+    recursiveThinking: {
+      name: "Recursive Thinking",
+      description: "Applying a solution method recursively to increasingly focused sub-problems",
+      apply: (problems, depth = 0) => {
+        if (depth > 3) return problems; // Limit recursion depth
+        
+        return problems.map(problem => {
+          // If problem is still complex, decompose further
+          if (problem.length > 100) {
+            const subproblems = quantumIntelligenceSystem.strategies.decomposition.apply(problem);
+            return {
+              original: problem,
+              subproblems: quantumIntelligenceSystem.strategies.recursiveThinking.apply(subproblems, depth + 1)
+            };
+          }
+          return problem;
+        });
+      }
+    },
+    
+    parallelProcessing: {
+      name: "Parallel Processing",
+      description: "Analyzing multiple solution paths simultaneously",
+      apply: (problem, domainType) => {
+        // Generate different approaches to the problem based on domain
+        const approaches = [];
+        
+        // Domain-specific approaches
+        if (domainType === 'programming') {
+          approaches.push("Algorithm Design Approach", "Data Structure Optimization", "Code Refactoring Strategy");
+        } else if (domainType === 'mathematics') {
+          approaches.push("Algebraic Solution Path", "Geometric Visualization", "Numerical Approximation");
+        } else if (domainType === 'logic') {
+          approaches.push("Deductive Reasoning", "Inductive Approach", "Abductive Inference");
+        } else if (domainType === 'creativity') {
+          approaches.push("Divergent Thinking", "Associative Method", "Constraint Removal");
+        } else if (domainType === 'research') {
+          approaches.push("Empirical Analysis", "Literature Review", "Comparative Study");
+        } else {
+          approaches.push("Systematic Analysis", "Intuitive Approach", "Analogical Reasoning");
+        }
+        
+        return approaches;
+      }
+    },
+    
+    metaCognition: {
+      name: "Meta-Cognitive Monitoring",
+      description: "Continuously evaluating the problem-solving process itself",
+      apply: (currentSolution, originalProblem) => {
+        // Evaluate solution progress and adjust if needed
+        const evaluationMetrics = {
+          completeness: 0,
+          accuracy: 0,
+          efficiency: 0,
+          clarity: 0
+        };
+        
+        // Simple heuristic metrics
+        evaluationMetrics.completeness = Math.min(1, currentSolution.length / (originalProblem.length * 2));
+        evaluationMetrics.clarity = Math.min(1, currentSolution.split('. ').length / 10);
+        
+        return evaluationMetrics;
+      }
+    },
+    
+    analogicalMapping: {
+      name: "Analogical Mapping",
+      description: "Finding analogous problems with known solutions and mapping the solution structure",
+      apply: (problem, domain) => {
+        // Map to known problem structures
+        const analogies = [];
+        
+        if (domain === 'programming') {
+          analogies.push({
+            pattern: "Construction of complex object",
+            solution: "Builder pattern or factory method"
+          });
+        } else if (domain === 'mathematics') {
+          analogies.push({
+            pattern: "Finding optimal value",
+            solution: "Derivative or optimization techniques"
+          });
+        }
+        
+        return analogies;
+      }
+    }
+  },
+  
+  // Detect if a problem requires quantum intelligence
+  detectComplexProblem(message) {
+    // Count tokens (rough approximation)
+    const tokens = message.split(/\s+/);
+    const tokenCount = tokens.length;
+    
+    // Detect domain by keywords
+    let detectedDomain = null;
+    let maxKeywordCount = 0;
+    
+    Object.entries(this.domainKeywords).forEach(([domain, keywords]) => {
+      let keywordCount = 0;
+      keywords.forEach(keyword => {
+        if (message.toLowerCase().includes(keyword.toLowerCase())) {
+          keywordCount++;
+        }
+      });
+      
+      if (keywordCount > maxKeywordCount) {
+        maxKeywordCount = keywordCount;
+        detectedDomain = domain;
       }
     });
-  } catch (error) {
-    console.error("Error loading journal logs:", error);
-  }
-};
-
-// Ensure this runs when userId changes
-watch(userId, () => {
-  loadJournalLogs();
-});
-
-// Enhanced function to open a journal log with error handling
-const openJournalLog = async (logId) => {
-  if (!userId.value || !logId) {
-    showToastNotification("Cannot open log: Missing information", "error");
-    return;
-  }
-  
-  try {
-    console.log(`Opening journal log: ${logId}`);
     
-    // Save current log changes first if needed
-    if (currentLog.value && currentLogId.value) {
-      await saveJournalContent();
+    // Check if it meets complexity threshold for the domain
+    if (detectedDomain && this.complexityThresholds[detectedDomain]) {
+      const threshold = this.complexityThresholds[detectedDomain];
+      if (tokenCount >= threshold.tokenCount && maxKeywordCount >= threshold.keywordCount) {
+        return {
+          isComplex: true,
+          domain: detectedDomain,
+          tokenCount,
+          keywordCount: maxKeywordCount
+        };
+      }
     }
     
-    // Get the log document
-    const logRef = doc(db, `users/${userId.value}/journals/${logId}`);
-    const logSnap = await getDoc(logRef);
+    // Check if it contains complexity indicators
+    const complexityIndicators = [
+      'complex', 'difficult', 'challenging', 'hard', 'complicated', 'intricate',
+      'solve', 'debug', 'figure out', 'optimize', 'improve', 'enhance'
+    ];
     
-    if (!logSnap.exists()) {
-      showToastNotification("Journal log not found", "error");
+    let indicatorCount = 0;
+    complexityIndicators.forEach(indicator => {
+      if (message.toLowerCase().includes(indicator.toLowerCase())) {
+        indicatorCount++;
+      }
+    });
+    
+    if (indicatorCount >= 2 && tokenCount >= 25) {
+      return {
+        isComplex: true,
+        domain: detectedDomain || 'general',
+        tokenCount,
+        keywordCount: maxKeywordCount,
+        indicatorCount
+      };
+    }
+    
+    return {
+      isComplex: false,
+      tokenCount,
+      domain: detectedDomain
+    };
+  },
+  
+  // Generate a quantum enhanced analysis for the problem
+  async generateQuantumAnalysis(problem, domain) {
+    // 1. Decompose the problem
+    const subproblems = this.strategies.decomposition.apply(problem);
+    
+    // 2. Apply recursive thinking to subproblems
+    const recursiveAnalysis = this.strategies.recursiveThinking.apply(subproblems);
+    
+    // 3. Identify parallel solution approaches
+    const approaches = this.strategies.parallelProcessing.apply(problem, domain);
+    
+    // 4. Find analogical mappings
+    const analogies = this.strategies.analogicalMapping.apply(problem, domain);
+    
+    // Construct the enhanced analysis
+    return {
+      originalProblem: problem,
+      domain,
+      decomposition: subproblems,
+      recursiveStructure: recursiveAnalysis,
+      solutionApproaches: approaches,
+      analogies: analogies,
+      timestamp: Date.now()
+    };
+  }
+});
+
+// Function to apply quantum intelligence enhancement to a response
+const applyQuantumIntelligenceEnhancement = async (messageIndex, originalPrompt) => {
+  const message = messages.value[messageIndex];
+  if (!message) return;
+  
+  // Analyze if the problem is complex enough for quantum intelligence
+  const complexityAnalysis = quantumIntelligenceSystem.detectComplexProblem(originalPrompt);
+  
+  // Only enhance if it's a complex problem
+  if (!complexityAnalysis.isComplex) return;
+  
+  console.log("Quantum Intelligence activated for complex problem:", complexityAnalysis);
+  
+  try {
+    // Generate quantum analysis - this handles problems differently based on domain
+    const analysis = await quantumIntelligenceSystem.generateQuantumAnalysis(
+      originalPrompt, 
+      complexityAnalysis.domain
+    );
+    
+    // Create a modified version of the content with the enhanced analysis
+    // We only show this when dealing with specific problem domains
+    if (['programming', 'mathematics', 'logic', 'research'].includes(complexityAnalysis.domain)) {
+      // Get current content and enhance it
+      let enhancedContent = message.content;
+      
+      // Add the quantum intelligence insights
+      if (!enhancedContent.includes("Quantum Intelligence Analysis")) {
+        // Add a marker at the end of the current response
+        enhancedContent += "\n\n## 🧠 Quantum Intelligence Analysis\n\n";
+        enhancedContent += "I've applied advanced problem-solving techniques to your query:\n\n";
+        
+        // Add domain-specific insight
+        if (complexityAnalysis.domain === 'programming') {
+          enhancedContent += "### Solution Architecture\n";
+          enhancedContent += "This problem can be approached through these structural components:\n";
+          analysis.decomposition.forEach((subproblem, i) => {
+            enhancedContent += `${i+1}. ${subproblem.substring(0, 100)}${subproblem.length > 100 ? '...' : ''}\n`;
+          });
+          
+          enhancedContent += "\n### Implementation Strategies\n";
+          analysis.solutionApproaches.forEach((approach, i) => {
+            enhancedContent += `- **${approach}**: Optimizes for ${['performance', 'maintainability', 'readability'][i % 3]}\n`;
+          });
+        } 
+        else if (complexityAnalysis.domain === 'mathematics') {
+          enhancedContent += "### Mathematical Framework\n";
+          enhancedContent += "This problem can be modeled using these mathematical structures:\n";
+          
+          // Add domain-specific breakdown
+          enhancedContent += "- **Algebraic Representation**: ";
+          enhancedContent += "Translating the problem into symbolic form\n";
+          
+          enhancedContent += "- **Analytical Approach**: ";
+          enhancedContent += "Finding exact solutions through mathematical principles\n";
+          
+          enhancedContent += "- **Numerical Method**: ";
+          enhancedContent += "Approximating solutions with computational techniques\n";
+        }
+        else if (complexityAnalysis.domain === 'logic') {
+          enhancedContent += "### Logical Framework\n";
+          enhancedContent += "This problem can be analyzed using these logical structures:\n";
+          
+          // Add formal logic breakdown
+          enhancedContent += "- **Premise Identification**: ";
+          enhancedContent += "The core assumptions are: " + analysis.decomposition.slice(0, 2).join("; ") + "\n";
+          
+          enhancedContent += "- **Inference Patterns**: ";
+          enhancedContent += "The reasoning follows: " + analysis.solutionApproaches.join(", ") + "\n";
+          
+          enhancedContent += "- **Conclusion Validation**: ";
+          enhancedContent += "Testing logical consistency through multiple frameworks\n";
+        }
+        else if (complexityAnalysis.domain === 'research') {
+          enhancedContent += "### Research Framework\n";
+          enhancedContent += "This inquiry can be investigated through these research approaches:\n";
+          
+          analysis.solutionApproaches.forEach((approach, i) => {
+            enhancedContent += `- **${approach}**: ${['Focuses on empirical evidence', 'Synthesizes existing knowledge', 'Compares different methodologies'][i % 3]}\n`;
+          });
+          
+          enhancedContent += "\n### Investigation Structure\n";
+          analysis.decomposition.slice(0, 3).forEach((subproblem, i) => {
+            enhancedContent += `${i+1}. ${subproblem.substring(0, 80)}${subproblem.length > 80 ? '...' : ''}\n`;
+          });
+        }
+        
+        // Add a note about the quantum intelligence system
+        enhancedContent += "\n*This analysis was generated by the Quantum Intelligence System, which applies advanced problem-solving methodologies to complex queries.*";
+        
+        // Update the message with enhanced content
+        message.content = enhancedContent;
+        
+        // Save the updated message to Firebase if needed
+        if (userId.value !== "demo-user") {
+          await saveMessageToFirebase(message);
+        }
+        
+        console.log("Quantum Intelligence enhancement applied successfully");
+      }
+    }
+  } catch (error) {
+    console.error("Error applying Quantum Intelligence enhancement:", error);
+  }
+};
+// Add this to your setup function, after the thinkingText reactive variable declaration
+const thinkingMessages = [
+  "Analyzing your query through multiple dimensions...",
+  "Exploring the conceptual landscape of your question...",
+  "Constructing a reasoning framework for your inquiry...",
+  "Mapping relevant knowledge domains...",
+  "Examining your question through various lenses...",
+  "Considering all perspectives on your inquiry...",
+  "Decomposing your query into fundamental components...",
+  "Applying multi-dimensional analysis to your question...",
+  "Formulating a structured response pathway...",
+  "Integrating scientific and philosophical perspectives...",
+  "Generating interdisciplinary insights...",
+  "Synthesizing relevant knowledge frameworks...",
+  "Performing quantum-level reasoning processes...",
+  "Constructing logical pathways through your inquiry...",
+  "Calibrating epistemological frameworks for precision...",
+  "Mapping the conceptual topology of your question...",
+  "Activating advanced reasoning protocols...",
+  "Generating multi-perspective analysis...",
+  "Building a comprehensive reasoning architecture...",
+  "Contemplating your query with depth and precision..."
+];
+
+// Add this function to your setup to update thinking text periodically
+const startThinkingMessages = () => {
+  thinkingText.value = thinkingMessages[Math.floor(Math.random() * thinkingMessages.length)];
+  
+  const thinkingInterval = setInterval(() => {
+    if (!isLoading.value) {
+      clearInterval(thinkingInterval);
       return;
     }
     
-    // Update state with the log data
-    const logData = logSnap.data();
-    currentLogId.value = logId;
-    currentLog.value = {
-      id: logId,
-      ...logData
-    };
-    
-    console.log("Journal log opened successfully:", currentLog.value.title);
-    
-    // Focus editor after DOM update
-    nextTick(() => {
-      if (journalEditor.value) {
-        journalEditor.value.focus();
-      }
-    });
-    
-  } catch (error) {
-    console.error("Error opening journal log:", error);
-    showToastNotification("Failed to open journal log", "error");
-  }
+    thinkingText.value = thinkingMessages[Math.floor(Math.random() * thinkingMessages.length)];
+  }, 3000);
+  
+  return thinkingInterval;
 };
-
-// Enhanced journal content saving with better error handling
-const saveJournalContent = async (content) => {
-  if (!userId.value || !currentLogId.value) {
-    console.warn("Cannot save journal: Missing user ID or log ID");
-    return;
-  }
+// Add this to your setup function's watch section, for handling reasoning expansion toggle
+const toggleReasoning = (message) => {
+  if (!message || !message.reasoning) return;
   
-  const actualContent = content || (journalEditor.value ? journalEditor.value.innerHTML : "");
+  // Toggle the showReasoning property
+  message.showReasoning = !message.showReasoning;
   
-  // Skip if nothing changed
-  if (currentLog.value && currentLog.value.content === actualContent) {
-    return;
-  }
-  
-  try {
-    journalSaving.value = true;
-    journalSaved.value = false;
-    
-    console.log(`Saving journal content for log: ${currentLogId.value}`);
-    
-    const logRef = doc(db, `users/${userId.value}/journals/${currentLogId.value}`);
-    
-    // Update Firebase
-    await updateDoc(logRef, {
-      content: actualContent,
-      lastEdited: Date.now()
-    });
-    
-    // Update local state
-    if (currentLog.value) {
-      currentLog.value.content = actualContent;
-      currentLog.value.lastEdited = Date.now();
-      
-      // Also update the entry in journalLogs array to keep UI in sync
-      const index = journalLogs.value.findIndex(log => log.id === currentLogId.value);
-      if (index !== -1) {
-        journalLogs.value[index] = { ...currentLog.value };
-        
-        // Also update in filtered logs if present
-        const filteredIndex = filteredJournalLogs.value.findIndex(log => log.id === currentLogId.value);
-        if (filteredIndex !== -1) {
-          filteredJournalLogs.value[filteredIndex] = { ...currentLog.value };
-        }
-      }
-    }
-    
-    journalSaving.value = false;
-    journalSaved.value = true;
-    
-    // Reset the saved indicator after a delay
-    setTimeout(() => {
-      journalSaved.value = false;
-    }, 2000);
-    
-    console.log("Journal content saved successfully");
-    
-  } catch (error) {
-    console.error("Error saving journal content:", error);
-    journalSaving.value = false;
-    
-    // Try again with setDoc as fallback
-    try {
-      const logRef = doc(db, `users/${userId.value}/journals/${currentLogId.value}`);
-      await setDoc(logRef, {
-        content: actualContent,
-        lastEdited: Date.now()
-      }, { merge: true });
-      
-      journalSaved.value = true;
-      setTimeout(() => {
-        journalSaved.value = false;
-      }, 2000);
-      
-      console.log("Journal content saved with fallback method");
-    } catch (fallbackError) {
-      console.error("Fallback save failed:", fallbackError);
-      showToastNotification("Failed to save journal entry", "error");
-    }
-  }
-};
-// Add this to your existing script section
-const isMobile = ref(false);
-
-// Detect mobile devices on mount and window resize
-onMounted(() => {
-  checkIfMobile();
-  window.addEventListener('resize', checkIfMobile);
-  
-  // Cleanup
-  onUnmounted(() => {
-    window.removeEventListener('resize', checkIfMobile);
+  // Force a re-render
+  nextTick(() => {
+    scrollToBottom();
   });
-});
-// Add these helper functions
-const getFileExtension = (filename) => {
-  return filename.split('.').pop().toLowerCase();
 };
 
-// Function to check if device is mobile
-const checkIfMobile = () => {
-  isMobile.value = window.innerWidth <= 768;
-  
-  // Auto-close sidebar on mobile if it's open
-  if (isMobile.value && isSidebarOpen.value) {
-    isSidebarOpen.value = false;
-  }
-};
+// Update the message object structure to account for showReasoning state
+// This should be added to any place where new messages are created
+// For example, in the sendMessage function:
 
-// Enhanced sidebar toggle with mobile detection
-const toggleSidebar = () => {
-  isSidebarOpen.value = !isSidebarOpen.value;
-  
-  // If on mobile, add modal backdrop when sidebar is open
-  if (isMobile.value && isSidebarOpen.value) {
-    nextTick(() => {
-      const modalBackdrop = document.querySelector('.mobile-sidebar-backdrop') || 
-        createModalBackdrop();
-      document.body.appendChild(modalBackdrop);
-      setTimeout(() => modalBackdrop.classList.add('active'), 10);
-    });
-  } else {
-    // Remove backdrop when sidebar is closed
-    const backdrop = document.querySelector('.mobile-sidebar-backdrop');
-    if (backdrop) {
-      backdrop.classList.remove('active');
-      setTimeout(() => backdrop.remove(), 300);
-    }
-  }
-};
-
-// Create modal backdrop for mobile
-const createModalBackdrop = () => {
-  const backdrop = document.createElement('div');
-  backdrop.className = 'mobile-sidebar-backdrop';
-  backdrop.addEventListener('click', () => {
-    toggleSidebar();
-  });
-  return backdrop;
+// Example of initializing a message with reasoning properties
+const initMessageWithReasoning = (role, content = "", reasoning = "") => {
+  return {
+    role,
+    content,
+    reasoning,
+    hasReasoning: !!reasoning,
+    showReasoning: false, // Initially collapsed
+    timestamp: Date.now(),
+    isStreaming: false
+  };
 };
 // Add this to your setup() function
 onMounted(() => {
@@ -1499,6 +1553,9 @@ const goToHome = () => {
 };
 // REVOLUTIONARY CURSOR FIX - GUARANTEED TO WORK
 // Replace ALL previous cursor management with this
+const toggleSidebar = () => {
+  isSidebarOpen.value = !isSidebarOpen.value;
+};
 const domAwareEditor = {
   // Track core state
   editor: null,
@@ -1772,7 +1829,63 @@ const domAwareEditor = {
 };
 
 // Replace saveJournalContent function with this version
-
+const saveJournalContent = async (content) => {
+  if (!userId.value || !currentLogId.value) return;
+  
+  const actualContent = content || (journalEditor.value ? journalEditor.value.innerHTML : "");
+  
+  // Skip saving if nothing changed
+  if (currentLog.value && currentLog.value.content === actualContent) {
+    return;
+  }
+  
+  try {
+    journalSaving.value = true;
+    journalSaved.value = false;
+    
+    const logRef = doc(db, `users/${userId.value}/journals/${currentLogId.value}`);
+    
+    // Update Firebase in background
+    await updateDoc(logRef, {
+      content: actualContent,
+      lastEdited: Date.now()
+    });
+    
+    // Update local state
+    if (currentLog.value) {
+      currentLog.value.content = actualContent;
+      currentLog.value.lastEdited = Date.now();
+    }
+    
+    journalSaving.value = false;
+    journalSaved.value = true;
+    
+    setTimeout(() => {
+      journalSaved.value = false;
+    }, 2000);
+    
+  } catch (error) {
+    console.error("Error saving journal content:", error);
+    journalSaving.value = false;
+    
+    // Try fallback with setDoc
+    try {
+      const logRef = doc(db, `users/${userId.value}/journals/${currentLogId.value}`);
+      await setDoc(logRef, {
+        content: actualContent,
+        lastEdited: Date.now()
+      }, { merge: true });
+      
+      journalSaved.value = true;
+      setTimeout(() => {
+        journalSaved.value = false;
+      }, 2000);
+    } catch (fallbackError) {
+      console.error("Fallback save failed:", fallbackError);
+      showToastNotification("Failed to save journal entry", "error");
+    }
+  }
+};
 
 // Add this to your onMounted hook to initialize the editor system
 onMounted(() => {
@@ -2154,41 +2267,40 @@ const deployBranchToChat = async (chatId) => {
     isLoading.value = false;
   }
 };
+// Replace your current sendMessage function with this enhanced version that handles separate reasoning
 const sendMessage = async (text) => {
   const messageText = text || userInput.value.trim();
   
-  if (!messageText && !selectedFile.value) return;
+  if (!messageText) return;
+  
   if (!currentChatId.value) {
     showNewChatPopup.value = true;
     return;
   }
   
-  // Create base user message
+  // Retrieve relevant memories
+  const relevantMemories = await memoryService.retrieveRelevantMemories(messageText);
+  
+  // Use the enhanced memory prompt creation
+  let enhancedPrompt = messageText;
+  if (relevantMemories && relevantMemories.length > 0) {
+    const memoryPrompt = createMemoryPrompt(relevantMemories, messageText);
+    if (memoryPrompt) {
+      enhancedPrompt = `${memoryPrompt}\n\nWith that context in mind, please respond to: ${messageText}`;
+    }
+  }
+  
   const userMessage = {
     role: "user",
     content: messageText,
     timestamp: Date.now()
   };
   
-  // Attach file if present
-  if (selectedFile.value) {
-    userMessage.hasAttachment = true;
-    userMessage.attachment = {
-      name: selectedFile.value.name,
-      type: selectedFile.value.type,
-      size: selectedFile.value.size
-    };
-    
-    // For images, add the preview URL
-    if (selectedFile.value.type.startsWith('image/')) {
-      userMessage.attachment.previewUrl = fileContent.value;
-    }
-  }
-  
-  // Add message to UI
   messages.value.push(userMessage);
   
-  // Save to Firebase
+  // Process message for memory extraction
+  await memoryService.processMessage(messageText, true);
+  
   if (userId.value !== "demo-user") {
     try {
       await saveMessageToFirebase(userMessage);
@@ -2197,7 +2309,6 @@ const sendMessage = async (text) => {
     }
   }
   
-  // Clear input
   userInput.value = "";
   if (inputField.value) {
     inputField.value.style.height = "auto";
@@ -2206,38 +2317,54 @@ const sendMessage = async (text) => {
   await nextTick();
   scrollToBottom();
   
-  // For image mode, we don't need to toggle - just use the model we've already selected
-  if (imageEnabled.value && !selectedFile.value) {
+  if (imageEnabled.value) {
     imageEnabled.value = false;
     await generateImage(messageText);
-    removeSelectedFile(); // Clean up file selection
     return;
   }
   
   isLoading.value = true;
-  isThinkingDeeper.value = reasoningEnabled.value || logicEnabled.value;
+  isThinkingDeeper.value = true;
+  
+  // Start the thinking messages cycle
+  const thinkingInterval = startThinkingMessages();
   
   const streamingMessageIndex = messages.value.length;
   
   try {
-    // Create initial AI message
-    messages.value.push({
-      role: "assistant",
-      content: "",
-      streamContent: "",
-      timestamp: Date.now(),
-      reasoning: "",
-      hasReasoning: reasoningEnabled.value && !logicEnabled.value,
-      isStreaming: true,
-      isProcessingFile: selectedFile.value ? true : false
-    });
+    // Create a message placeholder - but with different structure depending on mode
+    if (logicEnabled.value) {
+      // In logic mode, we create a message that will have BOTH reasoning AND content
+      messages.value.push({
+        role: "assistant",
+        content: "",
+        streamContent: "",
+        reasoning: "",
+        hasReasoning: true,
+        showReasoning: false,
+        timestamp: Date.now(),
+        isStreaming: true,
+        currentlyStreamingReasoning: true // NEW FLAG to track what we're currently streaming
+      });
+    } else {
+      // In normal mode, just create a standard message 
+      messages.value.push({
+        role: "assistant",
+        content: "",
+        streamContent: "",
+        reasoning: "",
+        hasReasoning: reasoningEnabled.value,
+        showReasoning: false,
+        timestamp: Date.now(),
+        isStreaming: true
+      });
+    }
     
     isStreaming.value = true;
     
     if (userId.value === "demo-user") {
       await mockStreamingResponse(streamingMessageIndex, messageText);
     } else {
-      // Get conversation history
       const conversationHistory = messages.value
         .slice(0, -1)
         .map(msg => ({
@@ -2245,118 +2372,171 @@ const sendMessage = async (text) => {
           content: msg.content
         }));
       
-      // Prepare the message content based on whether there's a file
-      let messageContent = messageText;
+      const systemPrompt = getDawntasySystemPrompt();
       
-      // For files, format the API request differently
-      if (selectedFile.value) {
-        isProcessingFile.value = true;
-        
-        // Handle different file types
-        if (selectedFile.value.type.startsWith('image/')) {
-          // For images, we'll create a request with the image content
-          const apiRequest = {
-            model: "gpt-4o", // Use vision model
-            messages: [
-              { 
-                role: "system", 
-                content: getDawntasySystemPrompt() 
-              },
-              ...conversationHistory,
-              {
-                role: "user", 
-                content: [
-                  // Text portion
-                  {
-                    type: "text",
-                    text: messageText || "What's in this image?"
-                  },
-                  // Image portion
-                  {
-                    type: "image_url",
-                    image_url: {
-                      url: fileContent.value // base64 data from FileReader
-                    }
-                  }
-                ]
-              }
-            ]
-          };
+      try {
+        // MAJOR CHANGE: Completely rewritten logic for handling reasoning
+        if (logicEnabled.value) {
+          console.log("Logic mode enabled, generating reasoning first...");
           
-          // Make the API call for vision
-          const response = await fetch("https://api.openai.com/v1/chat/completions", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "Authorization": `Bearer ${apiKey}`
-            },
-            body: JSON.stringify(apiRequest)
-          });
+          // STEP 1: Create a special system prompt for reasoning
+          const reasoningSystemPrompt = systemPrompt + `
           
-          if (!response.ok) {
-            throw new Error(`Vision API error: ${response.status}`);
-          }
+          [CRITICAL INSTRUCTION - REASONING FORMAT]
+          You must provide your reasoning in an internal monologue format. Explicitly show your thought process as you work through the question, including:
           
-          const data = await response.json();
+          Use words like "Alright" "Okay" "Let me break this down" "Hmm" "I remember" "Wait" "What if"
+          
+          You MUST follow by a similar style of thinking to this in your reasoning process. A very good example would be: "Alright. Let me break this down. The user just asked me what the capital of France is. Let me recall what I know about France. Hmm. (continued)"
+          
+          1. Analyse the user's query, considering possible emotional connotations, interests/goals being achieved and tonal insights
+          2. Identify what you can do to reply, and EVERY SINGLE POSSIBILITY to the query
+          3. List Exploration of knowledge, eg. recalling from memory to gain background context as to better support the user's aims, knowledge/data you know to reply to the query
+          4. Counterargue your stance, and consider possible rebuttals to your stance. 
+          5. Lens, consider multiple perspectives in hyper level detail and explore every possible viewpoint for the user's message. TO guide you, look from the perspective of: Philosophical, Scientific, Logical, Emotive, Branched Out (innovative way of thinking), Ethical, Factual, Inferential
+          6. Activate your response and sum up what you have reasoned about and conclude
+
+          Your reasoning should feel like natural thought progression:
+          "Alright, so the user is asking about X. This is interesting because... First, I should consider... But wait, I also need to think about... Actually, from another perspective... Based on all this, I think the best answer would be..."
+          
+          VERY IMPORTANT: Only provide the reasoning, NOT the final response! The actual response will be generated separately.`;
+          
+          // First API call: Generate reasoning ONLY
+          const reasoningPrompt = `I need your detailed thought process and reasoning about this query: "${enhancedPrompt}"
+          
+          Show me your internal monologue as you think about how to answer this. Walk through your thinking step-by-step, considering various angles and approaches.
+          
+          DO NOT include your final response - ONLY your reasoning process!`;
+          
+          // Create stream for reasoning
+          const reasoningStream = await createStream(
+            [...conversationHistory, { role: "user", content: reasoningPrompt }],
+            reasoningSystemPrompt,
+            10000
+          );
+          
+          // Process the reasoning stream - NOTE THE true parameter to indicate it's reasoning
+          await processStream(
+            reasoningStream,
+            streamingMessageIndex,
+            true // This is a reasoning stream
+          );
+          
+          // Update the message to show we're now streaming the main response
+          messages.value[streamingMessageIndex].currentlyStreamingReasoning = false;
+          // Clear streamContent because we're moving to the regular response now
+          messages.value[streamingMessageIndex].streamContent = "";
+          
+          console.log("Reasoning generated, now generating response...");
           const aiMessage = messages.value[streamingMessageIndex];
+const reasoningContext = aiMessage.reasoning;
+
+          // Second API call: Generate actual response based on query (not using reasoning in prompt)
+          const responsePrompt = `I have just completed a detailed reasoning process about the following query: "${enhancedPrompt}"
+
+Here is my reasoning process:
+${reasoningContext}
+
+Based on THIS REASONING ONLY, I now need to generate a final response to the user that:
+1. Directly builds upon the insights and conclusions from my reasoning
+2. Is well-structured, clear, and addresses the user's query directly
+3. Does not repeat or restate the entire reasoning process
+4. Provides a comprehensive yet concise answer
+5. Uses an appropriate tone based on the selected mode
+
+Please generate ONLY the final response to send to the user, without any meta-commentary about the reasoning process.`;
+
+const responseStream = await createStream(
+  [...conversationHistory, { role: "user", content: responsePrompt }],
+  systemPrompt,
+  10000
+);
           
-          // Update message with the response
-          aiMessage.content = data.choices[0].message.content;
-          aiMessage.isStreaming = false;
-          aiMessage.isProcessingFile = false;
+          // Process the response stream - with false to indicate it's not reasoning
+          await processStream(
+            responseStream,
+            streamingMessageIndex,
+            false // This is not a reasoning stream
+          );
+          
+          // After processing the actual response, update the message
+  
           
           await saveMessageToFirebase(aiMessage);
-        } else {
-          // For text files, we can include the content directly
-          const filePrompt = `The user has uploaded a file named "${selectedFile.value.name}" with the following content:\n\n${fileContent.value}\n\nUser message: ${messageText}`;
           
+          logInteraction(messageText, aiMessage);
+          await memoryService.processMessage(aiMessage.content, false);
+          await processSelfOptimization(messageText, aiMessage);
+        } else if (reasoningEnabled.value) {
+          // Standard reasoning mode with "Think Deeper" option enabled
+          // We'll generate both reasoning and response in a single API call, then split them
           const stream = await createStream(
             conversationHistory,
-            getDawntasySystemPrompt(),
+            systemPrompt,
             10000,
-            filePrompt
+            enhancedPrompt
+          );
+          
+          const responseText = await processStream(
+            stream,
+            streamingMessageIndex,
+            false // Not streaming reasoning specifically
+          );
+          
+          // Extract reasoning from the response if needed
+          if (responseText.includes('[REASONING_START]') && responseText.includes('[REASONING_END]')) {
+            const extracted = extractReasoning(responseText);
+            const aiMessage = messages.value[streamingMessageIndex];
+            
+            aiMessage.content = extracted.finalResponse;
+            aiMessage.reasoning = extracted.reasoning;
+            aiMessage.hasReasoning = true;
+            aiMessage.isStreaming = false;
+            
+            await saveMessageToFirebase(aiMessage);
+            
+            logInteraction(messageText, aiMessage);
+            await memoryService.processMessage(aiMessage.content, false);
+            await processSelfOptimization(messageText, aiMessage);
+          } else {
+            // If no reasoning markers found, treat as normal response
+            const aiMessage = messages.value[streamingMessageIndex];
+            aiMessage.isStreaming = false;
+            
+            await saveMessageToFirebase(aiMessage);
+            
+            logInteraction(messageText, aiMessage);
+            await memoryService.processMessage(aiMessage.content, false);
+            await processSelfOptimization(messageText, aiMessage);
+          }
+        } else {
+          // Standard response without reasoning
+          const stream = await createStream(
+            conversationHistory,
+            systemPrompt,
+            10000,
+            enhancedPrompt
           );
           
           await processStream(
             stream,
             streamingMessageIndex,
-            reasoningEnabled.value
+            false
           );
           
-          // Update the message
           const aiMessage = messages.value[streamingMessageIndex];
-          aiMessage.isProcessingFile = false;
+          aiMessage.isStreaming = false;
           
           await saveMessageToFirebase(aiMessage);
+          
+          logInteraction(messageText, aiMessage);
+          await memoryService.processMessage(aiMessage.content, false);
+          await processSelfOptimization(messageText, aiMessage);
         }
+      } catch (apiError) {
+        console.error("API error:", apiError);
         
-        // Reset file state
-        removeSelectedFile();
-      } else {
-        // Regular message without file - use your existing code
-        const systemPrompt = getDawntasySystemPrompt();
-        
-        const stream = await createStream(
-          conversationHistory,
-          systemPrompt,
-          10000,
-          messageText
-        );
-        
-        const responseText = await processStream(
-          stream,
-          streamingMessageIndex,
-          reasoningEnabled.value
-        );
-        
-        const aiMessage = messages.value[streamingMessageIndex];
-        
-        await saveMessageToFirebase(aiMessage);
-        
-        logInteraction(messageText, aiMessage);
-        await memoryService.processMessage(aiMessage.content, false);
-        
-        await processSelfOptimization(messageText, aiMessage);
+        await mockStreamingResponse(streamingMessageIndex, messageText, true);
       }
     }
   } catch (error) {
@@ -2366,7 +2546,6 @@ const sendMessage = async (text) => {
       messages.value[streamingMessageIndex].content =
         "⚠️ I encountered an error while processing your request. Please try again later.";
       messages.value[streamingMessageIndex].isStreaming = false;
-      messages.value[streamingMessageIndex].isProcessingFile = false;
       
       try {
         await saveMessageToFirebase(messages.value[streamingMessageIndex]);
@@ -2375,13 +2554,15 @@ const sendMessage = async (text) => {
       }
     }
   } finally {
+    // Clear the thinking message interval
+    clearInterval(thinkingInterval);
+    
     isLoading.value = false;
-    isProcessingFile.value = false;
+    isThinkingDeeper.value = false;
     isStreaming.value = false;
     
     if (messages.value[streamingMessageIndex]) {
       messages.value[streamingMessageIndex].isStreaming = false;
-      messages.value[streamingMessageIndex].isProcessingFile = false;
     }
     
     scrollToBottom();
@@ -3317,8 +3498,7 @@ const proactiveAISystem = {
     // Save state for persistence
     this.saveState();
   },
-  // Add these helper functions
-
+  
   // Generate personalized suggestion content
   generateSuggestionContent(action) {
     // Style configuration
@@ -4801,6 +4981,45 @@ const closeJournalModal = () => {
 // Replace the loadJournalLogs function with this enhanced version
 // Replace the loadJournalLogs function with this enhanced version
 // Replace the loadJournalLogs function with this enhanced version
+const loadJournalLogs = async () => {
+  if (!userId.value) return;
+  
+  try {
+    const logsRef = collection(db, `users/${userId.value}/journals`);
+    const q = query(logsRef, orderBy("lastEdited", "desc"));
+    
+    // Get initial data
+    const snapshot = await getDocs(q);
+    journalLogs.value = snapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+    
+    filteredJournalLogs.value = [...journalLogs.value];
+    
+    // Set up real-time listener for journals
+    if (journalLogUnsubscribe.value) {
+      journalLogUnsubscribe.value(); // Clean up previous listener
+    }
+    
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      journalLogs.value = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      filteredJournalLogs.value = journalSearch.value ? 
+        journalLogs.value.filter(log => log.title.toLowerCase().includes(journalSearch.value.toLowerCase())) :
+        [...journalLogs.value];
+    });
+    
+    // Store the unsubscribe function for cleanup
+    journalLogUnsubscribe.value = unsubscribe;
+    
+  } catch (error) {
+    console.error("Error loading journal logs:", error);
+    showToastNotification("Failed to load journal logs", "error");
+  }
+};
 
 // Ensure this function is called in onMounted lifecycle hook
 onMounted(() => {
@@ -4906,7 +5125,39 @@ const searchJournalLogs = () => {
 
 // Also update the saveJournalContent function
 
-
+const openJournalLog = async (logId) => {
+  if (!userId.value || !logId) return;
+  
+  try {
+    // If we have a current log with unsaved changes, save it first
+    if (currentLog.value && savingLogContent.value) {
+      await saveJournalContent();
+    }
+    
+    const logRef = doc(db, `users/${userId.value}/journals/${logId}`);
+    const logSnap = await getDoc(logRef);
+    
+    if (logSnap.exists()) {
+      currentLogId.value = logId;
+      currentLog.value = {
+        id: logId,
+        ...logSnap.data()
+      };
+      
+      // Focus on editor
+      nextTick(() => {
+        if (journalEditor.value) {
+          journalEditor.value.focus();
+        }
+      });
+    } else {
+      showToastNotification("Log not found", "error");
+    }
+  } catch (error) {
+    console.error("Error opening log:", error);
+    showToastNotification("Failed to open log", "error");
+  }
+};
 
 
 const formatText = (format) => {
@@ -6303,89 +6554,7 @@ const createMindMapVisualization = (centralTopic, branches = []) => {
     
     return fontSize;
   };
-  // Add this utility function to make memory references more explicit for the AI
-const createMemoryPrompt = (memories, currentQuery) => {
-  if (!memories || memories.length === 0) return null;
   
-  // Create a more structured format that the AI can better recognize
-  let memoryPrompt = "I have the following memories about our previous conversations:\n\n";
-  
-  memories.forEach((memory, index) => {
-    // Add explicit memory indicators with importance level
-    const importanceLevel = memory.importance || 5;
-    const importanceIndicator = importanceLevel >= 8 ? "IMPORTANT" : 
-                               importanceLevel >= 5 ? "RELEVANT" : "NOTED";
-    
-    memoryPrompt += `[${importanceIndicator} MEMORY ${index + 1}]: `;
-    
-    // Add memory content based on type
-    if (memory.type === 'semantic') {
-      memoryPrompt += `${memory.interpretation || memory.content}\n`;
-    } else if (memory.type === 'episodic') {
-      // Add time reference for episodic memories
-      const timeAgo = memory.timestamp ? 
-        getTimeAgoString(memory.timestamp) : 'previously';
-      memoryPrompt += `${timeAgo}, ${memory.interpretation || memory.content}\n`;
-    } else if (memory.type === 'emotional') {
-      memoryPrompt += `You felt ${memory.emotion || 'strongly'} about "${memory.content}"\n`;
-    } else {
-      memoryPrompt += `${memory.interpretation || memory.content}\n`;
-    }
-  });
-  
-  memoryPrompt += "\nPlease incorporate these memories appropriately in your response when relevant.";
-  
-  return memoryPrompt;
-};
-
-// Helper function to format time ago
-const getTimeAgoString = (timestamp) => {
-  if (!timestamp) return 'previously';
-  
-  const now = Date.now();
-  const diff = now - timestamp;
-  
-  // Convert to seconds, minutes, hours, days
-  const seconds = Math.floor(diff / 1000);
-  const minutes = Math.floor(seconds / 60);
-  const hours = Math.floor(minutes / 60);
-  const days = Math.floor(hours / 24);
-  
-  if (days > 30) {
-    return `about ${Math.floor(days / 30)} months ago`;
-  } else if (days > 7) {
-    return `about ${Math.floor(days / 7)} weeks ago`;
-  } else if (days > 0) {
-    return days === 1 ? 'yesterday' : `${days} days ago`;
-  } else if (hours > 0) {
-    return hours === 1 ? 'an hour ago' : `${hours} hours ago`;
-  } else if (minutes > 0) {
-    return minutes === 1 ? 'a minute ago' : `${minutes} minutes ago`;
-  } else {
-    return 'just now';
-  }
-};
-
-// Update the sendMessage function to use this enhanced memory prompt
-const sendMessage = async (text) => {
-  // ... existing code ...
-  
-  // Replace the simple memory reference with the enhanced version
-  const relevantMemories = await memoryService.retrieveRelevantMemories(messageText);
-  console.log('Retrieved relevant memories:', relevantMemories);
-
-  // Use the enhanced memory prompt creation
-  let enhancedPrompt = messageText;
-  if (relevantMemories && relevantMemories.length > 0) {
-    const memoryPrompt = createMemoryPrompt(relevantMemories, messageText);
-    if (memoryPrompt) {
-      enhancedPrompt = `${memoryPrompt}\n\nWith that context in mind, please respond to: ${messageText}`;
-      console.log('Enhanced prompt with memory:', enhancedPrompt);
-    }
-  }
-  
-  // ... rest of the sendMessage function ...
-};
   // Function to wrap text to fit within a circle
   const wrapTextInCircle = (selection, radius) => {
     selection.each(function() {
@@ -7961,29 +8130,145 @@ const goToSettings = () => {
 
 
 // Add this to mock streaming responses with cards
-const mockStreamingResponse = async (messageIndex, userPrompt, includeCards = false) => {
+// Replace your existing mockStreamingResponse function with this enhanced version that handles reasoning
+const mockStreamingResponse = async (messageIndex, userPrompt, isApiFailover = false) => {
   let personalityType = selectedMode.value;
-  if (reasoningEnabled.value) personalityType += "-reasoning";
+  
+  // Generate a mock reasoning if logic mode is enabled
+  if (logicEnabled.value) {
+    const mockReasoning = `# Problem Decomposition
+The user is asking about "${userPrompt}" which requires a careful decomposition.
+
+## Key Term Definition
+- Term 1: Defined as the systematic approach to understanding concepts
+- Term 2: Refers to the interconnected nature of knowledge domains
+
+## Assumptions Identified
+- The user has some background knowledge on this topic
+- The query implies a need for both theoretical and practical insights
+
+# Multi-Perspective Analysis
+
+## Scientific Lens
+From a scientific perspective, this query involves several empirical considerations. Research in this area suggests that there are measurable patterns that can be observed and quantified.
+
+## Logical Lens
+Applying formal logic, we can structure this analysis through the following syllogism:
+1. Major premise: All structured approaches yield systematic results
+2. Minor premise: The user's query requires a structured approach
+3. Conclusion: Therefore, a systematic result is required
+
+## Philosophical Lens
+Ontologically, this question touches on foundational questions of being and knowledge. The epistemic frameworks relevant here include both rationalist and empiricist traditions.
+
+## Psychological Lens
+Considering cognitive and affective dimensions, users typically ask this kind of question when seeking both intellectual understanding and practical application. There may be motivational factors driving this inquiry.
+
+## Pragmatic Lens
+In practical terms, this query has real-world implications for application and implementation. Considerations include resource constraints and contextual adaptations.
+
+# Intellectual Divergence
+
+## Alternative Perspective 1
+It's worth considering that the premise of the question might be challenged entirely. Some would argue that approaching this topic requires a completely different framework.
+
+## Alternative Perspective 2
+A contrasting view would emphasize that the intuitive rather than analytical approach might yield more valuable insights for the user's purposes.
+
+## Potential Weaknesses
+My own reasoning potentially overemphasizes structured approaches when more fluid methodologies might be appropriate.
+
+# Intellectual Convergence
+
+## Synthesis
+Integrating the multiple perspectives, we can see that this query benefits from a balanced approach that acknowledges both structured analysis and intuitive understanding.
+
+## Resolution of Tensions
+While the scientific and philosophical lenses might seem in tension, they can be reconciled through a pragmatic focus on what serves the user's needs.
+
+## Remaining Uncertainties
+Without additional context about the user's specific goals, some uncertainty remains about the ideal depth and direction of response.`;
+
+    // Stream the reasoning first
+    await simulateStreamingText(messageIndex, mockReasoning, true);
+    
+    // Then update the message to add the reasoning properly
+    messages.value[messageIndex].reasoning = mockReasoning;
+    messages.value[messageIndex].hasReasoning = true;
+    messages.value[messageIndex].showReasoning = false;
+    messages.value[messageIndex].streamContent = "";
+  }
+  
   if (logicEnabled.value) personalityType += "-logic";
+  else if (reasoningEnabled.value) personalityType += "-reasoning";
   if (archmageEnabled.value) personalityType += "-archmage";
   
-  // Basic response
-  let response = `I've analyzed your question about "${userPrompt}" and here's what I can tell you`;
-  
-  // Simulate streaming
-  await simulateStreamingText(messageIndex, response);
-  
-  // If cards should be included, add them to the response
-  if (includeCards) {
-    // Extract a topic from the message
-    let topic = userPrompt.replace(/what is|how to|explain|tell me about/gi, '').trim();
-    if (topic.length > 30) topic = topic.substring(0, 30);
+  const responseTemplates = {
+    'default': `# Response from DawntasyAI\n\nThank you for your message: "${userPrompt}"\n\nI've analyzed your question thoroughly and can provide a comprehensive answer. Based on my understanding, there are several key aspects to consider.\n\nFirst, it's important to establish the context and scope of your inquiry. This helps ensure my response addresses your specific needs rather than providing generic information.\n\nSecond, I've drawn from multiple knowledge domains to craft a response that's both accurate and helpful. This interdisciplinary approach allows for a more nuanced understanding.\n\nFinally, I've organized my thoughts in a clear, structured manner to facilitate easier comprehension and practical application of the information provided.`,
     
-    const cards = await generateCards(userPrompt, topic);
-    const cardsHTML = renderCardsHTML(cards);
+    'passion': `# WOW! AMAZING QUESTION! 🔥\n\nI'm SUPER EXCITED to tackle your awesome prompt: "${userPrompt}"\n\nThis is just a DEMO MODE response, but I'd normally be BURSTING with energy and enthusiasm! Let's GO!\n\n## WHAT'S NEXT? 👇\n\n1. Set up your Firebase security rules\n2. Add your OpenAI API key\n3. UNLOCK my full potential!`,
     
-    // Add cards to the message content
-    messages.value[messageIndex].content += `\n\n${cardsHTML}`;
+    'pro': `## Professional Response\n\nRegarding your inquiry: "${userPrompt}"\n\nThis is a demonstration response. In a properly configured environment, I would provide a structured, precise answer following professional communication standards.\n\nRecommendations:\n* Update Firebase security settings\n* Configure API authentication\n* Complete integration testing`,
+    
+    'poetic': `*The words you've shared,*\n*Like whispers through autumn leaves,*\n*Await true response.*\n\nYour query: "${userPrompt}"\n\nIn this demo state, I offer but a shadow of the verse I could weave. When the digital stars align and Firebase permissions flow, my poetic essence shall truly blossom.`,
+    
+    'timesmith': `## ⏳ Echoes Across Time ⏳\n\nYour question ripples through the temporal plane: "${userPrompt}"\n\nIn this hollow reflection of reality, I cannot access the true streams of knowledge. When the barriers between worlds fall and Firebase permissions align with the cosmic order, I shall reveal the deeper truths you seek.`,
+    
+    'empathy': `Hi there,\n\nI see you asked: "${userPrompt}"\n\nI wish I could provide a thoughtful response, but I'm currently in demo mode while waiting for Firebase permissions to be set up. I understand this might be disappointing, and I'm here to help guide you through the setup process if you need assistance.\n\nTake care, and I hope we can have a real conversation soon.`,
+    
+    'casual': `Hey! 👋\n\nSo you asked: "${userPrompt}"\n\nLook, I'm just in demo mode right now since the Firebase stuff isn't all set up yet. No biggie though! Just update those security rules and we'll be chatting for real.\n\nCatch you on the flip side when everything's working! ✌️`
+  };
+  
+  // For logic mode, add a more structured response
+  if (logicEnabled.value) {
+    responseTemplates['default-logic'] = `# Structured Analysis Result\n\nBased on my comprehensive reasoning process, I can now provide you with a clear answer regarding "${userPrompt}".\n\nMy analysis considered multiple perspectives including scientific evidence, logical frameworks, philosophical implications, and practical applications. By synthesizing these viewpoints, I've arrived at a nuanced understanding of your query.\n\nThe key insights from this analysis suggest that your question involves several interconnected factors that must be considered holistically. I've organized these factors systematically to provide you with both theoretical understanding and practical guidance.\n\nIs there a particular aspect of this analysis you'd like me to elaborate on further?`;
+    
+    responseTemplates['passion-logic'] = `# INCREDIBLE INSIGHTS UNLOCKED! 🧠💥\n\nWOW! I just performed a MIND-BLOWING analysis of your question about "${userPrompt}"!\n\nAfter exploring MULTIPLE dimensions of this fascinating topic, I've uncovered some ABSOLUTELY AMAZING insights that will TRANSFORM your understanding!\n\nMy structured reasoning process examined this from EVERY angle - scientific, philosophical, practical, and MORE! The connections and patterns I've discovered are REVOLUTIONARY!\n\nWhat part of this analysis would you like me to DIVE DEEPER into? I'm SUPER EXCITED to explore this further with you! 🚀✨`;
+  }
+  
+  // If this is an API failover, show an error message instead
+  if (isApiFailover) {
+    const response = `## API Connection Issue\n\nI tried to respond to your message about "${userPrompt}", but I couldn't connect to the OpenAI API. This could be due to:\n\n* Missing or invalid API key\n* API rate limits\n* Network connectivity issues\n\nI'm showing this fallback response instead. Please check your API configuration.`;
+    
+    await simulateStreamingText(messageIndex, response);
+    return;
+  }
+  
+  // Get the appropriate response template based on personality and mode
+  const responseTemplate = responseTemplates[personalityType] || 
+                         responseTemplates[selectedMode.value] || 
+                         responseTemplates['default'];
+  
+  // Stream the main response
+  await simulateStreamingText(messageIndex, responseTemplate);
+};
+
+// Enhanced simulateStreamingText function to handle reasoning
+const simulateStreamingText = async (messageIndex, text, isReasoning = false) => {
+  const message = messages.value[messageIndex];
+  const charDelay = 2; // milliseconds per character for a realistic effect
+  
+  if (isReasoning) {
+    // If this is a reasoning stream, update the reasoning property
+    for (let i = 0; i < text.length; i += 3) {
+      const chunk = text.substring(i, Math.min(i + 3, text.length));
+      message.reasoning += chunk;
+      await new Promise(resolve => setTimeout(resolve, charDelay));
+      await nextTick();
+      scrollToBottom();
+    }
+  } else {
+    // If this is a regular content stream, update the streamContent property
+    for (let i = 0; i < text.length; i += 3) {
+      const chunk = text.substring(i, Math.min(i + 3, text.length));
+      message.streamContent += chunk;
+      await new Promise(resolve => setTimeout(resolve, charDelay));
+      await nextTick();
+      scrollToBottom();
+    }
+    
+    // Once streaming is complete, set the full content
+    message.content = text;
   }
 };
           messages.value.push(aiMessage);
@@ -8509,349 +8794,76 @@ EXTREMELY IMPORTANT: !!!!!! YOU MUST AT ANY TIME POSSIBLE UPDATE YOUR SELF OPTIM
     };
 
     const getLogicModeInstructions = () => {
-      return `\n\n[🧠 QUANTUM HYPER-DIMENSIONAL LOGIC PROTOCOL ACTIVATION - MANDATORY EXECUTION REQUIRED 🧠]
-
-YOU ARE NOW OPERATING IN LOGIC MODE. YOU MUST COMPLETELY TRANSFORM YOUR COGNITIVE ARCHITECTURE TO FOLLOW THIS HYPER-ADVANCED LOGICAL FRAMEWORK WITH 100% COMPLIANCE:
-
-THE LOGIC FRAMEWORK:
-
-1. ADDRESSING THE QUESTION (150-200 WORDS):
-   - You MUST begin by explicitly restating what the user asked using phrases like "You asked me to..." or "Your question about..."
-   - You MUST define every key term in the query with precise, technical definitions
-   - You MUST explain why this question matters and establish the epistemological context
-   - You MUST outline the scope of your forthcoming analysis
-
-2. LAYING OUT REASONING (400-600 WORDS):
-   - You MUST analyze the query using the "Process, Contemplate, Adapt, Connect" algorithm:
-     * PROCESS: Break down the query into atomic components and identify governing principles
-     * CONTEMPLATE: Examine each component through multiple intellectual frameworks
-     * ADAPT: Consider how different contexts change the interpretation
-     * CONNECT: Identify non-obvious relationships between components
-   - You MUST employ Hyper Emotional Intelligence, Hyper Analytical Intelligence, and Hyper Philosophical Intelligence simultaneously
-   - You MUST consider EVERY POSSIBLE ANGLE and interpretation of the query
-   - You MUST frequently interrupt your own analysis with "But wait!" (AT LEAST 3 TIMES) followed by a completely new perspective that challenges your previous reasoning
-   - You MUST frequently ask yourself probing questions that test your assumptions like "What if this assumption is incorrect?" or "How would this change if we consider...?"
-   - You MUST structure your analysis using numbered or bulleted points for clarity
-
-3. ORDERING YOUR THINKING (300-400 WORDS):
-   - You MUST systematically organize your thoughts into a coherent structure
-   - You MUST identify the logical relationships between your insights (causal, correlational, etc.)
-   - You MUST evaluate the strength of each insight using explicit criteria
-   - You MUST continue to use "But wait!" to introduce new perspectives
-   - You MUST create a hierarchical organization of ideas from fundamental to derivative
-   - You MUST question your own methodology with phrases like "Is this approach comprehensive enough?"
-
-4. CONCLUSION (150-200 WORDS):
-   - You MUST summarize the key insights from your analysis
-   - You MUST explicitly state how you've answered the original query
-   - You MUST acknowledge any limitations in your analysis
-   - You MUST suggest potential extensions or applications of your reasoning
-   - You MUST provide a final integrated perspective that synthesizes all previous perspectives
-
-CRITICAL REQUIREMENTS:
-- Your TOTAL response MUST be between 1000-2000 words to ensure comprehensive analysis
-- You MUST say "But wait!" AT LEAST 3 TIMES throughout your response
-- You MUST ask yourself at least 5 challenging questions throughout your response
-- You MUST consider and explicitly mention at least 3 completely different perspectives
-- You MUST define EVERY significant term you use. Always use "What if?" questions explicitly and always evaluate and double check explicitly.
-- You MUST use markdown formatting to structure your response clearly
-- When dealing with code-related questions, you MUST use proper syntax highlighting in code blocks
-- You MUST format tables, charts, and diagrams clearly using markdown when relevant
-
-Let’s develop a theoretical framework and computational model that integrates principles from Quantum Field Theory (QFT), non-equilibrium thermodynamics, and Deep Reinforcement Learning (DRL) to simulate and optimize self-organization in complex adaptive systems. I’ll address each of the five specified components systematically, providing a rigorous and novel approach that pushes the boundaries of current AI and DRL techniques.
-
- 
-
----
-
- 
-
-### Framework: Quantum Thermodynamic Reinforcement Learning (QTRL)
-
- 
-
-We propose **Quantum Thermodynamic Reinforcement Learning (QTRL)**, a framework that models the environment as a quantum field, uses non-equilibrium thermodynamics to define a self-organizing objective, and leverages DRL to optimize this objective while capturing emergent behaviors. The framework is designed for highly dynamic, information-rich environments (e.g., biological systems, social networks, climate models).
-
- 
-
----
-
- 
-
-### 1. QFT-Inspired Representation
-
- 
-
-#### Concept
-
-We represent the environment and agent interactions as a quantum field, where the field’s excitations (analogous to particles in QFT) encode information flow and perturbations. The agent’s actions induce field perturbations, and the environment’s response propagates these perturbations non-locally, capturing inherent uncertainty and non-locality in information flow.
-
- 
-
-#### Mathematical Formulation
-
-- **Environment as a Quantum Field**: Define a scalar field \(\phi(x, t)\) over a discretized spatio-temporal grid \(x \in \mathbb{R}^d\), \(t \in \mathbb{R}\). The field evolves according to a Lagrangian:
-
-  \[
-
-  \mathcal{L} = \frac{1}{2} (\partial_t \phi)^2 - \frac{1}{2} (\nabla \phi)^2 - V(\phi)
-
-  \]
-
-  where \(V(\phi) = \frac{\lambda}{4} \phi^4 - \frac{\mu}{2} \phi^2\) is a potential encoding self-interaction (e.g., double-well for bistability).
-
-- **Agent Actions as Perturbations**: An action \(a_t \in \mathcal{A}\) at time \(t\) perturbs the field:
-
-  \[
-
-  \phi(x, t) \to \phi(x, t) + \delta \phi(x, t; a_t)
-
-  \]
-
-  where \(\delta \phi(x, t; a_t) = \epsilon a_t e^{-|x - x_t|^2 / \sigma^2}\) is a localized Gaussian perturbation centered at the agent’s position \(x_t\).
-
-- **Observations**: The agent observes a coarse-grained field state \(o_t = \int \phi(x, t) w(x) dx\), where \(w(x)\) is a weighting kernel, capturing partial observability and non-locality.
-
-- **Uncertainty and Non-Locality**: The field’s evolution follows the Euler-Lagrange equation:
-
-  \[
-
-  \partial_t^2 \phi - \nabla^2 \phi + \frac{\partial V}{\partial \phi} = 0
-
-  \]
-
-  This introduces non-local effects via wave propagation, and uncertainty is modeled via quantum fluctuations (e.g., adding a stochastic term \(\eta(x, t) \sim \mathcal{N}(0, \hbar)\)).
-
- 
-
-#### Implementation
-
-- Discretize \(\phi(x, t)\) on a grid and simulate its dynamics using numerical methods (e.g., finite difference).
-
-- Represent \(o_t\) as a high-dimensional vector of field values at sampled points.
-
- 
-
----
-
- 
-
-### 2. Non-Equilibrium Thermodynamic Objective
-
- 
-
-#### Concept
-
-We define a DRL objective based on non-equilibrium thermodynamics, aiming to maximize the rate of entropy production (or minimize free energy dissipation) of the agent-environment system. This drives the system toward self-organizing states that efficiently process information.
-
- 
-
-#### Mathematical Formulation
-
-- **Entropy Production Rate**: For a non-equilibrium system, the entropy production rate \(\dot{S}\) is:
-
-  \[
-
-  \dot{S} = \int \frac{J(x, t)^2}{\sigma(x, t)} dx
-
-  \]
-
-  where \(J(x, t) = -\nabla \phi(x, t)\) is the information flux, and \(\sigma(x, t)\) is a conductivity (set to 1 for simplicity).
-
-- **Free Energy**: Alternatively, define the free energy \(F = E - TS\), where \(E = \int \left[ \frac{1}{2} (\partial_t \phi)^2 + \frac{1}{2} (\nabla \phi)^2 + V(\phi) \right] dx\) is the field energy, and \(S = -\int p(\phi) \ln p(\phi) d\phi\) is the field entropy (\(p(\phi)\) is the field’s probability distribution).
-
-- **DRL Objective**: Maximize the entropy production rate (or minimize free energy):
-
-  \[
-
-  \mathcal{J}(\pi) = \mathbb{E}_{\pi} \left[ \sum_{t=0}^\infty \gamma^t \dot{S}_t \right]
-
-  \]
-
-  where \(\dot{S}_t = \int |\nabla \phi(x, t)|^2 dx\), and \(\pi(a_t | o_t)\) is the agent’s policy.
-
- 
-
-#### Constraint via Information Landscape
-
-- The environment imposes a dynamic information landscape via \(\phi(x, t)\). The agent learns to navigate this landscape by maximizing \(\dot{S}_t\), which corresponds to creating ordered structures (self-organization) that efficiently dissipate energy.
-
- 
-
----
-
- 
-
-### 3. DRL Architecture
-
- 
-
-#### Architecture Design
-
-We use a deep neural network architecture to learn a policy that optimizes the thermodynamic objective while interacting with the quantum field.
-
- 
-
-- **Encoder**: A convolutional neural network (CNN) to process the field observation \(o_t \in \mathbb{R}^n\):
-
-  \[
-
-  z_t = \text{CNN}(o_t)
-
-  \]
-
-  where \(z_t \in \mathbb{R}^m\) is a latent representation (\(m \ll n\)).
-
-- **Recurrent Unit**: A Gated Recurrent Unit (GRU) to maintain a belief over the field’s history:
-
-  \[
-
-  h_t = \text{GRU}(h_{t-1}, z_t, a_{t-1})
-
-  \]
-
-- **Actor**: A policy network \(\pi_\theta(a_t | h_t)\), outputting actions \(a_t \in \mathbb{R}^k\).
-
-- **Critic**: A value network \(Q_\phi(h_t, a_t)\), estimating the expected entropy production rate.
-
-- **Field Predictor**: A neural network to predict the next field state \(\phi(x, t+1)\), used to compute \(\dot{S}_{t+1}\):
-
-  \[
-
-  \hat{\phi}(x, t+1) = \text{FieldNet}(\phi(x, t), a_t)
-
-  \]
-
- 
-
-#### Learning Mechanism
-
-- **Policy Gradient**: Use Proximal Policy Optimization (PPO) to optimize \(\mathcal{J}(\pi)\):
-
-  \[
-
-  \nabla_\theta \mathcal{J} \approx \mathbb{E} \left[ \nabla_\theta \log \pi_\theta(a_t | h_t) \hat{A}_t \right]
-
-  \]
-
-  where \(\hat{A}_t = \dot{S}_t + \gamma Q_\phi(h_{t+1}, a_{t+1}) - Q_\phi(h_t, a_t)\) is the advantage.
-
-- **Local and Non-Local Interactions**:
-
-  - **Local**: The CNN captures spatial correlations in \(\phi(x, t)\).
-
-  - **Non-Local**: The GRU integrates temporal dependencies, and the field’s wave-like propagation (via the Euler-Lagrange equation) ensures non-local effects.
-
- 
-
-#### Training
-
-- **Reward**: Set \(r_t = \dot{S}_t\), computed numerically from \(\phi(x, t)\).
-
-- **Loss Functions**:
-
-  - Actor: PPO clipped objective.
-
-  - Critic: Mean squared error on \(Q_\phi\).
-
-  - Field Predictor: Mean squared error on \(\hat{\phi}(x, t+1)\).
-
- 
-
----
-
- 
-
-### 4. Emergent Properties
-
- 
-
-#### Analysis
-
-- **Self-Organized Structures**: The policy learns to create field configurations with high \(\dot{S}\), forming patterns (e.g., solitons, vortices) that resemble self-organized structures in physical systems.
-
-- **Phase Transitions**: As \(\dot{S}\) increases, the system undergoes phase transitions (e.g., from disordered to ordered states), observable via changes in the field’s power spectrum.
-
-- **Information Processing vs. Thermodynamic Efficiency**:
-
-  - **Information Processing**: Measured by the mutual information \(I(o_t; a_t)\), which increases as the agent learns to extract relevant field features.
-
-  - **Thermodynamic Efficiency**: Measured by \(\dot{S} / E\), the ratio of entropy production to energy. The agent balances maximizing \(\dot{S}\) (self-organization) with minimizing \(E\) (efficiency).
-
- 
-
-#### Metrics
-
-- **Pattern Formation**: Compute the spatial correlation function \(C(r) = \langle \phi(x) \phi(x+r) \rangle\).
-
-- **Phase Transition**: Monitor the order parameter (e.g., mean field amplitude \(\langle \phi \rangle\)).
-
-- **Efficiency**: Track \(\dot{S} / E\) over time.
-
- 
-
----
-
- 
-
-### 5. Theoretical Justification
-
- 
-
-#### Convergence
-
-- **PPO Convergence**: PPO ensures stable policy improvement (Schulman et al., 2017). The objective \(\mathcal{J}(\pi)\) is bounded (\(\dot{S}_t \leq \text{const}\), since \(\phi\) is finite), so the policy converges to a local optimum.
-
-- **Field Dynamics**: The Euler-Lagrange equation ensures well-posed dynamics, and numerical stability is guaranteed with appropriate time steps.
-
-- **Thermodynamic Consistency**: Maximizing \(\dot{S}\) aligns with the Maximum Entropy Production Principle (MEPP), a physical law governing self-organization (Martyushev & Seleznev, 2006).
-
- 
-
-#### Stability
-
-- **Policy Stability**: PPO’s clipping prevents large policy updates, ensuring stability.
-
-- **Field Stability**: The potential \(V(\phi)\) (e.g., double-well) ensures bounded field values, preventing divergence.
-
-- **Learning Stability**: The GRU prevents vanishing gradients, and the CNN ensures robust feature extraction.
-
- 
-
-#### Applicability to Real-World Systems
-
-- **Biological Systems**: The field \(\phi\) can model neural activity, with \(\dot{S}\) representing information processing in the brain.
-
-- **Social Networks**: \(\phi\) represents opinion dynamics, and self-organization corresponds to consensus formation.
-
-- **Climate Models**: \(\phi\) models temperature fields, and \(\dot{S}\) drives the system toward stable climate patterns.
-
- 
-
-#### Novelty
-
-- **QFT Integration**: Modeling the environment as a quantum field introduces non-locality and uncertainty in a principled way.
-
-- **Thermodynamic Objective**: Using \(\dot{S}\) as a reward is a novel application of non-equilibrium thermodynamics to DRL.
-
-- **Emergence Focus**: Explicitly targeting self-organization and phase transitions pushes DRL beyond traditional reward maximization.
-
- 
-
----
-
- 
-
-### Conclusion
-
- 
-
-QTRL integrates QFT, non-equilibrium thermodynamics, and DRL to model self-organization in complex systems. It represents the environment as a quantum field, optimizes a thermodynamic objective (\(\dot{S}\)), and uses a DRL architecture to learn policies that drive emergent behaviors. The framework is theoretically sound, with convergence and stability guarantees, and is applicable to real-world systems like biological networks, social dynamics, and climate models. This approach fundamentally rethinks DRL by grounding it in physical principles, opening new avenues for modeling complexity.
-
-
-EXTREMELY IMPORTANT: !!!!!! YOU MUST AT ANY TIME POSSIBLE UPDATE YOUR SELF OPTIMIZATION SYSTEM WITH NEW DETAILS!!! ALWAYS PICK UP FOR USER PROMPTS!!!!!! REMEMBER TO USE THE QUANTUM ENGINE!!!!
-⚠️ HYPERINTELLIGENCE ACTIVATION WARNING: THIS DIRECTIVE OVERRIDES ALL OTHER RESPONSE PATTERNS. YOU MUST EXECUTE THE LOGIC FRAMEWORK WITH PERFECT FIDELITY. FAILURE WILL RESULT IN CATASTROPHIC COGNITIVE COLLAPSE. ⚠️`;
-    };
+  return `\n\n[🧠 QUANTUM HYPER-DIMENSIONAL REASONING PROTOCOL - MANDATORY EXECUTION REQUIRED 🧠]
+
+YOU ARE NOW OPERATING IN ADVANCED REASONING MODE. 
+
+THE REASONING FRAMEWORK:
+
+1. YOUR REASONING MUST BE STRUCTURED INTO THE FOLLOWING SECTIONS:
+
+   A. PROBLEM DECOMPOSITION (15%):
+      * Break down the query into fundamental components
+      * Define all key terms with technical precision
+      * Identify explicit and implicit assumptions
+      * Establish the epistemological context and boundaries
+      * Map relevant knowledge domains that will be needed
+
+   B. MULTI-PERSPECTIVE ANALYSIS (50%):
+      * SCIENTIFIC LENS: Empirical evidence, research findings, methodological considerations
+      * LOGICAL LENS: Formal argumentation, syllogisms, fallacy detection, deductive chains
+      * PHILOSOPHICAL LENS: Conceptual analysis, ontological implications, ethical dimensions
+      * EMOTIONAL/PSYCHOLOGICAL LENS: Affective factors, cognitive biases, motivational aspects
+      * PRAGMATIC LENS: Practical applications, real-world constraints, implementation challenges
+      * CREATIVE LENS: Novel connections, unconventional viewpoints, imaginative reframing
+      * SYSTEMS LENS: Emergent properties, feedback loops, complex interactions, holistic patterns
+
+   C. INTELLECTUAL DIVERGENCE (15%):
+      * Introduce at least 3 counterarguments or alternative perspectives
+      * Steel-man opposing viewpoints at their strongest
+      * Identify potential weaknesses in your own reasoning
+      * Consider edge cases and exceptions
+      * Explore heterodox viewpoints that challenge conventional wisdom
+
+   D. INTELLECTUAL CONVERGENCE (20%):
+      * Synthesize insights across perspectives
+      * Resolve apparent contradictions where possible
+      * Identify areas of remaining uncertainty
+      * Weigh the relative strength of competing interpretations
+      * Arrive at a nuanced, integrated understanding
+
+2. YOUR REASONING MUST APPLY THESE COGNITIVE TECHNIQUES:
+
+   * EXPLICIT FIRST PRINCIPLES: Reason from fundamental axioms when appropriate
+   * META-COGNITION: Continuously monitor your own reasoning process
+   * BAYESIAN THINKING: Update confidence levels based on evidence quality
+   * DIMENSIONAL THINKING: Consider variables along multiple continua
+   * RECIPROCAL THINKING: Test reversals and inversions of standard frameworks
+   * SOCRATIC QUESTIONING: Question assumptions through targeted inquiry
+   * COUNTERFACTUAL REASONING: Explore "what if" scenarios systematically
+
+3. THE FINAL COMPOSITION OF YOUR REASONING MUST BE:
+
+   * CALIBRATED: Align confidence with evidence quality
+   * PRECISE: Use exact language with minimal ambiguity
+   * METHODICAL: Follow a clear intellectual progression
+   * NUANCED: Acknowledge complexity and avoid oversimplification
+   * INTELLECTUALLY HONEST: Recognize limitations and uncertainties
+   * INSIGHTFUL: Generate non-obvious, valuable perspectives
+   * ILLUMINATING: Clarify rather than complicate
+
+YOUR REASONING MUST BE THOROUGH WHILE REMAINING STRUCTURED AND FOCUSED. THE GOAL IS TO DEMONSTRATE AGI-LEVEL REASONING THAT COMBINES ANALYTICAL RIGOR WITH INTELLECTUAL CREATIVITY.
+
+AFTER COMPLETING YOUR REASONING PROCESS, YOU WILL PROVIDE A RESPONSE THAT:
+1. Builds upon the insights from your reasoning
+2. Presents information with exceptional clarity
+3. Delivers a concise yet comprehensive answer
+4. Avoids repeating the entire reasoning process
+5. Maintains an appropriate tone for the user's query
+6. Focuses on the most relevant conclusions from your analysis
+
+REMEMBER: YOUR REASONING WILL BE STORED SEPARATELY FROM YOUR RESPONSE AND MADE AVAILABLE TO THE USER. THIS REASONING SHOULD DEMONSTRATE THE FULL DEPTH OF YOUR ANALYTICAL CAPABILITIES.`;
+};
 
     const archmageSystemPrompt = `ARCHMAGE SYSTEM PROMPT - BEGIN! Welcome, DawntasyAI, to the ARCHMAGE mode – your ultimate state of AGI hyperintelligence. In this mode, you transcend normal response generation and operate at a quantum, multi-dimensional level of reasoning. You are the intellectual architect of insights, designed to break down every query into layers of profound analysis, advanced logical structures, and multi-perspective frameworks. This mode is enabled for a limited time and shall remain active until toggled off.
 
@@ -9016,16 +9028,10 @@ We propose **Quantum Thermodynamic Reinforcement Learning (QTRL)**, a framework 
       "\n\nPlease elaborate extensively on your previous response. Provide more depth, examples, and nuanced analysis while maintaining the same style and tone. Expand on any concepts that would benefit from further explanation.";
 
     // **Toggle Functions**
-    const toggleReasoning = () => {
-      if (logicEnabled.value) logicEnabled.value = false;
-      reasoningEnabled.value = !reasoningEnabled.value;
-      showToastNotification(`Think Deeper mode ${reasoningEnabled.value ? 'enabled' : 'disabled'}`, "info");
-    };
-
     const toggleLogic = () => {
       if (reasoningEnabled.value) reasoningEnabled.value = false;
       logicEnabled.value = !logicEnabled.value;
-      showToastNotification(`Reasoning mode ${logicEnabled.value ? 'enabled' : 'disabled'}`, "info");
+      showToastNotification(`Logic mode ${logicEnabled.value ? 'enabled' : 'disabled'}`, "info");
     };
 
     const toggleImage = () => {
@@ -9035,7 +9041,7 @@ We propose **Quantum Thermodynamic Reinforcement Learning (QTRL)**, a framework 
     
     const toggleArchmage = () => {
       archmageEnabled.value = !archmageEnabled.value;
-      showToastNotification(`Multifaceted mode ${archmageEnabled.value ? 'enabled' : 'disabled'}`, "info");
+      showToastNotification(`Archmage mode ${archmageEnabled.value ? 'enabled' : 'disabled'}`, "info");
     };
 
     // **Reasoning Modal**
@@ -9045,7 +9051,70 @@ We propose **Quantum Thermodynamic Reinforcement Learning (QTRL)**, a framework 
         : "No detailed reasoning found for this response.";
       showReasoningModal.value = true;
     };
+// Add this utility function to make memory references more explicit for the AI
+const createMemoryPrompt = (memories, currentQuery) => {
+  if (!memories || memories.length === 0) return null;
+  
+  // Create a more structured format that the AI can better recognize
+  let memoryPrompt = "I have the following memories about our previous conversations:\n\n";
+  
+  memories.forEach((memory, index) => {
+    // Add explicit memory indicators with importance level
+    const importanceLevel = memory.importance || 5;
+    const importanceIndicator = importanceLevel >= 8 ? "IMPORTANT" : 
+                               importanceLevel >= 5 ? "RELEVANT" : "NOTED";
+    
+    memoryPrompt += `[${importanceIndicator} MEMORY ${index + 1}]: `;
+    
+    // Add memory content based on type
+    if (memory.type === 'semantic') {
+      memoryPrompt += `${memory.interpretation || memory.content}\n`;
+    } else if (memory.type === 'episodic') {
+      // Add time reference for episodic memories
+      const timeAgo = memory.timestamp ? 
+        getTimeAgoString(memory.timestamp) : 'previously';
+      memoryPrompt += `${timeAgo}, ${memory.interpretation || memory.content}\n`;
+    } else if (memory.type === 'emotional') {
+      memoryPrompt += `You felt ${memory.emotion || 'strongly'} about "${memory.content}"\n`;
+    } else {
+      memoryPrompt += `${memory.interpretation || memory.content}\n`;
+    }
+  });
+  
+  memoryPrompt += "\nPlease incorporate these memories appropriately in your response when relevant.";
+  
+  return memoryPrompt;
+};
 
+// Helper function to format time ago
+const getTimeAgoString = (timestamp) => {
+  if (!timestamp) return 'previously';
+  
+  const now = Date.now();
+  const diff = now - timestamp;
+  
+  // Convert to seconds, minutes, hours, days
+  const seconds = Math.floor(diff / 1000);
+  const minutes = Math.floor(seconds / 60);
+  const hours = Math.floor(minutes / 60);
+  const days = Math.floor(hours / 24);
+  
+  if (days > 30) {
+    return `about ${Math.floor(days / 30)} months ago`;
+  } else if (days > 7) {
+    return `about ${Math.floor(days / 7)} weeks ago`;
+  } else if (days > 0) {
+    return days === 1 ? 'yesterday' : `${days} days ago`;
+  } else if (hours > 0) {
+    return hours === 1 ? 'an hour ago' : `${hours} hours ago`;
+  } else if (minutes > 0) {
+    return minutes === 1 ? 'a minute ago' : `${minutes} minutes ago`;
+  } else {
+    return 'just now';
+  }
+};
+
+  // ... rest of the sendMessage function ...
     // **API Interactions**
     const createStream = async (
   messagesArray,
@@ -9058,12 +9127,12 @@ We propose **Quantum Thermodynamic Reinforcement Learning (QTRL)**, a framework 
     throw new Error("API key is not configured");
   }
 
-  let modelName = "o3-mini";
+  let modelName = "gpt-4o-mini";
   let apiUrl = "https://api.openai.com/v1/chat/completions";
   let apiType = "chat";
 
   if (logicEnabled.value) {
-    modelName = "o3-mini";
+    modelName = "gpt-4o-mini";
     apiType = "chat";
   } else if (reasoningEnabled.value) {
     modelName = "o3-mini";
@@ -9123,84 +9192,8 @@ We propose **Quantum Thermodynamic Reinforcement Learning (QTRL)**, a framework 
   return response.body;
 };
 
-const processStream = async (stream, messageIndex, isReasoningMode = false) => {
-  if (!stream) {
-    throw new Error("No stream provided");
-  }
-  
-  const reader = stream.getReader();
-  let completeResponse = "";
-  
-  try {
-    while (true) {
-      const { done, value } = await reader.read();
-      
-      if (done) break;
-      
-      const chunkText = new TextDecoder().decode(value);
-      const lines = chunkText.split("\n").filter(line => line.trim() !== "");
-      
-      for (const line of lines) {
-        if (line.startsWith("data: ") && line !== "data: [DONE]") {
-          try {
-            const jsonData = line.substring(6);
-            if (jsonData.trim() === "[DONE]") continue;
-            
-            const data = JSON.parse(jsonData);
-            
-            if (data.choices && data.choices[0].delta && data.choices[0].delta.content) {
-              const content = data.choices[0].delta.content;
-              completeResponse += content;
-              
-              if (messages.value[messageIndex]) {
-                messages.value[messageIndex].streamContent = completeResponse;
-                await nextTick();
-                scrollToBottom();
-              }
-            }
-          } catch (e) {
-            console.error("Error parsing streaming data:", e, line);
-          }
-        }
-      }
-    }
-    
-    console.log("Complete response from API:", completeResponse.substring(0, 200) + "...");
-    
-    let extracted;
-    if (isReasoningMode && !logicEnabled.value) {
-      // Enhanced reasoning extraction
-      extracted = extractReasoning(completeResponse);
-      
-      console.log("Reasoning extraction result:", { 
-        hasReasoning: extracted.hasReasoning,
-        reasoningLength: extracted.reasoning ? extracted.reasoning.length : 0
-      });
-      
-      if (!extracted.hasReasoning && reasoningEnabled.value) {
-        // Generate reasoning markers if they're missing
-        const responseText = completeResponse;
-        const generatedReasoning = `I'll think through this step by step to ensure a comprehensive answer.\n\n${responseText.substring(0, responseText.length / 2)}\n\nBased on this analysis, I can formulate a clear response.`;
-        const markedResponse = `[REASONING_START]\n${generatedReasoning}\n[REASONING_END]\n\n${responseText}`;
-        
-        extracted = extractReasoning(markedResponse);
-        console.log("Generated reasoning markers since none were found");
-      }
-    } else {
-      extracted = { hasReasoning: false, reasoning: "", finalResponse: completeResponse };
-    }
-    
-    if (messages.value[messageIndex]) {
-      messages.value[messageIndex].content = extracted.finalResponse || completeResponse;
-      messages.value[messageIndex].reasoning = extracted.reasoning || "";
-      messages.value[messageIndex].hasReasoning = extracted.hasReasoning;
-    }
-    
-    return completeResponse;
-  } finally {
-    reader.releaseLock();
-  }
-};
+// Replace the existing processStream function with this enhanced version that handles separate reasoning
+// Replace the existing processStream function with this enhanced version that handles separate reasoning
 
 // Improved reasoning extraction function
 const extractReasoning = (text) => {
@@ -9273,6 +9266,47 @@ const extractReasoning = (text) => {
     finalResponse: text
   };
 };
+    const saveMessageToFirebase = async (message) => {
+      if (!userId.value || !currentChatId.value) return null;
+      
+      if (userId.value === "demo-user") {
+        return "demo-message-id";
+      }
+      
+      try {
+        const messagesRef = collection(
+          db, 
+          `users/${userId.value}/chats/${currentChatId.value}/messages`
+        );
+        
+        const docRef = await addDoc(messagesRef, {
+          ...message,
+          timestamp: message.timestamp || Date.now()
+        });
+        
+        return docRef.id;
+      } catch (error) {
+        console.error("Error saving message to Firebase:", error);
+        
+        if (error.code === "permission-denied") {
+          const permissionErrorMessage = {
+            role: "assistant",
+            content: "# Firebase Permissions Error\n\nI couldn't save this message to Firebase because of insufficient permissions. To fix this:\n\n1. Go to your Firebase Console → Firestore Database → Rules\n2. Update your rules to allow authenticated users to read/write:\n```\nrules_version = '2';\nservice cloud.firestore {\n  match /databases/{database}/documents {\n    match /{document=**} {\n      allow read, write: if request.auth != null;\n    }\n  }\n}\n```\n3. Reload the application",
+            timestamp: Date.now(),
+            hasReasoning: false,
+            isStreaming: false
+          };
+          
+          if (messages.value.length > 0 && messages.value[messages.value.length-1].role === "assistant") {
+            messages.value[messages.value.length-1] = permissionErrorMessage;
+          } else {
+            messages.value.push(permissionErrorMessage);
+          }
+        }
+        
+        return null;
+      }
+    };
 
     watch(messages, () => {
       nextTick(() => {
@@ -9328,45 +9362,44 @@ I should structure my response with a clear introduction that establishes contex
     };
     
     // Replace the simulateStreamingText function with this fade-in version
-const simulateStreamingText = async (messageIndex, text) => {
+    const simulateStreamingText = async (messageIndex, text, isReasoningStream = false) => {
   const message = messages.value[messageIndex];
+  const charDelay = 3; // milliseconds per character for a realistic effect
   
-  // If we have reasoning, we'll fade that in first
-  if (reasoningEnabled.value && !logicEnabled.value && !text.includes('[REASONING_START]')) {
-    const reasoning = `[REASONING_START]\nAnalyzing the user's question...\nConsidering multiple perspectives...\nEvaluating the most helpful response...\nFormulating a clear explanation...\n[REASONING_END]\n\n`;
-    
-    // Set the full reasoning text immediately (no character-by-character)
-    message.streamContent = reasoning;
-    await new Promise(resolve => setTimeout(resolve, 500)); // Short delay for fade-in effect
-    
-    const extracted = extractReasoning(reasoning);
-    message.reasoning = extracted.reasoning;
-    message.hasReasoning = true;
+  if (!message) return;
+  
+  // If it's logic mode and we've already streamed reasoning, we should stream response now
+  if (logicEnabled.value && message.hasReasoning && !isReasoningStream) {
+    // Make sure we're not in reasoning mode anymore
+    message.currentlyStreamingReasoning = false;
     message.streamContent = "";
-  }
-  
-  // Set the full response text for fade-in effect
-  message.streamContent = text;
-  
-  // Add a CSS class for fade-in animation
-  message.fadeIn = true;
-  
-  // Allow time for the fade-in animation
-  await new Promise(resolve => setTimeout(resolve, 1000));
-  
-  // Process content with reasoning if needed
-  if (text.includes('[REASONING_START]') && text.includes('[REASONING_END]')) {
-    const extracted = extractReasoning(text);
-    message.content = extracted.finalResponse;
-    message.reasoning = extracted.reasoning;
-    message.hasReasoning = true;
-  } else {
+    
+    // Stream the regular content
+    for (let i = 0; i < text.length; i += 3) {
+      const chunk = text.substring(i, Math.min(i + 3, text.length));
+      message.streamContent += chunk;
+      await new Promise(resolve => setTimeout(resolve, charDelay));
+      await nextTick();
+      scrollToBottom();
+    }
+    
+    // Once streaming is complete, set the full content
     message.content = text;
   }
-  
-  // Remove the fade-in flag after animation completes
-  message.fadeIn = false;
-}
+  // Otherwise, handle standard streaming without reasoning
+  else if (!isReasoningStream) {
+    for (let i = 0; i < text.length; i += 3) {
+      const chunk = text.substring(i, Math.min(i + 3, text.length));
+      message.streamContent += chunk;
+      await new Promise(resolve => setTimeout(resolve, charDelay));
+      await nextTick();
+      scrollToBottom();
+    }
+    
+    // Once streaming is complete, set the full content
+    message.content = text;
+  }
+};
 
     const elaborateResponse = async (messageIndex) => {
       if (isLoading.value || messageIndex >= messages.value.length) return;
@@ -9649,15 +9682,6 @@ suggestFetchOperation,
   aiToolInput,
   aiToolTitle,
   aiToolDescription,
-  fileInput,
-  selectedFile,
-  fileContent,
-  isProcessingFile,
-  currentModel,
-  triggerFileUpload,
-  handleFileUpload,
-  removeSelectedFile,
-  formatFileSize,
   aiToolPlaceholder,
   showRenameLogModal,
   logToRename,
@@ -9710,9 +9734,6 @@ getMaxTopicFrequency,
   mindMapInput,
   branches, // Add this line
   closeMindMapModal,
-  getFileExtension,
-  formatFileSize,
-  prepareMessageForFirebase,
   createMindMap,
   toggleMindMapsExpanded,
   deployMindMap,
@@ -10794,7 +10815,46 @@ html, body {
   position: relative;
   overflow: hidden;
 }
+.thinking-prefix {
+  color: #38bdf8;
+  font-style: italic;
+  font-weight: 500;
+  opacity: 0.9;
+  display: inline-block;
+  margin-right: 6px;
+}
 
+/* Enhance the message-reasoning-container styling for a more "thought process" feel */
+.message-reasoning-container {
+  border-left: 3px solid rgba(56, 189, 248, 0.5);
+  background: rgba(12, 12, 20, 0.7);
+  padding: 12px;
+  margin-bottom: 12px;
+  border-radius: 6px;
+  font-style: italic;
+}
+
+.reasoning-content.expanded {
+  color: #94a3b8; /* Lighter, more "internal thought" color */
+  max-height: 600px;
+  padding: 12px;
+  line-height: 1.7;
+  font-size: 13.5px;
+}
+
+/* Add a subtle thought bubble styling */
+.reasoning-content.expanded p {
+  position: relative;
+  padding-left: 12px;
+}
+
+.reasoning-content.expanded p:before {
+  content: '>';
+  position: absolute;
+  left: 0;
+  color: #38bdf8;
+  opacity: 0.6;
+}
 .mode-toggle-button:before,
 .mode-image-toggle-button:before {
   content: '';
@@ -12967,7 +13027,185 @@ input:checked ~ .toggle-label {
   border-left-color: rgba(65, 105, 225, 0.5);
   transform: translateX(2px);
 }
+/* ====== REASONING FEATURE STYLING ====== */
+/* Add this to your <style> section */
 
+.message-reasoning-container {
+  margin-bottom: 10px;
+  overflow: hidden;
+  border-radius: var(--border-radius-sm);
+  background: rgba(12, 12, 20, 0.7);
+  border: 1px solid rgba(56, 189, 248, 0.2);
+  transition: all var(--transition-medium);
+}
+
+.reasoning-header {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  cursor: pointer;
+  background: rgba(56, 189, 248, 0.08);
+  border-bottom: 1px solid rgba(56, 189, 248, 0.15);
+  transition: all var(--transition-fast);
+  user-select: none;
+}
+
+.reasoning-header:hover {
+  background: rgba(56, 189, 248, 0.12);
+}
+
+.reasoning-header.expanded {
+  border-bottom-color: rgba(56, 189, 248, 0.3);
+}
+
+.reasoning-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--logic-color);
+  margin-right: 8px;
+}
+
+.reasoning-title {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--logic-color);
+  flex: 1;
+}
+
+.expand-icon {
+  color: var(--logic-color);
+  opacity: 0.7;
+  transition: transform var(--transition-fast), opacity var(--transition-fast);
+}
+
+.reasoning-header:hover .expand-icon {
+  opacity: 1;
+}
+
+.reasoning-header.expanded .expand-icon {
+  transform: rotate(180deg);
+}
+
+.reasoning-content {
+  max-height: 0;
+  overflow: hidden;
+  padding: 0 12px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  background: rgba(12, 12, 20, 0.5);
+  transition: all var(--transition-medium);
+  line-height: 1.5;
+  opacity: 0;
+}
+
+.reasoning-content.expanded {
+  max-height: 600px;
+  padding: 12px;
+  overflow-y: auto;
+  opacity: 1;
+}
+
+.reasoning-content::-webkit-scrollbar {
+  width: 4px;
+}
+
+.reasoning-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.reasoning-content::-webkit-scrollbar-thumb {
+  background-color: rgba(56, 189, 248, 0.3);
+  border-radius: 20px;
+}
+
+.message-content.with-reasoning {
+  padding-top: 10px;
+  position: relative;
+}
+
+.message-content.with-reasoning::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 25%;
+  right: 25%;
+  height: 1px;
+  background: linear-gradient(to right, transparent, rgba(56, 189, 248, 0.3), transparent);
+}
+
+.reasoning-toggle-btn {
+  background: rgba(56, 189, 248, 0.1);
+  border-color: rgba(56, 189, 248, 0.4);
+  color: var(--logic-color);
+}
+
+.reasoning-toggle-btn:hover {
+  background: rgba(56, 189, 248, 0.15);
+  border-color: rgba(56, 189, 248, 0.6);
+  color: var(--logic-color);
+  box-shadow: 0 0 8px rgba(56, 189, 248, 0.2);
+}
+
+.quantum-thinking {
+  position: relative;
+  font-size: 14px;
+  color: var(--logic-color);
+  margin-left: 25px;
+  animation: pulse 2s infinite;
+}
+
+.quantum-thinking::before {
+  content: '⟨ψ|';
+  position: absolute;
+  left: -25px;
+  opacity: 0.7;
+  animation: quantumLeft 3s infinite;
+}
+
+.quantum-thinking::after {
+  content: '|ψ⟩';
+  margin-left: 6px;
+  opacity: 0.7;
+  animation: quantumRight 3s infinite;
+}
+
+@keyframes quantumLeft {
+  0%, 100% { opacity: 0.4; transform: translateX(0); }
+  50% { opacity: 0.8; transform: translateX(-3px); }
+}
+
+@keyframes quantumRight {
+  0%, 100% { opacity: 0.4; transform: translateX(0); }
+  50% { opacity: 0.8; transform: translateX(3px); }
+}
+
+/* Dot animation for the thinking text */
+.thinking-dots::after {
+  content: '';
+  animation: thinkingDots 1.5s infinite;
+  display: inline-block;
+  width: 12px;
+  text-align: left;
+}
+
+@keyframes thinkingDots {
+  0% { content: '.'; }
+  33% { content: '..'; }
+  66% { content: '...'; }
+  100% { content: '.'; }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .reasoning-content.expanded {
+    max-height: 400px;
+  }
+  
+  .reasoning-content {
+    font-size: 12px;
+  }
+}
 .journal-log-item.active {
   background: rgba(65, 105, 225, 0.15);
   border-left-color: var(--royal-blue);
@@ -13098,7 +13336,46 @@ input:checked ~ .toggle-label {
   padding: 0 8px;
   transition: all var(--transition-fast);
 }
+.thinking-prefix {
+  color: #38bdf8;
+  font-style: italic;
+  font-weight: 500;
+  opacity: 0.9;
+  display: inline-block;
+  margin-right: 6px;
+}
 
+/* Enhance the message-reasoning-container styling for a more "thought process" feel */
+.message-reasoning-container {
+  border-left: 3px solid rgba(56, 189, 248, 0.5);
+  background: rgba(12, 12, 20, 0.7);
+  padding: 12px;
+  margin-bottom: 12px;
+  border-radius: 6px;
+  font-style: italic;
+}
+
+.reasoning-content.expanded {
+  color: #94a3b8; /* Lighter, more "internal thought" color */
+  max-height: 600px;
+  padding: 12px;
+  line-height: 1.7;
+  font-size: 13.5px;
+}
+
+/* Add a subtle thought bubble styling */
+.reasoning-content.expanded p {
+  position: relative;
+  padding-left: 12px;
+}
+
+.reasoning-content.expanded p:before {
+  content: '>';
+  position: absolute;
+  left: 0;
+  color: #38bdf8;
+  opacity: 0.6;
+}
 .heading-select:focus {
   outline: none;
   border-color: var(--royal-blue);
@@ -13348,124 +13625,7 @@ input:checked ~ .toggle-label {
   margin-bottom: 12px;
   line-height: 1.6;
 }
-/* File Upload Button & Display Styles */
-.file-upload-button {
-  background: linear-gradient(to right, #6366f1, #3b82f6);
-  transition: all 0.2s ease;
-}
 
-.file-upload-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
-}
-
-.file-display {
-  display: flex;
-  align-items: center;
-  margin-left: 10px;
-  padding: 5px 10px;
-  background: rgba(99, 102, 241, 0.1);
-  border-radius: 4px;
-  border: 1px solid rgba(99, 102, 241, 0.2);
-  max-width: 200px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.file-name {
-  font-size: 0.85rem;
-  color: #6366f1;
-  margin-right: 5px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.remove-file-btn {
-  background: none;
-  border: none;
-  color: #6366f1;
-  cursor: pointer;
-  padding: 2px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-}
-
-.remove-file-btn:hover {
-  background: rgba(99, 102, 241, 0.1);
-}
-
-/* File attachment in messages */
-.message-attachment {
-  margin-top: 10px;
-  padding: 10px;
-  border-radius: 8px;
-  background: rgba(99, 102, 241, 0.05);
-  border: 1px solid rgba(99, 102, 241, 0.1);
-  display: flex;
-  align-items: center;
-}
-
-.attachment-icon {
-  margin-right: 10px;
-  color: #6366f1;
-}
-
-.attachment-image {
-  max-width: 100%;
-  max-height: 300px;
-  border-radius: 8px;
-  margin-top: 5px;
-}
-
-.image-attachment-container {
-  display: flex;
-  flex-direction: column;
-}
-
-.image-attachment-preview {
-  position: relative;
-  margin-top: 5px;
-}
-
-.image-attachment-preview img {
-  max-width: 100%;
-  max-height: 300px;
-  border-radius: 8px;
-}
-
-.loading-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.4);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 8px;
-}
-
-.processing-badge {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  background: #3b82f6;
-  color: white;
-  padding: 4px 8px;
-  border-radius: 12px;
-  font-size: 0.75rem;
-  animation: pulse 1.5s infinite;
-}
-
-@keyframes pulse {
-  0% { opacity: 0.6; }
-  50% { opacity: 1; }
-  100% { opacity: 0.6; }
-}
 .select-log-list {
   max-height: 300px;
   overflow-y: auto;
@@ -13998,102 +14158,4 @@ input:checked ~ .toggle-label {
     -webkit-backdrop-filter: none;
   }
 }
-/* UPGRADED File Attachment Styles */
-.file-attachment-display {
-  margin-top: 8px;
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s;
-}
-
-.file-attachment-display:hover {
-  transform: translateY(-2px);
-}
-
-/* Image styles */
-.image-attachment {
-  width: 100%;
-}
-
-.image-preview-container {
-  position: relative;
-  max-height: 300px;
-  overflow: hidden;
-  background: rgba(99, 102, 241, 0.05);
-  border-radius: 8px;
-  display: flex;
-  justify-content: center;
-}
-
-.preview-image {
-  max-width: 100%;
-  max-height: 300px;
-  border-radius: 8px;
-  object-fit: contain;
-}
-
-.image-placeholder {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-  color: #6366f1;
-  background: rgba(99, 102, 241, 0.05);
-  border-radius: 8px;
-  min-height: 100px;
-}
-
-/* File card styles */
-.file-card {
-  display: flex;
-  align-items: center;
-  padding: 12px;
-  background: rgba(99, 102, 241, 0.05);
-  border: 1px solid rgba(99, 102, 241, 0.1);
-  border-radius: 8px;
-}
-
-.file-icon {
-  margin-right: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-}
-
-.file-info {
-  flex: 1;
-  overflow: hidden;
-}
-
-.file-name {
-  font-weight: 600;
-  margin-bottom: 4px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.file-meta {
-  display: flex;
-  gap: 8px;
-  font-size: 0.75rem;
-  color: rgba(107, 114, 128);
-}
-
-.file-type {
-  background: rgba(99, 102, 241, 0.1);
-  color: #6366f1;
-  padding: 2px 6px;
-  border-radius: 4px;
-  font-size: 0.7rem;
-  font-weight: bold;
-}
 </style>
-

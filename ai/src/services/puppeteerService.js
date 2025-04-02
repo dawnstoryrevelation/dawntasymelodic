@@ -6,12 +6,29 @@ import axios from 'axios';
  * SUPERCHARGED FOR MAXIMUM RESILIENCE AND REAL-TIME VISUALIZATION!
  */
 export function usePuppeteerService() {
-  // 🔥 HARDCODED URL FOR GUARANTEED CONNECTION! 🔥
-  const API_BASE_URL = 'http://localhost:3001/api/puppeteer';
+  // API base URL with backup options
+  const API_BASE_URL = import.meta.env.VITE_PUPPETEER_API_URL || 'http://localhost:3001/api/puppeteer';
+  
+  // Cache management for screenshots and status
+  const cache = {
+    screenshots: new Map(),
+    typingStatus: new Map(),
+    statusTimestamps: new Map()
+  };
+  
+  // Request tracking for better performance
+  const requestTracker = {
+    screenshotCount: 0,
+    failedScreenshotCount: 0,
+    typingStatusCount: 0
+  };
   
   // Debug helper function - CRITICAL FOR DEBUGGING!
-  const logRequest = (method, endpoint) => {
-    console.log(`🔌 ${method.toUpperCase()} ${API_BASE_URL}${endpoint}`);
+  const logRequest = (method, endpoint, options = {}) => {
+    // Only log significant events to reduce console noise
+    if (options.significant) {
+      console.log(`🔌 ${method.toUpperCase()} ${API_BASE_URL}${endpoint}`);
+    }
   };
   
   /**
@@ -19,7 +36,7 @@ export function usePuppeteerService() {
    */
   const startSession = async () => {
     try {
-      logRequest('POST', '/session');
+      logRequest('POST', '/session', { significant: true });
       
       // EXTENDED TIMEOUT FOR RELIABILITY!
       const response = await axios.post(`${API_BASE_URL}/session`, {}, {
@@ -51,9 +68,15 @@ export function usePuppeteerService() {
    */
   const endSession = async (sessionId) => {
     try {
-      logRequest('DELETE', `/session/${sessionId}`);
+      logRequest('DELETE', `/session/${sessionId}`, { significant: true });
       await axios.delete(`${API_BASE_URL}/session/${sessionId}`);
       console.log('🚫 Session ended:', sessionId);
+      
+      // Clean up any cached data for this session
+      cache.screenshots.delete(sessionId);
+      cache.typingStatus.delete(sessionId);
+      cache.statusTimestamps.delete(sessionId);
+      
       return { success: true };
     } catch (error) {
       console.error('Error ending Puppeteer session:', error);
@@ -67,7 +90,7 @@ export function usePuppeteerService() {
    */
   const initializeBrowser = async (sessionId) => {
     try {
-      logRequest('POST', `/session/${sessionId}/initialize`);
+      logRequest('POST', `/session/${sessionId}/initialize`, { significant: true });
       const response = await axios.post(`${API_BASE_URL}/session/${sessionId}/initialize`, {}, {
         timeout: 20000 // EXTENDED TIMEOUT for initialization
       });
@@ -96,11 +119,16 @@ export function usePuppeteerService() {
    */
   const restartSession = async (sessionId) => {
     try {
-      logRequest('POST', `/session/${sessionId}/restart`);
+      logRequest('POST', `/session/${sessionId}/restart`, { significant: true });
       const response = await axios.post(`${API_BASE_URL}/session/${sessionId}/restart`, {}, {
         timeout: 20000
       });
       console.log('🔄 Session restarted:', response.data);
+      
+      // Clear cached data for this session
+      cache.screenshots.delete(sessionId);
+      cache.typingStatus.delete(sessionId);
+      
       return response.data;
     } catch (error) {
       console.error('Error restarting browser session:', error);
@@ -122,65 +150,131 @@ export function usePuppeteerService() {
    */
   const refreshBrowser = async (sessionId) => {
     try {
-      logRequest('POST', `/session/${sessionId}/refresh`);
+      logRequest('POST', `/session/${sessionId}/refresh`, { significant: true });
       const response = await axios.post(`${API_BASE_URL}/session/${sessionId}/refresh`);
       console.log('🔄 Browser refreshed:', response.data);
+      
+      // Clear cached data for refreshed session
+      cache.screenshots.delete(sessionId);
+      cache.typingStatus.delete(sessionId);
+      
       return response.data;
     } catch (error) {
       console.error('Error refreshing browser:', error);
       
-      // Don't fail completely - return a status object
-      return { 
-        success: false, 
-        status: 'refresh_failed',
-        error: error.message
-      };
-    }
-  };
-  
-  /**
-   * Get the status of a session - WITH RETRY AND ENHANCED INFO!
-   */
-  const getStatus = async (sessionId) => {
-    try {
-      // Don't log status requests to reduce noise
-      const response = await axios.get(`${API_BASE_URL}/session/${sessionId}/status`, {
-        timeout: 5000
-      });
-      return response.data;
-    } catch (error) {
-      console.error('Error getting browser status:', error);
-      
-      // Try once more with an extended timeout
+      // Try to restart if refresh fails
       try {
-        console.log('⚠️ Status check failed - retrying with extended timeout');
-        const retryResponse = await axios.get(`${API_BASE_URL}/session/${sessionId}/status`, {
-          timeout: 10000
-        });
-        return retryResponse.data;
-      } catch (retryError) {
-        // If still failing, return a fallback status
-        return {
-          active: false,
-          url: 'unknown',
-          status: 'error',
-          lastActivity: new Date()
+        console.log('⚠️ Refresh failed - attempting restart');
+        const restartResponse = await restartSession(sessionId);
+        return { 
+          success: true, 
+          status: 'restarted_instead_of_refreshed',
+          ...restartResponse
+        };
+      } catch (restartError) {
+        // Don't fail completely - return a status object
+        return { 
+          success: false, 
+          status: 'refresh_failed',
+          error: error.message
         };
       }
     }
   };
   
   /**
-   * NEW! Get real-time typing status - ENHANCED WITH RELIABILITY FIXES! 🔥
+   * Get the status of a session - WITH RETRY AND ENHANCED INFO!
+   * Uses caching and rate limiting to prevent overwhelming the server
+   */
+  const getStatus = async (sessionId) => {
+    // Rate limiting - prevent too frequent status requests
+    const now = Date.now();
+    const lastStatusTime = cache.statusTimestamps.get(sessionId) || 0;
+    const minStatusInterval = 500; // Minimum time between status requests
+    
+    if (now - lastStatusTime < minStatusInterval) {
+      // Return cached status if available
+      const cachedStatus = cache.typingStatus.get(sessionId);
+      if (cachedStatus && cachedStatus.timestamp > now - 2000) {
+        return cachedStatus;
+      }
+    }
+    
+    try {
+      // Update timestamp before request
+      cache.statusTimestamps.set(sessionId, now);
+      
+      // Add cache-busting parameter
+      const cacheBuster = Date.now();
+      
+      // Don't log status requests to reduce noise
+      const response = await axios.get(`${API_BASE_URL}/session/${sessionId}/status?t=${cacheBuster}`, {
+        timeout: 3000,
+        headers: {
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
+        }
+      });
+      
+      // Cache the response
+      const statusData = {
+        ...response.data,
+        timestamp: now
+      };
+      
+      return statusData;
+    } catch (error) {
+      // Try once more with an extended timeout for 404 or 500 errors
+      if (error.response && (error.response.status === 404 || error.response.status === 500)) {
+        try {
+          const retryResponse = await axios.get(`${API_BASE_URL}/session/${sessionId}/status?retry=true&t=${Date.now()}`, {
+            timeout: 8000
+          });
+          return {
+            ...retryResponse.data,
+            timestamp: Date.now()
+          };
+        } catch (retryError) {
+          // Fallback status
+          return {
+            active: false,
+            url: 'unknown',
+            status: 'error',
+            lastActivity: new Date(),
+            timestamp: Date.now()
+          };
+        }
+      }
+      
+      // Generic error case
+      return {
+        active: false,
+        url: 'unknown',
+        status: 'error',
+        lastActivity: new Date(),
+        timestamp: Date.now(),
+        error: error.message
+      };
+    }
+  };
+  
+  /**
+   * ENHANCED Get real-time typing status - OPTIMIZED FOR CHARACTER-BY-CHARACTER UPDATES! 🔥
    */
   const getTypingStatus = async (sessionId) => {
     try {
+      // Increment request counter - for debugging
+      requestTracker.typingStatusCount++;
+      
+      // Only log occasionally to reduce noise
+      const shouldLog = requestTracker.typingStatusCount % 50 === 1;
+      
       // Add cache-busting timestamp parameter to prevent browser caching
       const cacheBuster = Date.now();
       const response = await axios.get(
         `${API_BASE_URL}/session/${sessionId}/typing-status?t=${cacheBuster}`, 
         {
-          timeout: 2000, // Reduced timeout for faster fail/recovery
+          timeout: 1000, // Reduced timeout for faster real-time updates
           // Critical - prevents browser caching
           headers: {
             'Cache-Control': 'no-cache',
@@ -188,18 +282,43 @@ export function usePuppeteerService() {
           }
         }
       );
-      return response.data;
+      
+      // Add timestamp to response
+      const typingData = {
+        ...response.data,
+        timestamp: Date.now()
+      };
+      
+      // Cache the response for rate limiting
+      cache.typingStatus.set(sessionId, typingData);
+      
+      if (shouldLog && response.data.isTyping) {
+        console.log(`⌨️ Typing detected: "${response.data.text}"`);
+      }
+      
+      return typingData;
     } catch (error) {
-      // Don't log 404 errors repeatedly - but track failure count
+      // Check for 404 error (endpoint might not exist yet)
       const is404 = error.response && error.response.status === 404;
       
       // Use static counter to track consecutive failures
       getTypingStatus.failureCount = (getTypingStatus.failureCount || 0) + 1;
       
       // Only log errors occasionally to reduce console spam
-      if (!is404 || getTypingStatus.failureCount % 10 === 1) {
+      if ((!is404 && getTypingStatus.failureCount % 10 === 1) || getTypingStatus.failureCount === 1) {
         console.error(`Error getting typing status (failure #${getTypingStatus.failureCount}):`, 
           is404 ? 'Endpoint not found (404)' : error.message);
+      }
+      
+      // Return most recent cached data if available
+      const cachedTypingStatus = cache.typingStatus.get(sessionId);
+      if (cachedTypingStatus) {
+        // Mark as stale but return cached data
+        return {
+          ...cachedTypingStatus,
+          stale: true,
+          timestamp: Date.now()
+        };
       }
       
       // Always return valid fallback data structure
@@ -207,6 +326,7 @@ export function usePuppeteerService() {
         isTyping: false,
         text: '',
         selector: null,
+        timestamp: Date.now(),
         error: is404 ? 'endpoint-not-found' : 'connection-error'
       };
     }
@@ -217,8 +337,14 @@ export function usePuppeteerService() {
    * OPTIMIZED FOR FASTER TRANSFER RATE & CONTENT-AWARE CACHING!
    */
   const takeScreenshot = async (sessionId, forceParam = '') => {
-    // Only cache the screenshot URL across calls
-    takeScreenshot.cache = takeScreenshot.cache || {};
+    // Increment request counter
+    requestTracker.screenshotCount++;
+    
+    // Log every 10th request to reduce noise
+    const shouldLog = requestTracker.screenshotCount % 10 === 1;
+    if (shouldLog) {
+      console.log(`📸 Taking screenshot for session ${sessionId} (request #${requestTracker.screenshotCount})`);
+    }
     
     // Add timestamp for cache busting
     const timestamp = Date.now();
@@ -227,12 +353,6 @@ export function usePuppeteerService() {
     // Counting attempts
     for (let attempt = 1; attempt <= 2; attempt++) {
       try {
-        // Avoid logging every screenshot request to reduce console noise
-        const quietMode = takeScreenshot.requestCount = (takeScreenshot.requestCount || 0) + 1;
-        if (quietMode % 10 === 1) {
-          console.log(`📸 Taking screenshot for session ${sessionId} (request #${quietMode})`);
-        }
-        
         const response = await axios.get(`${API_BASE_URL}/session/${sessionId}/screenshot${urlParams}`, {
           responseType: 'blob',
           timeout: 3000, // Shorter timeout for faster feedback
@@ -243,33 +363,34 @@ export function usePuppeteerService() {
         });
         
         // Free previous object URL to prevent memory leaks
-        if (takeScreenshot.cache[sessionId]) {
-          URL.revokeObjectURL(takeScreenshot.cache[sessionId]);
+        const previousScreenshot = cache.screenshots.get(sessionId);
+        if (previousScreenshot) {
+          URL.revokeObjectURL(previousScreenshot);
         }
         
         // Create and cache new object URL
         const objectUrl = URL.createObjectURL(response.data);
-        takeScreenshot.cache[sessionId] = objectUrl;
+        cache.screenshots.set(sessionId, objectUrl);
         
-        // Reset attempt counter on success
-        takeScreenshot.failedAttempts = 0;
+        // Reset failure counters on success
+        requestTracker.failedScreenshotCount = 0;
         
         return objectUrl;
       } catch (error) {
-        // Count consecutive failures across calls
-        takeScreenshot.failedAttempts = (takeScreenshot.failedAttempts || 0) + 1;
+        // Count consecutive failures
+        requestTracker.failedScreenshotCount = (requestTracker.failedScreenshotCount || 0) + 1;
         
         // Log error occasionally to reduce console noise
-        if (takeScreenshot.failedAttempts % 3 === 1) {
-          console.error(`Error taking screenshot (consecutive failures: ${takeScreenshot.failedAttempts}):`, 
+        if (requestTracker.failedScreenshotCount % 3 === 1) {
+          console.error(`Error taking screenshot (consecutive failures: ${requestTracker.failedScreenshotCount}):`, 
                        error.message || error);
         }
         
         if (attempt === 2) {
           // All attempts failed - return last cached screenshot if available
-          if (takeScreenshot.cache[sessionId]) {
+          if (cache.screenshots.get(sessionId)) {
             console.log('⚠️ Using cached screenshot due to failure');
-            return takeScreenshot.cache[sessionId];
+            return cache.screenshots.get(sessionId);
           }
           
           // If no cache, throw error
@@ -283,29 +404,11 @@ export function usePuppeteerService() {
   };
   
   /**
-   * Take a high-frequency screenshot - ULTRA-FAST, LOWER QUALITY
-   * Special function for capturing typing and other rapid interactions
-   */
-  const takeRapidScreenshot = async (sessionId) => {
-    try {
-      const response = await axios.get(`${API_BASE_URL}/session/${sessionId}/screenshot`, {
-        responseType: 'blob',
-        timeout: 3000 // Shorter timeout for rapid screenshots
-      });
-      
-      return URL.createObjectURL(response.data);
-    } catch (error) {
-      console.error('Error taking rapid screenshot:', error);
-      return null; // Don't throw - return null for rapid shots
-    }
-  };
-  
-  /**
    * Navigate to a URL - WITH ENHANCED ERROR HANDLING & CAPTCHA AVOIDANCE
    */
   const navigateToUrl = async (sessionId, url) => {
     try {
-      logRequest('POST', `/session/${sessionId}/navigate`);
+      logRequest('POST', `/session/${sessionId}/navigate`, { significant: true });
       console.log(`🌐 Navigating to: ${url}`);
       
       const response = await axios.post(`${API_BASE_URL}/session/${sessionId}/navigate`, { url }, {
@@ -313,6 +416,9 @@ export function usePuppeteerService() {
       });
       
       console.log('✅ Navigation complete:', response.data);
+      
+      // Clear cached data after navigation
+      cache.screenshots.delete(sessionId);
       
       // Check if we need to handle CAPTCHA after navigation
       try {
@@ -333,6 +439,19 @@ export function usePuppeteerService() {
       try {
         console.log('⚠️ Navigation failed - trying to refresh browser');
         await refreshBrowser(sessionId);
+        
+        // Second attempt after refresh
+        try {
+          console.log('🔄 Second navigation attempt after refresh');
+          const retryResponse = await axios.post(`${API_BASE_URL}/session/${sessionId}/navigate`, { url }, {
+            timeout: 30000
+          });
+          return retryResponse.data;
+        } catch (retryError) {
+          // Continue even if second attempt fails
+          console.log('⚠️ Second navigation attempt failed - continuing anyway');
+        }
+        
         return { 
           success: false, 
           status: 'navigation_failed_but_refreshed',
@@ -351,7 +470,7 @@ export function usePuppeteerService() {
    */
   const executeAction = async (sessionId, action) => {
     try {
-      logRequest('POST', `/session/${sessionId}/action`);
+      logRequest('POST', `/session/${sessionId}/action`, { significant: true });
       console.log(`🎮 Executing action: ${action.type} - ${action.description || ''}`);
       
       // ENHANCED TIMEOUT BASED ON ACTION TYPE for maximum reliability!
@@ -361,9 +480,9 @@ export function usePuppeteerService() {
       if (action.type === 'navigate') {
         timeout = 30000; // Longer timeout for navigation
       } else if (action.type === 'type') {
-        timeout = 60000; // Longer timeout for typing to handle character-by-character
+        timeout = 15000; // Reasonable timeout for typing
       } else if (action.type === 'click') {
-        timeout = 20000; // Medium-long timeout for clicks (they might cause navigation)
+        timeout = 15000; // Medium-long timeout for clicks (they might cause navigation)
       }
       
       const response = await axios.post(`${API_BASE_URL}/session/${sessionId}/action`, action, {
@@ -371,6 +490,12 @@ export function usePuppeteerService() {
       });
       
       console.log(`✅ Action executed: ${action.type}`);
+      
+      // Actions that might modify the page - clear cached screenshot
+      if (['navigate', 'click', 'type', 'submit'].includes(action.type)) {
+        cache.screenshots.delete(sessionId);
+      }
+      
       return response.data;
     } catch (error) {
       console.error('Error executing browser action:', error);
@@ -401,6 +526,63 @@ export function usePuppeteerService() {
     }
   };
   
+  /**
+   * NEW! Execute multiple browser actions in sequence with retries
+   * Optimized for reliability and speed
+   */
+  const executeActionSequence = async (sessionId, actions) => {
+    const results = [];
+    let failedCount = 0;
+    
+    // Execute actions in sequence with retries
+    for (let i = 0; i < actions.length; i++) {
+      const action = actions[i];
+      console.log(`🔄 Executing action ${i+1}/${actions.length}: ${action.type}`);
+      
+      // Try up to 2 times per action
+      for (let attempt = 1; attempt <= 2; attempt++) {
+        try {
+          const result = await executeAction(sessionId, action);
+          results.push(result);
+          
+          // Success - break retry loop
+          break;
+        } catch (error) {
+          console.error(`Action ${i+1} failed on attempt ${attempt}:`, error);
+          
+          // If second attempt failed, count as failure
+          if (attempt === 2) {
+            failedCount++;
+            results.push({
+              status: 'error',
+              success: false,
+              error: error.message
+            });
+          } else {
+            // Wait briefly before retry
+            await new Promise(r => setTimeout(r, 500));
+          }
+        }
+      }
+      
+      // Short delay between actions for UI to update
+      await new Promise(r => setTimeout(r, 200));
+      
+      // If too many failures, stop sequence
+      if (failedCount >= 3) {
+        console.error('Too many action failures, aborting sequence');
+        break;
+      }
+    }
+    
+    return {
+      success: failedCount < 3,
+      results,
+      completedCount: results.length,
+      failedCount
+    };
+  };
+  
   return {
     startSession,
     endSession,
@@ -410,8 +592,8 @@ export function usePuppeteerService() {
     getStatus,
     getTypingStatus,
     takeScreenshot,
-    takeRapidScreenshot,
     navigateToUrl,
-    executeAction
+    executeAction,
+    executeActionSequence
   };
 }

@@ -145,7 +145,8 @@ Be EXTREMELY thorough and analytical in your reasoning - I need to see your enti
   };
   
   /**
-   * Generate browser actions based on user message and reasoning - ULTRA-PRECISE AUTOMATION!
+   * HYPER-OPTIMIZED Generate browser actions - ULTRA-PRECISE AUTOMATION!
+   * MORE FREQUENT ACTIONS WITH FASTER EXECUTION!
    */
   const generateBrowserActions = async (userMessage, reasoning) => {
     try {
@@ -156,36 +157,29 @@ Be EXTREMELY thorough and analytical in your reasoning - I need to see your enti
         {
           role: 'system',
           content: `YOU ARE THE ULTIMATE AUTONOMOUS BROWSING AGENT!
-MISSION: Generate a COMPREHENSIVE LIST OF 8-15 DETAILED browser actions.
+MISSION: Generate a COMPREHENSIVE LIST OF BROWSER ACTIONS.
 
-RULES FOR MAXIMUM EFFECTIVENESS:
-1. ALWAYS START with "navigate" to Google
-2. ALWAYS include type action with EXACT selector "input[name='q']" for Google search
-3. ALWAYS include a click action for the search button using EXACT selector "input[name='btnK']" or "button[type=submit]"
-4. INCLUDE AT LEAST 3 different scrolling actions with varying amounts (200-800px)
-5. INCLUDE AT LEAST 2-3 wait actions between steps (500-3000ms durations)
-6. ALL SELECTORS MUST BE EXTREMELY PRECISE - prefer IDs, name attributes, and common class patterns!
-7. INCLUDE MULTIPLE web navigation steps - visit at least 2-3 different websites
-8. ALWAYS follow a logical sequence of actions that accomplishes the user's goal
-9. BE AGGRESSIVE with exploration - include clicking on search results, navigating between pages!
-10. ADD DETAILED DESCRIPTIONS to each action for better visualization
-11. INCLUDE REAL LINKS to actual websites, not placeholder domains
+CRITICAL INSTRUCTIONS:
+1. ACTIONS MUST BE RAPID - frequent small changes, NOT long delays
+2. LIMIT WAIT ACTIONS to 500-1000ms MAXIMUM (no longer waits)
+3. DO NOT USE THE ENTIRE QUERY as search text - use CONCISE, EFFECTIVE keywords
+4. USE REALISTIC TYPING - type in SMALL CHUNKS (5-15 characters) with multiple actions
+5. INCLUDE MORE FREQUENT SCROLLING with SMALL amounts (50-150px each)
+6. ALWAYS include SMALL realistic delays (300-800ms) between user interactions
+7. FOCUS ON HIGH-FREQUENCY, LOW-DURATION ACTIONS for real-time visual feedback
+8. CLICK OPERATIONS should be PRECISELY targeted with exact selectors
+9. SEARCH OPERATIONS should break typing into multiple chunks for visual typing effect
+10. NEVER USE WAITS LONGER THAN 1 SECOND - keep everything quick and responsive
 
-SPECIAL INSTRUCTIONS FOR TYPES OF ACTIONS:
-- For Google searches: The search box is "input[name='q']" and search button is "input[name='btnK']" or fallback to "button[type=submit]"
-- When clicking search results: Use a[href*=""] selectors or text-based searches ("Click result containing 'X'")
-- For scrolling: Vary scroll amounts and include both down/up directions
-- For form filling: Always clear fields first, then type with realistic speed
-
-RETURN ONLY A VALID JSON OBJECT with this EXACT format:
+RETURN JSON FORMAT:
 {
   "actions": [
-    {"type": "navigate", "description": "Go to Google homepage", "url": "https://www.google.com"},
-    {"type": "type", "description": "DETAILED ACTION DESCRIPTION", "selector": "input[name='q']", "text": "SEARCH TEXT"},
-    {"type": "click", "description": "DETAILED ACTION DESCRIPTION", "selector": "input[name='btnK']"},
-    {"type": "wait", "description": "DETAILED ACTION DESCRIPTION", "duration": 2000},
-    {"type": "scroll", "description": "DETAILED ACTION DESCRIPTION", "direction": "down", "amount": 500},
-    // MORE ACTIONS HERE
+    {"type": "navigate", "description": "Navigate to Google", "url": "https://www.google.com"},
+    {"type": "type", "description": "Type first part of query", "selector": "input[name='q']", "text": "First 10 chars"},
+    {"type": "wait", "description": "Brief typing pause", "duration": 300},
+    {"type": "type", "description": "Continue typing query", "selector": "input[name='q']", "text": "Next 8 chars"},
+    {"type": "click", "description": "Click search button", "selector": "input[name='btnK']"},
+    // MORE RAPID ACTIONS HERE
   ]
 }`
         },
@@ -196,7 +190,8 @@ RETURN ONLY A VALID JSON OBJECT with this EXACT format:
 My reasoning about this request:
 ${reasoning}
 
-Generate a COMPREHENSIVE list of browser actions to fulfill this request - I need AT LEAST 10-15 DETAILED steps!
+Generate a COMPREHENSIVE list of RAPID browser actions to fulfill this request.
+FOCUS ON REAL-TIME VISUAL FEEDBACK with frequent small actions spaced with brief delays.
 ONLY return valid JSON with an "actions" array, nothing else!`
         }
       ];
@@ -228,22 +223,34 @@ ONLY return valid JSON with an "actions" array, nothing else!`
         if (actions.length < 5) {
           console.log("⚠️ TOO FEW ACTIONS GENERATED - ADDING FALLBACK ACTIONS!");
           
+          // Extract keywords for search
+          const keywords = extractKeywords(userMessage);
+          
           // Add CORE FALLBACK ACTIONS to ensure minimum functionality
+          // Breaking typing into multiple chunks for visual typing effect
+          const searchText = keywords.length <= 30 ? keywords : keywords.substring(0, 30);
+          const searchChunk1 = searchText.substring(0, Math.min(10, searchText.length));
+          const searchChunk2 = searchText.substring(Math.min(10, searchText.length));
+          
           actions.push(
             { type: "navigate", description: "Navigate to Google homepage", url: "https://www.google.com" },
-            { type: "type", description: "Search for the requested information", selector: "input[name='q']", text: userMessage },
+            { type: "wait", description: "Wait for page to load", duration: 500 },
+            { type: "type", description: "Type first part of search query", selector: "input[name='q']", text: searchChunk1 },
+            { type: "wait", description: "Brief pause while typing", duration: 300 },
+            { type: "type", description: "Complete search query", selector: "input[name='q']", text: searchChunk2 },
+            { type: "wait", description: "Brief pause before clicking search", duration: 200 },
             { type: "click", description: "Click the search button", selector: "input[name='btnK']" },
-            { type: "wait", description: "Wait for search results to load", duration: 2000 },
-            { type: "scroll", description: "Scroll down to see more results", direction: "down", amount: 400 },
-            { type: "wait", description: "Pause briefly to review content", duration: 1500 },
-            { type: "scroll", description: "Continue scrolling to explore more results", direction: "down", amount: 500 },
-            { type: "wait", description: "Pause to analyze information", duration: 2000 },
-            { type: "scroll", description: "Final scroll to capture any remaining content", direction: "down", amount: 300 }
+            { type: "wait", description: "Wait for search results", duration: 800 },
+            { type: "scroll", description: "Scroll down to see results", direction: "down", amount: 100 },
+            { type: "wait", description: "Brief pause while viewing results", duration: 400 },
+            { type: "scroll", description: "Continue scrolling", direction: "down", amount: 150 },
+            { type: "wait", description: "Brief pause to analyze results", duration: 500 },
+            { type: "scroll", description: "Final scroll to see more results", direction: "down", amount: 120 }
           );
         }
         
-        // Ensure actions are REALISTIC and WELL-SEQUENCED
-        const optimizedActions = optimizeBrowserActions(actions);
+        // OPTIMIZING & FIXING ACTIONS FOR REALISTIC BROWSING
+        const optimizedActions = optimizeBrowserActions(actions, userMessage);
         
         console.log(`✅ Successfully prepared ${optimizedActions.length} TURBOCHARGED browser actions!`);
         return optimizedActions;
@@ -251,108 +258,267 @@ ONLY return valid JSON with an "actions" array, nothing else!`
         console.error('💥 ERROR parsing actions JSON:', parseError);
         console.log('Raw response:', responseText);
         
+        // Extract keywords for search
+        const keywords = extractKeywords(userMessage);
+        
         // Return POWER FALLBACK ACTIONS if parsing fails
-        return [
-          { type: "navigate", description: "Navigate to Google homepage", url: "https://www.google.com" },
-          { type: "type", description: "Search for information related to the query", selector: "input[name='q']", text: userMessage },
-          { type: "click", description: "Click search button to perform search", selector: "input[name='btnK']" },
-          { type: "wait", description: "Wait for search results to fully load", duration: 2000 },
-          { type: "scroll", description: "Scroll down to browse through results", direction: "down", amount: 400 },
-          { type: "wait", description: "Pause briefly to review findings", duration: 1000 },
-          { type: "scroll", description: "Continue scrolling for more information", direction: "down", amount: 300 },
-          { type: "wait", description: "Analyze the search results", duration: 1000 },
-          { type: "scroll", description: "Scroll down to see more options", direction: "down", amount: 350 },
-          { type: "wait", description: "Final pause to analyze all gathered information", duration: 1500 }
-        ];
+        return generateFallbackActions(keywords);
       }
     } catch (error) {
       console.error('💥 ERROR generating browser actions:', error);
       
+      // Extract keywords for search
+      const keywords = extractKeywords(userMessage);
+      
       // Return a COMPREHENSIVE FALLBACK ACTION SET
-      return [
-        { type: "navigate", description: "Navigate to Google homepage", url: "https://www.google.com" },
-        { type: "type", description: "Search for information related to the query", selector: "input[name='q']", text: userMessage },
-        { type: "click", description: "Click search button to perform search", selector: "input[name='btnK']" },
-        { type: "wait", description: "Wait for search results to fully load", duration: 2000 },
-        { type: "scroll", description: "Scroll down to browse through results", direction: "down", amount: 400 },
-        { type: "wait", description: "Pause briefly to review findings", duration: 1000 },
-        { type: "scroll", description: "Continue scrolling for more information", direction: "down", amount: 300 },
-        { type: "wait", description: "Analyze the search results", duration: 1000 },
-        { type: "scroll", description: "Scroll down to see more options", direction: "down", amount: 350 },
-        { type: "wait", description: "Final pause to analyze all gathered information", duration: 1500 }
-      ];
+      return generateFallbackActions(keywords);
     }
   };
   
   /**
-   * Helper function to optimize browser actions for maximum realism
+   * Extract useful keywords for search from user message
    */
-  const optimizeBrowserActions = (actions) => {
+  const extractKeywords = (userMessage) => {
+    // Remove unnecessary words and focus on key terms
+    const simpleKeywords = userMessage.replace(/please|could you|can you|i need|find|search for|look up|tell me about/gi, '').trim();
+    
+    // If message is a question, try to extract the key part
+    if (simpleKeywords.includes('?')) {
+      const questionParts = simpleKeywords.split('?')[0].split(' ');
+      // Remove common question words at the start
+      if (['what', 'who', 'where', 'when', 'why', 'how'].includes(questionParts[0].toLowerCase())) {
+        questionParts.shift();
+      }
+      return questionParts.join(' ').trim();
+    }
+    
+    return simpleKeywords.length > 50 ? simpleKeywords.substring(0, 50) : simpleKeywords;
+  };
+  
+  /**
+   * Generate fallback actions when the main generation fails
+   */
+  const generateFallbackActions = (searchQuery) => {
+    // Breaking typing into multiple chunks for visual typing effect
+    const searchText = searchQuery.length <= 30 ? searchQuery : searchQuery.substring(0, 30);
+    const chunk1 = searchText.substring(0, Math.min(8, searchText.length));
+    const chunk2 = searchText.substring(Math.min(8, searchText.length), Math.min(16, searchText.length));
+    const chunk3 = searchText.substring(Math.min(16, searchText.length));
+    
+    return [
+      // Google search sequence with multiple typing chunks
+      { type: "navigate", description: "Navigate to Google homepage", url: "https://www.google.com" },
+      { type: "wait", description: "Wait for page to load", duration: 500 },
+      { type: "type", description: "Type first part of search query", selector: "input[name='q']", text: chunk1 },
+      { type: "wait", description: "Brief pause while typing", duration: 300 },
+      { type: "type", description: "Type second part of search query", selector: "input[name='q']", text: chunk2 },
+      { type: "wait", description: "Brief pause while typing", duration: 250 },
+      { type: "type", description: "Complete search query", selector: "input[name='q']", text: chunk3 },
+      { type: "wait", description: "Brief pause before clicking search", duration: 200 },
+      { type: "click", description: "Click the search button", selector: "input[name='btnK']" },
+      { type: "wait", description: "Wait for search results", duration: 800 },
+      
+      // Search results exploration sequence
+      { type: "scroll", description: "Scroll down to view results", direction: "down", amount: 100 },
+      { type: "wait", description: "Brief pause to read results", duration: 400 },
+      { type: "scroll", description: "Continue scrolling", direction: "down", amount: 150 },
+      { type: "wait", description: "Brief pause to analyze results", duration: 500 },
+      
+      // Click on first result
+      { type: "click", description: "Click on first search result", selector: "div#search a" },
+      { type: "wait", description: "Wait for page to load", duration: 800 },
+      
+      // Explore page
+      { type: "scroll", description: "Scroll down to explore content", direction: "down", amount: 120 },
+      { type: "wait", description: "Brief pause to read content", duration: 400 },
+      { type: "scroll", description: "Continue scrolling", direction: "down", amount: 150 },
+      { type: "wait", description: "Brief pause to analyze content", duration: 300 },
+      
+      // Back to search
+      { type: "navigate", description: "Return to search results", url: "https://www.google.com/search?q=" + encodeURIComponent(searchQuery) },
+      { type: "wait", description: "Wait for search page to reload", duration: 600 },
+      { type: "scroll", description: "Scroll to see more results", direction: "down", amount: 200 }
+    ];
+  };
+  
+  /**
+   * Helper function to optimize browser actions for maximum realism and speed
+   */
+  const optimizeBrowserActions = (actions, userMessage) => {
+    // Break user message into keywords for search if needed
+    const searchKeywords = extractKeywords(userMessage);
+    
     // Make a copy to avoid mutating the original
     const optimized = [...actions];
+    const fixedActions = [];
     
-    // Ensure a navigate action is first
-    if (optimized.length === 0 || optimized[0].type !== 'navigate') {
-      optimized.unshift({
+    // Check if we have navigate action first
+    let hasNavigate = false;
+    if (optimized.length > 0 && optimized[0].type === 'navigate') {
+      hasNavigate = true;
+      fixedActions.push(optimized[0]);
+    } else {
+      // Add navigate action if missing
+      fixedActions.push({
         type: "navigate",
         description: "Navigate to Google homepage",
         url: "https://www.google.com"
       });
+      // Add small wait after navigation
+      fixedActions.push({
+        type: "wait",
+        description: "Wait for page to load",
+        duration: 500
+      });
     }
     
-    // Ensure basic Google search pattern is included early
-    let hasGoogleSearch = false;
-    for (let i = 0; i < Math.min(4, optimized.length); i++) {
+    // Add proper wait after navigation if missing
+    if (hasNavigate && (optimized.length < 2 || optimized[1].type !== 'wait')) {
+      fixedActions.push({
+        type: "wait",
+        description: "Wait for page to load",
+        duration: 500
+      });
+    }
+    
+    // Process remaining actions with fixes
+    for (let i = hasNavigate ? 1 : 0; i < optimized.length; i++) {
       const action = optimized[i];
-      if (action.type === 'type' && action.selector?.includes('q') && action.selector?.includes('input')) {
-        hasGoogleSearch = true;
+      
+      // Skip if this is the same as last
+      if (i > 0 && 
+          action.type === optimized[i-1].type && 
+          action.selector === optimized[i-1].selector &&
+          action.text === optimized[i-1].text) {
+        continue;
+      }
+      
+      // Fix common issues with actions
+      const fixedAction = { ...action };
+      
+      // Limit wait durations to prevent excessive delays
+      if (fixedAction.type === 'wait') {
+        // Cap wait duration to 1000ms maximum
+        fixedAction.duration = Math.min(fixedAction.duration || 500, 1000);
+        // Ensure reasonable minimum
+        fixedAction.duration = Math.max(fixedAction.duration, 200);
+      }
+      
+      // Fix type actions - prevent long text chunks
+      if (fixedAction.type === 'type') {
+        // Ensure we have a selector
+        if (!fixedAction.selector) {
+          fixedAction.selector = 'input[name="q"]';
+        }
+        
+        // If text is too long, we'll handle it specially after this loop
+        if (fixedAction.text && fixedAction.text.length > 15) {
+          // Flag for special handling
+          fixedAction.needsChunking = true;
+        }
+      }
+      
+      // Fix scroll actions - ensure reasonable amounts
+      if (fixedAction.type === 'scroll') {
+        // Ensure direction is set
+        fixedAction.direction = fixedAction.direction || 'down';
+        
+        // Limit scroll amounts to reasonable values
+        if (!fixedAction.amount || fixedAction.amount > 400) {
+          fixedAction.amount = Math.min(fixedAction.amount || 200, 400);
+        }
+      }
+      
+      // Fix click actions - ensure description
+      if (fixedAction.type === 'click' && !fixedAction.description) {
+        fixedAction.description = fixedAction.selector
+          ? `Click on ${fixedAction.selector}`
+          : 'Click element';
+      }
+      
+      // Add the fixed action
+      if (!fixedAction.needsChunking) {
+        fixedActions.push(fixedAction);
+      }
+    }
+    
+    // Process type actions that need chunking
+    const finalActions = [];
+    for (const action of fixedActions) {
+      if (action.needsChunking) {
+        // Break text into chunks for more realistic typing
+        const chunks = chunkText(action.text);
+        
+        for (let i = 0; i < chunks.length; i++) {
+          // Add each chunk as a separate type action
+          finalActions.push({
+            type: 'type',
+            description: `Type ${i === 0 ? 'beginning' : i === chunks.length - 1 ? 'end' : 'middle'} of text`,
+            selector: action.selector,
+            text: chunks[i]
+          });
+          
+          // Add a small wait between chunks for realistic typing
+          if (i < chunks.length - 1) {
+            finalActions.push({
+              type: 'wait',
+              description: 'Brief pause while typing',
+              duration: 200 + Math.floor(Math.random() * 200)
+            });
+          }
+        }
+      } else {
+        finalActions.push(action);
+      }
+    }
+    
+    // Ensure waits between major actions
+    const result = [];
+    for (let i = 0; i < finalActions.length; i++) {
+      const action = finalActions[i];
+      result.push(action);
+      
+      // Add waits after significant actions if no wait follows
+      if (['navigate', 'click', 'type'].includes(action.type)) {
+        const nextAction = finalActions[i + 1];
+        if (!nextAction || nextAction.type !== 'wait') {
+          result.push({
+            type: 'wait',
+            description: `Brief pause after ${action.type}`,
+            duration: 300 + Math.floor(Math.random() * 300)
+          });
+        }
+      }
+    }
+    
+    return result;
+  };
+  
+  /**
+   * Split long text into smaller chunks for more realistic typing
+   */
+  const chunkText = (text) => {
+    if (!text) return [''];
+    if (text.length <= 15) return [text];
+    
+    const chunks = [];
+    let remainingText = text;
+    
+    // Create random chunk sizes between 5-15 characters
+    while (remainingText.length > 0) {
+      // Last chunk - use all remaining text if less than 15 chars
+      if (remainingText.length <= 15) {
+        chunks.push(remainingText);
         break;
       }
-    }
-    
-    // Add Google search if missing
-    if (!hasGoogleSearch && optimized.length > 1) {
-      optimized.splice(1, 0, {
-        type: "type",
-        description: "Enter search query into Google",
-        selector: "input[name='q']",
-        text: "search query"
-      });
       
-      optimized.splice(2, 0, {
-        type: "click",
-        description: "Click the search button",
-        selector: "input[name='btnK']"
-      });
+      // Random chunk size between 5-15 characters
+      const chunkSize = 5 + Math.floor(Math.random() * 11);
+      chunks.push(remainingText.substring(0, chunkSize));
+      remainingText = remainingText.substring(chunkSize);
     }
     
-    // Ensure wait actions between major operations
-    for (let i = optimized.length - 1; i >= 1; i--) {
-      if ((optimized[i].type === 'navigate' || optimized[i].type === 'click') && 
-          optimized[i-1].type !== 'wait') {
-        optimized.splice(i, 0, {
-          type: "wait",
-          description: "Wait for page to load/respond",
-          duration: 1500 + Math.floor(Math.random() * 1000)
-        });
-      }
-    }
-    
-    // Randomize wait durations slightly for realism
-    for (let i = 0; i < optimized.length; i++) {
-      if (optimized[i].type === 'wait') {
-        // Add small random variation to waits
-        const baseDuration = optimized[i].duration || 1500;
-        optimized[i].duration = baseDuration + Math.floor(Math.random() * 300) - 150; 
-      }
-    }
-    
-    // Cap at reasonable number of actions
-    if (optimized.length > 20) {
-      return optimized.slice(0, 20);
-    }
-    
-    return optimized;
+    return chunks;
   };
   
   /**
@@ -540,13 +706,11 @@ Please let me know if you'd like me to explore any specific aspect in more detai
     try {
       // Generate a sequence of thinking steps for animated display
       const genericSteps = [
-        { text: "Analyzing your request...", duration: 1500 },
-        { text: "Identifying key search terms...", duration: 2000 },
-        { text: "Planning web browsing strategy...", duration: 1800 },
-        { text: "Preparing search queries...", duration: 1700 },
-        { text: "Mapping information targets...", duration: 2200 },
-        { text: "Optimizing browser actions...", duration: 2500 },
-        { text: "Preparing for web search...", duration: 1600 }
+        { text: "Analyzing your request...", duration: 1000 },
+        { text: "Identifying key search terms...", duration: 1200 },
+        { text: "Planning search strategy...", duration: 1000 },
+        { text: "Preparing web actions...", duration: 1000 },
+        { text: "Optimizing browser sequence...", duration: 1500 },
       ];
       
       // Add some query-specific thinking steps
@@ -556,47 +720,52 @@ Please let me know if you'd like me to explore any specific aspect in more detai
       // Add domain-specific steps
       if (lowerQuery.includes("news") || lowerQuery.includes("latest") || lowerQuery.includes("recent")) {
         specificSteps.push(
-          { text: "Identifying news sources to search...", duration: 2100 },
-          { text: "Planning to filter for recent information...", duration: 1900 }
+          { text: "Targeting news sources...", duration: 1200 },
+          { text: "Preparing to find recent information...", duration: 1000 }
         );
       } else if (lowerQuery.includes("compare") || lowerQuery.includes("difference") || lowerQuery.includes("versus") || lowerQuery.includes("vs")) {
         specificSteps.push(
-          { text: "Setting up comparison parameters...", duration: 2000 },
-          { text: "Identifying key comparison points...", duration: 2200 }
+          { text: "Setting up comparison parameters...", duration: 1200 },
+          { text: "Identifying comparison points...", duration: 1000 }
         );
       } else if (lowerQuery.includes("how to") || lowerQuery.includes("steps") || lowerQuery.includes("guide")) {
         specificSteps.push(
-          { text: "Searching for detailed tutorials...", duration: 2300 },
-          { text: "Looking for step-by-step instructions...", duration: 2100 }
+          { text: "Locating tutorial sources...", duration: 1200 },
+          { text: "Preparing step-by-step extraction...", duration: 1000 }
         );
       } else if (lowerQuery.includes("buy") || lowerQuery.includes("price") || lowerQuery.includes("cost") || lowerQuery.includes("shop")) {
         specificSteps.push(
-          { text: "Preparing to search for product information...", duration: 1800 },
-          { text: "Setting up price comparison strategy...", duration: 2000 }
+          { text: "Preparing product research...", duration: 1000 },
+          { text: "Setting up price comparison...", duration: 1200 }
         );
       } else if (lowerQuery.includes("review") || lowerQuery.includes("rating") || lowerQuery.includes("best")) {
         specificSteps.push(
-          { text: "Planning to find expert reviews...", duration: 2100 },
-          { text: "Preparing to aggregate ratings data...", duration: 1900 }
+          { text: "Preparing to analyze reviews...", duration: 1000 },
+          { text: "Setting up rating aggregation...", duration: 1200 }
         );
       }
       
       // Final steps are always similar
       const finalSteps = [
-        { text: "Formulating search strategy...", duration: 2200 },
-        { text: "Ready to start web browsing...", duration: 1500 }
+        { text: "Finalizing search approach...", duration: 1200 },
+        { text: "Ready to start browsing...", duration: 1000 }
       ];
       
       // Combine and return all steps
-      return [...genericSteps.slice(0, 4), ...specificSteps, ...genericSteps.slice(4), ...finalSteps];
+      return [
+        ...genericSteps.slice(0, 2), 
+        ...specificSteps, 
+        ...genericSteps.slice(2), 
+        ...finalSteps
+      ];
       
     } catch (error) {
       console.error('Error generating thinking steps:', error);
       // Return fallback thinking steps
       return [
-        { text: "Analyzing your request...", duration: 2000 },
-        { text: "Preparing search strategy...", duration: 2500 },
-        { text: "Getting ready to browse...", duration: 1500 }
+        { text: "Analyzing your request...", duration: 1000 },
+        { text: "Preparing search strategy...", duration: 1500 },
+        { text: "Getting ready to browse...", duration: 1000 }
       ];
     }
   };

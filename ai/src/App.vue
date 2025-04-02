@@ -35,6 +35,7 @@ import { useRoute } from 'vue-router';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from './firebase/init'; // Firebase magic—BOOP BOOP! 🔥
 import { useChatStore } from './store/chat';
+// In main.js or a global CSS import file
 
 // Dynamically import components—laziness LEVEL 9000! 
 

@@ -1,4 +1,4 @@
-// server/puppeteer-server.js - HYPER-OPTIMIZED FOR REAL-TIME BROWSING!
+// server/puppeteer-server.js - ULTIMATE BROWSING ENGINE FOR REAL-TIME AI ACTIONS!
 import express from 'express';
 import cors from 'cors';
 import puppeteer from 'puppeteer';
@@ -6,6 +6,7 @@ import { v4 as uuidv4 } from 'uuid';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import crypto from 'crypto';
 
 // Get current file directory (ES Module version)
 const __filename = fileURLToPath(import.meta.url);
@@ -26,13 +27,16 @@ app.use((req, res, next) => {
 // Super-charged sessions map with auto-cleanup!
 const sessions = new Map();
 
+// Session typing status tracker for real-time feedback
+const typingStatus = new Map();
+
 // Create screenshots directory if it doesn't exist
 const screenshotsDir = path.join(__dirname, 'screenshots');
 if (!fs.existsSync(screenshotsDir)) {
   fs.mkdirSync(screenshotsDir, { recursive: true });
 }
 
-// MEGA-ENHANCED cleanupOldScreenshots with status reporting!
+// ENHANCED cleanupOldScreenshots with status reporting!
 const cleanupOldScreenshots = () => {
   console.log("🧹 Cleaning up old screenshots...");
   const files = fs.readdirSync(screenshotsDir);
@@ -44,8 +48,8 @@ const cleanupOldScreenshots = () => {
     const stats = fs.statSync(filePath);
     const fileAge = now - stats.mtime.getTime();
     
-    // Delete files older than 5 minutes (300000 ms) for FASTER CLEANUP
-    if (fileAge > 300000) {
+    // Delete files older than 2 minutes (120000 ms) for FASTER CLEANUP
+    if (fileAge > 120000) {
       fs.unlinkSync(filePath);
       cleanedCount++;
     }
@@ -56,8 +60,8 @@ const cleanupOldScreenshots = () => {
   }
 };
 
-// Run cleanup every 3 minutes for PERFORMANCE BOOST
-setInterval(cleanupOldScreenshots, 3 * 60 * 1000);
+// Run cleanup every 2 minutes for PERFORMANCE BOOST
+setInterval(cleanupOldScreenshots, 2 * 60 * 1000);
 
 // 🚀 TURBO-CHARGED SESSION CREATOR
 app.post('/api/puppeteer/session', async (req, res) => {
@@ -65,7 +69,7 @@ app.post('/api/puppeteer/session', async (req, res) => {
     const sessionId = uuidv4();
     console.log(`🚀 CREATING NEW BROWSER SESSION: ${sessionId}`);
     
-    // Launch with POWER OPTIONS!
+    // Launch with ULTIMATE POWER OPTIONS!
     const browser = await puppeteer.launch({
       headless: true,
       args: [
@@ -76,7 +80,9 @@ app.post('/api/puppeteer/session', async (req, res) => {
         '--disable-gpu',
         '--window-size=1280,800',
         '--enable-features=NetworkService',
-        '--disable-features=IsolateOrigins,site-per-process'
+        '--disable-features=IsolateOrigins,site-per-process',
+        '--disable-web-security', // For cross-origin navigation
+        '--allow-file-access-from-files'
       ]
     });
     
@@ -91,7 +97,7 @@ app.post('/api/puppeteer/session', async (req, res) => {
     });
     
     // Set ADVANCED USER AGENT - ANTI-CAPTCHA TECH!
-    await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.127 Safari/537.36');
+    await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36');
     
     // ADDITIONAL ANTI-DETECTION MEASURES
     await page.evaluateOnNewDocument(() => {
@@ -104,20 +110,48 @@ app.post('/api/puppeteer/session', async (req, res) => {
         get: () => ['en-US', 'en', 'es']
       });
       Object.defineProperty(navigator, 'plugins', {
-        get: () => [1, 2, 3, 4, 5]
+        get: () => [1, 2, 3, 4, 5].map(() => ({
+          name: ['Chrome PDF Plugin', 'Chrome PDF Viewer', 'Native Client'][Math.floor(Math.random() * 3)],
+          description: 'Portable Document Format',
+          filename: 'internal-pdf-viewer',
+          length: 1
+        }))
       });
+      
+      // Add randomized mouse movements
+      let lastMove = Date.now();
+      document.addEventListener('mousemove', () => {
+        lastMove = Date.now();
+      });
+      
+      // Simulate occasional random mouse movements
+      setInterval(() => {
+        if (Date.now() - lastMove > 3000) {
+          const x = Math.floor(Math.random() * window.innerWidth);
+          const y = Math.floor(Math.random() * window.innerHeight);
+          const event = new MouseEvent('mousemove', {
+            view: window,
+            bubbles: true,
+            cancelable: true,
+            clientX: x,
+            clientY: y
+          });
+          document.dispatchEvent(event);
+        }
+      }, 5000);
     });
     
-    // SPEED-OPTIMIZE BY BLOCKING ADS & TRACKERS!
+    // OPTIMIZED REQUEST INTERCEPTION - block ads but load essential content faster
     await page.setRequestInterception(true);
     page.on('request', (request) => {
       const url = request.url().toLowerCase();
       const resourceType = request.resourceType();
       
+      // Improved resource filtering - block ads/trackers but keep essential content
       if (
-        resourceType === 'image' ||
+        (resourceType === 'image' && !url.includes('logo')) ||
         resourceType === 'media' ||
-        resourceType === 'font' ||
+        (resourceType === 'font' && !url.includes('google')) ||
         url.includes('google-analytics') ||
         url.includes('googletagmanager') ||
         url.includes('facebook') ||
@@ -135,6 +169,14 @@ app.post('/api/puppeteer/session', async (req, res) => {
     // Navigate to blank page
     await page.goto('about:blank');
     
+    // Initialize typing status for this session
+    typingStatus.set(sessionId, {
+      isTyping: false,
+      text: '',
+      selector: null,
+      timestamp: Date.now()
+    });
+    
     // Store session data with MEGA-METADATA!
     sessions.set(sessionId, {
       browser,
@@ -149,12 +191,14 @@ app.post('/api/puppeteer/session', async (req, res) => {
         clickCount: 0,
         typeCount: 0
       },
-      // Add streaming capability to capture real-time typing - NEW!
+      // Real-time typing capability with enhanced buffer and speed
       streaming: {
         isTyping: false,
         currentSelector: null,
         textBuffer: '',
-        typingSpeed: 50 // ms per character
+        targetText: '',
+        typingSpeed: 30, // ms per character - FASTER TYPING!
+        typingInterval: null
       }
     });
     
@@ -177,9 +221,16 @@ app.delete('/api/puppeteer/session/:sessionId', async (req, res) => {
   
   if (sessions.has(sessionId)) {
     try {
-      const { browser } = sessions.get(sessionId);
+      const { browser, streaming } = sessions.get(sessionId);
+      
+      // Clear any active typing intervals
+      if (streaming && streaming.typingInterval) {
+        clearInterval(streaming.typingInterval);
+      }
+      
       await browser.close();
       sessions.delete(sessionId);
+      typingStatus.delete(sessionId);
       
       console.log(`🚫 CLOSED BROWSER SESSION: ${sessionId}`);
       
@@ -206,32 +257,7 @@ app.post('/api/puppeteer/session/:sessionId/initialize', async (req, res) => {
       await session.page.setJavaScriptEnabled(true);
       await session.page.setDefaultNavigationTimeout(30000);
       
-      // ANTI-CAPTCHA PREP
-      await session.page.evaluate(() => {
-        // Add randomized mouse movements
-        let lastMove = Date.now();
-        document.addEventListener('mousemove', () => {
-          lastMove = Date.now();
-        });
-        
-        // Simulate occasional random mouse movements
-        setInterval(() => {
-          if (Date.now() - lastMove > 3000) {
-            const x = Math.floor(Math.random() * window.innerWidth);
-            const y = Math.floor(Math.random() * window.innerHeight);
-            const event = new MouseEvent('mousemove', {
-              view: window,
-              bubbles: true,
-              cancelable: true,
-              clientX: x,
-              clientY: y
-            });
-            document.dispatchEvent(event);
-          }
-        }, 5000);
-      });
-      
-      // POWER MOVE: Use a faster performing website for startup!
+      // POWER MOVE: Use Google for startup!
       await session.page.goto('https://www.google.com', {
         waitUntil: 'networkidle2',
         timeout: 30000
@@ -244,8 +270,13 @@ app.post('/api/puppeteer/session/:sessionId/initialize', async (req, res) => {
       session.performance.navigationCount++;
       
       // TAKE STARTUP SCREENSHOT!
-      const screenshotPath = path.join(screenshotsDir, `${sessionId}-init-${Date.now()}.png`);
-      await session.page.screenshot({ path: screenshotPath, fullPage: false });
+      const screenshotPath = path.join(screenshotsDir, `${sessionId}-init-${Date.now()}.jpg`);
+      await session.page.screenshot({ 
+        path: screenshotPath, 
+        fullPage: false,
+        type: 'jpeg',
+        quality: 80
+      });
       
       console.log(`✅ BROWSER INITIALIZED AND READY: ${sessionId}`);
       
@@ -271,7 +302,13 @@ app.post('/api/puppeteer/session/:sessionId/restart', async (req, res) => {
   if (sessions.has(sessionId)) {
     try {
       // Close existing browser
-      const { browser } = sessions.get(sessionId);
+      const { browser, streaming } = sessions.get(sessionId);
+      
+      // Clear any active typing intervals
+      if (streaming && streaming.typingInterval) {
+        clearInterval(streaming.typingInterval);
+      }
+      
       await browser.close();
       
       console.log(`🔄 RESTARTING BROWSER SESSION: ${sessionId}`);
@@ -287,7 +324,9 @@ app.post('/api/puppeteer/session/:sessionId/restart', async (req, res) => {
           '--disable-gpu',
           '--window-size=1280,800',
           '--enable-features=NetworkService',
-          '--disable-features=IsolateOrigins,site-per-process'
+          '--disable-features=IsolateOrigins,site-per-process',
+          '--disable-web-security',
+          '--allow-file-access-from-files'
         ]
       });
       
@@ -302,7 +341,7 @@ app.post('/api/puppeteer/session/:sessionId/restart', async (req, res) => {
       });
       
       // Set MAXIMUM PERFORMANCE USER AGENT
-      await newPage.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.127 Safari/537.36');
+      await newPage.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36');
       
       // ANTI-DETECTION MEASURES
       await newPage.evaluateOnNewDocument(() => {
@@ -313,13 +352,50 @@ app.post('/api/puppeteer/session/:sessionId/restart', async (req, res) => {
           get: () => ['en-US', 'en', 'es']
         });
         Object.defineProperty(navigator, 'plugins', {
-          get: () => [1, 2, 3, 4, 5]
+          get: () => [1, 2, 3, 4, 5].map(() => ({
+            name: ['Chrome PDF Plugin', 'Chrome PDF Viewer', 'Native Client'][Math.floor(Math.random() * 3)],
+            description: 'Portable Document Format',
+            filename: 'internal-pdf-viewer',
+            length: 1
+          }))
         });
+      });
+      
+      // Block unnecessary resources
+      await newPage.setRequestInterception(true);
+      newPage.on('request', (request) => {
+        const url = request.url().toLowerCase();
+        const resourceType = request.resourceType();
+        
+        if (
+          (resourceType === 'image' && !url.includes('logo')) ||
+          resourceType === 'media' ||
+          (resourceType === 'font' && !url.includes('google')) ||
+          url.includes('google-analytics') ||
+          url.includes('googletagmanager') ||
+          url.includes('facebook') ||
+          url.includes('analytics') ||
+          url.includes('tracker') ||
+          url.includes('advertisement') ||
+          url.includes('captcha') && !url.includes('api/captcha')
+        ) {
+          request.abort();
+        } else {
+          request.continue();
+        }
       });
       
       // Navigate to Google
       await newPage.goto('https://www.google.com', {
         waitUntil: 'networkidle2'
+      });
+      
+      // Reset typing status
+      typingStatus.set(sessionId, {
+        isTyping: false,
+        text: '',
+        selector: null,
+        timestamp: Date.now()
       });
       
       // Update session data
@@ -340,7 +416,9 @@ app.post('/api/puppeteer/session/:sessionId/restart', async (req, res) => {
           isTyping: false,
           currentSelector: null,
           textBuffer: '',
-          typingSpeed: 50
+          targetText: '',
+          typingSpeed: 30,
+          typingInterval: null
         }
       });
       
@@ -367,15 +445,42 @@ app.post('/api/puppeteer/session/:sessionId/refresh', async (req, res) => {
     try {
       const session = sessions.get(sessionId);
       
+      // Stop any active typing
+      if (session.streaming && session.streaming.typingInterval) {
+        clearInterval(session.streaming.typingInterval);
+        session.streaming.isTyping = false;
+        session.streaming.textBuffer = '';
+        session.streaming.targetText = '';
+      }
+      
+      // Update typing status
+      typingStatus.set(sessionId, {
+        isTyping: false,
+        text: '',
+        selector: null,
+        timestamp: Date.now()
+      });
+      
       console.log(`🔄 REFRESHING BROWSER SESSION: ${sessionId}`);
       
       // Refresh the current page
       await session.page.reload({
-        waitUntil: 'networkidle2'
+        waitUntil: 'networkidle2',
+        timeout: 30000
       });
       
       // Update session data
       session.lastActivity = new Date();
+      session.status = 'refreshed';
+      
+      // Take screenshot after refresh
+      const screenshotPath = path.join(screenshotsDir, `${sessionId}-refresh-${Date.now()}.jpg`);
+      await session.page.screenshot({ 
+        path: screenshotPath, 
+        fullPage: false,
+        type: 'jpeg',
+        quality: 80
+      });
       
       console.log(`✅ BROWSER REFRESHED: ${sessionId}`);
       
@@ -385,7 +490,28 @@ app.post('/api/puppeteer/session/:sessionId/refresh', async (req, res) => {
       });
     } catch (error) {
       console.error(`💥 ERROR refreshing browser session ${sessionId}:`, error);
-      res.status(500).json({ error: error.message });
+      
+      // Try to recover even if refresh fails
+      try {
+        const session = sessions.get(sessionId);
+        
+        // Take screenshot anyway to show current state
+        const screenshotPath = path.join(screenshotsDir, `${sessionId}-refresh-failed-${Date.now()}.jpg`);
+        await session.page.screenshot({ 
+          path: screenshotPath, 
+          fullPage: false,
+          type: 'jpeg',
+          quality: 70
+        });
+        
+        res.status(200).json({
+          status: 'refresh_failed_but_continuing',
+          url: session.url,
+          error: error.message
+        });
+      } catch (secondError) {
+        res.status(500).json({ error: error.message });
+      }
     }
   } else {
     res.status(404).json({ error: 'Session not found' });
@@ -415,10 +541,12 @@ app.get('/api/puppeteer/session/:sessionId/status', async (req, res) => {
         }
       }
       
-      // Get current typing status - NEW!
-      const isTyping = session.streaming.isTyping;
-      const typingSelector = session.streaming.currentSelector;
-      const typingText = session.streaming.textBuffer;
+      // Get current typing status
+      const typing = typingStatus.get(sessionId) || { 
+        isTyping: false, 
+        text: '', 
+        selector: null 
+      };
       
       // Update last activity
       session.lastActivity = new Date();
@@ -428,10 +556,9 @@ app.get('/api/puppeteer/session/:sessionId/status', async (req, res) => {
         url: currentUrl,
         status: session.status,
         lastActivity: session.lastActivity,
-        // NEW: Include real-time typing status
-        isTyping,
-        typingSelector,
-        typingText
+        isTyping: typing.isTyping,
+        typingText: typing.text,
+        typingSelector: typing.selector
       });
     } catch (error) {
       console.error(`💥 ERROR getting status for session ${sessionId}:`, error);
@@ -442,26 +569,29 @@ app.get('/api/puppeteer/session/:sessionId/status', async (req, res) => {
   }
 });
 
-// Take a screenshot - ULTRA-FAST VERSION WITH CHANGE DETECTION! 🔥
+// ULTRA-FAST SCREENSHOT with Smart Caching and Change Detection
 app.get('/api/puppeteer/session/:sessionId/screenshot', async (req, res) => {
   const { sessionId } = req.params;
+  const forceNewScreenshot = req.query.force === 'true';
   
   if (sessions.has(sessionId)) {
     try {
       const session = sessions.get(sessionId);
       
-      // NEW: Check if session has lastScreenshotHash to avoid duplicates
+      // Check if session has screenshot cache data
       if (!session.lastScreenshotHash) {
         session.lastScreenshotHash = '';
+        session.lastScreenshotPath = '';
         session.lastScreenshotTime = 0;
         session.consecutiveDuplicates = 0;
       }
       
-      // NEW: Skip if too soon (debounce screenshots)
+      // Check if it's too soon for a new screenshot (debounce)
       const now = Date.now();
-      const minTimeBetweenScreenshots = 250; // ms
-      if (now - session.lastScreenshotTime < minTimeBetweenScreenshots) {
-        // If called too frequently, send the previous screenshot or placeholder
+      const minTimeBetweenScreenshots = 150; // ms - FASTER UPDATES!
+      
+      if (!forceNewScreenshot && now - session.lastScreenshotTime < minTimeBetweenScreenshots) {
+        // If called too frequently, send the previous screenshot
         if (session.lastScreenshotPath && fs.existsSync(session.lastScreenshotPath)) {
           return res.sendFile(session.lastScreenshotPath, {}, (err) => {
             if (err) console.error('Error sending cached screenshot:', err);
@@ -469,47 +599,35 @@ app.get('/api/puppeteer/session/:sessionId/screenshot', async (req, res) => {
         }
       }
       
-      // Check current page content hash to detect if page actually changed
-      const pageContent = await session.page.evaluate(() => {
-        // Get simplified DOM to detect real changes
-        return document.body.innerHTML.replace(/\s+/g, ' ').trim().slice(0, 1000);
-      });
-      
-      // Generate simple hash of page content
-      const crypto = require('crypto');
-      const contentHash = crypto.createHash('md5').update(pageContent).digest('hex');
+      // Check if page has changed to avoid redundant screenshots
+      const contentHash = await getPageContentHash(session.page);
       
       // If content hasn't changed and not forced, reuse last screenshot
-      if (contentHash === session.lastScreenshotHash && 
+      if (!forceNewScreenshot && 
+          contentHash === session.lastScreenshotHash && 
           session.lastScreenshotPath && 
-          fs.existsSync(session.lastScreenshotPath) &&
-          !req.query.force) {
-          
+          fs.existsSync(session.lastScreenshotPath)) {
+        
         session.consecutiveDuplicates++;
+        session.lastScreenshotTime = now;
         
-        // Only log every few duplicates to reduce noise
-        if (session.consecutiveDuplicates % 5 === 0) {
-          console.log(`📸 Skipping identical screenshot (${session.consecutiveDuplicates} consecutive duplicates)`);
-        }
-        
-        // After too many duplicates, force a new screenshot anyway as failsafe
-        if (session.consecutiveDuplicates > 15) {
-          console.log(`📸 Forcing new screenshot after ${session.consecutiveDuplicates} duplicates`);
-        } else {
-          // Send the previous screenshot
-          session.lastScreenshotTime = now;
+        // Only take new screenshot after many duplicates as failsafe
+        if (session.consecutiveDuplicates < 10) {
           return res.sendFile(session.lastScreenshotPath, {}, (err) => {
             if (err) console.error('Error sending cached screenshot:', err);
           });
+        } else {
+          // Reset counter and force a new screenshot
+          session.consecutiveDuplicates = 0;
         }
       }
       
-      // If content changed, take a new screenshot
-      const screenshotPath = path.join(screenshotsDir, `${sessionId}-${Date.now()}.png`);
+      // Take a new screenshot - OPTIMIZED FOR SPEED
+      const screenshotPath = path.join(screenshotsDir, `${sessionId}-${Date.now()}.jpg`);
       await session.page.screenshot({ 
         path: screenshotPath, 
         fullPage: false,
-        quality: 75,  // Lower quality = faster transfer
+        quality: 80,  // Balanced quality/speed
         type: 'jpeg'  // JPEG is faster than PNG
       });
       
@@ -544,6 +662,38 @@ app.get('/api/puppeteer/session/:sessionId/screenshot', async (req, res) => {
   }
 });
 
+// Helper function to get content hash for change detection
+async function getPageContentHash(page) {
+  try {
+    // Get simplified DOM hash to detect real changes
+    const contentSignature = await page.evaluate(() => {
+      // Focus on visible, important content
+      const visibleText = Array.from(document.querySelectorAll('h1, h2, h3, p, input, button'))
+        .filter(el => {
+          const style = window.getComputedStyle(el);
+          return style.display !== 'none' && style.visibility !== 'hidden';
+        })
+        .map(el => {
+          if (el.tagName === 'INPUT') {
+            return `input:${el.value || ''}`;
+          }
+          return el.textContent;
+        })
+        .join('|').slice(0, 1000);
+      
+      // Add URL to make sure we detect page changes
+      return document.location.href + '|' + visibleText;
+    });
+    
+    // Create hash of the content
+    return crypto.createHash('md5').update(contentSignature).digest('hex');
+  } catch (error) {
+    console.error('Error generating content hash:', error);
+    // Return timestamp as fallback to force screenshot refresh
+    return Date.now().toString();
+  }
+}
+
 // Navigate to URL
 app.post('/api/puppeteer/session/:sessionId/navigate', async (req, res) => {
   const { sessionId } = req.params;
@@ -557,6 +707,22 @@ app.post('/api/puppeteer/session/:sessionId/navigate', async (req, res) => {
     try {
       const session = sessions.get(sessionId);
       
+      // Stop any active typing
+      if (session.streaming && session.streaming.typingInterval) {
+        clearInterval(session.streaming.typingInterval);
+        session.streaming.isTyping = false;
+        session.streaming.textBuffer = '';
+        session.streaming.targetText = '';
+      }
+      
+      // Update typing status
+      typingStatus.set(sessionId, {
+        isTyping: false,
+        text: '',
+        selector: null,
+        timestamp: Date.now()
+      });
+      
       // Validate and format URL
       let formattedUrl = url;
       if (!url.startsWith('http://') && !url.startsWith('https://')) {
@@ -565,33 +731,10 @@ app.post('/api/puppeteer/session/:sessionId/navigate', async (req, res) => {
       
       console.log(`🌐 NAVIGATING TO URL: ${formattedUrl}`);
       
-      // ADVANCED ANTI-CAPTCHA NAVIGATION
-      await session.page.evaluateOnNewDocument(() => {
-        window.navigator.chrome = {
-          runtime: {}
-        };
-        
-        // Randomize screen dimensions slightly
-        Object.defineProperty(window.screen, 'width', {
-          get: function() { return 1280 + Math.floor(Math.random() * 20); }
-        });
-        Object.defineProperty(window.screen, 'height', {
-          get: function() { return 800 + Math.floor(Math.random() * 20); }
-        });
-        
-        // Simulate real browser behavior
-        const originalQuery = window.navigator.permissions.query;
-        window.navigator.permissions.query = (parameters) => (
-          parameters.name === 'notifications' ?
-            Promise.resolve({ state: Notification.permission }) :
-            originalQuery(parameters)
-        );
-      });
-      
-      // Navigate to URL
+      // ENHANCED NAVIGATION WITH PROGRESS TRACKING
       await session.page.goto(formattedUrl, {
         waitUntil: 'networkidle2',
-        timeout: 60000
+        timeout: 30000
       });
       
       // Update session data
@@ -599,6 +742,49 @@ app.post('/api/puppeteer/session/:sessionId/navigate', async (req, res) => {
       session.url = formattedUrl;
       session.status = 'navigated';
       session.performance.navigationCount++;
+      
+      // Create a page interaction animation
+      await session.page.evaluate(() => {
+        // Create a navigation feedback overlay
+        const overlay = document.createElement('div');
+        overlay.style.cssText = `
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          height: 3px;
+          background: #3b82f6;
+          z-index: 9999;
+          animation: loadBar 0.5s ease-out forwards;
+        `;
+        
+        // Add animation keyframes
+        const style = document.createElement('style');
+        style.innerHTML = `
+          @keyframes loadBar {
+            0% { width: 0; }
+            100% { width: 100%; }
+          }
+        `;
+        document.head.appendChild(style);
+        document.body.appendChild(overlay);
+        
+        // Remove after animation
+        setTimeout(() => {
+          if (overlay.parentNode) {
+            overlay.parentNode.removeChild(overlay);
+          }
+        }, 600);
+      });
+      
+      // Take a screenshot after navigation
+      const screenshotPath = path.join(screenshotsDir, `${sessionId}-navigate-${Date.now()}.jpg`);
+      await session.page.screenshot({ 
+        path: screenshotPath, 
+        fullPage: false,
+        type: 'jpeg',
+        quality: 80
+      });
       
       console.log(`✅ NAVIGATION COMPLETE: ${formattedUrl}`);
       
@@ -608,6 +794,21 @@ app.post('/api/puppeteer/session/:sessionId/navigate', async (req, res) => {
       });
     } catch (error) {
       console.error(`💥 ERROR navigating to URL in session ${sessionId}:`, error);
+      
+      // Try to capture current state even after error
+      try {
+        const session = sessions.get(sessionId);
+        const screenshotPath = path.join(screenshotsDir, `${sessionId}-navigate-error-${Date.now()}.jpg`);
+        await session.page.screenshot({ 
+          path: screenshotPath, 
+          fullPage: false,
+          type: 'jpeg',
+          quality: 70 
+        });
+      } catch (screenshotError) {
+        console.error('Error capturing error screenshot:', screenshotError);
+      }
+      
       res.status(500).json({ error: error.message });
     }
   } else {
@@ -615,7 +816,31 @@ app.post('/api/puppeteer/session/:sessionId/navigate', async (req, res) => {
   }
 });
 
-// 💪 FORTIFIED BROWSER ACTION EXECUTOR - ENHANCED FOR REALTIME ACTIONS!
+// REAL-TIME Get typing status endpoint
+app.get('/api/puppeteer/session/:sessionId/typing-status', async (req, res) => {
+  const { sessionId } = req.params;
+  
+  if (sessions.has(sessionId)) {
+    try {
+      // Get the latest typing status
+      const typing = typingStatus.get(sessionId) || { 
+        isTyping: false, 
+        text: '', 
+        selector: null,
+        timestamp: Date.now()
+      };
+      
+      res.status(200).json(typing);
+    } catch (error) {
+      console.error('Error getting typing status:', error);
+      res.status(500).json({ error: error.message });
+    }
+  } else {
+    res.status(404).json({ error: 'Session not found' });
+  }
+});
+
+// 💪 ULTIMATE BROWSER ACTION EXECUTOR - ENHANCED FOR REAL-TIME FEEDBACK!
 app.post('/api/puppeteer/session/:sessionId/action', async (req, res) => {
   const { sessionId } = req.params;
   const action = req.body;
@@ -656,7 +881,73 @@ app.post('/api/puppeteer/session/:sessionId/action', async (req, res) => {
             
             console.log(`🌐 NAVIGATING TO: ${formattedUrl}`);
             
-            // POWER NAVIGATION with TIMEOUT SAFEGUARDS!
+            // Stop any active typing
+            if (session.streaming && session.streaming.typingInterval) {
+              clearInterval(session.streaming.typingInterval);
+              session.streaming.isTyping = false;
+              session.streaming.textBuffer = '';
+              session.streaming.targetText = '';
+            }
+            
+            // Update typing status
+            typingStatus.set(sessionId, {
+              isTyping: false,
+              text: '',
+              selector: null,
+              timestamp: Date.now()
+            });
+            
+            // POWER NAVIGATION with VISUAL FEEDBACK!
+            await session.page.evaluate((url) => {
+              // Show navigation feedback
+              const overlay = document.createElement('div');
+              overlay.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 3px;
+                background: #3b82f6;
+                z-index: 9999;
+                animation: loadBar 0.5s ease-out forwards;
+              `;
+              
+              // Add animation keyframes
+              const style = document.createElement('style');
+              style.innerHTML = `
+                @keyframes loadBar {
+                  0% { width: 0; }
+                  100% { width: 100%; }
+                }
+              `;
+              document.head.appendChild(style);
+              document.body.appendChild(overlay);
+              
+              // Create status indicator
+              const status = document.createElement('div');
+              status.style.cssText = `
+                position: fixed;
+                bottom: 10px;
+                right: 10px;
+                padding: 8px 12px;
+                background: rgba(59, 130, 246, 0.9);
+                color: white;
+                border-radius: 4px;
+                font-family: sans-serif;
+                font-size: 12px;
+                z-index: 9999;
+              `;
+              status.textContent = `Navigating to ${url}...`;
+              document.body.appendChild(status);
+              
+              // Remove after animation
+              setTimeout(() => {
+                if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+                if (status.parentNode) status.parentNode.removeChild(status);
+              }, 1000);
+            }, formattedUrl);
+            
+            // Perform navigation
             await session.page.goto(formattedUrl, {
               waitUntil: 'networkidle2',
               timeout: 30000
@@ -668,6 +959,20 @@ app.post('/api/puppeteer/session/:sessionId/action', async (req, res) => {
             session.performance.navigationCount++;
           } catch (navError) {
             console.error(`⚠️ Navigation error but CONTINUING:`, navError);
+            
+            // Try to capture current state even after error
+            try {
+              const screenshotPath = path.join(screenshotsDir, `${sessionId}-navigate-error-${Date.now()}.jpg`);
+              await session.page.screenshot({ 
+                path: screenshotPath, 
+                fullPage: false,
+                type: 'jpeg',
+                quality: 70 
+              });
+            } catch (screenshotError) {
+              console.error('Error capturing error screenshot:', screenshotError);
+            }
+            
             // SUPER-RESILIENT: Don't fail completely, try to recover!
             return res.status(200).json({
               status: 'warning',
@@ -689,18 +994,96 @@ app.post('/api/puppeteer/session/:sessionId/action', async (req, res) => {
                 await session.page.evaluate((selector) => {
                   const element = document.querySelector(selector);
                   if (element) {
-                    // Save original styles
-                    const originalOutline = element.style.outline;
-                    const originalTransition = element.style.transition;
+                    // Get element position for cursor animation
+                    const rect = element.getBoundingClientRect();
                     
-                    // Add highlight effect
-                    element.style.outline = '3px solid #ff5733';
-                    element.style.transition = 'all 0.3s ease';
+                    // Create cursor element
+                    const cursor = document.createElement('div');
+                    cursor.style.cssText = `
+                      position: fixed;
+                      width: 20px;
+                      height: 20px;
+                      background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"></path></svg>');
+                      background-size: contain;
+                      background-repeat: no-repeat;
+                      z-index: 9999;
+                      pointer-events: none;
+                      transform-origin: top left;
+                    `;
+                    document.body.appendChild(cursor);
                     
-                    // Revert after a delay
+                    // Animate cursor to element
+                    const startX = window.innerWidth * 0.7;
+                    const startY = window.innerHeight * 0.3;
+                    const targetX = rect.left + rect.width/2;
+                    const targetY = rect.top + rect.height/2;
+                    
+                    cursor.style.left = `${startX}px`;
+                    cursor.style.top = `${startY}px`;
+                    
+                    // Add animation
+                    cursor.animate([
+                      { left: `${startX}px`, top: `${startY}px` },
+                      { left: `${targetX}px`, top: `${targetY}px` }
+                    ], {
+                      duration: 500,
+                      easing: 'cubic-bezier(0.22, 1, 0.36, 1)',
+                      fill: 'forwards'
+                    });
+                    
+                    // Simulate click after cursor reaches target
                     setTimeout(() => {
-                      element.style.outline = originalOutline;
-                      element.style.transition = originalTransition;
+                      // Add click animation
+                      cursor.animate([
+                        { transform: 'scale(1)' },
+                        { transform: 'scale(0.8)' },
+                        { transform: 'scale(1)' }
+                      ], {
+                        duration: 300,
+                        easing: 'ease-in-out'
+                      });
+                      
+                      // Add element highlight effect
+                      const originalOutline = element.style.outline;
+                      const originalTransition = element.style.transition;
+                      
+                      element.style.outline = '3px solid #ef4444';
+                      element.style.transition = 'all 0.3s ease';
+                      
+                      // Create ripple effect
+                      const ripple = document.createElement('div');
+                      ripple.style.cssText = `
+                        position: fixed;
+                        left: ${targetX}px;
+                        top: ${targetY}px;
+                        width: 20px;
+                        height: 20px;
+                        background-color: rgba(239, 68, 68, 0.6);
+                        border-radius: 50%;
+                        transform: translate(-50%, -50%);
+                        pointer-events: none;
+                        z-index: 9998;
+                      `;
+                      document.body.appendChild(ripple);
+                      
+                      // Animate ripple
+                      ripple.animate([
+                        { transform: 'translate(-50%, -50%) scale(1)', opacity: 1 },
+                        { transform: 'translate(-50%, -50%) scale(3)', opacity: 0 }
+                      ], {
+                        duration: 500,
+                        easing: 'ease-out',
+                        fill: 'forwards'
+                      });
+                      
+                      // Remove effects after animation
+                      setTimeout(() => {
+                        element.style.outline = originalOutline;
+                        element.style.transition = originalTransition;
+                        
+                        if (cursor.parentNode) cursor.parentNode.removeChild(cursor);
+                        if (ripple.parentNode) ripple.parentNode.removeChild(ripple);
+                      }, 500);
                     }, 500);
                   }
                 }, action.selector);
@@ -718,13 +1101,42 @@ app.post('/api/puppeteer/session/:sessionId/action', async (req, res) => {
                   const element = document.querySelector(selector);
                   if (element) {
                     // Visual click effect
-                    const originalBackgroundColor = element.style.backgroundColor;
-                    element.style.backgroundColor = 'rgba(255, 87, 51, 0.3)';
+                    const rect = element.getBoundingClientRect();
+                    
+                    // Create ripple effect
+                    const ripple = document.createElement('div');
+                    ripple.style.cssText = `
+                      position: fixed;
+                      left: ${rect.left + rect.width/2}px;
+                      top: ${rect.top + rect.height/2}px;
+                      width: 20px;
+                      height: 20px;
+                      background-color: rgba(239, 68, 68, 0.6);
+                      border-radius: 50%;
+                      transform: translate(-50%, -50%);
+                      pointer-events: none;
+                      z-index: 9998;
+                    `;
+                    document.body.appendChild(ripple);
+                    
+                    // Animate ripple
+                    ripple.animate([
+                      { transform: 'translate(-50%, -50%) scale(1)', opacity: 1 },
+                      { transform: 'translate(-50%, -50%) scale(3)', opacity: 0 }
+                    ], {
+                      duration: 500,
+                      easing: 'ease-out',
+                      fill: 'forwards'
+                    });
                     
                     // Click with delay
                     setTimeout(() => {
-                      element.style.backgroundColor = originalBackgroundColor;
                       element.click();
+                      
+                      // Remove ripple after animation
+                      setTimeout(() => {
+                        if (ripple.parentNode) ripple.parentNode.removeChild(ripple);
+                      }, 500);
                     }, 200);
                     
                     return true;
@@ -742,55 +1154,186 @@ app.post('/api/puppeteer/session/:sessionId/action', async (req, res) => {
               
               const clickedByText = await session.page.evaluate((searchText) => {
                 // ENHANCED TEXT SEARCH - Mega-optimized!
-                const elements = [
-                  ...document.querySelectorAll('a, button, [role="button"], input[type="submit"], [role="link"], .btn'),
-                  ...document.querySelectorAll('div[onclick], span[onclick], p[onclick]')
-                ];
-                
+                // First try exact visible elements
+                const allElements = document.querySelectorAll('a, button, [role="button"], input[type="submit"], [role="link"], .btn, div[onclick], span[onclick], p[onclick], li, td, th');
                 const lowerSearchText = searchText.toLowerCase();
                 
-                for (const el of elements) {
+                // Find elements with matching text
+                const matchingElements = Array.from(allElements).filter(el => {
                   const text = el.innerText || el.textContent || el.value || '';
-                  if (text.toLowerCase().includes(lowerSearchText)) {
-                    // Add visual click effect
-                    const originalOutline = el.style.outline;
-                    el.style.outline = '3px solid #ff5733';
-                    
-                    // Click with delay
-                    setTimeout(() => {
-                      el.style.outline = originalOutline;
-                      el.click();
-                    }, 200);
-                    
-                    return true;
-                  }
-                }
+                  return text.toLowerCase().includes(lowerSearchText);
+                });
                 
-                // EXTRA ATTEMPT: Try partial matches
-                for (const el of elements) {
-                  const text = el.innerText || el.textContent || el.value || '';
-                  const words = lowerSearchText.split(' ');
-                  if (words.some(word => text.toLowerCase().includes(word))) {
-                    // Add visual click effect
-                    const originalOutline = el.style.outline;
-                    el.style.outline = '3px solid #ff5733';
+                // Sort matches by how well they match
+                matchingElements.sort((a, b) => {
+                  const aText = (a.innerText || a.textContent || a.value || '').toLowerCase();
+                  const bText = (b.innerText || b.textContent || b.value || '').toLowerCase();
+                  
+                  // Exact matches come first
+                  if (aText === lowerSearchText && bText !== lowerSearchText) return -1;
+                  if (bText === lowerSearchText && aText !== lowerSearchText) return 1;
+                  
+                  // Then partial matches by length (shorter is better)
+                  return aText.length - bText.length;
+                });
+                
+                if (matchingElements.length > 0) {
+                  const bestMatch = matchingElements[0];
+                  
+                  // Get element position for visual effects
+                  const rect = bestMatch.getBoundingClientRect();
+                  
+                  // Create ripple effect
+                  const ripple = document.createElement('div');
+                  ripple.style.cssText = `
+                    position: fixed;
+                    left: ${rect.left + rect.width/2}px;
+                    top: ${rect.top + rect.height/2}px;
+                    width: 20px;
+                    height: 20px;
+                    background-color: rgba(239, 68, 68, 0.6);
+                    border-radius: 50%;
+                    transform: translate(-50%, -50%);
+                    pointer-events: none;
+                    z-index: 9998;
+                  `;
+                  document.body.appendChild(ripple);
+                  
+                  // Animate ripple
+                  ripple.animate([
+                    { transform: 'translate(-50%, -50%) scale(1)', opacity: 1 },
+                    { transform: 'translate(-50%, -50%) scale(3)', opacity: 0 }
+                  ], {
+                    duration: 500,
+                    easing: 'ease-out',
+                    fill: 'forwards'
+                  });
+                  
+                  // Create highlight around element
+                  const highlight = document.createElement('div');
+                  highlight.style.cssText = `
+                    position: fixed;
+                    left: ${rect.left}px;
+                    top: ${rect.top}px;
+                    width: ${rect.width}px;
+                    height: ${rect.height}px;
+                    outline: 3px solid #ef4444;
+                    pointer-events: none;
+                    z-index: 9997;
+                  `;
+                  document.body.appendChild(highlight);
+                  
+                  // Click with delay
+                  setTimeout(() => {
+                    bestMatch.click();
                     
-                    // Click with delay
+                    // Remove effects after animation
                     setTimeout(() => {
-                      el.style.outline = originalOutline;
-                      el.click();
-                    }, 200);
-                    
-                    return true;
-                  }
+                      if (ripple.parentNode) ripple.parentNode.removeChild(ripple);
+                      if (highlight.parentNode) highlight.parentNode.removeChild(highlight);
+                    }, 500);
+                  }, 300);
+                  
+                  return true;
                 }
                 
                 return false;
               }, action.text);
               
               if (!clickedByText) {
-                console.log(`⚠️ Could not find element with text: ${action.text}, but continuing`);
-                // Keep going anyway!
+                console.log(`⚠️ Could not find element with text: ${action.text}, attempting search result click`);
+                
+                // Special handling for search results
+                const clickedSearchResult = await session.page.evaluate((searchText) => {
+                  // Create helper function to find search results
+                  function findSearchResults() {
+                    // Google search results
+                    const googleResults = document.querySelectorAll('#search .g, .yuRUbf > a, .rc .r a, .tF2Cxc, .jtfYYd, [data-header-feature] a');
+                    if (googleResults.length > 0) return Array.from(googleResults);
+                    
+                    // Fallback to any links in the page
+                    return Array.from(document.querySelectorAll('a[href]:not([href^="#"])'))
+                      .filter(a => {
+                        // Filter for visible links with text
+                        const rect = a.getBoundingClientRect();
+                        const hasSize = rect.width > 0 && rect.height > 0;
+                        const hasText = (a.innerText || a.textContent || '').trim().length > 0;
+                        return hasSize && hasText;
+                      });
+                  }
+                  
+                  const searchResults = findSearchResults();
+                  const lowerSearchText = searchText.toLowerCase();
+                  
+                  for (const result of searchResults) {
+                    const resultText = (result.innerText || result.textContent || '').toLowerCase();
+                    if (resultText.includes(lowerSearchText)) {
+                      // Get element position for visual effects
+                      const rect = result.getBoundingClientRect();
+                      
+                      // Create ripple effect
+                      const ripple = document.createElement('div');
+                      ripple.style.cssText = `
+                        position: fixed;
+                        left: ${rect.left + rect.width/2}px;
+                        top: ${rect.top + rect.height/2}px;
+                        width: 20px;
+                        height: 20px;
+                        background-color: rgba(239, 68, 68, 0.6);
+                        border-radius: 50%;
+                        transform: translate(-50%, -50%);
+                        pointer-events: none;
+                        z-index: 9998;
+                      `;
+                      document.body.appendChild(ripple);
+                      
+                      // Animate ripple
+                      ripple.animate([
+                        { transform: 'translate(-50%, -50%) scale(1)', opacity: 1 },
+                        { transform: 'translate(-50%, -50%) scale(3)', opacity: 0 }
+                      ], {
+                        duration: 500,
+                        easing: 'ease-out',
+                        fill: 'forwards'
+                      });
+                      
+                      // Create highlight around element
+                      const highlight = document.createElement('div');
+                      highlight.style.cssText = `
+                        position: fixed;
+                        left: ${rect.left}px;
+                        top: ${rect.top}px;
+                        width: ${rect.width}px;
+                        height: ${rect.height}px;
+                        outline: 3px solid #ef4444;
+                        pointer-events: none;
+                        z-index: 9997;
+                      `;
+                      document.body.appendChild(highlight);
+                      
+                      // Click with delay
+                      setTimeout(() => {
+                        result.click();
+                        
+                        // Remove effects after animation
+                        setTimeout(() => {
+                          if (ripple.parentNode) ripple.parentNode.removeChild(ripple);
+                          if (highlight.parentNode) highlight.parentNode.removeChild(highlight);
+                        }, 500);
+                      }, 300);
+                      
+                      return true;
+                    }
+                  }
+                  
+                  return false;
+                }, action.text);
+                
+                if (!clickedSearchResult) {
+                  console.log(`⚠️ Could not find search result with text: ${action.text}, but continuing`);
+                } else {
+                  console.log(`✅ CLICKED SEARCH RESULT with text containing: ${action.text}`);
+                }
               } else {
                 console.log(`✅ CLICKED ELEMENT with text: ${action.text}`);
               }
@@ -800,7 +1343,7 @@ app.post('/api/puppeteer/session/:sessionId/action', async (req, res) => {
             
             session.performance.clickCount++;
             
-            // Wait for potential page load
+            // Wait for potential page load - but with shorter timeout
             try {
               await session.page.waitForNavigation({ timeout: 5000, waitUntil: 'networkidle2' });
             } catch (navTimeoutError) {
@@ -809,6 +1352,20 @@ app.post('/api/puppeteer/session/:sessionId/action', async (req, res) => {
             }
           } catch (clickActionError) {
             console.error(`⚠️ Click error but CONTINUING:`, clickActionError);
+            
+            // Try to capture current state even after error
+            try {
+              const screenshotPath = path.join(screenshotsDir, `${sessionId}-click-error-${Date.now()}.jpg`);
+              await session.page.screenshot({ 
+                path: screenshotPath, 
+                fullPage: false,
+                type: 'jpeg',
+                quality: 70 
+              });
+            } catch (screenshotError) {
+              console.error('Error capturing error screenshot:', screenshotError);
+            }
+            
             // SUPER-RESILIENT: Don't fail completely!
             return res.status(200).json({
               status: 'warning',
@@ -826,10 +1383,24 @@ app.post('/api/puppeteer/session/:sessionId/action', async (req, res) => {
               return res.status(400).json({ error: 'Text is required for type action' });
             }
             
+            // Stop any previous typing
+            if (session.streaming && session.streaming.typingInterval) {
+              clearInterval(session.streaming.typingInterval);
+            }
+            
             // Set up session streaming status for REAL-TIME TYPING!
             session.streaming.isTyping = true;
             session.streaming.currentSelector = action.selector;
             session.streaming.textBuffer = '';
+            session.streaming.targetText = action.text;
+            
+            // Update typing status for status endpoint
+            typingStatus.set(sessionId, {
+              isTyping: true,
+              text: '',
+              selector: action.selector,
+              timestamp: Date.now()
+            });
             
             // GOOGLE SEARCH BOX SPECIAL HANDLING - SUPERCHARGED! 🔥
             if (action.selector === 'input[name="q"]' || 
@@ -838,194 +1409,139 @@ app.post('/api/puppeteer/session/:sessionId/action', async (req, res) => {
               
               console.log(`🔍 SPECIAL HANDLING for search input: "${action.text}"`);
               
-              // TURBOCHARGED GOOGLE SEARCH HANDLING!
               try {
-                // ULTRA-RELIABLE DIRECT INJECTION APPROACH
-                const injectionSuccess = await session.page.evaluate((searchText) => {
-                  try {
-                    // Look for ANY visible input that might be a search box
-                    const inputs = Array.from(document.querySelectorAll('input:not([type="hidden"]), textarea'));
-                    const searchInputs = inputs.filter(el => {
-                      const isVisible = el.offsetWidth > 0 && el.offsetHeight > 0;
-                      const isSearchLike = (
-                        el.name === 'q' || 
-                        el.id?.includes('search') || 
-                        el.placeholder?.toLowerCase().includes('search') ||
-                        el.className?.toLowerCase().includes('search') ||
-                        el.ariaLabel?.toLowerCase().includes('search')
-                      );
-                      
-                      return isVisible && isSearchLike;
-                    });
+                // First, clear the input and focus it with visual effects
+                await session.page.evaluate((selector) => {
+                  const searchInput = document.querySelector(selector);
+                  if (searchInput) {
+                    // Focus the input with visual effect
+                    searchInput.focus();
                     
-                    if (searchInputs.length > 0) {
-                      // Found a search input!
-                      const searchInput = searchInputs[0];
-                      
-                      // Focus with dramatic effect
-                      searchInput.focus();
-                      searchInput.style.boxShadow = '0 0 0 2px rgba(59, 130, 246, 0.7)';
-                      
-                      // Clear any existing text
-                      searchInput.value = '';
-                      
-                      // Dispatch focus/select events
-                      searchInput.dispatchEvent(new Event('focus', { bubbles: true }));
-                      searchInput.dispatchEvent(new Event('select', { bubbles: true }));
-                      
-                      // Set value directly - INSTANT TYPING!
-                      searchInput.value = searchText;
-                      
-                      // Trigger input events to ensure JS detects the change
-                      searchInput.dispatchEvent(new Event('input', { bubbles: true }));
-                      searchInput.dispatchEvent(new Event('change', { bubbles: true }));
-                      
-                      // Return success with details
-                      return {
-                        success: true,
-                        selector: searchInput.tagName.toLowerCase() + 
-                                 (searchInput.id ? `#${searchInput.id}` : '') +
-                                 (searchInput.name ? `[name="${searchInput.name}"]` : '')
-                      };
-                    }
-                    return { success: false, reason: "No visible search inputs found" };
-                  } catch (err) {
-                    return { success: false, error: err.toString() };
-                  }
-                }, action.text);
-                
-                if (injectionSuccess.success) {
-                  console.log(`🔥 DIRECT INJECTION SUCCESSFUL into ${injectionSuccess.selector}`);
-                  typeSuccess = true;
-                  
-                  // Take screenshot of the successful typing
-                  const screenshotPath = path.join(screenshotsDir, `${sessionId}-typing-success-${Date.now()}.png`);
-                  await session.page.screenshot({ 
-                    path: screenshotPath, 
-                    fullPage: false,
-                    type: 'jpeg',
-                    quality: 80
-                  });
-                  
-                  // Add small delay to simulate "finishing typing"
-                  await new Promise(r => setTimeout(r, 300));
-                } else {
-                  console.log("⚠️ Direct injection failed, falling back to traditional typing");
-                }
-              } catch (directError) {
-                console.error("💥 Error during direct injection:", directError);
-              }
-              
-              // If direct injection failed, try traditional selectors
-              if (!typeSuccess) {
-                // Try multiple selector strategies
-                const searchBoxSelectors = [
-                  'input[name="q"]',
-                  'input[title="Search"]',
-                  'input.gLFyf',
-                  'textarea[name="q"]',
-                  'input[type="search"]',
-                  'input.search-box',
-                  'input.searchbox',
-                  'input#search',
-                  '[role="search"] input',
-                  'form input[type="text"]', // Generic fallback
-                  'input:not([type="hidden"])' // Last resort
-                ];
-                
-                let typeSuccess = false;
-                let effectiveSelector = null;
-                
-                for (const selector of searchBoxSelectors) {
-                  try {
-                    const elementExists = await session.page.evaluate(
-                      selector => !!document.querySelector(selector),
-                      selector
-                    );
+                    // Add visual focus effect
+                    const originalBoxShadow = searchInput.style.boxShadow;
+                    searchInput.style.boxShadow = '0 0 0 2px rgba(59, 130, 246, 0.7)';
                     
-                    if (elementExists) {
-                      effectiveSelector = selector;
-                      
-                      // CRITICAL: Wait for element to be properly loaded
-                      await session.page.waitForSelector(selector, { timeout: 2000 });
-                      
-                      // Clear existing text first
-                      await session.page.evaluate(
-                        selector => { 
-                          const element = document.querySelector(selector);
-                          if (element) {
-                            element.value = '';
-                            // Force clear
-                            element.setAttribute('value', '');
-                          }
-                        },
-                        selector
-                      );
-                      
-                      // Focus element with click first to ensure activation
-                      await session.page.click(selector, { clickCount: 3 }); // Triple click to select all text
-                      
-                      // Add visible focus effect
-                      await session.page.evaluate((selector) => {
-                        const element = document.querySelector(selector);
-                        if (element) {
-                          element.focus();
-                          
-                          // Add visual focus effect
-                          const originalBoxShadow = element.style.boxShadow;
-                          element.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.7)';
-                          
-                          setTimeout(() => {
-                            element.style.boxShadow = originalBoxShadow;
-                          }, 600);
-                        }
-                      }, selector);
-              
-              // If all selectors failed, try direct JavaScript injection
-              if (!typeSuccess) {
-                console.log(`⚠️ All selectors failed, trying JavaScript injection!`);
-                
-                typeSuccess = await session.page.evaluate((text) => {
-                  const inputs = document.querySelectorAll('input, textarea');
-                  for (const input of inputs) {
-                    if (input.type !== 'hidden' && input.offsetParent !== null) {
-                      // Add visual focus effect
-                      input.focus();
-                      const originalBoxShadow = input.style.boxShadow;
-                      input.style.boxShadow = '0 0 0 2px rgba(59, 130, 246, 0.5)';
-                      
-                      setTimeout(() => {
-                        input.style.boxShadow = originalBoxShadow;
-                      }, 600);
-                      
-                      // Set value and dispatch events
-                      input.value = text;
-                      input.dispatchEvent(new Event('input', { bubbles: true }));
-                      return true;
-                    }
+                    // Clear the input field
+                    searchInput.value = '';
+                    
+                    // Dispatch events for clearing
+                    searchInput.dispatchEvent(new Event('input', { bubbles: true }));
+                    
+                    // Return true to indicate success
+                    return true;
                   }
                   return false;
-                }, action.text);
-              }
-              
-              // Update session after typing
-              session.streaming.isTyping = false;
-              session.streaming.textBuffer = '';
-              
-              if (!typeSuccess) {
+                }, action.selector);
+                
+                // REAL-TIME CHARACTER-BY-CHARACTER TYPING! 🔤
+                let currentText = '';
+                let charIndex = 0;
+                
+                // Setup typing interval for real-time updates
+                session.streaming.typingInterval = setInterval(async () => {
+                  if (charIndex < action.text.length) {
+                    const char = action.text[charIndex];
+                    currentText += char;
+                    charIndex++;
+                    
+                    // Update streaming status
+                    session.streaming.textBuffer = currentText;
+                    
+                    // Update global typing status for status endpoint
+                    typingStatus.set(sessionId, {
+                      isTyping: true,
+                      text: currentText,
+                      selector: action.selector,
+                      timestamp: Date.now()
+                    });
+                    
+                    // Type the current character in the browser
+                    try {
+                      await session.page.evaluate((selector, text) => {
+                        const input = document.querySelector(selector);
+                        if (input) {
+                          input.value = text;
+                          input.dispatchEvent(new Event('input', { bubbles: true }));
+                          return true;
+                        }
+                        return false;
+                      }, action.selector, currentText);
+                    } catch (typeError) {
+                      console.error('Error during character typing:', typeError);
+                      // Continue typing even if this character fails
+                    }
+                  } else {
+                    // Typing complete
+                    clearInterval(session.streaming.typingInterval);
+                    session.streaming.typingInterval = null;
+                    session.streaming.isTyping = false;
+                    
+                    // Update typing status
+                    typingStatus.set(sessionId, {
+                      isTyping: false,
+                      text: currentText,
+                      selector: action.selector,
+                      timestamp: Date.now()
+                    });
+                    
+                    console.log(`✅ COMPLETED TYPING: "${action.text}"`);
+                  }
+                }, session.streaming.typingSpeed);
+                
+                // Return success immediately rather than waiting for typing to complete
                 return res.status(200).json({
-                  status: 'warning',
-                  message: 'Could not find search input, but continuing'
+                  status: 'typing_in_progress',
+                  selector: action.selector,
+                  text: action.text
                 });
+              } catch (searchBoxError) {
+                console.error('Error with search box typing:', searchBoxError);
+                
+                // Stop any ongoing typing
+                if (session.streaming && session.streaming.typingInterval) {
+                  clearInterval(session.streaming.typingInterval);
+                  session.streaming.typingInterval = null;
+                }
+                
+                // Reset typing status
+                session.streaming.isTyping = false;
+                typingStatus.set(sessionId, {
+                  isTyping: false,
+                  text: '',
+                  selector: null,
+                  timestamp: Date.now()
+                });
+                
+                // Try a more direct approach as fallback
+                try {
+                  await session.page.type(action.selector, action.text);
+                  console.log(`✅ TYPED TEXT using fallback: "${action.text}"`);
+                  
+                  session.performance.typeCount++;
+                  return res.status(200).json({
+                    status: 'typed_with_fallback',
+                    selector: action.selector,
+                    text: action.text
+                  });
+                } catch (fallbackError) {
+                  console.error('Fallback typing also failed:', fallbackError);
+                  throw fallbackError; // Let the outer catch handle it
+                }
               }
             } else {
-              // REGULAR INPUT FIELDS
+              // REGULAR INPUT FIELDS with real-time typing
               try {
                 await session.page.waitForSelector(action.selector, { timeout: 5000 });
                 
                 // Clear existing text first
                 await session.page.evaluate(
-                  selector => { document.querySelector(selector).value = '' },
+                  selector => { 
+                    const element = document.querySelector(selector);
+                    if (element) {
+                      element.value = '';
+                      element.dispatchEvent(new Event('input', { bubbles: true }));
+                    }
+                  },
                   action.selector
                 );
                 
@@ -1046,35 +1562,118 @@ app.post('/api/puppeteer/session/:sessionId/action', async (req, res) => {
                 }, action.selector);
                 
                 // REAL-TIME CHARACTER-BY-CHARACTER TYPING!
-                for (let i = 0; i < action.text.length; i++) {
-                  const char = action.text[i];
-                  
-                  // Update the buffer for status endpoint
-                  session.streaming.textBuffer = action.text.substring(0, i + 1);
-                  
-                  // Type the character with human-like delay
-                  await session.page.type(action.selector, char, { delay: 30 });
-                  
-                  // Take screenshots during typing
-                  if (i % 5 === 0 || i === action.text.length - 1) {
-                    const screenshotPath = path.join(screenshotsDir, `${sessionId}-typing-${Date.now()}.png`);
-                    await session.page.screenshot({ 
-                      path: screenshotPath, 
-                      fullPage: false,
-                      type: 'jpeg',
-                      quality: 75
+                let currentText = '';
+                let charIndex = 0;
+                
+                // Setup typing interval for real-time updates
+                session.streaming.typingInterval = setInterval(async () => {
+                  if (charIndex < action.text.length) {
+                    const char = action.text[charIndex];
+                    currentText += char;
+                    charIndex++;
+                    
+                    // Update streaming status
+                    session.streaming.textBuffer = currentText;
+                    
+                    // Update global typing status for status endpoint
+                    typingStatus.set(sessionId, {
+                      isTyping: true,
+                      text: currentText,
+                      selector: action.selector,
+                      timestamp: Date.now()
                     });
+                    
+                    // Type the current character in the browser
+                    try {
+                      await session.page.type(action.selector, char, { delay: 0 });
+                    } catch (typeError) {
+                      console.error('Error during character typing:', typeError);
+                      // Try fallback method if standard typing fails
+                      try {
+                        await session.page.evaluate((selector, text) => {
+                          const input = document.querySelector(selector);
+                          if (input) {
+                            input.value = text;
+                            input.dispatchEvent(new Event('input', { bubbles: true }));
+                          }
+                        }, action.selector, currentText);
+                      } catch (fallbackError) {
+                        console.error('Fallback typing method also failed:', fallbackError);
+                      }
+                    }
+                    
+                    // Take screenshot periodically during typing
+                    if (charIndex % 5 === 0) {
+                      try {
+                        const screenshotPath = path.join(screenshotsDir, `${sessionId}-typing-${Date.now()}.jpg`);
+                        await session.page.screenshot({ 
+                          path: screenshotPath, 
+                          fullPage: false,
+                          type: 'jpeg',
+                          quality: 75
+                        });
+                      } catch (screenshotError) {
+                        console.error('Error taking typing screenshot:', screenshotError);
+                      }
+                    }
+                  } else {
+                    // Typing complete
+                    clearInterval(session.streaming.typingInterval);
+                    session.streaming.typingInterval = null;
+                    session.streaming.isTyping = false;
+                    
+                    // Update typing status
+                    typingStatus.set(sessionId, {
+                      isTyping: false,
+                      text: currentText,
+                      selector: action.selector,
+                      timestamp: Date.now()
+                    });
+                    
+                    console.log(`✅ COMPLETED TYPING: "${action.text}"`);
+                    
+                    // Take final screenshot after typing
+                    try {
+                      const screenshotPath = path.join(screenshotsDir, `${sessionId}-typing-complete-${Date.now()}.jpg`);
+                      await session.page.screenshot({ 
+                        path: screenshotPath, 
+                        fullPage: false,
+                        type: 'jpeg',
+                        quality: 80
+                      });
+                    } catch (screenshotError) {
+                      console.error('Error taking final typing screenshot:', screenshotError);
+                    }
                   }
-                  
-                  // Randomized typing delay
-                  await new Promise(r => setTimeout(r, 30 + Math.random() * 50));
+                }, session.streaming.typingSpeed);
+                
+                // Return success immediately rather than waiting for typing to complete
+                return res.status(200).json({
+                  status: 'typing_in_progress',
+                  selector: action.selector,
+                  text: action.text
+                });
+              } catch (typeError) {
+                console.error('Initial typing setup failed:', typeError);
+                
+                // Stop any ongoing typing
+                if (session.streaming && session.streaming.typingInterval) {
+                  clearInterval(session.streaming.typingInterval);
+                  session.streaming.typingInterval = null;
                 }
                 
-                console.log(`✅ TYPED TEXT: "${action.text}"`);
-              } catch (typeError) {
+                // Reset typing status
+                session.streaming.isTyping = false;
+                typingStatus.set(sessionId, {
+                  isTyping: false,
+                  text: '',
+                  selector: null,
+                  timestamp: Date.now()
+                });
+                
+                // Try JavaScript injection as fallback
                 console.log(`⚠️ Standard typing failed, trying JavaScript injection...`);
                 
-                // Fallback to JavaScript injection
                 const typeSuccess = await session.page.evaluate(
                   (selector, text) => {
                     const el = document.querySelector(selector);
@@ -1104,19 +1703,61 @@ app.post('/api/puppeteer/session/:sessionId/action', async (req, res) => {
                     message: `Typing issue but continuing: Could not find element ${action.selector}`
                   });
                 }
+                
+                session.performance.typeCount++;
+                return res.status(200).json({
+                  status: 'typed_with_fallback',
+                  selector: action.selector,
+                  text: action.text
+                });
               }
             }
             
-            // Reset typing status
+            // This code is only reached if the character-by-character typing setup fails
             session.streaming.isTyping = false;
             session.streaming.textBuffer = '';
+            typingStatus.set(sessionId, {
+              isTyping: false,
+              text: '',
+              selector: null,
+              timestamp: Date.now()
+            });
+            
             session.performance.typeCount++;
+            
+            // Direct typing as final fallback
+            await session.page.type(action.selector, action.text, { delay: 20 });
+            
+            return res.status(200).json({
+              status: 'typed_direct',
+              selector: action.selector,
+              text: action.text
+            });
           } catch (typeActionError) {
             console.error(`⚠️ Type error but CONTINUING:`, typeActionError);
             
             // Reset typing status
             session.streaming.isTyping = false;
             session.streaming.textBuffer = '';
+            typingStatus.set(sessionId, {
+              isTyping: false,
+              text: '',
+              selector: null,
+              timestamp: Date.now()
+            });
+            
+            // Try to capture current state even after error
+            try {
+              const screenshotPath = path.join(screenshotsDir, `${sessionId}-type-error-${Date.now()}.jpg`);
+              await session.page.screenshot({ 
+                path: screenshotPath, 
+                fullPage: false,
+                type: 'jpeg',
+                quality: 70 
+              });
+            } catch (screenshotError) {
+              console.error('Error capturing error screenshot:', screenshotError);
+            }
             
             return res.status(200).json({
               status: 'warning',
@@ -1134,10 +1775,71 @@ app.post('/api/puppeteer/session/:sessionId/action', async (req, res) => {
             
             console.log(`📜 SCROLLING ${direction.toUpperCase()}: ${amount}px`);
             
-            // SMOOTH SCROLLING implementation for visual appeal!
+            // SMOOTH SCROLLING implementation with visual effects!
             await session.page.evaluate(({ direction, amount }) => {
+              // Create scroll indicator element
+              const createScrollIndicator = () => {
+                const indicator = document.createElement('div');
+                indicator.style.cssText = `
+                  position: fixed;
+                  right: 20px;
+                  top: 50%;
+                  width: 30px;
+                  height: 50px;
+                  background-color: rgba(59, 130, 246, 0.2);
+                  border-radius: 15px;
+                  display: flex;
+                  justify-content: center;
+                  align-items: center;
+                  z-index: 9999;
+                  transform: translateY(-50%);
+                  pointer-events: none;
+                `;
+                
+                // Create arrow element
+                const arrow = document.createElement('div');
+                arrow.style.cssText = `
+                  width: 12px;
+                  height: 12px;
+                  border-style: solid;
+                  border-width: 0 2px 2px 0;
+                  border-color: rgba(59, 130, 246, 0.8);
+                  transform: ${direction === 'down' ? 'rotate(45deg)' : 'rotate(-135deg)'};
+                  ${direction === 'down' ? 'margin-top: -5px;' : 'margin-bottom: -5px;'}
+                `;
+                
+                indicator.appendChild(arrow);
+                document.body.appendChild(indicator);
+                
+                // Animate arrow
+                let animateArrow;
+                if (direction === 'down') {
+                  animateArrow = [
+                    { transform: 'rotate(45deg) translate(0, 0)' },
+                    { transform: 'rotate(45deg) translate(0, 5px)' },
+                    { transform: 'rotate(45deg) translate(0, 0)' }
+                  ];
+                } else {
+                  animateArrow = [
+                    { transform: 'rotate(-135deg) translate(0, 0)' },
+                    { transform: 'rotate(-135deg) translate(0, -5px)' },
+                    { transform: 'rotate(-135deg) translate(0, 0)' }
+                  ];
+                }
+                
+                arrow.animate(animateArrow, {
+                  duration: 1000,
+                  iterations: Infinity
+                });
+                
+                return indicator;
+              };
+              
+              const scrollIndicator = createScrollIndicator();
+              
+              // Smooth scrolling animation
               return new Promise((resolve) => {
-                const duration = 500; // ms
+                const duration = 800; // ms
                 const start = window.scrollY;
                 let target = start;
                 
@@ -1162,7 +1864,13 @@ app.post('/api/puppeteer/session/:sessionId/action', async (req, res) => {
                   if (progress < 1) {
                     window.requestAnimationFrame(step);
                   } else {
-                    resolve();
+                    // Remove indicator after scrolling
+                    setTimeout(() => {
+                      if (scrollIndicator.parentNode) {
+                        scrollIndicator.parentNode.removeChild(scrollIndicator);
+                      }
+                      resolve();
+                    }, 200);
                   }
                 }
                 
@@ -1171,9 +1879,9 @@ app.post('/api/puppeteer/session/:sessionId/action', async (req, res) => {
             }, { direction, amount });
             
             // Take scrolling screenshots
-            for (let i = 0; i < 3; i++) {
+            for (let i = 0; i < 2; i++) {
               await new Promise(r => setTimeout(r, 150));
-              const screenshotPath = path.join(screenshotsDir, `${sessionId}-scroll-${i}-${Date.now()}.png`);
+              const screenshotPath = path.join(screenshotsDir, `${sessionId}-scroll-${i}-${Date.now()}.jpg`);
               await session.page.screenshot({ 
                 path: screenshotPath, 
                 fullPage: false,
@@ -1185,6 +1893,20 @@ app.post('/api/puppeteer/session/:sessionId/action', async (req, res) => {
             console.log(`✅ SCROLL COMPLETE`);
           } catch (scrollError) {
             console.error(`⚠️ Scroll error but CONTINUING:`, scrollError);
+            
+            // Try to capture current state even after error
+            try {
+              const screenshotPath = path.join(screenshotsDir, `${sessionId}-scroll-error-${Date.now()}.jpg`);
+              await session.page.screenshot({ 
+                path: screenshotPath, 
+                fullPage: false,
+                type: 'jpeg',
+                quality: 70 
+              });
+            } catch (screenshotError) {
+              console.error('Error capturing error screenshot:', screenshotError);
+            }
+            
             return res.status(200).json({
               status: 'warning',
               message: `Scroll issue but continuing: ${scrollError.message}`
@@ -1269,6 +1991,20 @@ app.post('/api/puppeteer/session/:sessionId/action', async (req, res) => {
             }
           } catch (submitError) {
             console.error(`⚠️ Submit error but CONTINUING:`, submitError);
+            
+            // Try to capture current state even after error
+            try {
+              const screenshotPath = path.join(screenshotsDir, `${sessionId}-submit-error-${Date.now()}.jpg`);
+              await session.page.screenshot({ 
+                path: screenshotPath, 
+                fullPage: false,
+                type: 'jpeg',
+                quality: 70 
+              });
+            } catch (screenshotError) {
+              console.error('Error capturing error screenshot:', screenshotError);
+            }
+            
             return res.status(200).json({
               status: 'warning',
               message: `Submit issue but continuing: ${submitError.message}`
@@ -1283,51 +2019,49 @@ app.post('/api/puppeteer/session/:sessionId/action', async (req, res) => {
             
             console.log(`⏱️ WAITING for ${duration}ms`);
             
-            // ADVANCED: Show visual timer on page for long waits
-            if (duration > 2000) {
-              await session.page.evaluate((duration) => {
-                // Create timer element
-                const timer = document.createElement('div');
-                timer.id = 'ai-agent-timer';
-                timer.style.cssText = `
-                  position: fixed;
-                  top: 20px;
-                  right: 20px;
-                  background: rgba(59, 130, 246, 0.8);
-                  color: white;
-                  padding: 10px 15px;
-                  border-radius: 8px;
-                  font-family: sans-serif;
-                  font-size: 14px;
-                  z-index: 9999;
-                  transition: opacity 0.3s ease;
-                `;
+            // Show visual timer on page for waits
+            await session.page.evaluate((duration) => {
+              // Create timer element
+              const timer = document.createElement('div');
+              timer.id = 'ai-agent-timer';
+              timer.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                background: rgba(59, 130, 246, 0.8);
+                color: white;
+                padding: 8px 12px;
+                border-radius: 4px;
+                font-family: sans-serif;
+                font-size: 12px;
+                z-index: 9999;
+                transition: opacity 0.3s ease;
+              `;
+              
+              // Add countdown display
+              timer.textContent = `Waiting: ${Math.ceil(duration/1000)}s`;
+              document.body.appendChild(timer);
+              
+              // Update timer
+              const startTime = Date.now();
+              const endTime = startTime + duration;
+              
+              const interval = setInterval(() => {
+                const remaining = Math.max(0, endTime - Date.now());
+                timer.textContent = `Waiting: ${Math.ceil(remaining/1000)}s`;
                 
-                // Calculate end time
-                const endTime = Date.now() + duration;
-                timer.textContent = `AI waiting: ${Math.ceil(duration/1000)}s`;
-                
-                // Add to page
-                document.body.appendChild(timer);
-                
-                // Update timer
-                const interval = setInterval(() => {
-                  const remaining = Math.max(0, endTime - Date.now());
-                  timer.textContent = `AI waiting: ${Math.ceil(remaining/1000)}s`;
-                  
-                  if (remaining <= 0) {
-                    clearInterval(interval);
-                    timer.style.opacity = 0;
-                    setTimeout(() => {
-                      if (timer.parentNode) {
-                        timer.parentNode.removeChild(timer);
-                      }
-                    }, 300);
-                  }
-                }, 100);
-                
-              }, duration);
-            }
+                if (remaining <= 0) {
+                  clearInterval(interval);
+                  timer.style.opacity = 0;
+                  setTimeout(() => {
+                    if (timer.parentNode) {
+                      timer.parentNode.removeChild(timer);
+                    }
+                  }, 300);
+                }
+              }, 100);
+              
+            }, duration);
             
             await new Promise(resolve => setTimeout(resolve, duration));
             
@@ -1382,40 +2116,68 @@ app.post('/api/puppeteer/session/:sessionId/action', async (req, res) => {
                     const checkbox = checkboxes[0];
                     const rect = checkbox.getBoundingClientRect();
                     
-                    // Create synthetic events
-                    const mouseOver = new MouseEvent('mouseover', {
-                      bubbles: true,
-                      cancelable: true,
-                      view: window,
-                      clientX: rect.left + rect.width / 2,
-                      clientY: rect.top + rect.height / 2
+                    // Create cursor element
+                    const cursor = document.createElement('div');
+                    cursor.style.cssText = `
+                      position: fixed;
+                      width: 20px;
+                      height: 20px;
+                      background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"></path></svg>');
+                      background-size: contain;
+                      background-repeat: no-repeat;
+                      z-index: 9999;
+                      pointer-events: none;
+                    `;
+                    document.body.appendChild(cursor);
+                    
+                    // Animate cursor to checkbox
+                    const startX = window.innerWidth * 0.7;
+                    const startY = window.innerHeight * 0.3;
+                    const targetX = rect.left + rect.width/2;
+                    const targetY = rect.top + rect.height/2;
+                    
+                    cursor.style.left = `${startX}px`;
+                    cursor.style.top = `${startY}px`;
+                    
+                    cursor.animate([
+                      { left: `${startX}px`, top: `${startY}px` },
+                      { left: `${targetX}px`, top: `${targetY}px` }
+                    ], {
+                      duration: 1000,
+                      easing: 'cubic-bezier(0.22, 1, 0.36, 1)',
+                      fill: 'forwards'
                     });
                     
-                    const mouseDown = new MouseEvent('mousedown', {
-                      bubbles: true,
-                      cancelable: true,
-                      view: window,
-                      clientX: rect.left + rect.width / 2,
-                      clientY: rect.top + rect.height / 2
-                    });
-                    
-                    const mouseUp = new MouseEvent('mouseup', {
-                      bubbles: true,
-                      cancelable: true,
-                      view: window,
-                      clientX: rect.left + rect.width / 2,
-                      clientY: rect.top + rect.height / 2
-                    });
-                    
-                    // Dispatch events with human-like timing
-                    checkbox.dispatchEvent(mouseOver);
+                    // Click after cursor reaches target
                     setTimeout(() => {
-                      checkbox.dispatchEvent(mouseDown);
+                      // Create mousedown event
+                      checkbox.dispatchEvent(new MouseEvent('mousedown', {
+                        bubbles: true,
+                        cancelable: true,
+                        view: window,
+                        clientX: targetX,
+                        clientY: targetY
+                      }));
+                      
+                      // Create mouseup/click events with slight delay
                       setTimeout(() => {
-                        checkbox.dispatchEvent(mouseUp);
+                        checkbox.dispatchEvent(new MouseEvent('mouseup', {
+                          bubbles: true,
+                          cancelable: true,
+                          view: window,
+                          clientX: targetX,
+                          clientY: targetY
+                        }));
                         checkbox.click();
+                        
+                        // Remove cursor after click
+                        setTimeout(() => {
+                          if (cursor.parentNode) {
+                            cursor.parentNode.removeChild(cursor);
+                          }
+                        }, 500);
                       }, 120);
-                    }, 200);
+                    }, 1000);
                   }
                 });
                 
@@ -1427,8 +2189,13 @@ app.post('/api/puppeteer/session/:sessionId/action', async (req, res) => {
               }
               
               // Take screenshot after CAPTCHA attempt
-              const screenshotPath = path.join(screenshotsDir, `${sessionId}-captcha-attempt-${Date.now()}.png`);
-              await session.page.screenshot({ path: screenshotPath, fullPage: false });
+              const screenshotPath = path.join(screenshotsDir, `${sessionId}-captcha-attempt-${Date.now()}.jpg`);
+              await session.page.screenshot({ 
+                path: screenshotPath, 
+                fullPage: false,
+                type: 'jpeg',
+                quality: 80
+              });
             } else {
               console.log('✅ No CAPTCHA detected');
             }
@@ -1447,7 +2214,7 @@ app.post('/api/puppeteer/session/:sessionId/action', async (req, res) => {
       }
       
       // ALWAYS take a screenshot after action, regardless of success/failure
-      const screenshotPath = path.join(screenshotsDir, `${sessionId}-${Date.now()}.png`);
+      const screenshotPath = path.join(screenshotsDir, `${sessionId}-${Date.now()}.jpg`);
       await session.page.screenshot({ 
         path: screenshotPath, 
         fullPage: false,
@@ -1469,6 +2236,30 @@ app.post('/api/puppeteer/session/:sessionId/action', async (req, res) => {
       });
     } catch (error) {
       console.error(`💥 ERROR executing action in session ${sessionId}:`, error);
+      
+      // Update session status
+      if (sessions.has(sessionId)) {
+        const session = sessions.get(sessionId);
+        
+        // Clean up any hanging typing operations
+        if (session.streaming && session.streaming.typingInterval) {
+          clearInterval(session.streaming.typingInterval);
+          session.streaming.typingInterval = null;
+          session.streaming.isTyping = false;
+          session.streaming.textBuffer = '';
+        }
+        
+        // Update typing status
+        typingStatus.set(sessionId, {
+          isTyping: false,
+          text: '',
+          selector: null,
+          timestamp: Date.now()
+        });
+        
+        session.status = 'error';
+      }
+      
       // Still return 200 for resilience!
       res.status(200).json({ 
         status: 'error', 
@@ -1481,56 +2272,11 @@ app.post('/api/puppeteer/session/:sessionId/action', async (req, res) => {
   }
 });
 
-// NEW! Get real-time typing status - FIXED AND IMPROVED! 🔥
-app.get('/api/puppeteer/session/:sessionId/typing-status', async (req, res) => {
-  const { sessionId } = req.params;
-  
-  if (sessions.has(sessionId)) {
-    try {
-      const session = sessions.get(sessionId);
-      
-      // Make sure streaming object exists with proper properties
-      if (!session.streaming) {
-        session.streaming = {
-          isTyping: false,
-          textBuffer: '',
-          currentSelector: null,
-          typingSpeed: 50
-        };
-      }
-      
-      res.status(200).json({
-        isTyping: session.streaming.isTyping,
-        text: session.streaming.textBuffer || '',
-        selector: session.streaming.currentSelector,
-        timestamp: Date.now() // Add timestamp for caching control
-      });
-    } catch (error) {
-      console.error('Error getting typing status:', error);
-      // Return a safe fallback response instead of error
-      res.status(200).json({
-        isTyping: false,
-        text: '',
-        selector: null,
-        error: error.message
-      });
-    }
-  } else {
-    // Return empty status instead of 404 for better resilience
-    res.status(200).json({
-      isTyping: false,
-      text: '',
-      selector: null,
-      message: 'Session not found but continuing gracefully'
-    });
-  }
-});
-
 // Cleanup inactive sessions
 const cleanupInactiveSessions = async () => {
   console.log("🧹 Checking for inactive sessions...");
   const now = new Date();
-  const MAX_IDLE_TIME = 30 * 60 * 1000; // 30 minutes
+  const MAX_IDLE_TIME = 20 * 60 * 1000; // 20 minutes
   let cleanedCount = 0;
   
   for (const [sessionId, session] of sessions.entries()) {
@@ -1539,8 +2285,15 @@ const cleanupInactiveSessions = async () => {
     if (idleTime > MAX_IDLE_TIME) {
       try {
         console.log(`🧹 Cleaning up inactive session: ${sessionId}`);
+        
+        // Clean up typing interval if present
+        if (session.streaming && session.streaming.typingInterval) {
+          clearInterval(session.streaming.typingInterval);
+        }
+        
         await session.browser.close();
         sessions.delete(sessionId);
+        typingStatus.delete(sessionId);
         cleanedCount++;
       } catch (error) {
         console.error(`💥 ERROR cleaning up session ${sessionId}:`, error);
@@ -1553,8 +2306,8 @@ const cleanupInactiveSessions = async () => {
   }
 };
 
-// Run cleanup every 15 minutes
-setInterval(cleanupInactiveSessions, 15 * 60 * 1000);
+// Run cleanup every 10 minutes
+setInterval(cleanupInactiveSessions, 10 * 60 * 1000);
 
 // TURBO-CHARGED SERVER STARTUP!
 app.listen(port, () => {
@@ -1568,6 +2321,11 @@ process.on('SIGTERM', async () => {
   // Close all browser sessions
   for (const [sessionId, session] of sessions.entries()) {
     try {
+      // Clean up typing interval if present
+      if (session.streaming && session.streaming.typingInterval) {
+        clearInterval(session.streaming.typingInterval);
+      }
+      
       await session.browser.close();
       console.log(`🛑 Closed browser session: ${sessionId}`);
     } catch (error) {

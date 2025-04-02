@@ -4,12 +4,21 @@ import { createPinia } from 'pinia';
 import App from './App.vue';
 import router from './router';
 
+
 // Import Firebase initialization
 import { getFirebaseServices } from './firebase/init';
 
 // Import styles and icons
 import './assets/css/main.css';
 import 'remixicon/fonts/remixicon.css';
+
+// Register the component globally
+
+
+// Alternatively, if you're using a setup with createApp:
+// const app = createApp(App);
+// app.component('reasoning-section', ReasoningSection);
+// app.mount('#app');
 
 // Create app and initialize Pinia + Router
 const app = createApp(App);
