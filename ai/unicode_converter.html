@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unicode to ASCII Converter</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            line-height: 1.6;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h2 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #555;
+        }
+        textarea {
+            width: 100%;
+            min-height: 200px; /* Increased height for more text */
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            box-sizing: border-box; /* Include padding in width */
+            font-family: monospace; /* Good for preserving formatting */
+            font-size: 1rem;
+        }
+        button {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-bottom: 20px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #outputContainer {
+            margin-top: 20px;
+            border-top: 1px solid #eee;
+            padding-top: 20px;
+        }
+        #status {
+            margin-top: 15px;
+            font-weight: bold;
+            color: #333;
+            text-align: center;
+        }
+        #outputText {
+            background-color: #e9ecef; /* Slightly different background for output */
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Unicode to ASCII Converter</h2>
+
+    <label for="inputText">Enter Text Here:</label>
+    <textarea id="inputText" placeholder="Paste your text containing Unicode characters here..."></textarea>
+
+    <button id="convertButton">Convert to ASCII & Count Unicode</button>
+
+    <div id="status">
+        Unicode Characters Found: <span id="unicodeCount">0</span>
+    </div>
+
+    <div id="outputContainer">
+        <label for="outputText">ASCII Result (Original Formatting Preserved):</label>
+        <textarea id="outputText" readonly placeholder="ASCII output will appear here..."></textarea>
+    </div>
+</div>
+
+<script>
+    const inputText = document.getElementById('inputText');
+    const outputText = document.getElementById('outputText');
+    const convertButton = document.getElementById('convertButton');
+    const unicodeCountSpan = document.getElementById('unicodeCount');
+
+    convertButton.addEventListener('click', () => {
+        const originalText = inputText.value;
+        if (!originalText) {
+            outputText.value = '';
+            unicodeCountSpan.textContent = '0';
+            return;
+        }
+
+        // 1. Identify and Count Unicode Characters (Code points > 127)
+        // We do this *before* normalization/conversion
+        let unicodeFoundCount = 0;
+        // Iterate using code points to correctly handle multi-byte characters (like emojis)
+        for (const char of originalText) {
+            // A character might be represented by multiple code points (surrogate pairs)
+            // but charCodeAt only gives the first 16 bits. codePointAt handles this.
+            if (char.codePointAt(0) > 127) {
+                 // Basic check: count any character outside standard 7-bit ASCII
+                unicodeFoundCount++;
+            }
+            // Note: This simple count includes characters that *can* be transliterated (like 'é')
+            // as well as those that will be removed (like '✅' or '𝕝'). It counts *all* non-ASCII.
+        }
+        unicodeCountSpan.textContent = unicodeFoundCount.toString();
+
+        // 2. Normalize the string (NFD - Canonical Decomposition)
+        // This separates base characters from their diacritics (e.g., 'é' -> 'e' + '´')
+        // This is crucial for removing accents effectively.
+        const normalizedText = originalText.normalize('NFD');
+
+        // 3. Remove Diacritical Marks
+        // These are combining characters in the Unicode range U+0300 to U+036F
+        // The \p{M} or \p{Diacritic} Unicode property escape matches these.
+        const noDiacriticsText = normalizedText.replace(/[\u0300-\u036f]|[\p{M}]/gu, '');
+
+        // 4. Remove Remaining Non-ASCII Characters
+        // This step removes anything that isn't a standard printable ASCII character (space to ~)
+        // or essential whitespace (tab, newline, carriage return).
+        // This includes emojis, symbols, mathematical alphanumeric chars, box drawing chars, etc.
+        // \x00-\x1F are control characters (except \t, \n, \r)
+        // \x7F is DEL
+        // \x80-\xFF... are extended ASCII / multi-byte UTF-8 starts
+        // We KEEP:
+        //   \x20 (space) to \x7E (~) - Printable ASCII
+        //   \t (tab), \n (newline), \r (carriage return) - Essential Whitespace
+        const asciiOnlyText = noDiacriticsText.replace(/[^\x20-\x7E\t\n\r]/g, '');
+
+        // 5. Display the result
+        // Using a textarea preserves line breaks and spacing from the original input
+        // that survived the filtering process.
+        outputText.value = asciiOnlyText;
+    });
+
+</script>
+
+</body>
+</html>
