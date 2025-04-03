@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>JSONL Validator & Auto-Fixer</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        textarea { width: 100%; height: 150px; margin: 10px 0; }
+        .output { background: #f0f0f0; padding: 10px; border: 1px solid #ccc; }
+        .error { color: red; }
+        .success { color: green; }
+    </style>
+</head>
+<body>
+    <h1>JSONL Validator & Auto-Fixer</h1>
+    
+    <textarea id="input" placeholder="Paste your JSONL here..."></textarea>
+    <button onclick="validateAndFix()">Validate & Fix</button>
+    
+    <div class="output">
+        <h3>Results:</h3>
+        <div id="status"></div>
+        <textarea id="output" readonly></textarea>
+    </div>
+
+<script>
+function validateAndFix() {
+    const input = document.getElementById('input').value;
+    const lines = input.split('\n');
+    let output = [];
+    let fixedCount = 0;
+    let errorCount = 0;
+    
+    lines.forEach(line => {
+        if (line.trim() === '') return; // Skip empty lines
+        
+        try {
+            JSON.parse(line);
+            output.push(line); // Valid line
+        } catch (e) {
+            const fixedLine = attemptFix(line);
+            if (fixedLine) {
+                output.push(fixedLine);
+                fixedCount++;
+            } else {
+                output.push(`/* INVALID: ${line} */`);
+                errorCount++;
+            }
+        }
+    });
+    
+    document.getElementById('output').value = output.join('\n');
+    document.getElementById('status').innerHTML = `
+        <div class="success">Fixed ${fixedCount} lines</div>
+        <div class="error">Failed to fix ${errorCount} lines</div>
+    `;
+}
+
+function attemptFix(line) {
+    // Try multiple fix strategies
+    let fixedLine = line;
+    
+    // 1. Fix missing quotes around keys
+    fixedLine = fixedLine.replace(/([{,]\s*)(\w+)(\s*:)/g, '$1"$2"$3');
+    
+    // 2. Fix trailing commas
+    fixedLine = fixedLine.replace(/,\s*([}\]])/g, '$1');
+    
+    // 3. Fix single quotes
+    fixedLine = fixedLine.replace(/'/g, '"');
+    
+    // 4. Escape unescaped control characters
+    fixedLine = fixedLine.replace(/([^\x20-\x7E])/g, (match) => {
+        return JSON.stringify(match)[1]; // Get escaped version
+    });
+    
+    // 5. Try parsing again
+    try {
+        JSON.parse(fixedLine);
+        return fixedLine;
+    } catch (e) {
+        return null;
+    }
+}
+</script>
+
+</body>
+</html>
