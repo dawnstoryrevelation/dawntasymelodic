@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSON Lines Validator and Corrector</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+
+        textarea {
+            width: 80%;
+            min-height: 200px;
+            margin-bottom: 15px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+            font-family: monospace;
+            font-size: 14px;
+        }
+
+        button {
+            padding: 10px 20px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        #result {
+            width: 80%;
+            padding: 15px;
+            border: 1px solid #ddd;
+            background-color: #fff;
+            border-radius: 5px;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+
+        .error {
+            color: red;
+            font-weight: bold;
+        }
+
+        .corrected {
+            color: green;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>JSON Lines Validator and Corrector</h1>
+
+    <label for="jsonlInput">Paste your JSON Lines data here:</label>
+    <textarea id="jsonlInput" placeholder="Each line should be a valid JSON object."></textarea>
+
+    <button onclick="validateAndCorrect()">Validate and Correct</button>
+
+    <h2>Result:</h2>
+    <div id="result"></div>
+
+    <script>
+        function isObject(val) {
+            return val !== null && typeof val === 'object' && !Array.isArray(val);
+        }
+
+        function tryParseJSON(str) {
+            try {
+                return JSON.parse(str);
+            } catch (e) {
+                return null;
+            }
+        }
+
+        function validateAndCorrect() {
+            const jsonlInput = document.getElementById('jsonlInput').value;
+            const lines = jsonlInput.trim().split('\n');
+            let correctedJsonl = [];
+            let resultHTML = "";
+            let hasErrors = false;
+
+            lines.forEach((line, index) => {
+                const trimmedLine = line.trim();
+                if (!trimmedLine) {
+                    return; // Skip empty lines
+                }
+
+                const parsedJSON = tryParseJSON(trimmedLine);
+
+                if (parsedJSON === null || !isObject(parsedJSON)) {
+                    hasErrors = true;
+                    resultHTML += `<p class="error">Error on line ${index + 1}: Invalid JSON format.</p>`;
+
+                    // Attempt basic corrections (very limited in HTML/client-side JS)
+                    let correctedLine = trimmedLine;
+
+                    // Try adding missing curly braces (very basic heuristic)
+                    if (!correctedLine.startsWith('{')) {
+                        correctedLine = '{' + correctedLine;
+                    }
+                    if (!correctedLine.endsWith('}')) {
+                        correctedLine = correctedLine + '}';
+                    }
+
+                    const reParsedJSON = tryParseJSON(correctedLine);
+                    if (reParsedJSON !== null && isObject(reParsedJSON)) {
+                        correctedJsonl.push(JSON.stringify(reParsedJSON));
+                        resultHTML += `<p class="corrected">Line ${index + 1} corrected to: <code>${JSON.stringify(reParsedJSON)}</code></p>`;
+                    } else {
+                        correctedJsonl.push(trimmedLine); // Keep the original erroneous line
+                    }
+
+                } else {
+                    correctedJsonl.push(trimmedLine); // Valid JSON, keep as is
+                }
+            });
+
+            if (!hasErrors) {
+                resultHTML = "<p>No JSON format errors found.</p>";
+            }
+
+            document.getElementById('result').innerHTML = resultHTML + "<hr><p><b>Corrected JSON Lines:</b></p><pre>" + correctedJsonl.join('\n') + "</pre>";
+        }
+    </script>
+</body>
+</html>
