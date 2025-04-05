@@ -4,1026 +4,1144 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DawntasyAI - Transcend the Ordinary</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;800&family=Raleway:wght@300;400;500;700;900&display=swap');
-
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&family=Raleway:wght@300;400;500;600;700&display=swap');
+        
         :root {
-            --primary: #3a1c71;
-            --secondary: #d76d77;
-            --accent: #ffaf7b;
+            --primary: #6e2de5;
+            --secondary: #2d9de5;
+            --accent: #e52d9d;
             --dark: #121212;
-            --light: #f8f9fa;
-            --text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            --light: #f5f5f7;
+            --gradient: linear-gradient(135deg, var(--primary), var(--secondary));
         }
-
+        
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Raleway', sans-serif;
-            scroll-behavior: smooth;
         }
-
+        
         body {
+            font-family: 'Montserrat', sans-serif;
             background-color: var(--dark);
             color: var(--light);
             overflow-x: hidden;
+            line-height: 1.6;
         }
-
-        #progress-bar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            height: 4px;
-            background: linear-gradient(90deg, var(--primary), var(--secondary), var(--accent));
-            width: 0%;
-            z-index: 1000;
-            transition: width 0.05s ease;
-        }
-
-        #canvas-container {
+        
+        .loader {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            z-index: -1;
+            background: var(--dark);
+            z-index: 1000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
-
-        .navbar {
+        
+        .loader-content {
+            text-align: center;
+        }
+        
+        .loader-logo {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: var(--gradient);
+            margin: 0 auto 20px;
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(110, 45, 229, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 20px rgba(110, 45, 229, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(110, 45, 229, 0); }
+        }
+        
+        .hidden {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        
+        .visible {
+            opacity: 1;
+            transform: translateY(0);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+        
+        section {
+            padding: 100px 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            position: relative;
+            z-index: 2;
+        }
+        
+        /* Header Styles */
+        header {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
-            padding: 20px 40px;
+            padding: 20px 0;
+            background-color: rgba(18, 18, 18, 0.8);
+            backdrop-filter: blur(10px);
+            z-index: 100;
+            transition: padding 0.3s ease;
+        }
+        
+        header.scrolled {
+            padding: 12px 0;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        .header-container {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            z-index: 100;
-            backdrop-filter: blur(5px);
-            background: rgba(18, 18, 18, 0.5);
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
         }
-
+        
         .logo {
-            font-size: 28px;
-            font-weight: 800;
-            background: linear-gradient(to right, #3a1c71, #d76d77, #ffaf7b);
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-shadow: var(--text-shadow);
-            font-family: 'Montserrat', sans-serif;
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--light);
+            text-decoration: none;
             display: flex;
             align-items: center;
         }
-
-        .logo i {
-            margin-right: 10px;
-            font-size: 24px;
+        
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: var(--gradient);
+            margin-right: 15px;
         }
-
+        
         .nav-links {
             display: flex;
             gap: 30px;
         }
-
-        .nav-links a {
+        
+        .nav-link {
             color: var(--light);
             text-decoration: none;
-            font-size: 16px;
             font-weight: 500;
-            transition: all 0.3s ease;
             position: relative;
+            padding: 5px 0;
+            transition: color 0.3s ease;
         }
-
-        .nav-links a::after {
+        
+        .nav-link:hover {
+            color: var(--secondary);
+        }
+        
+        .nav-link::after {
             content: '';
             position: absolute;
             width: 0;
             height: 2px;
-            bottom: -5px;
+            bottom: 0;
             left: 0;
-            background: linear-gradient(to right, var(--primary), var(--secondary));
+            background: var(--gradient);
             transition: width 0.3s ease;
         }
-
-        .nav-links a:hover::after {
+        
+        .nav-link:hover::after {
             width: 100%;
         }
-
-        .get-started {
-            background: linear-gradient(45deg, var(--primary), var(--secondary));
-            color: white;
-            border: none;
-            padding: 10px 24px;
+        
+        .cta-buttons {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .btn {
+            padding: 12px 24px;
             border-radius: 30px;
+            border: none;
             font-weight: 600;
-            font-size: 16px;
+            font-size: 14px;
             cursor: pointer;
-            box-shadow: 0 4px 15px rgba(58, 28, 113, 0.4);
-            transition: all 0.3s ease;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
             text-decoration: none;
+            text-align: center;
         }
-
-        .get-started:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(58, 28, 113, 0.6);
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
         }
-
-        section {
-            padding: 100px 10%;
-            min-height: 100vh;
+        
+        .btn-primary {
+            background: var(--gradient);
+            color: white;
+        }
+        
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--primary);
+            color: var(--light);
+        }
+        
+        /* Hero Section */
+        .hero {
+            height: 100vh;
             display: flex;
             flex-direction: column;
             justify-content: center;
-        }
-
-        .intro {
+            background: linear-gradient(rgba(18, 18, 18, 0.8), rgba(18, 18, 18, 0.6));
             position: relative;
-            overflow: hidden;
         }
-
-        .intro-content {
+        
+        .hero-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('/api/placeholder/1920/1080') center/cover no-repeat;
+            z-index: -1;
+        }
+        
+        .hero-content {
             max-width: 800px;
-            margin: 0 auto;
-            text-align: center;
         }
-
-        .section-subtitle {
-            font-size: 20px;
-            font-weight: 500;
+        
+        .hero-subtitle {
+            font-size: 24px;
             color: var(--secondary);
-            margin-bottom: 5px;
-            text-transform: uppercase;
-            letter-spacing: 3px;
+            font-weight: 500;
+            margin-bottom: 10px;
         }
-
-        .section-title {
-            font-size: 64px;
-            font-weight: 900;
-            margin-bottom: 30px;
-            background: linear-gradient(to right, #3a1c71, #d76d77, #ffaf7b);
+        
+        .hero-title {
+            font-size: 72px;
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 20px;
+            background: var(--gradient);
             -webkit-background-clip: text;
             background-clip: text;
-            -webkit-text-fill-color: transparent;
-            line-height: 1.2;
-            text-shadow: var(--text-shadow);
-            font-family: 'Montserrat', sans-serif;
+            color: transparent;
         }
-
-        .section-description {
+        
+        .hero-description {
             font-size: 18px;
-            line-height: 1.7;
             margin-bottom: 40px;
+            max-width: 600px;
         }
-
-        .features {
+        
+        .hero-cta {
+            display: flex;
+            gap: 20px;
+        }
+        
+        /* Slogan Section */
+        .slogan {
+            background-color: var(--primary);
+            padding: 60px 0;
+            text-align: center;
+        }
+        
+        .slogan-text {
+            font-size: 36px;
+            font-weight: 700;
+            font-style: italic;
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.4;
+        }
+        
+        /* Models Section */
+        .models {
+            background-color: #191919;
             position: relative;
         }
-
-        .features-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            grid-gap: 30px;
-            margin-top: 50px;
+        
+        .section-title {
+            font-size: 48px;
+            font-weight: 700;
+            margin-bottom: 60px;
+            text-align: center;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
         }
-
-        .feature-card {
+        
+        .models-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 40px;
+        }
+        
+        .model-card {
             background: rgba(255, 255, 255, 0.05);
             border-radius: 20px;
-            padding: 30px;
+            padding: 40px 30px;
             text-align: center;
-            transition: all 0.5s ease;
             position: relative;
-            overflow: hidden;
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-            transform: translateY(0);
+            transition: transform 0.5s ease, box-shadow 0.5s ease;
+            overflow: hidden;
         }
-
-        .feature-card::before {
+        
+        .model-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+        
+        .model-card::before {
             content: '';
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            background: var(--gradient);
             opacity: 0;
-            transition: opacity 0.5s ease;
             z-index: -1;
+            transition: opacity 0.5s ease;
         }
-
-        .feature-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        
+        .model-card:hover::before {
+            opacity: 0.1;
         }
-
-        .feature-card:hover::before {
-            opacity: 0.15;
+        
+        .model-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin: 0 auto 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 30px;
+            background: var(--gradient);
+            color: white;
         }
-
-        .feature-icon {
-            font-size: 48px;
-            margin-bottom: 20px;
-            background: linear-gradient(45deg, var(--primary), var(--secondary));
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .feature-title {
-            font-size: 22px;
-            font-weight: 700;
-            margin-bottom: 15px;
-            background: linear-gradient(to right, #fff, #ccc);
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .feature-description {
-            font-size: 16px;
-            line-height: 1.6;
-            color: rgba(255, 255, 255, 0.8);
-        }
-
-        .timeline {
-            position: relative;
-        }
-
-        .timeline-container {
-            position: relative;
-            max-width: 1200px;
-            margin: 50px auto 0;
-        }
-
-        .timeline-container::after {
-            content: '';
-            position: absolute;
-            width: 6px;
-            background: linear-gradient(to bottom, var(--primary), var(--secondary), var(--accent));
-            top: 0;
-            bottom: 0;
-            left: 50%;
-            margin-left: -3px;
-            border-radius: 10px;
-        }
-
-        .timeline-item {
-            padding: 10px 50px;
-            position: relative;
-            width: 50%;
-            opacity: 0;
-            transform: translateX(-100px);
-            transition: all 0.6s ease;
-        }
-
-        .timeline-item.right {
-            left: 50%;
-            transform: translateX(100px);
-        }
-
-        .timeline-item.in-view {
-            opacity: 1;
-            transform: translateX(0);
-        }
-
-        .timeline-content {
-            padding: 30px;
-            background: rgba(255, 255, 255, 0.05);
-            position: relative;
-            border-radius: 10px;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-        }
-
-        .timeline-date {
-            font-size: 14px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            color: var(--secondary);
-            margin-bottom: 10px;
-        }
-
-        .timeline-title {
+        
+        .model-title {
             font-size: 24px;
             font-weight: 700;
             margin-bottom: 15px;
-            color: var(--light);
         }
-
-        .timeline-description {
+        
+        .model-description {
             font-size: 16px;
-            line-height: 1.6;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 30px;
+        }
+        
+        /* Vision Section */
+        .vision {
+            background-color: #121212;
+            position: relative;
+        }
+        
+        .vision-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('/api/placeholder/1920/1080') center/cover no-repeat;
+            opacity: 0.2;
+            z-index: 0;
+        }
+        
+        .vision-content {
+            display: flex;
+            align-items: center;
+            gap: 60px;
+        }
+        
+        .vision-text {
+            flex: 1;
+        }
+        
+        .vision-subtitle {
+            font-size: 20px;
+            color: var(--secondary);
+            margin-bottom: 15px;
+        }
+        
+        .vision-title {
+            font-size: 42px;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+        
+        .vision-description {
+            font-size: 18px;
+            margin-bottom: 30px;
+        }
+        
+        .vision-image {
+            flex: 1;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3);
+        }
+        
+        .vision-image img {
+            width: 100%;
+            height: auto;
+            display: block;
+            transform: scale(1);
+            transition: transform 0.5s ease;
+        }
+        
+        .vision-image:hover img {
+            transform: scale(1.05);
+        }
+        
+        /* Features Section */
+        .features {
+            background-color: #191919;
+            position: relative;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+        }
+        
+        .feature-card {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 15px;
+            padding: 30px;
+            transition: transform 0.4s ease;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-10px);
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--gradient);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+            color: white;
+            font-size: 24px;
+        }
+        
+        .feature-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+        
+        .feature-description {
+            font-size: 16px;
             color: rgba(255, 255, 255, 0.8);
         }
-
-        .timeline-item::after {
-            content: '';
-            position: absolute;
-            width: 24px;
-            height: 24px;
-            right: -12px;
-            top: 50%;
-            transform: translateY(-50%);
-            border-radius: 50%;
-            z-index: 1;
-            background: var(--secondary);
-            box-shadow: 0 0 0 4px var(--primary), 0 0 0 8px rgba(58, 28, 113, 0.3);
-        }
-
-        .timeline-item.right::after {
-            left: -12px;
-        }
-
-        .commencement {
-            position: relative;
+        
+        /* CTA Section */
+        .cta-section {
+            padding: 120px 0;
+            background: var(--gradient);
             text-align: center;
+            position: relative;
+            overflow: hidden;
         }
-
-        .slogan {
-            font-size: 28px;
-            font-style: italic;
-            margin: 50px 0;
-            line-height: 1.6;
-            max-width: 800px;
+        
+        .cta-pattern {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('/api/placeholder/400/400') center/400px repeat;
+            opacity: 0.1;
+            z-index: 0;
+        }
+        
+        .cta-title {
+            font-size: 48px;
+            font-weight: 800;
+            margin-bottom: 20px;
+            color: white;
+        }
+        
+        .cta-description {
+            font-size: 20px;
+            margin-bottom: 40px;
+            max-width: 600px;
             margin-left: auto;
             margin-right: auto;
             color: rgba(255, 255, 255, 0.9);
         }
-
-        .dive-in {
-            display: inline-block;
-            padding: 15px 40px;
+        
+        .cta-button {
+            background: white;
+            color: var(--primary);
+            padding: 16px 32px;
             font-size: 18px;
-            margin-top: 30px;
-            background: linear-gradient(45deg, var(--primary), var(--secondary), var(--accent));
-            background-size: 200% 200%;
-            animation: gradient-shift 3s ease infinite;
-            color: white;
-            border: none;
-            border-radius: 50px;
-            cursor: pointer;
             font-weight: 700;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            box-shadow: 0 10px 30px rgba(58, 28, 113, 0.5);
         }
-
-        .dive-in:hover {
-            transform: translateY(-3px) scale(1.05);
-            box-shadow: 0 15px 40px rgba(58, 28, 113, 0.7);
-        }
-
-        @keyframes gradient-shift {
-            0% {
-                background-position: 0% 50%;
-            }
-            50% {
-                background-position: 100% 50%;
-            }
-            100% {
-                background-position: 0% 50%;
-            }
-        }
-
-        .orbiting-planet {
-            position: absolute;
-            border-radius: 50%;
-            animation: orbit 30s linear infinite;
-        }
-
-        .orbiting-planet:nth-child(1) {
-            width: 60px;
-            height: 60px;
-            background: radial-gradient(circle at 30% 30%, #7b68ee, #4b0082);
-            box-shadow: 0 0 20px #7b68ee;
-            top: 15%;
-            right: 10%;
-            animation-duration: 40s;
-        }
-
-        .orbiting-planet:nth-child(2) {
-            width: 40px;
-            height: 40px;
-            background: radial-gradient(circle at 30% 30%, #ff6b6b, #6b0000);
-            box-shadow: 0 0 20px #ff6b6b;
-            bottom: 20%;
-            left: 15%;
-            animation-duration: 50s;
-            animation-delay: -20s;
-        }
-
-        .orbiting-planet:nth-child(3) {
-            width: 80px;
-            height: 80px;
-            background: radial-gradient(circle at 30% 30%, #48c9b0, #004d40);
-            box-shadow: 0 0 30px #48c9b0;
-            top: 30%;
-            left: 5%;
-            animation-duration: 60s;
-            animation-delay: -15s;
-        }
-
-        @keyframes orbit {
-            0% {
-                transform: rotate(0deg) translateX(150px) rotate(0deg);
-            }
-            100% {
-                transform: rotate(360deg) translateX(150px) rotate(-360deg);
-            }
-        }
-
-        .parallax-stars {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            top: 0;
-            left: 0;
-            pointer-events: none;
-        }
-
-        .star {
-            position: absolute;
-            width: 2px;
-            height: 2px;
-            background-color: white;
-            border-radius: 50%;
-            box-shadow: 0 0 10px white;
-        }
-
-        .comet {
-            position: absolute;
-            width: 4px;
-            height: 4px;
-            border-radius: 50%;
-            background-color: white;
-            box-shadow: 0 0 10px white, 0 0 20px white;
-            opacity: 0;
-            pointer-events: none;
-            z-index: -1;
-        }
-
-        .comet::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 80px;
-            height: 1px;
-            background: linear-gradient(to left, white, transparent);
-            transform: translate(-100%, -50%) rotate(var(--angle));
-        }
-
-        @keyframes comet-animation {
-            0% {
-                transform: translate(calc(100vw + 100px), calc(100vh * var(--y)));
-                opacity: 1;
-            }
-            100% {
-                transform: translate(-100px, calc(100vh * var(--y)));
-                opacity: 1;
-            }
-        }
-
+        
+        /* Footer */
         footer {
-            padding: 40px 0;
-            text-align: center;
-            background: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(10px);
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            background-color: #0c0c0c;
+            padding: 80px 0 30px;
         }
-
-        .footer-text {
-            color: rgba(255, 255, 255, 0.6);
+        
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 40px;
+            margin-bottom: 60px;
+        }
+        
+        .footer-logo {
+            flex: 1;
+            min-width: 240px;
+        }
+        
+        .footer-logo-link {
+            font-size: 28px;
+            font-weight: 700;
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .footer-description {
+            font-size: 15px;
+            color: rgba(255, 255, 255, 0.7);
+            max-width: 300px;
+        }
+        
+        .footer-links {
+            flex: 1;
+            min-width: 160px;
+        }
+        
+        .footer-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 25px;
+            color: white;
+        }
+        
+        .footer-link-list {
+            list-style: none;
+        }
+        
+        .footer-link-list li {
+            margin-bottom: 12px;
+        }
+        
+        .footer-link {
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        
+        .footer-link:hover {
+            color: var(--secondary);
+        }
+        
+        .footer-bottom {
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 30px;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.5);
             font-size: 14px;
         }
-
-        .social-links {
-            margin-top: 20px;
-            display: flex;
-            justify-content: center;
-            gap: 20px;
+        
+        /* Responsive Styles */
+        @media (max-width: 991px) {
+            .hero-title {
+                font-size: 56px;
+            }
+            
+            .section-title {
+                font-size: 40px;
+            }
+            
+            .vision-content {
+                flex-direction: column;
+            }
+            
+            .vision-image {
+                order: -1;
+            }
         }
-
-        .social-links a {
-            color: var(--light);
-            font-size: 20px;
-            transition: all 0.3s ease;
+        
+        @media (max-width: 767px) {
+            .hero-title {
+                font-size: 42px;
+            }
+            
+            .hero-subtitle {
+                font-size: 20px;
+            }
+            
+            .section-title {
+                font-size: 36px;
+            }
+            
+            .slogan-text {
+                font-size: 28px;
+            }
+            
+            .nav-links {
+                display: none;
+            }
         }
-
-        .social-links a:hover {
-            color: var(--secondary);
-            transform: translateY(-3px);
+        
+        /* Animation Classes */
+        .fade-up {
+            opacity: 0;
+            transform: translateY(50px);
         }
-
-        .planet-shadow {
-            filter: drop-shadow(0 0 20px rgba(var(--primary-rgb), 0.8));
+        
+        .fade-in {
+            opacity: 0;
+        }
+        
+        .slide-left {
+            opacity: 0;
+            transform: translateX(50px);
+        }
+        
+        .slide-right {
+            opacity: 0;
+            transform: translateX(-50px);
+        }
+        
+        .scale-in {
+            opacity: 0;
+            transform: scale(0.8);
+        }
+        
+        /* Particle Effects */
+        .particles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
         }
     </style>
 </head>
 <body>
-    <div id="progress-bar"></div>
-    <div id="canvas-container"></div>
-
-    <nav class="navbar">
-        <div class="logo">
-            <i class="fas fa-brain"></i> DawntasyAI
+    <!-- Loader -->
+    <div class="loader">
+        <div class="loader-content">
+            <div class="loader-logo"></div>
+            <h2>DawntasyAI</h2>
         </div>
-        <div class="nav-links">
-            <a href="#intro">Home</a>
-            <a href="#features">Features</a>
-            <a href="#timeline">Journey</a>
-            <a href="#commencement">Vision</a>
-        </div>
-        <a href="https://ai.dawntasy.com/register" class="get-started">Get Started</a>
-    </nav>
-
-    <section id="intro" class="intro">
-        <div class="orbiting-planet"></div>
-        <div class="orbiting-planet"></div>
-        <div class="orbiting-planet"></div>
-        <div class="intro-content">
-            <p class="section-subtitle">Introducing</p>
-            <h1 class="section-title">DawntasyAI</h1>
-            <h2 style="font-size: 28px; margin-bottom: 30px; color: #d76d77;">Transcend the Ordinary, Embrace the Extraordinary</h2>
-            <p class="section-description">
-                DawntasyAI is an intelligence powerhouse that reimagines the boundaries of what's possible. 
-                Equipped with unique features designed specifically to elevate your experience, DawntasyAI 
-                stands ready to assist you in navigating the complexities of tomorrow's challenges. Embark 
-                on a journey where cosmic intelligence meets human creativity, unlocking potential beyond imagination.
-            </p>
-            <a href="https://ai.dawntasy.com/register" class="get-started">Begin Your Journey</a>
-        </div>
-    </section>
-
-    <section id="features" class="features">
-        <div class="orbiting-planet"></div>
-        <h2 class="section-subtitle">Capabilities</h2>
-        <h3 class="section-title">Stellar Features</h3>
-        <p class="section-description" style="text-align: center; max-width: 800px; margin: 0 auto;">
-            DawntasyAI combines cutting-edge technologies with intuitive design to bring you 
-            a suite of powerful features that transform how you interact with artificial intelligence.
-        </p>
-        <div class="features-grid">
-            <div class="feature-card">
-                <div class="feature-icon">
-                    <i class="fas fa-brain"></i>
-                </div>
-                <h4 class="feature-title">Think Deeper</h4>
-                <p class="feature-description">
-                    Enhanced cognitive processing allows DawntasyAI to dive beyond surface-level analysis, 
-                    exploring nuanced perspectives and generating profound insights that ordinary AI simply cannot match.
-                </p>
+    </div>
+    
+    <!-- Header -->
+    <header>
+        <div class="header-container">
+            <a href="#" class="logo">
+                <div class="logo-icon"></div>
+                DawntasyAI
+            </a>
+            <div class="nav-links">
+                <a href="#models" class="nav-link">Models</a>
+                <a href="#vision" class="nav-link">Vision</a>
+                <a href="#features" class="nav-link">Features</a>
             </div>
-            <div class="feature-card">
-                <div class="feature-icon">
-                    <i class="fas fa-cogs"></i>
-                </div>
-                <h4 class="feature-title">Logic</h4>
-                <p class="feature-description">
-                    Our advanced reasoning engine dissects complex problems with precision, 
-                    constructing step-by-step solutions through rational frameworks that make even the most 
-                    challenging concepts accessible.
-                </p>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon">
-                    <i class="fas fa-hat-wizard"></i>
-                </div>
-                <h4 class="feature-title">ARCHMAGE</h4>
-                <p class="feature-description">
-                    The intelligence powerhouse at DawntasyAI's core, ARCHMAGE leverages quantum-inspired 
-                    algorithms to deliver responses with unprecedented depth and accuracy across all domains.
-                </p>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon">
-                    <i class="fas fa-microphone-alt"></i>
-                </div>
-                <h4 class="feature-title">Speech to Text</h4>
-                <p class="feature-description">
-                    Communicate naturally with crystal-clear voice recognition that understands context, 
-                    inflection, and even subtle emotional cues, transforming conversations into seamless interactions.
-                </p>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon">
-                    <i class="fas fa-paint-brush"></i>
-                </div>
-                <h4 class="feature-title">Image Generation</h4>
-                <p class="feature-description">
-                    Transform ideas into vivid visual reality with our state-of-the-art image synthesis, 
-                    creating stunning compositions that perfectly capture your creative vision.
-                </p>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon">
-                    <i class="fas fa-code"></i>
-                </div>
-                <h4 class="feature-title">Code Generation</h4>
-                <p class="feature-description">
-                    From simple scripts to complex architectures, DawntasyAI crafts elegant, efficient code 
-                    across multiple programming languages while providing insightful analysis and optimization suggestions.
-                </p>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon">
-                    <i class="fas fa-layer-group"></i>
-                </div>
-                <h4 class="feature-title">Multimodal Response</h4>
-                <p class="feature-description">
-                    Experience communication that transcends single formats, seamlessly blending text, 
-                    visuals, audio, and interactive elements for truly comprehensive understanding.
-                </p>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon">
-                    <i class="fas fa-project-diagram"></i>
-                </div>
-                <h4 class="feature-title">Mind Maps</h4>
-                <p class="feature-description">
-                    Explore concepts in newfound depth with dynamic mind mapping that branches outward 
-                    from core ideas, revealing connections and perspectives that illuminate your understanding.
-                </p>
+            <div class="cta-buttons">
+                <a href="https://ai.dawntasy.com/register" class="btn btn-outline">Sign Up</a>
+                <a href="https://ai.dawntasy.com/register" class="btn btn-primary">Get Started</a>
             </div>
         </div>
-    </section>
-
-    <section id="timeline" class="timeline">
-        <div class="orbiting-planet"></div>
-        <h2 class="section-subtitle">Our Story</h2>
-        <h3 class="section-title">The Journey</h3>
-        <p class="section-description" style="text-align: center; max-width: 800px; margin: 0 auto;">
-            The evolution of DawntasyAI represents years of passionate development, 
-            creative exploration, and technological innovation.
-        </p>
-        <div class="timeline-container">
-            <div class="timeline-item left">
-                <div class="timeline-content">
-                    <div class="timeline-date">2013 - 2019</div>
-                    <h4 class="timeline-title">Brainstorming</h4>
-                    <p class="timeline-description">
-                        Six years of intensive research, philosophical inquiry, and conceptual 
-                        development laid the foundation for what would eventually become DawntasyAI. 
-                        This period was characterized by exploring the intersection of human 
-                        creativity and artificial intelligence.
-                    </p>
-                </div>
-            </div>
-            <div class="timeline-item right">
-                <div class="timeline-content">
-                    <div class="timeline-date">2019 - 2021</div>
-                    <h4 class="timeline-title">Writing Book</h4>
-                    <p class="timeline-description">
-                        The conceptual framework was codified into a comprehensive manuscript, 
-                        detailing the theoretical principles and practical applications of a 
-                        new approach to AI. This two-year writing process crystallized the vision 
-                        that would drive future development.
-                    </p>
-                </div>
-            </div>
-            <div class="timeline-item left">
-                <div class="timeline-content">
-                    <div class="timeline-date">2021 - 2023</div>
-                    <h4 class="timeline-title">Musical Artist</h4>
-                    <p class="timeline-description">
-                        The transition to musical expression allowed for exploration of emotional 
-                        intelligence and creative pattern recognition, essential components that 
-                        would later become core to DawntasyAI's unique approach to understanding 
-                        human needs and expressions.
-                    </p>
-                </div>
-            </div>
-            <div class="timeline-item right">
-                <div class="timeline-content">
-                    <div class="timeline-date">2023 - Present</div>
-                    <h4 class="timeline-title">AI Chatbot DawntasyAI</h4>
-                    <p class="timeline-description">
-                        The culmination of years of development, DawntasyAI now stands as a 
-                        revolutionary intelligence platform, integrating all previous insights 
-                        into a powerful system that continues to evolve with each interaction, 
-                        pushing the boundaries of what artificial intelligence can achieve.
-                    </p>
+    </header>
+    
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-bg"></div>
+        <div class="particles" id="particles-js"></div>
+        <div class="container">
+            <div class="hero-content">
+                <h2 class="hero-subtitle fade-up">Introducing</h2>
+                <h1 class="hero-title fade-up">DawntasyAI</h1>
+                <p class="hero-description fade-up">Transcend the Ordinary, Embrace the Extraordinary. DawntasyAI is an intelligence powerhouse that reimagines the boundaries of what's possible. Equipped with unique features designed specifically to elevate your experience, DawntasyAI stands ready to assist you in navigating the complexities of tomorrow's challenges. Embark on a journey where cosmic intelligence meets human creativity, unlocking potential beyond imagination.</p>
+                <div class="hero-cta fade-up">
+                    <a href="https://ai.dawntasy.com/register" class="btn btn-primary">Get Started</a>
+                    <a href="https://ai.dawntasy.com/register" class="btn btn-outline">Learn More</a>
                 </div>
             </div>
         </div>
     </section>
-
-    <section id="commencement" class="commencement">
-        <div class="orbiting-planet"></div>
-        <h2 class="section-subtitle">Vision</h2>
-        <h3 class="section-title">A New Dawn</h3>
-        <p class="section-description" style="text-align: center; max-width: 800px; margin: 0 auto;">
-            DawntasyAI represents not just a technological advancement, but a philosophical shift 
-            in how we perceive and interact with artificial intelligence, opening doors to 
-            possibilities previously confined to imagination.
-        </p>
-        <p class="slogan">
-            "A bucket, a cookie, a pike, a clock and a tree...are subjectively objects."
-        </p>
-        <a href="https://ai.dawntasy.com/register" class="dive-in">Dive In Now</a>
+    
+    <!-- Slogan Section -->
+    <section class="slogan">
+        <div class="container">
+            <p class="slogan-text fade-in">"A bucket, a cookie, a pike, a clock and a tree...are subjectively objects."</p>
+        </div>
     </section>
-
+    
+    <!-- Models Section -->
+    <section class="models" id="models">
+        <div class="container">
+            <h2 class="section-title fade-up">Our Models</h2>
+            <div class="models-grid">
+                <div class="model-card fade-up">
+                    <div class="model-icon">2.0</div>
+                    <h3 class="model-title">Dawntasy 2.0 Flow</h3>
+                    <p class="model-description">Our general-use model designed for everyday tasks. Seamlessly handling a wide array of requests with precision and efficiency.</p>
+                    <a href="https://ai.dawntasy.com/register" class="btn btn-primary">Try Now</a>
+                </div>
+                <div class="model-card fade-up">
+                    <div class="model-icon">1.5</div>
+                    <h3 class="model-title">Dawntasy 1.5 MindView</h3>
+                    <p class="model-description">Our reasoning-focused model that excels at deep logical analysis and critical thinking tasks requiring nuanced understanding.</p>
+                    <a href="https://ai.dawntasy.com/register" class="btn btn-primary">Try Now</a>
+                </div>
+                <div class="model-card fade-up">
+                    <div class="model-icon">3.5</div>
+                    <h3 class="model-title">Dawntasy 3.5 Multifaceted Max</h3>
+                    <p class="model-description">Our powerhouse problem-solving model that tackles the most complex challenges with sophisticated, multi-dimensional approaches.</p>
+                    <a href="https://ai.dawntasy.com/register" class="btn btn-primary">Try Now</a>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Vision Section -->
+    <section class="vision" id="vision">
+        <div class="vision-bg"></div>
+        <div class="container">
+            <div class="vision-content">
+                <div class="vision-text">
+                    <p class="vision-subtitle fade-up">Our Vision</p>
+                    <h2 class="vision-title fade-up">Reimagining the Future of AI Interaction</h2>
+                    <p class="vision-description fade-up">At DawntasyAI, we envision a world where artificial intelligence serves as a natural extension of human creativity and problem-solving capabilities. Our mission is to develop AI systems that don't just respond to commands but actively participate in the process of discovery and innovation.</p>
+                    <p class="vision-description fade-up">We believe in creating technology that adapts to human needs rather than requiring humans to adapt to technology. This philosophy guides our development process, ensuring that each interaction with DawntasyAI feels intuitive, meaningful, and remarkable.</p>
+                    <a href="https://ai.dawntasy.com/register" class="btn btn-primary fade-up">Join Our Vision</a>
+                </div>
+                <div class="vision-image fade-in">
+                    <img src="/api/placeholder/600/400" alt="DawntasyAI Vision">
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Features Section -->
+    <section class="features" id="features">
+        <div class="container">
+            <h2 class="section-title fade-up">Distinctive Features</h2>
+            <div class="features-grid">
+                <div class="feature-card fade-up">
+                    <div class="feature-icon">🧩</div>
+                    <h3 class="feature-title">Problem Solving</h3>
+                    <p class="feature-description">Advanced algorithms that approach challenges from multiple angles, providing comprehensive solutions to complex problems.</p>
+                </div>
+                <div class="feature-card fade-up">
+                    <div class="feature-icon">🧠</div>
+                    <h3 class="feature-title">Memory</h3>
+                    <p class="feature-description">Contextual understanding that evolves through interactions, creating a more personalized and relevant experience.</p>
+                </div>
+                <div class="feature-card fade-up">
+                    <div class="feature-icon">💡</div>
+                    <h3 class="feature-title">Intelligent Responses</h3>
+                    <p class="feature-description">Dynamic conversation capabilities that adapt to your communication style and information needs.</p>
+                </div>
+                <div class="feature-card fade-up">
+                    <div class="feature-icon">🔍</div>
+                    <h3 class="feature-title">Angled Perspectives</h3>
+                    <p class="feature-description">Multi-dimensional analysis that considers diverse viewpoints and approaches to every question.</p>
+                </div>
+                <div class="feature-card fade-up">
+                    <div class="feature-icon">🗺️</div>
+                    <h3 class="feature-title">Mind Maps</h3>
+                    <p class="feature-description">Visual knowledge organization that helps connect concepts and discover hidden relationships between ideas.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <div class="cta-pattern"></div>
+        <div class="container">
+            <h2 class="cta-title fade-up">Ready to Transcend the Ordinary?</h2>
+            <p class="cta-description fade-up">Join thousands of forward-thinking individuals and organizations already leveraging the power of DawntasyAI.</p>
+            <a href="https://ai.dawntasy.com/register" class="btn cta-button fade-up">Get Started Today</a>
+        </div>
+    </section>
+    
+    <!-- Footer -->
     <footer>
-        <p class="footer-text">© 2025 DawntasyAI. All rights reserved.</p>
-        <div class="social-links">
-            <a href="#"><i class="fab fa-twitter"></i></a>
-            <a href="#"><i class="fab fa-facebook"></i></a>
-            <a href="#"><i class="fab fa-instagram"></i></a>
-            <a href="#"><i class="fab fa-github"></i></a>
-            <a href="#"><i class="fab fa-linkedin"></i></a>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <a href="#" class="footer-logo-link">
+                        <div class="logo-icon"></div>
+                        DawntasyAI
+                    </a>
+                    <p class="footer-description">Transcend the Ordinary, Embrace the Extraordinary with our next-generation AI solutions.</p>
+                </div>
+                <div class="footer-links">
+                    <h3 class="footer-title">Company</h3>
+                    <ul class="footer-link-list">
+                        <li><a href="#" class="footer-link">About Us</a></li>
+                        <li><a href="#" class="footer-link">Careers</a></li>
+                        <li><a href="#" class="footer-link">Blog</a></li>
+                        <li><a href="#" class="footer-link">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="footer-links">
+                    <h3 class="footer-title">Products</h3>
+                    <ul class="footer-link-list">
+                        <li><a href="#" class="footer-link">Flow 2.0</a></li>
+                        <li><a href="#" class="footer-link">MindView 1.5</a></li>
+                        <li><a href="#" class="footer-link">Multifaceted Max 3.5</a></li>
+                        <li><a href="#" class="footer-link">API Access</a></li>
+                    </ul>
+                </div>
+                <div class="footer-links">
+                    <h3 class="footer-title">Resources</h3>
+                    <ul class="footer-link-list">
+                        <li><a href="#" class="footer-link">Documentation</a></li>
+                        <li><a href="#" class="footer-link">Guides</a></li>
+                        <li><a href="#" class="footer-link">Tutorials</a></li>
+                        <li><a href="#" class="footer-link">Status</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 DawntasyAI. All rights reserved.</p>
+            </div>
         </div>
     </footer>
-
+    
     <!-- Scripts -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/ScrollTrigger.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/particles.js/2.0.0/particles.min.js"></script>
+    
     <script>
-        // Initialize Three.js background
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-        
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(window.devicePixelRatio);
-        document.getElementById('canvas-container').appendChild(renderer.domElement);
-
-        // Create stars
-        const starGeometry = new THREE.BufferGeometry();
-        const starMaterial = new THREE.PointsMaterial({
-            color: 0xffffff,
-            size: 0.2,
-            transparent: true
-        });
-
-        const starVertices = [];
-        for (let i = 0; i < 15000; i++) {
-            const x = (Math.random() - 0.5) * 2000;
-            const y = (Math.random() - 0.5) * 2000;
-            const z = (Math.random() - 0.5) * 2000;
-            starVertices.push(x, y, z);
-        }
-
-        starGeometry.setAttribute('position', new THREE.Float32BufferAttribute(starVertices, 3));
-        const stars = new THREE.Points(starGeometry, starMaterial);
-        scene.add(stars);
-
-        // Create nebula
-        const nebulaGeometry = new THREE.PlaneGeometry(2000, 2000);
-        const nebulaMaterial = new THREE.MeshBasicMaterial({
-            map: new THREE.TextureLoader().load('https://images.unsplash.com/photo-1462331940025-496dfbfc7564?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1748&q=80'),
-            transparent: true,
-            opacity: 0.2,
-            depthWrite: false
-        });
-        const nebula = new THREE.Mesh(nebulaGeometry, nebulaMaterial);
-        nebula.position.z = -800;
-        scene.add(nebula);
-
-        camera.position.z = 5;
-
-        // Animation loop
-        function animate() {
-            requestAnimationFrame(animate);
+        // Wait for page to load
+        window.addEventListener('load', function() {
+            // Initialize GSAP
+            gsap.registerPlugin(ScrollTrigger);
             
-            stars.rotation.x += 0.0001;
-            stars.rotation.y += 0.0001;
+            // Hide loader after delay
+            setTimeout(function() {
+                gsap.to('.loader', {
+                    opacity: 0,
+                    duration: 0.8,
+                    onComplete: function() {
+                        document.querySelector('.loader').style.display = 'none';
+                    }
+                });
+                
+                // Hero animations
+                gsap.to('.hero-subtitle', {
+                    opacity: 1,
+                    y: 0,
+                    duration: 0.8,
+                    delay: 0.3
+                });
+                
+                gsap.to('.hero-title', {
+                    opacity: 1,
+                    y: 0,
+                    duration: 0.8,
+                    delay: 0.5
+                });
+                
+                gsap.to('.hero-description', {
+                    opacity: 1,
+                    y: 0,
+                    duration: 0.8,
+                    delay: 0.7
+                });
+                
+                gsap.to('.hero-cta', {
+                    opacity: 1,
+                    y: 0,
+                    duration: 0.8,
+                    delay: 0.9
+                });
+            }, 1500);
             
-            renderer.render(scene, camera);
-        }
-        
-        animate();
-
-        // Handle window resize
-        window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        });
-
-        // Parallax effect
-        document.addEventListener('mousemove', (e) => {
-            const mouseX = e.clientX / window.innerWidth - 0.5;
-            const mouseY = e.clientY / window.innerHeight - 0.5;
-            
-            gsap.to(stars.rotation, {
-                x: mouseY * 0.1,
-                y: mouseX * 0.1,
-                duration: 1
+            // Scroll animations
+            gsap.utils.toArray('.fade-up').forEach(function(elem) {
+                gsap.fromTo(elem, 
+                    { opacity: 0, y: 50 },
+                    {
+                        opacity: 1,
+                        y: 0,
+                        duration: 0.8,
+                        scrollTrigger: {
+                            trigger: elem,
+                            start: "top 85%"
+                        }
+                    }
+                );
             });
-        });
-
-        // Scroll progress bar
-        window.addEventListener('scroll', () => {
-            const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
-            const scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-            const scrollProgress = (scrollTop / scrollHeight) * 100;
             
-            document.getElementById('progress-bar').style.width = scrollProgress + '%';
-        });
-
-        // GSAP animations
-        gsap.registerPlugin(ScrollTrigger);
-        
-        // Intro animations
-        gsap.from('.intro-content', {
-            opacity: 0,
-            y: 100,
-            duration: 1.5,
-            ease: 'power3.out'
-        });
-
-        // Feature cards animation
-        gsap.from('.feature-card', {
-            scrollTrigger: {
-                trigger: '.features-grid',
-                start: 'top 80%'
-            },
-            opacity: 0,
-            y: 50,
-            duration: 0.8,
-            stagger: 0.1,
-            ease: 'back.out(1.7)'
-        });
-
-        // Timeline items animation
-        const timelineItems = document.querySelectorAll('.timeline-item');
-        
-        timelineItems.forEach(item => {
-            gsap.from(item, {
-                scrollTrigger: {
-                    trigger: item,
-                    start: 'top 80%',
-                    toggleClass: 'in-view'
-                },
-                opacity: 0,
-                duration: 1
+            gsap.utils.toArray('.fade-in').forEach(function(elem) {
+                gsap.fromTo(elem, 
+                    { opacity: 0 },
+                    {
+                        opacity: 1,
+                        duration: 0.8,
+                        scrollTrigger: {
+                            trigger: elem,
+                            start: "top 85%"
+                        }
+                    }
+                );
             });
-        });
-
-        // Commencement section animations
-        gsap.from('.commencement .section-title, .commencement .section-subtitle', {
-            scrollTrigger: {
-                trigger: '.commencement',
-                start: 'top 80%'
-            },
-            opacity: 0,
-            y: 50,
-            duration: 1,
-            stagger: 0.3
-        });
-
-        gsap.from('.slogan', {
-            scrollTrigger: {
-                trigger: '.slogan',
-                start: 'top 80%'
-            },
-            opacity: 0,
-            scale: 0.8,
-            duration: 1.5,
-            ease: 'elastic.out(1, 0.3)'
-        });
-
-        gsap.from('.dive-in', {
-            scrollTrigger: {
-                trigger: '.dive-in',
-                start: 'top 90%'
-            },
-            opacity: 0,
-            y: 30,
-            duration: 1,
-            ease: 'back.out(1.7)'
-        });
-
-        // Create animated comets
-        function createComet() {
-            const comet = document.createElement('div');
-            comet.classList.add('comet');
             
-            const yPos = Math.random();
-            const angle = Math.random() * 20 - 10; // -10 to 10 degrees
+            gsap.utils.toArray('.slide-left').forEach(function(elem) {
+                gsap.fromTo(elem, 
+                    { opacity: 0, x: 50 },
+                    {
+                        opacity: 1,
+                        x: 0,
+                        duration: 0.8,
+                        scrollTrigger: {
+                            trigger: elem,
+                            start: "top 85%"
+                        }
+                    }
+                );
+            });
             
-            comet.style.setProperty('--y', yPos);
-            comet.style.setProperty('--angle', `${angle}deg`);
+            gsap.utils.toArray('.slide-right').forEach(function(elem) {
+                gsap.fromTo(elem, 
+                    { opacity: 0, x: -50 },
+                    {
+                        opacity: 1,
+                        x: 0,
+                        duration: 0.8,
+                        scrollTrigger: {
+                            trigger: elem,
+                            start: "top 85%"
+                        }
+                    }
+                );
+            });
             
-            document.body.appendChild(comet);
+            gsap.utils.toArray('.scale-in').forEach(function(elem) {
+                gsap.fromTo(elem, 
+                    { opacity: 0, scale: 0.8 },
+                    {
+                        opacity: 1,
+                        scale: 1,
+                        duration: 0.8,
+                        scrollTrigger: {
+                            trigger: elem,
+                            start: "top 85%"
+                        }
+                    }
+                );
+            });
             
-            anime({
-                targets: comet,
-                translateX: [-100, window.innerWidth + 100],
-                translateY: [window.innerHeight * yPos, window.innerHeight * yPos],
-                opacity: [
-                    { value: 0, duration: 0 },
-                    { value: 1, duration: 300 },
-                    { value: 1, duration: 1000 },
-                    { value: 0, duration: 300 }
-                ],
-                easing: 'linear',
-                duration: 3000 + Math.random() * 3000,
-                complete: function() {
-                    comet.remove();
+            // Parallax effects
+            gsap.utils.toArray('.vision-bg, .hero-bg').forEach(function(elem) {
+                gsap.fromTo(elem, 
+                    { y: 0 },
+                    {
+                        y: -80,
+                        ease: "none",
+                        scrollTrigger: {
+                            trigger: elem.parentElement,
+                            start: "top bottom",
+                            end: "bottom top",
+                            scrub: true
+                        }
+                    }
+                );
+            });
+            
+            // Model cards staggered animation
+            ScrollTrigger.create({
+                trigger: '.models-grid',
+                start: "top 85%",
+                once: true,
+                onEnter: function() {
+                    gsap.to('.model-card', {
+                        opacity: 1,
+                        y: 0,
+                        duration: 0.8,
+                        stagger: 0.2
+                    });
                 }
             });
-        }
-
-        // Create comets periodically
-        setInterval(createComet, 2000);
-
-        // Create parallax stars
-        const parallaxStars = document.createElement('div');
-        parallaxStars.classList.add('parallax-stars');
-        document.body.appendChild(parallaxStars);
-
-        for (let i = 0; i < 200; i++) {
-            const star = document.createElement('div');
-            star.classList.add('star');
             
-            const size = Math.random() * 2 + 1;
-            star.style.width = `${size}px`;
-            star.style.height = `${size}px`;
-            
-            star.style.left = `${Math.random() * 100}%`;
-            star.style.top = `${Math.random() * 100}%`;
-            
-            const opacity = Math.random() * 0.7 + 0.3;
-            star.style.opacity = opacity;
-            
-            const animationDelay = Math.random() * 5;
-            star.style.animationDelay = `${animationDelay}s`;
-            
-            parallaxStars.appendChild(star);
-
-            // Animate star twinkling
-            anime({
-                targets: star,
-                opacity: [
-                    { value: opacity, duration: 0 },
-                    { value: 0.2, duration: 1000 },
-                    { value: opacity, duration: 1000 }
-                ],
-                scale: [
-                    { value: 1, duration: 0 },
-                    { value: 1.2, duration: 1000 },
-                    { value: 1, duration: 1000 }
-                ],
-                loop: true,
-                easing: 'easeInOutQuad',
-                delay: Math.random() * 3000
-            });
-        }
-
-        // Feature card hover effects with Anime.js
-        const featureCards = document.querySelectorAll('.feature-card');
-        
-        featureCards.forEach(card => {
-            card.addEventListener('mouseenter', () => {
-                anime({
-                    targets: card.querySelector('.feature-icon'),
-                    scale: 1.2,
-                    rotate: '5deg',
-                    duration: 300,
-                    easing: 'easeOutElastic(1, .8)'
-                });
+            // Feature cards staggered animation
+            ScrollTrigger.create({
+                trigger: '.features-grid',
+                start: "top 85%",
+                once: true,
+                onEnter: function() {
+                    gsap.to('.feature-card', {
+                        opacity: 1,
+                        y: 0,
+                        duration: 0.8,
+                        stagger: 0.15
+                    });
+                }
             });
             
-            card.addEventListener('mouseleave', () => {
-                anime({
-                    targets: card.querySelector('.feature-icon'),
-                    scale: 1,
-                    rotate: '0deg',
-                    duration: 300,
-                    easing: 'easeOutElastic(1, .8)'
-                });
-            });
-        });
-
-        // Button hover effects
-        const buttons = document.querySelectorAll('.get-started, .dive-in');
-        
-        buttons.forEach(button => {
-            button.addEventListener('mouseenter', () => {
-                anime({
-                    targets: button,
-                    scale: 1.05,
-                    duration: 300,
-                    easing: 'easeOutElastic(1, .8)'
-                });
+            // Header scroll effect
+            window.addEventListener('scroll', function() {
+                if (window.scrollY > 50) {
+                    document.querySelector('header').classList.add('scrolled');
+                } else {
+                    document.querySelector('header').classList.remove('scrolled');
+                }
             });
             
-            button.addEventListener('mouseleave', () => {
-                anime({
-                    targets: button,
-                    scale: 1,
-                    duration: 300,
-                    easing: 'easeOutElastic(1, .8)'
+            // Initialize particles
+            particlesJS('particles-js', {
+                "particles": {
+                    "number": {
+                        "value": 80,
+                        "density": {
+                            "enable": true,
+                            "value_area": 800
+                        }
+                    },
+                    "color": {
+                        "value": "#ffffff"
+                    },
+                    "shape": {
+                        "type": "circle",
+                        "stroke": {
+                            "width": 0,
+                            "color": "#000000"
+                        },
+                        "polygon": {
+                            "nb_sides": 5
+                        }
+                    },
+                    "opacity": {
+                        "value": 0.15,
+                        "random": false,
+                        "anim": {
+                            "enable": false,
+                            "speed": 1,
+                            "opacity_min": 0.1,
+                            "sync": false
+                        }
+                    },
+                    "size": {
+                        "value": 3,
+                        "random": true,
+                        "anim": {
+                            "enable": false,
+                            "speed": 40,
+                            "size_min": 0.1,
+                            "sync": false
+                        }
+                    },
+                    "line_linked": {
+                        "enable": true,
+                        "distance": 150,
+                        "color": "#ffffff",
+                        "opacity": 0.1,
+                        "width": 1
+                    },
+                    "move": {
+                        "enable": true,
+                        "speed": 2,
+                        "direction": "none",
+                        "random": false,
+                        "straight": false,
+                        "out_mode": "out",
+                        "bounce": false,
+                        "attract": {
+                            "enable": false,
+                            "rotateX": 600,
+                            "rotateY": 1200
+                        }
+                    }
+                },
+                "interactivity": {
+                    "detect_on": "canvas",
+                    "events": {
+                        "onhover": {
+                            "enable": true,
+                            "mode": "grab"
+                        },
+                        "onclick": {
+                            "enable": true,
+                            "mode": "push"
+                        },
+                        "resize": true
+                    },
+                    "modes": {
+                        "grab": {
+                            "distance": 140,
+                            "line_linked": {
+                                "opacity": 0.3
+                            }
+                        },
+                        "bubble": {
+                            "distance": 400,
+                            "size": 40,
+                            "duration": 2,
+                            "opacity": 8,
+                            "speed": 3
+                        },
+                        "repulse": {
+                            "distance": 200,
+                            "duration": 0.4
+                        },
+                        "push": {
+                            "particles_nb": 4
+                        },
+                        "remove": {
+                            "particles_nb": 2
+                        }
+                    }
+                },
+                "retina_detect": true
+            });
+            
+            // Smooth scrolling for navigation
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        window.scrollTo({
+                            top: target.offsetTop - 70,
+                            behavior: 'smooth'
+                        });
+                    }
                 });
             });
         });
