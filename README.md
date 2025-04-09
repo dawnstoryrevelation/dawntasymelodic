@@ -13,3 +13,24 @@ Dawntasy Melodic is my musical persona, creating enchanting soundtracks that com
 **About the Website:**
 
 This website serves as the official online presence for Dawntasy Melodic. It provides information about my music, links to my official profiles, and details about the Dawntasy Saga.
+
+Dataset Attribution
+This project utilizes the following datasets from Hugging Face:
+
+UltraFeedback (Binarized Preferences)
+Source: argilla/ultrafeedback-binarized-preferences
+
+License: ODC-By 1.0
+
+Attribution Note:
+This dataset is derived from UltraFeedback and is used under the Open Data Commons Attribution License (ODC-By). You must include this attribution when using the data.
+
+UltraChat
+Source: HuggingFaceH4/ultrachat_200k
+
+License: MIT
+
+GSM8K
+Source: gsm8k
+
+License: MIT
