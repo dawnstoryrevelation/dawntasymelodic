@@ -1,113 +1,184 @@
-Line 1: Error decoding JSON: Expecting value: line 1 column 1 (char 0)
-Line 2: Error decoding JSON: Expecting ',' delimiter: line 1 column 123 (char 122)
-Line 3: Error decoding JSON: Extra data: line 1 column 9982 (char 9981)
-Line 4: Error decoding JSON: Extra data: line 1 column 9668 (char 9667)
-Line 5: Error decoding JSON: Extra data: line 1 column 9846 (char 9845)
-Line 6: Error decoding JSON: Extra data: line 1 column 9657 (char 9656)
-Line 7: Error decoding JSON: Extra data: line 1 column 10139 (char 10138)
-Line 8: Error decoding JSON: Extra data: line 1 column 9865 (char 9864)
-Line 9: Error decoding JSON: Extra data: line 1 column 9266 (char 9265)
-Line 10: Error decoding JSON: Extra data: line 1 column 9703 (char 9702)
-Line 11: Error decoding JSON: Invalid \escape: line 1 column 2624 (char 2623)
-Line 12: Error decoding JSON: Extra data: line 1 column 9408 (char 9407)
-Line 13: Error decoding JSON: Extra data: line 1 column 9380 (char 9379)
-Line 14: Error decoding JSON: Extra data: line 1 column 9366 (char 9365)
-Line 15: Error decoding JSON: Extra data: line 1 column 9200 (char 9199)
-Line 16: Error decoding JSON: Extra data: line 1 column 9546 (char 9545)
-Line 17: Error decoding JSON: Extra data: line 1 column 9696 (char 9695)
-Line 18: Error decoding JSON: Extra data: line 1 column 10055 (char 10054)
-Line 19: Error decoding JSON: Extra data: line 1 column 10047 (char 10046)
-Line 20: Error decoding JSON: Extra data: line 1 column 9436 (char 9435)
-Line 21: Error decoding JSON: Extra data: line 1 column 8774 (char 8773)
-Line 22: Error decoding JSON: Extra data: line 1 column 9259 (char 9258)
-Line 23: Error decoding JSON: Extra data: line 1 column 9635 (char 9634)
-Line 24: Error decoding JSON: Extra data: line 1 column 9389 (char 9388)
-Line 25: Error decoding JSON: Extra data: line 1 column 9397 (char 9396)
-Line 26: Error decoding JSON: Extra data: line 1 column 9869 (char 9868)
-Line 27: Error decoding JSON: Extra data: line 1 column 9789 (char 9788)
-Line 28: Error decoding JSON: Extra data: line 1 column 9925 (char 9924)
-Line 29: Error decoding JSON: Extra data: line 1 column 9876 (char 9875)
-Line 30: Error decoding JSON: Extra data: line 1 column 9419 (char 9418)
-Line 31: Error decoding JSON: Extra data: line 1 column 8254 (char 8253)
-Line 32: Error decoding JSON: Extra data: line 1 column 8398 (char 8397)
-Line 33: Error decoding JSON: Extra data: line 1 column 8166 (char 8165)
-Line 34: Error decoding JSON: Extra data: line 1 column 8116 (char 8115)
-Line 35: Error decoding JSON: Extra data: line 1 column 8442 (char 8441)
-Line 36: Error decoding JSON: Extra data: line 1 column 9362 (char 9361)
-Line 37: Error decoding JSON: Extra data: line 1 column 9273 (char 9272)
-Line 38: Error decoding JSON: Extra data: line 1 column 9256 (char 9255)
-Line 39: Error decoding JSON: Extra data: line 1 column 9351 (char 9350)
-Line 40: Error decoding JSON: Extra data: line 1 column 9265 (char 9264)
-Line 41: Error decoding JSON: Extra data: line 1 column 9436 (char 9435)
-Line 42: Error decoding JSON: Extra data: line 1 column 7385 (char 7384)
-Line 43: Error decoding JSON: Extra data: line 1 column 7301 (char 7300)
-Line 44: Error decoding JSON: Extra data: line 1 column 7264 (char 7263)
-Line 45: Error decoding JSON: Extra data: line 1 column 8057 (char 8056)
-Line 46: Error decoding JSON: Extra data: line 1 column 7677 (char 7676)
-Line 47: Error decoding JSON: Extra data: line 1 column 7697 (char 7696)
-Line 48: Error decoding JSON: Extra data: line 1 column 7265 (char 7264)
-Line 49: Error decoding JSON: Extra data: line 1 column 10162 (char 10161)
-Line 50: Error decoding JSON: Extra data: line 1 column 7816 (char 7815)
-Line 51: Error decoding JSON: Extra data: line 1 column 8338 (char 8337)
-Line 52: Error decoding JSON: Extra data: line 1 column 8323 (char 8322)
-Line 53: Error decoding JSON: Extra data: line 1 column 8645 (char 8644)
-Line 54: Error decoding JSON: Extra data: line 1 column 8392 (char 8391)
-Line 60: Error decoding JSON: Extra data: line 1 column 3445 (char 3444)
-Line 61: Error decoding JSON: Extra data: line 1 column 6274 (char 6273)
-Line 66: Error decoding JSON: Expecting ',' delimiter: line 1 column 2954 (char 2953)
-Line 67: Error decoding JSON: Expecting ',' delimiter: line 1 column 1960 (char 1959)
-Line 72: Error decoding JSON: Expecting ',' delimiter: line 1 column 5291 (char 5290)
-Line 170: Error decoding JSON: Extra data: line 1 column 542 (char 541)
-Line 171: Error decoding JSON: Extra data: line 1 column 494 (char 493)
-Line 652: Error decoding JSON: Expecting ',' delimiter: line 1 column 717 (char 716)
-Line 657: Error decoding JSON: Expecting ',' delimiter: line 1 column 6283 (char 6282)
-Line 667: Error decoding JSON: Extra data: line 1 column 4256 (char 4255)
-Line 668: Error decoding JSON: Extra data: line 1 column 5048 (char 5047)
-Line 669: Error decoding JSON: Extra data: line 1 column 5545 (char 5544)
-Line 670: Error decoding JSON: Extra data: line 1 column 5465 (char 5464)
-Line 671: Error decoding JSON: Extra data: line 1 column 5789 (char 5788)
-Line 672: Error decoding JSON: Extra data: line 1 column 5902 (char 5901)
-Line 673: Error decoding JSON: Extra data: line 1 column 6267 (char 6266)
-Line 674: Error decoding JSON: Extra data: line 1 column 5997 (char 5996)
-Line 675: Error decoding JSON: Extra data: line 1 column 6337 (char 6336)
-Line 676: Error decoding JSON: Extra data: line 1 column 6362 (char 6361)
-Line 683: Error decoding JSON: Invalid \escape: line 1 column 148 (char 147)
-Line 688: Error decoding JSON: Invalid \escape: line 1 column 148 (char 147)
-Line 698: Error decoding JSON: Extra data: line 1 column 5314 (char 5313)
-Line 699: Error decoding JSON: Extra data: line 1 column 5379 (char 5378)
-Line 700: Error decoding JSON: Extra data: line 1 column 6201 (char 6200)
-Line 702: Error decoding JSON: Extra data: line 1 column 6582 (char 6581)
-Line 703: Error decoding JSON: Extra data: line 1 column 7041 (char 7040)
-Line 704: Error decoding JSON: Expecting ',' delimiter: line 1 column 4885 (char 4884)
-Line 705: Error decoding JSON: Extra data: line 1 column 6207 (char 6206)
-Line 706: Error decoding JSON: Extra data: line 1 column 5880 (char 5879)
-Line 707: Error decoding JSON: Extra data: line 1 column 6041 (char 6040)
-Line 708: Error decoding JSON: Extra data: line 1 column 6481 (char 6480)
-Line 709: Error decoding JSON: Extra data: line 1 column 7440 (char 7439)
-Line 710: Error decoding JSON: Extra data: line 1 column 6853 (char 6852)
-Line 711: Error decoding JSON: Extra data: line 1 column 7033 (char 7032)
-Line 754: Error decoding JSON: Expecting ',' delimiter: line 1 column 4511 (char 4510)
-Line 762: Error decoding JSON: Expecting ',' delimiter: line 1 column 3411 (char 3410)
-Line 764: Error decoding JSON: Expecting ',' delimiter: line 1 column 4042 (char 4041)
-Line 768: Error decoding JSON: Expecting ',' delimiter: line 1 column 7229 (char 7228)
-Line 770: Error decoding JSON: Expecting ',' delimiter: line 1 column 10178 (char 10177)
-Line 771: Error decoding JSON: Expecting ',' delimiter: line 1 column 8113 (char 8112)
-Line 773: Error decoding JSON: Extra data: line 1 column 8007 (char 8006)
-Line 775: Error decoding JSON: Expecting ',' delimiter: line 1 column 5347 (char 5346)
-Line 776: Error decoding JSON: Expecting ',' delimiter: line 1 column 3007 (char 3006)
-Line 777: Error decoding JSON: Extra data: line 1 column 8553 (char 8552)
-Line 778: Error decoding JSON: Extra data: line 1 column 9201 (char 9200)
-Line 779: Error decoding JSON: Extra data: line 1 column 8067 (char 8066)
-Line 780: Error decoding JSON: Extra data: line 1 column 7768 (char 7767)
-Line 781: Error decoding JSON: Extra data: line 1 column 8168 (char 8167)
-Line 782: Error decoding JSON: Extra data: line 1 column 8728 (char 8727)
-Line 783: Error decoding JSON: Extra data: line 1 column 9283 (char 9282)
-Line 784: Error decoding JSON: Extra data: line 1 column 7452 (char 7451)
-Line 785: Error decoding JSON: Extra data: line 1 column 7700 (char 7699)
-Line 786: Error decoding JSON: Extra data: line 1 column 8179 (char 8178)
-Line 787: Error decoding JSON: Expecting ',' delimiter: line 1 column 1143 (char 1142)
-Line 788: Error decoding JSON: Extra data: line 1 column 8185 (char 8184)
-Line 790: Error decoding JSON: Extra data: line 1 column 7982 (char 7981)
-Line 791: Error decoding JSON: Extra data: line 1 column 8186 (char 8185)
-Line 792: Error decoding JSON: Extra data: line 1 column 7621 (char 7620)
-Line 808: Error decoding JSON: Expecting ',' delimiter: line 1 column 6686 (char 6685)
+Line 18, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 19, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 20, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 21, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 22, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 23, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 24, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 25, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 26, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 27, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 28, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 29, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 30, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 31, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 32, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 33, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 34, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 35, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 36, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 37, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 38, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 39, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 40, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 41: Error decoding JSON: Expecting ',' delimiter: line 1 column 1259 (char 1258)
+Line 42, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 43, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 44, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 45, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 46, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 47, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 48: Error decoding JSON: Extra data: line 1 column 1936 (char 1935)
+Line 49, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 50, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 51, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 52, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 53, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 54, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 55, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 56, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 57: Error decoding JSON: Expecting ',' delimiter: line 1 column 375 (char 374)
+Line 110, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 111, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 112, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 113, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 114, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 115: Error decoding JSON: Expecting ',' delimiter: line 1 column 380 (char 379)
+Line 116: Error decoding JSON: Expecting ',' delimiter: line 1 column 361 (char 360)
+Line 117: Error decoding JSON: Expecting ',' delimiter: line 1 column 372 (char 371)
+Line 118: Error decoding JSON: Expecting ',' delimiter: line 1 column 368 (char 367)
+Line 119, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 120, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 121, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 122, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 123, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 124, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 125, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 126, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 127, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 128, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 129, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 130, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 131, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 132, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 133, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 134, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 135, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 136, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 137, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 138, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 139, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 140, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 141, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 142, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 143, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 144, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 145, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 146, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 147, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 148, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 149: Error decoding JSON: Expecting ',' delimiter: line 1 column 206 (char 205)
+Line 150, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 151, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 152, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 153, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 154, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 155, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 156, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 157, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 158: Error decoding JSON: Extra data: line 1 column 2544 (char 2543)
+Line 159, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 160, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 161, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 162, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 163, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 164, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 165, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 166, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 167, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 168, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 169, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 170, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 171, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 172, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 173, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 174, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 175, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 176, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 177, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 178, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 179, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 180, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 181: Error decoding JSON: Expecting ',' delimiter: line 1 column 1397 (char 1396)
+Line 182: Error decoding JSON: Expecting ',' delimiter: line 1 column 676 (char 675)
+Line 183: Error decoding JSON: Expecting ',' delimiter: line 1 column 1529 (char 1528)
+Line 184: Error decoding JSON: Expecting ',' delimiter: line 1 column 1202 (char 1201)
+Line 185, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 186, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 187, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 188, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 189, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 190, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 191, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 192, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 193, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 194, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 195, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 196, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 197, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 198, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 199, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 200, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 201, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 202, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 203, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 252, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 253, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 254, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 255, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 256, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 257, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 258, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 259, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 260, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 261, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 262, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 263, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 264, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 265, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 266, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 267, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 268, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 269, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 270, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 271, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 272, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 273, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 274, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 275, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 276, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 277, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 278, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 279, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 280, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 281, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 410: Error decoding JSON: Expecting ',' delimiter: line 1 column 1757 (char 1756)
+Line 411: Error decoding JSON: Expecting ',' delimiter: line 1 column 3337 (char 3336)
+Line 416: Error decoding JSON: Expecting ',' delimiter: line 1 column 1966 (char 1965)
+Line 448, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 449, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 450, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 451, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 452, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 453, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 454, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 455, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 456, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 457, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 458, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 459, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 460, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 461, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 462, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 463, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.
+Line 464, message 1: Unexpected role: 'system'. Should be 'user' or 'assistant'.

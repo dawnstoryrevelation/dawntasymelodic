@@ -87,8 +87,8 @@ def check_and_correct_jsonl(input_file, output_file=None, report_file=None):
             print(entry)
 
 if __name__ == "__main__":
-    input_file = "dawntasyAI-training.jsonl"
-    output_file = "corrected_dawntasyAI-training.jsonl"
+    input_file = "corrected_dawntasyAI-training.jsonl"
+    output_file = "lets_corrected_dawntasyAI-training.jsonl"
     report_file = "dawntasyAI-training_report.txt"
 
     check_and_correct_jsonl(input_file, output_file, report_file)
