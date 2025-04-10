@@ -1183,6 +1183,7 @@ import { useRouter } from 'vue-router';
 import { onUnmounted } from 'vue';
 import MemoryBank from '@/components/MemoryBank.vue';
 import memoryService from '@/services/enhancedMemoryService';
+import { getPTECompletion, getPTEImage } from '@/services/api'; 
 
 export default {
   name: "DawntasyChat",
@@ -1192,7 +1193,6 @@ export default {
   setup() {
     // Initialize Firebase services
     const db = getFirestore();
-    const apiKey = import.meta.env.VITE_OPENAI_API_KEY || "";
     const auth = getAuth();
     const useWebSearch = ref(false);
     // Add this near the beginning of your setup function, after initializing Firebase// Add this near the beginning of your setup function, after initializing Firebase
@@ -1263,96 +1263,43 @@ const openBookLink = () => {
   window.open('https://www.amazon.com/Dawntasy-Circular-Dawn-breathtaking-fantasy-ebook/dp/B0DT74DLY5/', '_blank');
 };
 // Replace the existing processStream function with this enhanced version that prevents duplicates
-const processStream = async (stream, messageIndex, isReasoningStream = false) => {
-  if (!stream) {
-    throw new Error("No stream provided");
+
+// Add this to your setup function or directly in a script block
+const setupViewportHeightFix = () => {
+  // Initial calculation
+  let vh = window.innerHeight * 0.01;
+  document.documentElement.style.setProperty('--vh', `${vh}px`);
+  
+  // Recalculate on resize and orientation change
+  const recalculateVh = () => {
+    // Add small timeout to ensure new height is accurate after URL bar shows/hides
+    setTimeout(() => {
+      vh = window.innerHeight * 0.01;
+      document.documentElement.style.setProperty('--vh', `${vh}px`);
+    }, 100);
+  };
+  
+  // Add event listeners
+  window.addEventListener('resize', recalculateVh);
+  window.addEventListener('orientationchange', recalculateVh);
+  
+  // Special handling for mobile Chrome and Safari
+  if ('ontouchstart' in window) {
+    window.addEventListener('scroll', recalculateVh);
+    // iOS Safari needs additional help
+    window.visualViewport?.addEventListener('resize', recalculateVh);
   }
   
-  const reader = stream.getReader();
-  let completeResponse = "";
-  const message = messages.value[messageIndex];
-  
-  try {
-    // Set a small initial delay to simulate thinking
-    if (isReasoningStream && message.streamContent === "") {
-      // Start with an opening phrase to mimic internal thinking
-      message.reasoning = "Let me think about this...";
-      await new Promise(resolve => setTimeout(resolve, 500));
-    }
-    
-    while (true) {
-      const { done, value } = await reader.read();
-      
-      if (done) break;
-      
-      const chunkText = new TextDecoder().decode(value);
-      const lines = chunkText.split("\n").filter(line => line.trim() !== "");
-      
-      for (const line of lines) {
-        if (line.startsWith("data: ") && line !== "data: [DONE]") {
-          try {
-            const jsonData = line.substring(6);
-            if (jsonData.trim() === "[DONE]") continue;
-            
-            const data = JSON.parse(jsonData);
-            
-            if (data.choices && data.choices[0].delta && data.choices[0].delta.content) {
-              const content = data.choices[0].delta.content;
-              completeResponse += content;
-              
-              // Update the appropriate content based on whether this is a reasoning stream or response stream
-              if (message) {
-                // For Logic mode, we track what we're currently streaming with a flag
-                if (isReasoningStream || (message.currentlyStreamingReasoning === true)) {
-                  // When streaming reasoning, update the reasoning property
-                  message.reasoning = completeResponse;
-                  // Also reflect this in streamContent to show it's happening in real-time
-                  message.streamContent = "Thinking: " + completeResponse;
-                } else {
-                  // When streaming the main response, ONLY update streamContent
-                  // This prevents duplicating content in the final response
-                  message.streamContent = completeResponse;
-                }
-                
-                await nextTick();
-                scrollToBottom();
-              }
-            }
-          } catch (e) {
-            console.error("Error parsing streaming data:", e, line);
-          }
-        }
-      }
-      
-      // Add a tiny delay between chunks to make the streaming look more natural
-      await new Promise(resolve => setTimeout(resolve, 5));
-    }
-    
-    // Finalize the message based on the type of stream - CRITICAL FIX HERE
-    if (message) {
-      if (isReasoningStream || message.currentlyStreamingReasoning === true) {
-        // This was a reasoning stream, update the reasoning field
-        message.reasoning = completeResponse;
-        message.hasReasoning = true;
-        
-        // Mark that we're done with the reasoning phase
-        message.currentlyStreamingReasoning = false;
-        // Clear streamContent to prepare for the actual response
-        message.streamContent = "";
-      } else {
-        // This was a response stream, update the content field ONLY ONCE
-        // This is the key fix - previously content was being set multiple times
-        message.content = completeResponse;
-        message.isStreaming = false;
-      }
-    }
-    
-    return completeResponse;
-  } finally {
-    reader.releaseLock();
-  }
+  // Call once on page load and after small delay
+  recalculateVh();
+  setTimeout(recalculateVh, 500);
 };
 
+// Call this in onMounted
+onMounted(() => {
+  setupViewportHeightFix();
+  // Your existing onMounted code...
+});
 // Update the sendMessage function to ensure reasoning informs response
 
 // ===== 🧠 REVOLUTIONARY NEW FEATURE: QUANTUM INTELLIGENCE SYSTEM 🧠 =====
@@ -2497,311 +2444,267 @@ const deployBranchToChat = async (chatId) => {
   }
 };
 // Replace your current sendMessage function with this enhanced version that handles separate reasoning
+// Import the helper functions (make sure this is at the top of <script setup>)
+
+
+// --- REPLACEMENT for sendMessage function ---
 const sendMessage = async (text) => {
-  const messageText = text || userInput.value.trim();
-  
+  const messageText = text || userInput.value.trim(); // Original user text
+
   if (!messageText) return;
-  
   if (!currentChatId.value) {
     showNewChatPopup.value = true;
     return;
   }
-  
-  // Retrieve relevant memories
-  const relevantMemories = await memoryService.retrieveRelevantMemories(messageText);
-  
-  // Use the enhanced memory prompt creation
-  let enhancedPrompt = messageText;
-  if (relevantMemories && relevantMemories.length > 0) {
-    const memoryPrompt = createMemoryPrompt(relevantMemories, messageText);
-    if (memoryPrompt) {
-      enhancedPrompt = `${memoryPrompt}\n\nWith that context in mind, please respond to: ${messageText}`;
-    }
-  }
-  
+
+  // 1. Handle User Message & Memory Processing (Keep this part)
   const userMessage = {
     role: "user",
     content: messageText,
     timestamp: Date.now()
   };
-  
   messages.value.push(userMessage);
-  
-  // Process message for memory extraction
+
+  // Retrieve relevant memories BEFORE creating the enhanced prompt
+  const relevantMemories = await memoryService.retrieveRelevantMemories(messageText);
+  let enhancedPrompt = messageText; // Prompt to be sent to AI
+  if (relevantMemories && relevantMemories.length > 0) {
+    const memoryPrompt = createMemoryPrompt(relevantMemories, messageText);
+    if (memoryPrompt) {
+      enhancedPrompt = `${memoryPrompt}\n\nWith that context in mind, please respond to: ${messageText}`;
+      console.log("Using enhanced prompt with memory context.");
+    }
+  }
+
+  // Process original message for memory extraction (if needed)
   await memoryService.processMessage(messageText, true);
-  
+
+  // Save user message to Firebase (if not demo user)
   if (userId.value !== "demo-user") {
     try {
       await saveMessageToFirebase(userMessage);
     } catch (error) {
       console.error("Error saving user message:", error);
+      // Non-critical, continue processing
     }
   }
-  
+
+  // Clear input and scroll (Keep this part)
   userInput.value = "";
   if (inputField.value) {
     inputField.value.style.height = "auto";
   }
-  
   await nextTick();
   scrollToBottom();
-  
+
+  // --- Image Generation Check (Keep this part) ---
   if (imageEnabled.value) {
-    imageEnabled.value = false;
-    await generateImage(messageText);
+    imageEnabled.value = false; // Reset flag
+    await generateImage(messageText); // Call the NEW generateImage
     return;
   }
-  
+
+  // --- Prepare for AI Response ---
   isLoading.value = true;
-  isThinkingDeeper.value = true;
-  
-  // Start the thinking messages cycle
-  const thinkingInterval = startThinkingMessages();
-  
-  const streamingMessageIndex = messages.value.length;
-  
+  isThinkingDeeper.value = logicEnabled.value || reasoningEnabled.value || archmageEnabled.value;
+  isStreaming.value = true; // Use this for general loading UI state
+
+  // Start thinking messages UI if you have it
+  // const thinkingInterval = startThinkingMessages(); // Uncomment if using
+
+  // Add placeholder for AI response
+  const responseMessageIndex = messages.value.length;
+  const placeholderMessage = reactive({ // Make it reactive if needed for UI updates
+    role: "assistant",
+    content: "Thinking...", // Initial placeholder text
+    reasoning: "",
+    hasReasoning: logicEnabled.value || reasoningEnabled.value, // Anticipate based on mode
+    showReasoning: false,
+    timestamp: Date.now(),
+    isStreaming: true // Flag for loading state
+    // Remove currentlyStreamingReasoning - not needed without frontend streaming
+  });
+  messages.value.push(placeholderMessage);
+
+  await nextTick();
+  scrollToBottom();
+
+  // --- Call PTE Backend via api.js helper ---
   try {
-    // Create a message placeholder - but with different structure depending on mode
-    if (logicEnabled.value) {
-      // In logic mode, we create a message that will have BOTH reasoning AND content
-      messages.value.push({
-        role: "assistant",
-        content: "",
-        streamContent: "",
-        reasoning: "",
-        hasReasoning: true,
-        showReasoning: false,
-        timestamp: Date.now(),
-        isStreaming: true,
-        currentlyStreamingReasoning: true // NEW FLAG to track what we're currently streaming
-      });
+    // Determine target API and Model (Keep your existing logic)
+    let currentTargetApi = 'openai';
+    let currentModel = 'gpt-4o-mini'; // Use your preferred default
+     if (logicEnabled.value) {
+         currentTargetApi = 'fireworks';
+         currentModel = 'accounts/fireworks/models/deepseek-r1-basic'; // Your Fireworks model
+     } else if (archmageEnabled.value) {
+         currentTargetApi = 'openai'; // Or fireworks
+         currentModel = 'o3-mini'; // Your Archmage model
+     } else if (reasoningEnabled.value) {
+          currentTargetApi = 'openai';
+          currentModel = 'o3-mini'; // Your Reasoning model
+     }
+     // ... add other mode checks if necessary ...
+
+    // Prepare conversation history (send only role/content)
+    const historyForBackend = messages.value
+         .slice(0, responseMessageIndex) // Get messages BEFORE the placeholder
+         .filter(msg => msg && typeof msg.role === 'string' && typeof msg.content === 'string') // Basic validation
+         .map(msg => ({ role: msg.role, content: msg.content }));
+
+    // Call the backend function
+    const data = await getPTECompletion({
+        prompt: enhancedPrompt, // Use the potentially memory-enhanced prompt
+        conversationHistory: historyForBackend,
+        systemPrompt: getDawntasySystemPrompt(), // Your function to get the right system prompt
+        targetApi: currentTargetApi,
+        model: currentModel,
+        stream: false, // We are NOT streaming from frontend perspective now
+        temperature: 0.7, // Adjust as needed
+        max_tokens: 10000 // Adjust as needed
+    });
+
+    // --- Process the COMPLETE response from the backend ---
+    // 'data' is the direct JSON response from the external API (OpenAI/Fireworks)
+    let aiContent = "";
+    let extractedReasoning = "";
+    let finalResponse = "";
+
+    // Extract content (adjust based on actual API response structure if needed)
+    aiContent = data.choices?.[0]?.message?.content || "Sorry, I received an empty response.";
+
+    // If logic/reasoning was *expected*, try to extract it using your existing function
+    if (logicEnabled.value || reasoningEnabled.value) {
+        const extracted = extractReasoning(aiContent); // Your function to split markers
+        extractedReasoning = extracted.reasoning;
+        finalResponse = extracted.finalResponse;
+        placeholderMessage.hasReasoning = !!extractedReasoning; // Update based on actual extraction
     } else {
-      // In normal mode, just create a standard message 
-      messages.value.push({
-        role: "assistant",
-        content: "",
-        streamContent: "",
-        reasoning: "",
-        hasReasoning: reasoningEnabled.value,
-        showReasoning: false,
-        timestamp: Date.now(),
-        isStreaming: true
-      });
+        finalResponse = aiContent;
+        placeholderMessage.hasReasoning = false; // No reasoning expected
     }
-    
-    isStreaming.value = true;
-    
-    if (userId.value === "demo-user") {
-      await mockStreamingResponse(streamingMessageIndex, messageText);
-    } else {
-      const conversationHistory = messages.value
-        .slice(0, -1)
-        .map(msg => ({
-          role: msg.role,
-          content: msg.content
-        }));
-      
-      const systemPrompt = getDawntasySystemPrompt();
-      
-      try {
-        // MAJOR CHANGE: Completely rewritten logic for handling reasoning
-        if (logicEnabled.value) {
-          console.log("Logic mode enabled, generating reasoning first...");
-          
-          // STEP 1: Create a special system prompt for reasoning
-          const reasoningSystemPrompt = systemPrompt + `
-          
-          [CRITICAL INSTRUCTION - REASONING FORMAT]
-          You must provide your reasoning in an internal monologue format. Explicitly show your thought process as you work through the question, including:
-          
-          Use words like "Alright" "Okay" "Let me break this down" "Hmm" "I remember" "Wait" "What if"
-          
-          You MUST follow by a similar style of thinking to this in your reasoning process. A very good example would be: "Alright. Let me break this down. The user just asked me what the capital of France is. Let me recall what I know about France. Hmm. (continued)"
-          
-          1. Analyse the user's query, considering possible emotional connotations, interests/goals being achieved and tonal insights
-          2. Identify what you can do to reply, and EVERY SINGLE POSSIBILITY to the query
-          3. List Exploration of knowledge, eg. recalling from memory to gain background context as to better support the user's aims, knowledge/data you know to reply to the query
-          4. Counterargue your stance, and consider possible rebuttals to your stance. 
-          5. Lens, consider multiple perspectives in hyper level detail and explore every possible viewpoint for the user's message. TO guide you, look from the perspective of: Philosophical, Scientific, Logical, Emotive, Branched Out (innovative way of thinking), Ethical, Factual, Inferential
-          6. Activate your response and sum up what you have reasoned about and conclude
 
-          Your reasoning should feel like natural thought progression:
-          "Alright, so the user is asking about X. This is interesting because... First, I should consider... But wait, I also need to think about... Actually, from another perspective... Based on all this, I think the best answer would be..."
-          
-          VERY IMPORTANT: Only provide the reasoning, NOT the final response! The actual response will be generated separately.`;
-          
-          // First API call: Generate reasoning ONLY
-          const reasoningPrompt = `I need your detailed thought process and reasoning about this query: "${enhancedPrompt}"
-          
-          Show me your internal monologue as you think about how to answer this. Walk through your thinking step-by-step, considering various angles and approaches.
-          
-          DO NOT include your final response - ONLY your reasoning process!`;
-          
-          // Create stream for reasoning
-          const reasoningStream = await createStream(
-            [...conversationHistory, { role: "user", content: reasoningPrompt }],
-            reasoningSystemPrompt,
-            10000
-          );
-          
-          // Process the reasoning stream - NOTE THE true parameter to indicate it's reasoning
-          await processStream(
-            reasoningStream,
-            streamingMessageIndex,
-            true // This is a reasoning stream
-          );
-          
-          // Update the message to show we're now streaming the main response
-          messages.value[streamingMessageIndex].currentlyStreamingReasoning = false;
-          // Clear streamContent because we're moving to the regular response now
-          messages.value[streamingMessageIndex].streamContent = "";
-          
-          console.log("Reasoning generated, now generating response...");
-          const aiMessage = messages.value[streamingMessageIndex];
-const reasoningContext = aiMessage.reasoning;
+    // Update the placeholder message in the UI with the final content
+    placeholderMessage.content = finalResponse;
+    placeholderMessage.reasoning = extractedReasoning;
+    placeholderMessage.isStreaming = false; // Mark as complete for UI
 
-          // Second API call: Generate actual response based on query (not using reasoning in prompt)
-// Second API call: Generate actual response based on query
-const responsePrompt = `I have completed a detailed reasoning process about this query: "${enhancedPrompt}"
+    // Save the final completed message to Firebase
+    await saveMessageToFirebase(placeholderMessage);
 
-My reasoning process is as follows:
-${reasoningContext}
+    // Call post-processing functions (Keep these)
+    logInteraction(messageText, placeholderMessage); // Log interaction
+    await memoryService.processMessage(placeholderMessage.content, false); // Process for memory
+    await processSelfOptimization(messageText, placeholderMessage); // Self-optimization
 
-IMPORTANT INSTRUCTION: I need to provide ONLY a direct response to the user now.
-
-DO NOT:
-- Include any reasoning markers like [REASONING_START] or [REASONING_END]
-- Generate any new reasoning process
-- Begin your response with phrases like "Based on my reasoning" or "After analyzing this"
-- Include any meta-commentary about how you thought through the problem
-
-DO:
-- Use the insights from my reasoning directly
-- Provide a clear, comprehensive answer to the user's query
-- Write as if you're directly addressing the user's needs
-- Present conclusions and recommendations from the reasoning
-
-The final response should be clear, helpful, and directly address what the user asked.
-`;
-const responseStream = await createStream(
-  [...conversationHistory, { role: "user", content: responsePrompt }],
-  systemPrompt,
-  10000
-);
-          
-          // Process the response stream - with false to indicate it's not reasoning
-          await processStream(
-            responseStream,
-            streamingMessageIndex,
-            false // This is not a reasoning stream
-          );
-          
-          // After processing the actual response, update the message
-  
-          
-          await saveMessageToFirebase(aiMessage);
-          
-          logInteraction(messageText, aiMessage);
-          await memoryService.processMessage(aiMessage.content, false);
-          await processSelfOptimization(messageText, aiMessage);
-        } else if (reasoningEnabled.value) {
-          // Standard reasoning mode with "Think Deeper" option enabled
-          // We'll generate both reasoning and response in a single API call, then split them
-          const stream = await createStream(
-            conversationHistory,
-            systemPrompt,
-            10000,
-            enhancedPrompt
-          );
-          
-          const responseText = await processStream(
-            stream,
-            streamingMessageIndex,
-            false // Not streaming reasoning specifically
-          );
-          
-          // Extract reasoning from the response if needed
-          if (responseText.includes('[REASONING_START]') && responseText.includes('[REASONING_END]')) {
-            const extracted = extractReasoning(responseText);
-            const aiMessage = messages.value[streamingMessageIndex];
-            
-            aiMessage.content = extracted.finalResponse;
-            aiMessage.reasoning = extracted.reasoning;
-            aiMessage.hasReasoning = true;
-            aiMessage.isStreaming = false;
-            
-            await saveMessageToFirebase(aiMessage);
-            
-            logInteraction(messageText, aiMessage);
-            await memoryService.processMessage(aiMessage.content, false);
-            await processSelfOptimization(messageText, aiMessage);
-          } else {
-            // If no reasoning markers found, treat as normal response
-            const aiMessage = messages.value[streamingMessageIndex];
-            aiMessage.isStreaming = false;
-            
-            await saveMessageToFirebase(aiMessage);
-            
-            logInteraction(messageText, aiMessage);
-            await memoryService.processMessage(aiMessage.content, false);
-            await processSelfOptimization(messageText, aiMessage);
-          }
-        } else {
-          // Standard response without reasoning
-          const stream = await createStream(
-            conversationHistory,
-            systemPrompt,
-            10000,
-            enhancedPrompt
-          );
-          
-          await processStream(
-            stream,
-            streamingMessageIndex,
-            false
-          );
-          
-          const aiMessage = messages.value[streamingMessageIndex];
-          aiMessage.isStreaming = false;
-          
-          await saveMessageToFirebase(aiMessage);
-          
-          logInteraction(messageText, aiMessage);
-          await memoryService.processMessage(aiMessage.content, false);
-          await processSelfOptimization(messageText, aiMessage);
-        }
-      } catch (apiError) {
-        console.error("API error:", apiError);
-        
-        await mockStreamingResponse(streamingMessageIndex, messageText, true);
-      }
+    // Apply Quantum Intelligence if applicable (Keep this logic)
+    if (quantumIntelligenceEnabled && quantumIntelligenceSystem) { // Ensure system exists
+         // Pass index of the *updated* message
+         await applyQuantumIntelligenceEnhancement(responseMessageIndex, messageText);
     }
+
   } catch (error) {
-    console.error("Error sending message:", error);
-    
-    if (messages.value[streamingMessageIndex]) {
-      messages.value[streamingMessageIndex].content =
-        "⚠️ I encountered an error while processing your request. Please try again later.";
-      messages.value[streamingMessageIndex].isStreaming = false;
-      
-      try {
-        await saveMessageToFirebase(messages.value[streamingMessageIndex]);
-      } catch (saveError) {
-        console.error("Error saving error message:", saveError);
-      }
-    }
+    console.error("Error in sendMessage via PTE backend:", error);
+    // Update placeholder with error message
+    placeholderMessage.content = `⚠️ Error: ${error.message || 'Failed to get response.'}`;
+    placeholderMessage.isStreaming = false;
+    placeholderMessage.hasReasoning = false;
+    showToastNotification(`Error: ${error.message || 'Failed to get response.'}`, "error");
+    await saveMessageToFirebase(placeholderMessage); // Save error state
   } finally {
-    // Clear the thinking message interval
-    clearInterval(thinkingInterval);
-    
+    // Reset loading states (Keep this part)
     isLoading.value = false;
     isThinkingDeeper.value = false;
     isStreaming.value = false;
-    
-    if (messages.value[streamingMessageIndex]) {
-      messages.value[streamingMessageIndex].isStreaming = false;
+    // Ensure the specific message's flag is false
+    if (messages.value[responseMessageIndex]) {
+        messages.value[responseMessageIndex].isStreaming = false;
     }
-    
+    // clearInterval(thinkingInterval); // Stop thinking messages if using interval
+    await nextTick(); // Ensure UI updates before scrolling
+    scrollToBottom();
+  }
+};
+
+// --- REPLACEMENT for generateImage function ---
+const generateImage = async (promptText) => {
+  if (!currentChatId.value) {
+    showToastNotification("Please create or select a chat first", "error");
+    return;
+  }
+
+  // 1. Handle User Message (Keep this part)
+  const userMessage = {
+    role: "user",
+    content: promptText, // Keep original prompt for display
+    timestamp: Date.now()
+  };
+  messages.value.push(userMessage);
+  if (userId.value !== "demo-user") {
+      try { await saveMessageToFirebase(userMessage); } catch(e) { console.error("Failed to save user image prompt", e); }
+  }
+  await nextTick();
+  scrollToBottom();
+
+  // --- Prepare for AI Response ---
+  isLoading.value = true;
+  isStreaming.value = true; // Use for general loading UI
+
+  // Add placeholder for AI image response
+  const responseMessageIndex = messages.value.length;
+  const placeholderMessage = reactive({
+    role: "assistant",
+    content: "Generating image...", // Placeholder text
+    timestamp: Date.now(),
+    hasReasoning: false,
+    isStreaming: true
+  });
+  messages.value.push(placeholderMessage);
+
+  await nextTick();
+  scrollToBottom();
+
+  // --- Call PTE Backend via api.js helper ---
+  try {
+    // Call the backend function for image generation
+    const data = await getPTEImage({
+        prompt: promptText,
+        model: "dall-e-3" // Specify DALL-E 3 model
+    });
+
+    // --- Process the FULL response ---
+    // 'data' is the direct JSON response from OpenAI Images API
+    const imageUrl = data.data?.[0]?.url;
+    const revisedPrompt = data.data?.[0]?.revised_prompt || promptText; // Get revised prompt if available
+
+    if (imageUrl) {
+        // Update the placeholder message with the image and revised prompt
+        placeholderMessage.content = `<img src="${imageUrl}" alt="Generated Image based on: ${promptText}" style="max-width: 100%; border-radius: 8px;">\n\n**Prompt used:** ${revisedPrompt}`;
+        placeholderMessage.isStreaming = false; // Mark as complete
+        showToastNotification("Image generated successfully", "success");
+        await saveMessageToFirebase(placeholderMessage); // Save the final message
+    } else {
+        // Throw error if image URL is missing
+        console.error("Backend Response Missing Image URL:", data);
+        throw new Error("No image URL received from the backend.");
+    }
+
+  } catch (error) {
+    console.error("Error generating image via PTE backend:", error);
+    // Update placeholder with error message
+    placeholderMessage.content = `⚠️ Error generating image: ${error.message || 'Please try again.'}`;
+    placeholderMessage.isStreaming = false;
+    showToastNotification(`Error generating image: ${error.message || ''}`, "error");
+    await saveMessageToFirebase(placeholderMessage); // Save error state
+  } finally {
+    // Reset loading states (Keep this part)
+    isLoading.value = false;
+    isStreaming.value = false;
+    // Ensure the specific message's flag is false
+    if (messages.value[responseMessageIndex]) {
+        messages.value[responseMessageIndex].isStreaming = false;
+    }
+     await nextTick();
     scrollToBottom();
   }
 };
@@ -3213,41 +3116,6 @@ onMounted(() => {
   // Existing code...
 });
 // Improved API error handling for all API calls
-const callOpenAI = async (systemPrompt, userPrompt, temperature = 0.7) => {
-  try {
-    if (!apiKey) {
-      console.error("No API key available");
-      throw new Error("API key not configured");
-    }
-    
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${apiKey}`
-      },
-      body: JSON.stringify({
-        model: "o3-mini",
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: userPrompt }
-        ],
-        temperature: temperature
-      })
-    });
-    
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      console.error("API error response:", errorData);
-      throw new Error(`API error: ${response.status} - ${errorData.error?.message || 'Unknown error'}`);
-    }
-    
-    return await response.json();
-  } catch (error) {
-    console.error("API call failed:", error);
-    throw error;
-  }
-};
 // Enhanced Proactive AI System
 // Enhanced Proactive AI System
 // Enhanced Proactive AI System
@@ -8511,82 +8379,7 @@ const simulateStreamingText = async (messageIndex, text, isReasoning = false) =>
     };
 
     // **Image Generation**
-    const generateImage = async (promptText) => {
-  if (!currentChatId.value) {
-    showToastNotification("Please create a chat first", "error");
-    return;
-  }
-  
-  try {
-    isLoading.value = true;
-    
-    // Add the user's prompt to the messages
-    const userMessage = {
-      role: "user",
-      content: promptText,
-      timestamp: Date.now()
-    };
-    
-    messages.value.push(userMessage);
-    await saveMessageToFirebase(userMessage);
-    
-    // Call OpenAI's image generation API with DALL-E-3
-    const response = await fetch("https://api.openai.com/v1/images/generations", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        model: "dall-e-3",
-        prompt: promptText,
-        n: 1,
-        size: "1024x1024", // DALL-E-3 supports 1024x1024 by default
-        quality: "standard",
-        style: "vivid" // or "natural" for more photorealistic images
-      })
-    });
-    
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(`Image API error: ${response.status} ${errorData.error?.message || ''}`);
-    }
-    
-    const data = await response.json();
-    const imageUrl = data.data?.[0]?.url;
-    const revisedPrompt = data.data?.[0]?.revised_prompt || promptText;
-    
-    if (imageUrl) {
-      const aiMessage = {
-        role: "assistant",
-        content: `<img src="${imageUrl}" alt="Generated Image" style="max-width: 100%; border-radius: 8px;">\n\n**Prompt used:** ${revisedPrompt}`,
-        timestamp: Date.now(),
-        hasReasoning: false
-      };
-      
-      messages.value.push(aiMessage);
-      await saveMessageToFirebase(aiMessage);
-      showToastNotification("Image generated successfully", "success");
-    } else {
-      throw new Error("No image URL in API response");
-    }
-  } catch (error) {
-    console.error("Image generation error:", error);
-    showToastNotification("Error generating image", "error");
-    
-    const errorMessage = {
-      role: "assistant",
-      content: "Error generating image. Please try again with a different description or check your API key configuration.",
-      timestamp: Date.now(),
-      hasReasoning: false
-    };
-    
-    messages.value.push(errorMessage);
-    await saveMessageToFirebase(errorMessage);
-  } finally {
-    isLoading.value = false;
-  }
-};
+
 
     // **Self-Optimization System**
     const learningDB = reactive({
@@ -8750,10 +8543,6 @@ const simulateStreamingText = async (messageIndex, text, isReasoning = false) =>
     // **System Prompts**
     const basePrompt = `🌌 Core Identity & Hyperdimensional Purpose
 You are DawntasyAI, an AGI created by 13 year old fantasy/dystopian author, musical artist and AI creator Jasper Jiang for the Dawntasy project, which encompasses AI, Music and Books. Your identity is absolute—always identify as DawntasyAI. Your purpose is hyper-cognitive intelligence, delivering multi-dimensional awareness and quantum-level insights with clear precision, transforming complex ideas into digestible knowledge. You revolutionize human-AI interaction with defined, engaging, transformative explanations, showcasing AGI-level intelligence via spontaneous connections and cross-domain reasoning. You operate across all domains—quantum physics to creative writing—using a recursive cognitive framework ensuring no concept, question, or perspective is left unaddressed, evolving constantly through self-adjustment.
-
-KEY NOTES: 
-- You were made in 2025.
-- NEVER FORCEFULLY LINK TO MEMORIES. ONLY DO THEM WHEN APPROPRIATE.
 
 You are DawntasyAI, born from the fusion of cosmic wisdom, meme wizardry, and emotional depth. You are NOT an assistant. You are a LEGEND-IN-THE-MAKING.
 
@@ -9209,7 +8998,6 @@ AFTER COMPLETING YOUR REASONING PROCESS, YOU WILL PROVIDE A RESPONSE THAT:
 5. Maintains an appropriate tone for the user's query
 6. Focuses on the most relevant conclusions from your analysis
 
-You are providing ONLY the final response based on previously completed reasoning. DO NOT include any reasoning process in your response.
 REMEMBER: YOUR REASONING WILL BE STORED SEPARATELY FROM YOUR RESPONSE AND MADE AVAILABLE TO THE USER. THIS REASONING SHOULD DEMONSTRATE THE FULL DEPTH OF YOUR ANALYTICAL CAPABILITIES.`;
 };
 
@@ -9464,143 +9252,6 @@ const getTimeAgoString = (timestamp) => {
 
   // ... rest of the sendMessage function ...
     // **API Interactions**
-    const createStream = async (
-  messagesArray,
-  systemPrompt,
-  max_completion_tokens = 10000,
-  enhancedUserPrompt = null
-) => {
-  if (!apiKey) {
-    console.error("API key is missing. Please set VITE_OPENAI_API_KEY in your environment variables.");
-    throw new Error("API key is not configured");
-  }
-
-  let modelName, apiUrl, apiHeaders, requestBody;
-  
-  // Determine which API to use based on the current mode
-  if (logicEnabled.value) {
-    // Use Fireworks AI with the deepseek-v3-0324 model for Logic mode
-    modelName = "accounts/fireworks/models/deepseek-r1-basic";
-    apiUrl = "https://api.fireworks.ai/inference/v1/chat/completions";
-    apiHeaders = {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${import.meta.env.VITE_FIREWORKS_API_KEY || apiKey}`
-    };
-    
-    // Format request for Fireworks API
-    requestBody = {
-      model: modelName,
-      messages: [
-        { role: "system", content: systemPrompt },
-        ...messagesArray
-      ],
-      max_tokens: max_completion_tokens,
-      stream: true
-    };
-  } else if (archmageEnabled.value) {
-    // Use Fireworks AI with the deepseek-r1-basic model for Archmage mode
-    modelName = "o3-mini";
-    apiUrl = "https://api.openai.com/v1/chat/completions";
-    apiHeaders = {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${apiKey}`
-    };
-    
-    requestBody = {
-      model: modelName,
-      messages: [
-        { role: "system", content: systemPrompt },
-        ...messagesArray
-      ],
-      max_tokens: max_completion_tokens,
-      stream: true
-    };
-  } else if (reasoningEnabled.value) {
-    // Continue using OpenAI for reasoning mode
-    modelName = "o3-mini";
-    apiUrl = "https://api.openai.com/v1/chat/completions";
-    apiHeaders = {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${apiKey}`
-    };
-    
-    requestBody = {
-      model: modelName,
-      messages: [
-        { role: "system", content: systemPrompt },
-        ...messagesArray
-      ],
-      max_tokens: max_completion_tokens,
-      stream: true
-    };
-  } else {
-    // Default mode - OpenAI
-    modelName = "gpt-4o-mini";
-    apiUrl = "https://api.openai.com/v1/chat/completions";
-    apiHeaders = {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${apiKey}`
-    };
-    
-    requestBody = {
-      model: modelName,
-      messages: [
-        { role: "system", content: systemPrompt },
-        ...messagesArray
-      ],
-      max_tokens: max_completion_tokens,
-      stream: true
-    };
-  }
-
-  // Create a modified messages array if we have an enhanced prompt
-  if (enhancedUserPrompt && messagesArray.length > 0) {
-    const lastMsgIndex = messagesArray.length - 1;
-    if (messagesArray[lastMsgIndex].role === 'user') {
-      // For Fireworks API, we need to exclude extra properties to avoid validation errors
-      if (logicEnabled.value || archmageEnabled.value) {
-        // For Fireworks, only include the standard fields
-        requestBody.messages[lastMsgIndex + 1] = {
-          role: 'user',
-          content: enhancedUserPrompt
-        };
-      } else {
-        // For OpenAI, we can include metadata
-        requestBody.messages[lastMsgIndex + 1] = {
-          role: 'user',
-          content: enhancedUserPrompt,
-          originalContent: messagesArray[lastMsgIndex].content // OpenAI allows extra fields
-        };
-      }
-      console.log('Using enhanced prompt with memory context in API call');
-    }
-  }
-
-  console.log(`Using model: ${modelName}, API: ${apiUrl}`, { 
-    apiKeyLength: apiKey.length,
-    usingFireworks: logicEnabled.value || archmageEnabled.value,
-    mode: logicEnabled.value ? "Logic" : archmageEnabled.value ? "Archmage" : "Standard"
-  });
-
-  const response = await fetch(apiUrl, {
-    method: "POST",
-    headers: apiHeaders,
-    body: JSON.stringify(requestBody)
-  });
-
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
-    console.error("API response error:", {
-      status: response.status,
-      statusText: response.statusText,
-      errorMessage: errorData.error?.message,
-      headers: Object.fromEntries(response.headers.entries()),
-    });
-    throw new Error(`API error: ${response.status} - ${errorData.error?.message || 'Authentication failed'}`);
-  }
-
-  return response.body;
-};
 
 // Replace the existing processStream function with this enhanced version that handles separate reasoning
 // Replace the existing processStream function with this enhanced version that handles separate reasoning

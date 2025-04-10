@@ -1,14 +1,18 @@
-# netlify.toml (Attempt 2: Base directory='ai', Publish='.')
+# netlify.toml (Approach 2: No Base directory, Full Paths)
 
 [build]
-  command = "echo 'Building functions from functions directory only (base=ai)'"
-  functions = "functions"         # Relative to base 'ai' -> finds 'ai/functions'
-  # ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼
-  publish = "."                 # Tell Netlify the base 'ai' IS the publish dir (it won't find much to publish)
-  # ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
+  # Command still overrides the frontend build
+  command = "echo 'Building functions from ai/functions (root base)'"
+
+  # Full paths from the repository root
+  functions = "ai/functions"
+  publish = "ai/ignore_publish"
 
 [build.environment]
   NODE_VERSION = "18"
+
+# NOTE: We remove the separate [functions] block as the main build.functions setting
+# should be sufficient when operating from the root without base directory confusion.
 
 # --- Keep your existing headers and redirects below ---
 [[headers]]

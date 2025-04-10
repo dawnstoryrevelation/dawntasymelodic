@@ -1,148 +1,134 @@
 // functions/index.js
 const functions = require("firebase-functions");
-const admin = require("firebase-admin"); // You might not need admin yet, but good to have
-const axios = require("axios"); // For making HTTP requests to OpenAI/Fireworks
-const cors = require("cors")({ origin: true }); // To allow requests from your Vue app domain
+const admin = require("firebase-admin"); // Keep for potential future use
+const axios = require("axios"); // For making HTTP requests
+const cors = require("cors")({ origin: true }); // Allow requests from your web app
 
-// Initialize Firebase Admin SDK if you need it for DB access etc. later
+// Initialize admin SDK if needed (e.g., for Firestore access FROM the function)
 // admin.initializeApp();
 
-// Load secrets securely ONLY on the server-side
-// These are fetched from the configuration you set via `firebase functions:config:set`
-const fireworksApiKey = functions.config().fireworks?.key;
+// --- Load API Keys Securely from Firebase Environment ---
+// You MUST set these using `firebase functions:config:set openai.key="YOUR_KEY" ...`
 const openaiApiKey = functions.config().openai?.key;
+const fireworksApiKey = functions.config().fireworks?.key;
+// --------------------------------------------------------
 
-// Define the HTTP Cloud Function
-exports.processPTERequest = functions.https.onRequest((request, response) => {
-    // 1. Enable CORS - IMPORTANT! Allows your Vue app to call this function
+/**
+ * processPTERequest Cloud Function
+ * Acts as a secure relay to external AI APIs (OpenAI, Fireworks).
+ * Expects a POST request with a JSON body containing details for the API call.
+ */
+exports.processPTERequest = functions.runWith({
+    timeoutSeconds: 120, // Increased timeout for potentially long API calls
+    memory: '512MB'     // Increased memory slightly, adjust if needed
+}).https.onRequest((request, response) => {
+    // 1. Enable CORS for all origins or restrict to your domain in production
     cors(request, response, async () => {
-        // Only allow POST requests
+        // 2. Only allow POST requests
         if (request.method !== 'POST') {
-            return response.status(405).send('Method Not Allowed');
+            functions.logger.warn("Method Not Allowed:", request.method);
+            return response.status(405).json({ error: 'Method Not Allowed' });
         }
 
         try {
-            // 2. Log the incoming request body for debugging
-            functions.logger.info("Received request body:", request.body);
+            // 3. Log and Parse Request Body
+            const requestBody = request.body; // Firebase Functions auto-parses JSON
+            functions.logger.info("Received PTE Request:", { body: requestBody });
 
-            // 3. Extract necessary data from the Vue request body
             const {
                 prompt,
-                conversationHistory = [], // Default to empty array if not provided
+                conversationHistory = [], // Ensure it defaults to an empty array
                 targetApi,
                 model,
-                systemPrompt = "You are a helpful assistant.", // Sensible default
-                max_tokens = 2000, // Increased default
+                systemPrompt = "You are a helpful assistant.", // Default system prompt
+                max_tokens = 2000,
                 temperature = 0.7,
-                stream = false // IMPORTANT: For now, we force non-streaming
-             } = request.body;
+                // stream = false // We ignore 'stream' flag from client in Step 1
+            } = requestBody;
 
-            // 4. Basic Validation
+            // 4. Validate Core Inputs
             if (!prompt || !targetApi || !model) {
-                functions.logger.error("Validation failed: Missing prompt, targetApi, or model", request.body);
+                functions.logger.error("Validation Failed: Missing required fields.", { body: requestBody });
                 return response.status(400).json({ error: "Missing required fields: prompt, targetApi, model" });
             }
-             if (stream === true) {
-                functions.logger.warn("Streaming requested but currently disabled in Step 1. Processing non-streamed.");
-                // For Step 1, we override stream to false for simplicity
-             }
+
+            // Ensure conversationHistory has the correct format (role, content)
+            const validHistory = conversationHistory
+                .filter(msg => msg && typeof msg.role === 'string' && typeof msg.content === 'string')
+                .map(msg => ({ role: msg.role, content: msg.content }));
 
             let apiUrl;
             let apiKey;
             let requestPayload;
             let apiHeaders;
 
-            // 5. Prepare the request based on the target API
-            if (targetApi === "openai") {
-                if (!openaiApiKey) {
-                    functions.logger.error("OpenAI API key is missing in configuration.");
-                    throw new Error("OpenAI API key not configured");
-                }
-                apiUrl = "https://api.openai.com/v1/chat/completions";
-                apiKey = `Bearer ${openaiApiKey}`;
-                apiHeaders = {
-                    "Authorization": apiKey,
-                    "Content-Type": "application/json",
-                };
-                requestPayload = {
-                    model: model,
-                    messages: [
-                        { role: "system", content: systemPrompt },
-                        ...conversationHistory, // Spread previous messages
-                        { role: "user", content: prompt }
-                    ],
-                    max_tokens: max_tokens,
-                    temperature: temperature,
-                    stream: false // Force non-streaming for now
-                };
-            } else if (targetApi === "fireworks") {
-                if (!fireworksApiKey) {
-                     functions.logger.error("Fireworks API key is missing in configuration.");
-                    throw new Error("Fireworks API key not configured");
-                }
-                apiUrl = "https://api.fireworks.ai/inference/v1/chat/completions";
-                apiKey = `Bearer ${fireworksApiKey}`;
-                 apiHeaders = {
-                    "Authorization": apiKey,
-                    "Content-Type": "application/json",
-                };
-                requestPayload = {
-                    model: model,
-                    messages: [
-                        { role: "system", content: systemPrompt },
-                        ...conversationHistory,
-                        { role: "user", content: prompt }
-                    ],
-                    max_tokens: max_tokens,
-                    temperature: temperature,
-                    stream: false // Force non-streaming for now
-                };
-            } else if (targetApi === "openai-image") {
-                 if (!openaiApiKey) {
-                     functions.logger.error("OpenAI API key is missing for image generation.");
-                    throw new Error("OpenAI API key not configured");
-                 }
-                 apiUrl = "https://api.openai.com/v1/images/generations";
-                 apiKey = `Bearer ${openaiApiKey}`;
-                 apiHeaders = {
-                    "Authorization": apiKey,
-                    "Content-Type": "application/json",
-                };
-                 requestPayload = {
-                    model: model, // e.g., "dall-e-3"
-                    prompt: prompt,
-                    n: 1,
-                    size: "1024x1024",
-                    quality: "standard",
-                    style: "vivid"
-                 };
-            }
-            // Add your Whisper transcription logic here if you want to keep it backend
-            // else if (targetApi === "openai-whisper") { ... }
-            else {
-                 functions.logger.error("Invalid targetApi specified:", targetApi);
-                return response.status(400).json({ error: "Invalid targetApi specified" });
+            // 5. Prepare API Call Details based on targetApi
+            switch (targetApi) {
+                case "openai":
+                    if (!openaiApiKey) throw new Error("OpenAI API key not configured in Firebase environment.");
+                    apiUrl = "https://api.openai.com/v1/chat/completions";
+                    apiKey = `Bearer ${openaiApiKey}`;
+                    apiHeaders = { "Authorization": apiKey, "Content-Type": "application/json" };
+                    requestPayload = {
+                        model: model,
+                        messages: [{ role: "system", content: systemPrompt }, ...validHistory, { role: "user", content: prompt }],
+                        max_tokens: max_tokens,
+                        temperature: temperature,
+                        stream: false // Force non-streaming for Step 1
+                    };
+                    break;
+
+                case "fireworks":
+                    if (!fireworksApiKey) throw new Error("Fireworks API key not configured in Firebase environment.");
+                    apiUrl = "https://api.fireworks.ai/inference/v1/chat/completions";
+                    apiKey = `Bearer ${fireworksApiKey}`;
+                    apiHeaders = { "Authorization": apiKey, "Content-Type": "application/json" };
+                    requestPayload = {
+                        model: model,
+                        messages: [{ role: "system", content: systemPrompt }, ...validHistory, { role: "user", content: prompt }],
+                        max_tokens: max_tokens,
+                        temperature: temperature,
+                        stream: false // Force non-streaming for Step 1
+                    };
+                    break;
+
+                case "openai-image":
+                    if (!openaiApiKey) throw new Error("OpenAI API key not configured for image generation.");
+                    apiUrl = "https://api.openai.com/v1/images/generations";
+                    apiKey = `Bearer ${openaiApiKey}`;
+                    apiHeaders = { "Authorization": apiKey, "Content-Type": "application/json" };
+                    requestPayload = {
+                        model: model, // e.g., "dall-e-3"
+                        prompt: prompt,
+                        n: 1,
+                        size: "1024x1024", // Adjust as needed
+                        quality: "standard",
+                        style: "vivid"
+                    };
+                    break;
+
+                // Add case for "openai-whisper" here if needed later
+
+                default:
+                    functions.logger.error("Invalid targetApi:", targetApi);
+                    return response.status(400).json({ error: "Invalid targetApi specified" });
             }
 
-            // 6. Make the external API call using Axios
-            functions.logger.info(`Making ${stream ? 'streaming' : 'non-streaming'} request to ${targetApi} (${model}) at ${apiUrl}`);
-
-            // --- NON-STREAMING IMPLEMENTATION FOR STEP 1 ---
+            // 6. Make the External API Call (Non-Streaming)
+            functions.logger.info(`Calling ${targetApi} (${model}) at ${apiUrl}...`);
             const apiResponse = await axios.post(apiUrl, requestPayload, {
                 headers: apiHeaders,
-                timeout: 60000 // 60 second timeout
+                timeout: 110000 // Slightly less than function timeout (120s)
             });
+            functions.logger.info(`${targetApi} call successful. Status: ${apiResponse.status}`);
 
-            functions.logger.info(`${targetApi} API call successful.`);
-
-            // 7. Send the complete API response back to Vue
+            // 7. Return the complete response from the external API
             response.status(200).json(apiResponse.data);
-            // --- END OF NON-STREAMING IMPLEMENTATION ---
 
         } catch (error) {
-            // Enhanced Error Logging
+            // 8. Handle Errors Gracefully
             let statusCode = 500;
-            let errorMessage = "An error occurred processing your request.";
+            let errorMessage = "An internal server error occurred.";
             let errorDetails = {};
 
             if (axios.isAxiosError(error)) {
@@ -150,23 +136,24 @@ exports.processPTERequest = functions.https.onRequest((request, response) => {
                     message: error.message,
                     url: error.config?.url,
                     status: error.response?.status,
-                    data: error.response?.data,
+                    data: error.response?.data, // Log the actual error from OpenAI/Fireworks
                 });
-                statusCode = error.response?.status || 502; // 502 Bad Gateway if external API fails
+                statusCode = error.response?.status || 502; // Use API's status code or 502
                 errorMessage = error.response?.data?.error?.message || `External API Error (${statusCode})`;
                 errorDetails = error.response?.data || {};
             } else {
                  functions.logger.error("Generic Error in Cloud Function:", {
                     message: error.message,
-                    stack: error.stack,
+                    stack: error.stack, // Log stack trace for internal errors
                  });
-                 errorMessage = error.message || "Internal Server Error";
+                 errorMessage = error.message || "Internal Server Error in Cloud Function";
+                 errorDetails = { message: error.message };
             }
 
-            // Send detailed error back to frontend (consider security implications in production)
+            // Send error back to the client
             response.status(statusCode).json({
                  error: errorMessage,
-                 details: errorDetails // You might want to remove details in production
+                 // details: errorDetails // Maybe remove details in production for security
             });
         }
     });
