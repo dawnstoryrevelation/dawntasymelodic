@@ -148,14 +148,14 @@ exports.processPTERequest = functions.runWith({
       if (axios.isAxiosError(error)) {
         functions.logger.error("Axios Error calling external API:", {
           message: error.message,
-          url: error.config?.url,
-          status: error.response?.status,
-          data: error.response?.data, // Log the actual error from OpenAI/Fireworks
+          url: error.config && error.config.url,
+          status: error.response && error.response.status,
+          data: error.response && error.response.data, // Log the actual error from OpenAI/Fireworks
         });
-        statusCode = error.response?.status || 502; // Use API's status code or 502
-        errorMessage = error.response?.data?.error?.message ||
-            `External API Error (${statusCode})`;
-        errorDetails = error.response?.data || {};
+        statusCode = (error.response && error.response.status) || 502; // Use API's status code or 502
+        errorMessage = (error.response && error.response.data && error.response.data.error 
+          && error.response.data.error.message) || `External API Error (${statusCode})`;
+        errorDetails = (error.response && error.response.data) || {};
       } else {
         functions.logger.error("Generic Error in Cloud Function:", {
           message: error.message,
