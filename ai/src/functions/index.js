@@ -9,8 +9,8 @@ const cors = require("cors")({origin: true});
 
 // Load API Keys Securely from Firebase Environment
 // You MUST set these using `firebase functions:config:set openai.key="YOUR_KEY"`
-const openaiApiKey = functions.config().openai?.key;
-const fireworksApiKey = functions.config().fireworks?.key;
+const openaiApiKey = functions.config().openai && functions.config().openai.key ? functions.config().openai.key : null;
+const fireworksApiKey = functions.config().fireworks && functions.config().fireworks.key ? functions.config().fireworks.key : null;
 
 /**
  * processPTERequest Cloud Function
