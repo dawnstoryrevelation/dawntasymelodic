@@ -1,10 +1,10 @@
 // src/services/api.js
 import axios from 'axios';
 
-// ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼
-// PASTE YOUR DEPLOYED FIREBASE FUNCTION URL HERE
-const PTERequestUrl = 'https://YOUR-REGION-YOUR-PROJECT-ID.cloudfunctions.net/processPTERequest';
-// ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
+// Firebase function URL - WILL BE AUTOMATICALLY DEPLOYED
+// For local testing with Firebase emulator use: http://localhost:5001/YOUR-PROJECT-ID/us-central1/processPTERequest
+// For production use the deployed URL format shown below
+const PTE_REQUEST_URL = 'https://us-central1-YOUR-PROJECT-ID.cloudfunctions.net/processPTERequest';
 
 /**
  * Generic function to call the PTE backend Cloud Function.
@@ -14,70 +14,69 @@ const PTERequestUrl = 'https://YOUR-REGION-YOUR-PROJECT-ID.cloudfunctions.net/pr
  */
 async function callPTEBackend(payload) {
   try {
-    console.log("Sending payload to PTE backend:", payload);
-    // Ensure Content-Type is set for Firebase Functions when sending JSON
-    const response = await axios.post(PTERequestUrl, payload, {
-        headers: { 'Content-Type': 'application/json' }
+    console.log("🚀 Sending payload to server:", payload);
+    
+    // Call your Firebase Function instead of OpenAI directly!
+    const response = await axios.post(PTE_REQUEST_URL, payload, {
+      headers: { 'Content-Type': 'application/json' }
     });
-    console.log("Received response from PTE backend:", response.data);
-    return response.data; // Return the data directly
+    
+    console.log("✅ Received response from server:", response.data);
+    return response.data;
   } catch (error) {
-    console.error("Error calling PTE backend:", error.response?.data || error.message);
-    // Extract the error message sent back from the Cloud Function, or use a default
-    const backendError = error.response?.data?.error || error.message || "PTE Backend Communication Error";
-    // It might be useful to log the full error response for debugging
+    console.error("❌ Error calling server:", error.response?.data || error.message);
+    
+    // Extract the error message sent back from the Cloud Function
+    const backendError = error.response?.data?.error || error.message || "Server Communication Error";
+    
+    // Log the full error response for debugging
     if (error.response) {
-        console.error("Backend Error Response Body:", error.response.data);
+      console.error("Server Error Response:", error.response.data);
     }
-    throw new Error(backendError); // Re-throw a cleaner error for the component to handle
+    
+    throw new Error(backendError);
   }
 }
 
 /**
- * Specific function to request a chat completion from the PTE backend.
+ * Send chat completion request through our secured server-side function.
  */
-export async function getPTECompletion({
+export async function getCompletion({
   prompt,
   conversationHistory = [],
-  systemPrompt,
-  targetApi,
-  model,
-  stream = false, // Pass stream flag, backend ignores it for now
+  systemPrompt = "You are a helpful assistant.",
+  model = "gpt-4o-mini",
   temperature = 0.7,
-  max_tokens = 2000
+  maxTokens = 1000
 }) {
-    const payload = {
-        prompt,
-        // Ensure history only contains essential fields recognized by APIs
-        conversationHistory: conversationHistory.map(msg => ({
-            role: msg.role,
-            content: msg.content
-         })),
-        systemPrompt,
-        targetApi,
-        model,
-        stream,
-        temperature,
-        max_tokens
-    };
-    return callPTEBackend(payload);
+  const payload = {
+    prompt,
+    conversationHistory: conversationHistory.map(msg => ({
+      role: msg.role,
+      content: msg.content
+    })),
+    systemPrompt,
+    targetApi: "openai", // Specify which backend API to use
+    model,
+    temperature,
+    maxTokens
+  };
+  
+  return callPTEBackend(payload);
 }
 
 /**
- * Specific function to request image generation from the PTE backend.
+ * Request image generation through our secured server-side function.
  */
-export async function getPTEImage({
+export async function generateImage({
   prompt,
-  model = "dall-e-3" // Default DALL-E 3 model
+  model = "dall-e-3" // Default to DALL-E 3
 }) {
-     const payload = {
-        prompt,
-        targetApi: "openai-image",
-        model: model,
-        // Add other parameters like size, quality, style if needed by backend
-     };
-     return callPTEBackend(payload);
+  const payload = {
+    prompt,
+    targetApi: "openai-image", // Specify image generation
+    model,
+  };
+  
+  return callPTEBackend(payload);
 }
-
-// Add other specific functions (like transcription) here if you implement them in the backend
-// export async function getPTETranscription(audioBlob) { ... }

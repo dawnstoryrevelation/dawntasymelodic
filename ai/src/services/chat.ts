@@ -1,28 +1,50 @@
-import OpenAI from 'openai';
+import { getCompletion } from './api';
 
-// Initialize OpenAI with the API key stored as a GitHub secret.
-// Ensure that 'GITHUB_OPENAI_API_KEY' is defined in your GitHub repository's secrets.
-const openai = new OpenAI({
-  apiKey: import.meta.env.VITE_OPENAI_API_KEY
-});
+// Message interface
+interface Message {
+  role: string;
+  content: string;
+}
 
-// Use OpenAI's ChatCompletionMessageParam type
-export async function sendChatMessage(messages) {
+// Response interface
+interface ChatResponse {
+  statusCode: number;
+  body: {
+    message: string;
+    usage?: any;
+    error?: string;
+  };
+}
+
+/**
+ * Send chat message using our secure server-side function
+ * @param messages Array of message objects with role and content
+ * @returns Response object with status and message content
+ */
+export async function sendChatMessage(messages: Message[]): Promise<ChatResponse> {
   try {
     if (!messages || !Array.isArray(messages)) {
       throw new Error('Invalid request. Messages array is required.');
     }
 
-    // Validate API key is present
-    if (!import.meta.env.VITE_OPENAI_API_KEY) {
-      throw new Error('OpenAI API key is missing. Please check your environment variables.');
+    // Get the last user message as the prompt
+    const lastUserMessage = [...messages].reverse().find(msg => msg.role === 'user');
+    
+    if (!lastUserMessage) {
+      throw new Error('No user message found in the conversation.');
     }
-
-    const response = await openai.chat.completions.create({
+    
+    // Previous messages for context (excluding the last user message)
+    const conversationHistory = messages.slice(0, -1);
+    
+    // Call our server-side function instead of OpenAI directly!
+    const response = await getCompletion({
+      prompt: lastUserMessage.content,
+      conversationHistory: conversationHistory,
+      systemPrompt: "You are a helpful assistant.",
       model: 'gpt-4o-mini',
-      messages,
       temperature: 0.7,
-      max_tokens: 1000
+      maxTokens: 1000
     });
 
     return {
@@ -32,8 +54,8 @@ export async function sendChatMessage(messages) {
         usage: response.usage
       }
     };
-  } catch (error) {
-    console.error('Error calling OpenAI:', error);
+  } catch (error: any) {
+    console.error('Error calling API:', error);
     return {
       statusCode: 500,
       body: {
