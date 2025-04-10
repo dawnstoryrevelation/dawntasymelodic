@@ -1,48 +1,78 @@
+# netlify.toml (Edited for Functions-Only Build from ai/functions)
+
 [build]
-  command = "npm run build"
-  publish = "dist-ai"
+  # ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼
+  # 1. Tell Netlify to use a command that ONLY builds functions (or does nothing relevant to frontend)
+  #    We override your original "npm run build" for Netlify's context.
+  command = "echo 'Building functions from ai/functions only, skipping frontend build on Netlify'"
+
+  # 2. Tell Netlify where your serverless functions code resides
+  functions = "ai/functions"
+
+  # 3. Tell Netlify to publish an empty/dummy directory, NOT your actual frontend build output ('dist-ai')
+  #    This prevents Netlify from deploying your Vue app, which Firebase handles.
+  #    You can create an empty 'ai/ignore_publish' folder or just use a non-conflicting path.
+  publish = "ai/ignore_publish"
+  # ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
 
 [build.environment]
+  # Your existing build environment variables remain useful for the function build if needed
   NODE_VERSION = "18"
-  VITE_APP_VERSION = "1.0.0"
-  VITE_DEPLOYMENT_ENV = "production"
+  VITE_APP_VERSION = "1.0.0" # This might not be used by the function, but harmless to keep
+  VITE_DEPLOYMENT_ENV = "production" # This might not be used by the function, but harmless to keep
+  # IMPORTANT: Your OPENAI_API_KEY and FIREWORKS_API_KEY should be set in the Netlify UI,
+  # NOT here, for better security.
 
-# SPA redirect for client-side routing
+# -------------------------------------------------------------
+# Your existing redirects and headers generally remain the same.
+# They primarily affect how Netlify serves requests FOR THE NETLIFY DOMAIN,
+# including requests to your function URL.
+# -------------------------------------------------------------
+
+# SPA redirect - This might not be strictly necessary if Netlify only serves /api/*
+# but often harmless to keep. If you encounter issues, you could comment this out.
 [[redirects]]
   from = "/*"
-  to = "/index.html"
+  to = "/index.html" # This likely won't be served by Netlify if `publish` is empty/dummy
   status = 200
-  force = true
+  force = true # Be careful with `force`, ensure it doesn't catch your /.netlify/functions path incorrectly
 
-# Headers
+# Headers for ALL paths served by Netlify (including functions, unless overridden below)
 [[headers]]
   for = "/*"
   [headers.values]
     Strict-Transport-Security = "max-age=31536000; includeSubDomains; preload"
     Permissions-Policy = "geolocation=(), camera=(), microphone=()"
-    # 🔥 CRITICAL FIX: Updated CSP to allow necessary resources
+    # 🔥 CRITICAL FIX: CSP needs review. If your function needs to make outbound calls,
+    # this might be too restrictive. Consider adjusting `connect-src` or removing CSP
+    # if Netlify handles this sufficiently by default for functions.
+    # For now, keeping your original - TEST THOROUGHLY!
+    # A common permissive CSP for APIs might be needed if you hit issues:
+    # Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src *;"
     X-Frame-Options = "DENY"
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
-    Access-Control-Allow-Origin = "*"
+    # Access-Control-Allow-Origin = "*" # This is often better handled specifically below or by the function itself
 
-# CORS Headers for API endpoints
+# CORS Headers specifically for your function endpoint path pattern
+# This pattern should match the path Netlify uses for functions
 [[headers]]
-  for = "/api/*"
+  for = "/.netlify/functions/*" # Target the function path
   [headers.values]
-    Access-Control-Allow-Origin = "*"
-    Access-Control-Allow-Methods = "GET, POST, PUT, DELETE, OPTIONS"
-    Access-Control-Allow-Headers = "Origin, X-Requested-With, Content-Type, Accept, Authorization"
-    Access-Control-Allow-Credentials = "true"
+    Access-Control-Allow-Origin = "*" # Or specify your Firebase Hosting domain for better security in production
+    Access-Control-Allow-Methods = "POST, OPTIONS" # Only allow needed methods
+    Access-Control-Allow-Headers = "Content-Type, Authorization" # Allow necessary headers
+    # Access-Control-Allow-Credentials = "true" # Usually not needed unless sending cookies
 
-# Caching for static assets
+# Caching for static assets - This likely won't apply as Netlify isn't serving your /assets/*
+# Keeping it is harmless but probably ineffective in this setup.
 [[headers]]
   for = "/assets/*"
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
     X-DNS-Prefetch-Control = "on"
 
-# Force HTTPS
+# Force HTTPS - Good practice, keep this.
 [[redirects]]
   from = "http://*"
   to = "https://:splat"

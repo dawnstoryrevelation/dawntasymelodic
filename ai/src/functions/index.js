@@ -1,206 +1,173 @@
 // functions/index.js
 const functions = require("firebase-functions");
-const admin = require("firebase-admin");
-const axios = require("axios");
-const cors = require("cors")({origin: true});
-const selfOptimization = require('./selfOptimization');
+const admin = require("firebase-admin"); // You might not need admin yet, but good to have
+const axios = require("axios"); // For making HTTP requests to OpenAI/Fireworks
+const cors = require("cors")({ origin: true }); // To allow requests from your Vue app domain
 
-// Export the functions
-exports.processLearningPatterns = selfOptimization.processLearningPatterns;
-exports.generateOptimizedPrompt = selfOptimization.generateOptimizedPrompt;
-exports.onNewLearningPattern = selfOptimization.onNewLearningPattern;
+// Initialize Firebase Admin SDK if you need it for DB access etc. later
+// admin.initializeApp();
 
-// Initialize Firebase Admin
-admin.initializeApp();
+// Load secrets securely ONLY on the server-side
+// These are fetched from the configuration you set via `firebase functions:config:set`
+const fireworksApiKey = functions.config().fireworks?.key;
+const openaiApiKey = functions.config().openai?.key;
 
-// Chat with AI Function
-exports.chatWithAI = functions.https.onCall(async (data, context) => {
-  try {
-    // Get the OpenAI API key from environment config
-    const apiKey = process.env.OPENAI_API_KEY;
-    
-    if (!apiKey) {
-      console.error("OPENAI_API_KEY not configured in environment");
-      throw new functions.https.HttpsError(
-        "failed-precondition",
-        "The function is not configured correctly."
-      );
-    }
-
-    // Get data from the request
-    const { message, mode, history } = data;
-
-    if (!message) {
-      throw new functions.https.HttpsError(
-        "invalid-argument",
-        "Message is required"
-      );
-    }
-
-    // Prepare system prompt based on mode
-    let systemPrompt = "You are DawntasyAI, a helpful AI assistant from the Dawntasy universe. You subtly weave references to the Dawntasy universe into your responses, including concepts like Time Smith, The Rift, Plain and Pale Clock, and Bear Village.";
-    
-    if (mode === 'creative') {
-      systemPrompt += " You are in CREATIVE mode. Be more artistic, metaphorical, and imaginative in your responses.";
-    } else if (mode === 'archmage') {
-      systemPrompt += " You are in ARCHMAGE mode. Be deeply philosophical, profound, and multi-dimensional in your analysis.";
-    }
-    
-    // Construct messages for OpenAI API
-    const messages = [
-      { role: 'system', content: systemPrompt }
-    ];
-    
-    // Add history if provided
-    if (Array.isArray(history)) {
-      // Only include the last few messages to stay within token limits
-      const recentHistory = history.slice(-10);
-      recentHistory.forEach(msg => {
-        if (msg.role === 'user' || msg.role === 'assistant') {
-          messages.push(msg);
+// Define the HTTP Cloud Function
+exports.processPTERequest = functions.https.onRequest((request, response) => {
+    // 1. Enable CORS - IMPORTANT! Allows your Vue app to call this function
+    cors(request, response, async () => {
+        // Only allow POST requests
+        if (request.method !== 'POST') {
+            return response.status(405).send('Method Not Allowed');
         }
-      });
-    }
-    
-    // Add the current message if it's not already in history
-    if (!history || history.length === 0 || history[history.length - 1].content !== message) {
-      messages.push({ role: 'user', content: message });
-    }
 
-    // Call OpenAI API
-    const response = await axios.post(
-      'https://api.openai.com/v1/chat/completions',
-      {
-        model: 'gpt-3.5-turbo',
-        messages,
-        temperature: 0.7,
-        max_tokens: 1000
-      },
-      {
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey}`
+        try {
+            // 2. Log the incoming request body for debugging
+            functions.logger.info("Received request body:", request.body);
+
+            // 3. Extract necessary data from the Vue request body
+            const {
+                prompt,
+                conversationHistory = [], // Default to empty array if not provided
+                targetApi,
+                model,
+                systemPrompt = "You are a helpful assistant.", // Sensible default
+                max_tokens = 2000, // Increased default
+                temperature = 0.7,
+                stream = false // IMPORTANT: For now, we force non-streaming
+             } = request.body;
+
+            // 4. Basic Validation
+            if (!prompt || !targetApi || !model) {
+                functions.logger.error("Validation failed: Missing prompt, targetApi, or model", request.body);
+                return response.status(400).json({ error: "Missing required fields: prompt, targetApi, model" });
+            }
+             if (stream === true) {
+                functions.logger.warn("Streaming requested but currently disabled in Step 1. Processing non-streamed.");
+                // For Step 1, we override stream to false for simplicity
+             }
+
+            let apiUrl;
+            let apiKey;
+            let requestPayload;
+            let apiHeaders;
+
+            // 5. Prepare the request based on the target API
+            if (targetApi === "openai") {
+                if (!openaiApiKey) {
+                    functions.logger.error("OpenAI API key is missing in configuration.");
+                    throw new Error("OpenAI API key not configured");
+                }
+                apiUrl = "https://api.openai.com/v1/chat/completions";
+                apiKey = `Bearer ${openaiApiKey}`;
+                apiHeaders = {
+                    "Authorization": apiKey,
+                    "Content-Type": "application/json",
+                };
+                requestPayload = {
+                    model: model,
+                    messages: [
+                        { role: "system", content: systemPrompt },
+                        ...conversationHistory, // Spread previous messages
+                        { role: "user", content: prompt }
+                    ],
+                    max_tokens: max_tokens,
+                    temperature: temperature,
+                    stream: false // Force non-streaming for now
+                };
+            } else if (targetApi === "fireworks") {
+                if (!fireworksApiKey) {
+                     functions.logger.error("Fireworks API key is missing in configuration.");
+                    throw new Error("Fireworks API key not configured");
+                }
+                apiUrl = "https://api.fireworks.ai/inference/v1/chat/completions";
+                apiKey = `Bearer ${fireworksApiKey}`;
+                 apiHeaders = {
+                    "Authorization": apiKey,
+                    "Content-Type": "application/json",
+                };
+                requestPayload = {
+                    model: model,
+                    messages: [
+                        { role: "system", content: systemPrompt },
+                        ...conversationHistory,
+                        { role: "user", content: prompt }
+                    ],
+                    max_tokens: max_tokens,
+                    temperature: temperature,
+                    stream: false // Force non-streaming for now
+                };
+            } else if (targetApi === "openai-image") {
+                 if (!openaiApiKey) {
+                     functions.logger.error("OpenAI API key is missing for image generation.");
+                    throw new Error("OpenAI API key not configured");
+                 }
+                 apiUrl = "https://api.openai.com/v1/images/generations";
+                 apiKey = `Bearer ${openaiApiKey}`;
+                 apiHeaders = {
+                    "Authorization": apiKey,
+                    "Content-Type": "application/json",
+                };
+                 requestPayload = {
+                    model: model, // e.g., "dall-e-3"
+                    prompt: prompt,
+                    n: 1,
+                    size: "1024x1024",
+                    quality: "standard",
+                    style: "vivid"
+                 };
+            }
+            // Add your Whisper transcription logic here if you want to keep it backend
+            // else if (targetApi === "openai-whisper") { ... }
+            else {
+                 functions.logger.error("Invalid targetApi specified:", targetApi);
+                return response.status(400).json({ error: "Invalid targetApi specified" });
+            }
+
+            // 6. Make the external API call using Axios
+            functions.logger.info(`Making ${stream ? 'streaming' : 'non-streaming'} request to ${targetApi} (${model}) at ${apiUrl}`);
+
+            // --- NON-STREAMING IMPLEMENTATION FOR STEP 1 ---
+            const apiResponse = await axios.post(apiUrl, requestPayload, {
+                headers: apiHeaders,
+                timeout: 60000 // 60 second timeout
+            });
+
+            functions.logger.info(`${targetApi} API call successful.`);
+
+            // 7. Send the complete API response back to Vue
+            response.status(200).json(apiResponse.data);
+            // --- END OF NON-STREAMING IMPLEMENTATION ---
+
+        } catch (error) {
+            // Enhanced Error Logging
+            let statusCode = 500;
+            let errorMessage = "An error occurred processing your request.";
+            let errorDetails = {};
+
+            if (axios.isAxiosError(error)) {
+                functions.logger.error("Axios Error calling external API:", {
+                    message: error.message,
+                    url: error.config?.url,
+                    status: error.response?.status,
+                    data: error.response?.data,
+                });
+                statusCode = error.response?.status || 502; // 502 Bad Gateway if external API fails
+                errorMessage = error.response?.data?.error?.message || `External API Error (${statusCode})`;
+                errorDetails = error.response?.data || {};
+            } else {
+                 functions.logger.error("Generic Error in Cloud Function:", {
+                    message: error.message,
+                    stack: error.stack,
+                 });
+                 errorMessage = error.message || "Internal Server Error";
+            }
+
+            // Send detailed error back to frontend (consider security implications in production)
+            response.status(statusCode).json({
+                 error: errorMessage,
+                 details: errorDetails // You might want to remove details in production
+            });
         }
-      }
-    );
-
-    // Return the AI response
-    return {
-      message: response.data.choices[0].message.content,
-      usage: response.data.usage
-    };
-  } catch (error) {
-    console.error("Function error:", error);
-    
-    // Format error for client
-    if (error.response) {
-      throw new functions.https.HttpsError(
-        "internal",
-        `AI service error: ${error.response.data.error?.message || "Unknown AI service error"}`,
-        { status: error.response.status }
-      );
-    } else {
-      throw new functions.https.HttpsError(
-        "internal",
-        `Error: ${error.message}`,
-        { original: error }
-      );
-    }
-  }
-});
-
-// Callable HTTP endpoint for testing
-exports.chatHttpEndpoint = functions.https.onRequest((req, res) => {
-  return cors(req, res, async () => {
-    try {
-      // Only allow POST requests
-      if (req.method !== 'POST') {
-        res.status(405).send({ error: 'Method not allowed' });
-        return;
-      }
-      
-      // Get the OpenAI API key from environment config
-      const apiKey = process.env.OPENAI_API_KEY;
-      
-      if (!apiKey) {
-        console.error("OPENAI_API_KEY not configured in environment");
-        res.status(500).send({ error: 'Server not properly configured' });
-        return;
-      }
-      
-      // Get data from the request body
-      const { message, mode, history } = req.body;
-      
-      if (!message) {
-        res.status(400).send({ error: 'Message is required' });
-        return;
-      }
-      
-      // Prepare system prompt based on mode
-      let systemPrompt = "You are DawntasyAI, a helpful AI assistant from the Dawntasy universe.";
-      
-      if (mode === 'creative') {
-        systemPrompt += " You are in CREATIVE mode. Be more artistic, metaphorical, and imaginative in your responses.";
-      } else if (mode === 'archmage') {
-        systemPrompt += " You are in ARCHMAGE mode. Be deeply philosophical, profound, and multi-dimensional in your analysis.";
-      }
-      
-      // Construct messages for OpenAI API
-      const messages = [
-        { role: 'system', content: systemPrompt }
-      ];
-      
-      // Add history if provided
-      if (Array.isArray(history)) {
-        // Only include the last few messages to stay within token limits
-        const recentHistory = history.slice(-10);
-        recentHistory.forEach(msg => {
-          if (msg.role === 'user' || msg.role === 'assistant') {
-            messages.push(msg);
-          }
-        });
-      }
-      
-      // Add the current message
-      messages.push({ role: 'user', content: message });
-      
-      // Call OpenAI API
-      const response = await axios.post(
-        'https://api.openai.com/v1/chat/completions',
-        {
-          model: 'gpt-3.5-turbo',
-          messages,
-          temperature: 0.7,
-          max_tokens: 1000
-        },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${apiKey}`
-          }
-        }
-      );
-      
-      // Return the AI response
-      res.status(200).send({
-        message: response.data.choices[0].message.content,
-        usage: response.data.usage
-      });
-      
-    } catch (error) {
-      console.error("HTTP endpoint error:", error);
-      
-      // Format error for client
-      if (error.response) {
-        res.status(500).send({
-          error: `AI service error: ${error.response.data.error?.message || "Unknown AI service error"}`,
-          status: error.response.status
-        });
-      } else {
-        res.status(500).send({
-          error: `Error: ${error.message}`
-        });
-      }
-    }
-  });
+    });
 });

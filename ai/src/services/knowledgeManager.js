@@ -1,6 +1,6 @@
 // knowledgeManager.js - Universal Knowledge Learning & Optimization System
 
-import { db } from './firebaseConfig'; // Your existing Firebase config
+import { db } from '@/firebase/init'; // Your existing Firebase config
 import { v4 as uuidv4 } from 'uuid'; // For generating unique IDs
 
 /**

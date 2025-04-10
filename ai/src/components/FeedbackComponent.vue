@@ -65,7 +65,7 @@
   
   <script setup>
   import { ref, onMounted, watch } from 'vue';
-  import { collectExplicitFeedback } from './feedbackSystem.js';
+  import { collectExplicitFeedback } from '@/services/feedbackSystem.js';
   
   const props = defineProps({
     conversationId: {

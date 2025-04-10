@@ -143,9 +143,9 @@
   
   <script setup>
   import { ref, onMounted } from 'vue';
-  import { db } from './firebaseConfig'; // Your existing Firebase config
-  import { getKnowledgeUsageReport } from './knowledgeManager';
-  import { getFeedbackReport } from './feedbackSystem';
+  import { db } from '@/firebase/init'; // Your existing Firebase config
+  import { getKnowledgeUsageReport } from '@/services/knowledgeManager';
+  import { getFeedbackReport } from '@/services/feedbackSystem';
   
   const isLoading = ref(false);
   const stats = ref({

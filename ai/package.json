@@ -38,6 +38,8 @@
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "firebase": "^10.14.1",
+    "firebase-admin": "^13.2.0",
+    "firebase-functions": "^6.3.2",
     "gsap": "^3.12.7",
     "highlight.js": "^11.11.1",
     "jq": "^1.7.2",
