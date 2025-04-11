@@ -4,5 +4,11 @@
       "path": "cognitive_atoms/atom_definitions/simple_python_atom/formatter.py",
       "entry_point": "uppercase_text",
       "description": "A simple atom that converts input text to uppercase."
+    },
+    "mini_chat_generator": { 
+      "type": "python_function", 
+      "path": "cognitive_atoms/atom_definitions/mini_char_generator/generator_atom.py", 
+      "entry_point": "generate_text_char_level",
+      "description": "Generates conversational text char-by-char based on Ultrachat patterns. Input: {'start_string', 'num_generate', 'temperature', 'stop_sequences'}"
     }
   }
