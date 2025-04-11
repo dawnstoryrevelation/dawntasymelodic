@@ -1,0 +1,38 @@
+# --- File: aeon_engine/cognitive_blueprints/definitions/simple_uppercase_blueprint.yaml ---
+
+name: SimpleUppercaseBlueprint
+description: Takes input text and converts it to uppercase using a Cognitive Atom.
+
+# Optional: Define expected input structure for clarity/validation
+# input_schema:
+#   text_to_convert: string
+
+# Optional: Define expected output structure
+# output_schema:
+#   uppercased_text: string
+
+nodes:
+  # The starting point of the blueprint execution
+  - id: start
+    action: Start # Placeholder action, mainly signifies entry
+    # Assumes the initial input to the blueprint execution
+    # will contain a key like 'text_to_convert'
+    next: make_upper # ID of the next node to execute
+
+  # This node activates our Cognitive Atom
+  - id: make_upper
+    action: Activate_Atom
+    atom_name: example_string_upper # Must match the name in registry.json
+    # Define how input is passed TO the atom.
+    # Here, we assume the initial input to the blueprint had a 'text_to_convert' field.
+    # The templating '{{...}}' will be resolved by ACE later.
+    input: "{{start.input.text_to_convert}}"
+    # Store the atom's return value in an execution context variable named 'result_text'
+    output_var: result_text
+    next: end # ID of the next node (the end node)
+
+  # The ending point of the blueprint execution
+  - id: end
+    action: End # Placeholder action, signifies completion
+    # The ACE will likely use the 'output_var' from the node leading to 'end'
+    # (or a specially designated output node) as the final result.

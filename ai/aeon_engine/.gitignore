@@ -1,0 +1,37 @@
+# Python Bytecode and Cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual Environment (Crucial!)
+.venv/
+
+# IDE / Editor specific files
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Log files
+logs/
+*.log
+
+# Large Data Files (Recommended to ignore initially)
+# axiom_vault/*.db
+# axiom_vault/*.faiss
+# cognitive_atoms/atom_definitions/**/*.tflite
+# cognitive_atoms/atom_definitions/**/*.onnx
+# cognitive_atoms/atom_definitions/**/*.pt
+# cognitive_atoms/atom_definitions/**/*.joblib
+# cognitive_atoms/atom_definitions/**/*.pkl
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# OLI Reports (Generated output)
+ooda_interface/reports/
+
+# Compiled Blueprints Cache (If you implement caching)
+# cognitive_blueprints/compiled_cache/
