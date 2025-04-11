@@ -1183,6 +1183,8 @@ import { useRouter } from 'vue-router';
 import { onUnmounted } from 'vue';
 import MemoryBank from '@/components/MemoryBank.vue';
 import memoryService from '@/services/enhancedMemoryService';
+// At the top of <script setup>
+import { getFunctions, httpsCallable } from 'firebase/functions';
 
 export default {
   name: "DawntasyChat",
@@ -1223,6 +1225,8 @@ const aiToolInput = ref("");
 const aiToolTitle = ref("");
 const aiToolDescription = ref("");
 const aiToolPlaceholder = ref("");
+const functions = getFunctions();
+const processAiRequestFn = httpsCallable(functions, 'processAiRequest'); // Use the exact name of your deployed function
 const showRenameLogModal = ref(false);
 const logToRename = ref(null);
 const newLogTitle = ref("");
@@ -1262,96 +1266,7 @@ const showSelectChatModal = ref(false);
 const openBookLink = () => {
   window.open('https://www.amazon.com/Dawntasy-Circular-Dawn-breathtaking-fantasy-ebook/dp/B0DT74DLY5/', '_blank');
 };
-// Replace the existing processStream function with this enhanced version that prevents duplicates
-const processStream = async (stream, messageIndex, isReasoningStream = false) => {
-  if (!stream) {
-    throw new Error("No stream provided");
-  }
-  
-  const reader = stream.getReader();
-  let completeResponse = "";
-  const message = messages.value[messageIndex];
-  
-  try {
-    // Set a small initial delay to simulate thinking
-    if (isReasoningStream && message.streamContent === "") {
-      // Start with an opening phrase to mimic internal thinking
-      message.reasoning = "Let me think about this...";
-      await new Promise(resolve => setTimeout(resolve, 500));
-    }
-    
-    while (true) {
-      const { done, value } = await reader.read();
-      
-      if (done) break;
-      
-      const chunkText = new TextDecoder().decode(value);
-      const lines = chunkText.split("\n").filter(line => line.trim() !== "");
-      
-      for (const line of lines) {
-        if (line.startsWith("data: ") && line !== "data: [DONE]") {
-          try {
-            const jsonData = line.substring(6);
-            if (jsonData.trim() === "[DONE]") continue;
-            
-            const data = JSON.parse(jsonData);
-            
-            if (data.choices && data.choices[0].delta && data.choices[0].delta.content) {
-              const content = data.choices[0].delta.content;
-              completeResponse += content;
-              
-              // Update the appropriate content based on whether this is a reasoning stream or response stream
-              if (message) {
-                // For Logic mode, we track what we're currently streaming with a flag
-                if (isReasoningStream || (message.currentlyStreamingReasoning === true)) {
-                  // When streaming reasoning, update the reasoning property
-                  message.reasoning = completeResponse;
-                  // Also reflect this in streamContent to show it's happening in real-time
-                  message.streamContent = "Thinking: " + completeResponse;
-                } else {
-                  // When streaming the main response, ONLY update streamContent
-                  // This prevents duplicating content in the final response
-                  message.streamContent = completeResponse;
-                }
-                
-                await nextTick();
-                scrollToBottom();
-              }
-            }
-          } catch (e) {
-            console.error("Error parsing streaming data:", e, line);
-          }
-        }
-      }
-      
-      // Add a tiny delay between chunks to make the streaming look more natural
-      await new Promise(resolve => setTimeout(resolve, 5));
-    }
-    
-    // Finalize the message based on the type of stream - CRITICAL FIX HERE
-    if (message) {
-      if (isReasoningStream || message.currentlyStreamingReasoning === true) {
-        // This was a reasoning stream, update the reasoning field
-        message.reasoning = completeResponse;
-        message.hasReasoning = true;
-        
-        // Mark that we're done with the reasoning phase
-        message.currentlyStreamingReasoning = false;
-        // Clear streamContent to prepare for the actual response
-        message.streamContent = "";
-      } else {
-        // This was a response stream, update the content field ONLY ONCE
-        // This is the key fix - previously content was being set multiple times
-        message.content = completeResponse;
-        message.isStreaming = false;
-      }
-    }
-    
-    return completeResponse;
-  } finally {
-    reader.releaseLock();
-  }
-};
+
 // Add this to your setup function or directly in a script block
 const setupViewportHeightFix = () => {
   // Initial calculation
@@ -2533,342 +2448,230 @@ const deployBranchToChat = async (chatId) => {
 };
 // Replace your current sendMessage function with this enhanced version that handles separate reasoning
 // Replace your current sendMessage function with this enhanced version that handles separate reasoning
+// --- FULL sendMessage FUNCTION for ChatView.vue ---
+
 const sendMessage = async (text) => {
-  const messageText = text || userInput.value.trim();
-  
-  if (!messageText) return;
-  
-  if (!currentChatId.value) {
-    showNewChatPopup.value = true;
+  const messageText = text || userInput.value.trim(); // Get text from argument or input field
+
+  // Prevent sending empty messages or while already processing
+  if (!messageText || isLoading.value) {
+    if (!messageText) console.warn("Attempted to send empty message.");
+    if (isLoading.value) console.warn("Attempted to send message while loading.");
     return;
   }
-  
-  // Retrieve relevant memories
-  const relevantMemories = await memoryService.retrieveRelevantMemories(messageText);
-  
-  // Use the enhanced memory prompt creation
-  let enhancedPrompt = messageText;
-  if (relevantMemories && relevantMemories.length > 0) {
-    const memoryPrompt = createMemoryPrompt(relevantMemories, messageText);
-    if (memoryPrompt) {
-      enhancedPrompt = `${memoryPrompt}\n\nWith that context in mind, please respond to: ${messageText}`;
-    }
+
+  // Ensure a chat context exists
+  if (!currentChatId.value) {
+    console.log("No active chat selected. Prompting for new chat.");
+    showNewChatPopup.value = true; // Prompt user to create/select a chat
+    return;
   }
-  
+
+  console.log(`Sending message: "${messageText.substring(0, 50)}..."`);
+
+  // --- 1. Prepare User Message & Context ---
+
+  // Retrieve relevant memories (assuming memoryService exists and works)
+  const relevantMemories = await memoryService.retrieveRelevantMemories(messageText);
+  // Optional: Create context prompt if memories are found
+  const memoryPromptContext = createMemoryPrompt(relevantMemories, messageText); // Assuming this helper exists
+
+  // Create the user message object for the UI
   const userMessage = {
     role: "user",
-    content: messageText,
+    content: messageText, // Store the original, raw user message
     timestamp: Date.now()
   };
-  
+
+  // Add user message to the UI immediately
   messages.value.push(userMessage);
-  
-  // Process message for memory extraction
-  await memoryService.processMessage(messageText, true);
-  
-  if (userId.value !== "demo-user") {
-    try {
-      await saveMessageToFirebase(userMessage);
-    } catch (error) {
-      console.error("Error saving user message:", error);
-    }
+
+  // Process message for memory update (non-blocking)
+  memoryService.processMessage(messageText, true).catch(e => console.error("Error processing memory:", e));
+
+  // Save user message to persistent storage (e.g., Firebase) if not demo user
+  if (userId.value && userId.value !== "demo-user") {
+    saveMessageToFirebase(userMessage).catch(e => console.error("Error saving user message:", e));
   }
-  
+
+  // Clear the input field
+  const originalUserInput = userInput.value; // Keep original input for potential task routing
   userInput.value = "";
   if (inputField.value) {
-    inputField.value.style.height = "auto";
+    inputField.value.style.height = "auto"; // Reset textarea height
+    inputField.value.focus(); // Keep focus on input
   }
-  
+
+  // Ensure UI updates before proceeding
   await nextTick();
   scrollToBottom();
-  
+
+  // --- 2. Handle Special Modes (e.g., Image Generation) ---
+
   if (imageEnabled.value) {
-    imageEnabled.value = false;
-    await generateImage(messageText);
-    return;
+    console.log("Image generation mode detected.");
+    imageEnabled.value = false; // Reset toggle immediately
+    await generateImage(messageText); // Call the separate image generation function
+    return; // Stop further processing as image generation is handled
   }
-  
+
+  // --- 3. Set Loading State & AI Placeholder ---
+
   isLoading.value = true;
-  isThinkingDeeper.value = true;
-  
-  // Start the thinking messages cycle
-  const thinkingInterval = startThinkingMessages();
-  
-  const streamingMessageIndex = messages.value.length;
-  
+  isThinkingDeeper.value = logicEnabled.value || reasoningEnabled.value || archmageEnabled.value; // Determine if complex modes are active
+  const thinkingInterval = startThinkingMessages(); // Start rotating "thinking..." messages
+
+  // Create a placeholder for the AI's response while processing
+  const aiMessagePlaceholder = {
+    role: "assistant",
+    content: "", // Starts empty, will be filled by backend result
+    streamContent: "Thinking...", // Initial text shown while waiting
+    reasoning: "", // Will be filled if reasoning is returned
+    hasReasoning: logicEnabled.value || reasoningEnabled.value, // Anticipate reasoning based on mode
+    showReasoning: false, // Start collapsed
+    timestamp: Date.now(),
+    isStreaming: true, // Indicates waiting for backend / placeholder active
+    currentlyStreamingReasoning: false // Reset flag
+  };
+  messages.value.push(aiMessagePlaceholder);
+  const responseMessageIndex = messages.value.length - 1; // Get the index of our placeholder
+  await nextTick();
+  scrollToBottom(); // Scroll down to show the placeholder
+
+  // --- 4. Prepare Request for Backend (Firebase Function) ---
+
   try {
-    // Create a message placeholder - but with different structure depending on mode
-    if (logicEnabled.value) {
-      // In logic mode, we create a message that will have BOTH reasoning AND content
-      messages.value.push({
-        role: "assistant",
-        content: "",
-        streamContent: "",
-        reasoning: "",
-        hasReasoning: true,
-        showReasoning: false,
-        timestamp: Date.now(),
-        isStreaming: true,
-        currentlyStreamingReasoning: true // NEW FLAG to track what we're currently streaming
-      });
-    } else {
-      // In normal mode, just create a standard message 
-      messages.value.push({
-        role: "assistant",
-        content: "",
-        streamContent: "",
-        reasoning: "",
-        hasReasoning: reasoningEnabled.value,
-        showReasoning: false,
-        timestamp: Date.now(),
-        isStreaming: true
-      });
+    const systemPrompt = getDawntasySystemPrompt(); // Get appropriate system prompt based on modes
+
+    // Determine the task and structure the payload for the Firebase Function
+    let taskType = "chat_completion"; // Default task
+    let blueprintToExecute = null; // Track if we intend to use a specific AEON blueprint
+    let payloadData = { // Default payload structure for chat
+        history: messages.value
+                    .slice(0, -1) // Exclude the user message just added and the placeholder
+                    .slice(-10) // Limit context window
+                    .map(msg => ({ role: msg.role, content: msg.content })), // Use simple format
+        current_prompt: messageText, // The user's latest message
+        system_prompt: systemPrompt,
+        modes: { // Send current modes
+            logic: logicEnabled.value,
+            reasoning: reasoningEnabled.value,
+            archmage: archmageEnabled.value
+        },
+        memory_context: relevantMemories // Pass relevant memories
+    };
+
+    // !!! --- CORE AEON ROUTING LOGIC --- !!!
+    // Check if the user input triggers a specific AEON task
+    // This is a simple example; real routing could be more complex (e.g., intent detection)
+    const lowerCaseInput = messageText.toLowerCase();
+    if (lowerCaseInput.startsWith("aeon uppercase:")) {
+        taskType = "simple_uppercase_task"; // Task name recognized by Firebase Function
+        blueprintToExecute = "simple_uppercase_blueprint"; // Corresponding AEON blueprint
+        // Structure payload specifically for *this* task/blueprint
+        payloadData = {
+            text_to_convert: messageText.substring("aeon uppercase:".length).trim()
+        };
+        console.log(`Detected AEON task: ${taskType}, targeting blueprint: ${blueprintToExecute}`);
     }
-    
-    isStreaming.value = true;
-    
-    if (userId.value === "demo-user") {
-      await mockStreamingResponse(streamingMessageIndex, messageText);
-    } else {
-      const conversationHistory = messages.value
-        .slice(0, -1)
-        .map(msg => ({
-          role: msg.role,
-          content: msg.content
-        }));
-      
-      const systemPrompt = getDawntasySystemPrompt();
-      
-      try {
-        // MAJOR CHANGE: SWITCH TO SERVER-SIDE SECURE API CALLS
-        if (logicEnabled.value) {
-          console.log("Logic mode enabled, generating reasoning first...");
-          
-          // STEP 1: Create a special system prompt for reasoning
-          const reasoningSystemPrompt = systemPrompt + `
-          
-          [CRITICAL INSTRUCTION - REASONING FORMAT]
-          You must provide your reasoning in an internal monologue format. Explicitly show your thought process as you work through the question, including:
-          
-          Use words like "Alright" "Okay" "Let me break this down" "Hmm" "I remember" "Wait" "What if"
-          
-          You MUST follow by a similar style of thinking to this in your reasoning process. A very good example would be: "Alright. Let me break this down. The user just asked me what the capital of France is. Let me recall what I know about France. Hmm. (continued)"
-          
-          1. Analyse the user's query, considering possible emotional connotations, interests/goals being achieved and tonal insights
-          2. Identify what you can do to reply, and EVERY SINGLE POSSIBILITY to the query
-          3. List Exploration of knowledge, eg. recalling from memory to gain background context as to better support the user's aims, knowledge/data you know to reply to the query
-          4. Counterargue your stance, and consider possible rebuttals to your stance. 
-          5. Lens, consider multiple perspectives in hyper level detail and explore every possible viewpoint for the user's message. TO guide you, look from the perspective of: Philosophical, Scientific, Logical, Emotive, Branched Out (innovative way of thinking), Ethical, Factual, Inferential
-          6. Activate your response and sum up what you have reasoned about and conclude
+    // --- Add more `else if` blocks here to detect other commands/intents ---
+    // else if (lowerCaseInput.startsWith("aeon summarize:")) {
+    //     taskType = "summarization_task";
+    //     blueprintToExecute = "generate_summary_blueprint"; // Assuming this blueprint exists
+    //     payloadData = { text_to_summarize: messageText.substring(...) };
+    // }
+    // --- End AEON Routing Logic ---
 
-          Your reasoning should feel like natural thought progression:
-          "Alright, so the user is asking about X. This is interesting because... First, I should consider... But wait, I also need to think about... Actually, from another perspective... Based on all this, I think the best answer would be..."
-          
-          VERY IMPORTANT: Only provide the reasoning, NOT the final response! The actual response will be generated separately.`;
-          
-          // First API call: Generate reasoning ONLY - Now via SERVER-SIDE
-          const reasoningPrompt = `I need your detailed thought process and reasoning about this query: "${enhancedPrompt}"
-          
-          Show me your internal monologue as you think about how to answer this. Walk through your thinking step-by-step, considering various angles and approaches.
-          
-          DO NOT include your final response - ONLY your reasoning process!`;
-          
-          // Create stream for reasoning - SECURE SERVER-SIDE CALL
-          const reasoningStream = await createStream(
-            [...conversationHistory, { role: "user", content: reasoningPrompt }],
-            reasoningSystemPrompt,
-            10000
-          );
-          
-          // Process the reasoning stream - NOTE THE true parameter to indicate it's reasoning
-          await processStream(
-            reasoningStream,
-            streamingMessageIndex,
-            true // This is a reasoning stream
-          );
-          
-          // Update the message to show we're now streaming the main response
-          messages.value[streamingMessageIndex].currentlyStreamingReasoning = false;
-          // Clear streamContent because we're moving to the regular response now
-          messages.value[streamingMessageIndex].streamContent = "";
-          
-          console.log("Reasoning generated, now generating response...");
-          const aiMessage = messages.value[streamingMessageIndex];
-          const reasoningContext = aiMessage.reasoning;
+    // Final request object for the Firebase Function
+    const requestData = {
+        task: taskType,
+        payload: payloadData
+        // Optionally pass blueprint name if needed for more complex function routing
+        // blueprint: blueprintToExecute
+    };
 
-          // Second API call: Generate actual response based on query - SECURE SERVER-SIDE
-          const responsePrompt = `I have just completed a detailed reasoning process about the following query: "${enhancedPrompt}"
+    // --- 5. Call Firebase Function ---
+    console.log(`Calling Firebase Function 'processAiRequest' with task: ${taskType}`);
+    const result = await processAiRequestFn(requestData); // processAiRequestFn defined via httpsCallable
 
-          Here is my reasoning process:
-          ${reasoningContext}
+    // --- 6. Process Backend Response ---
+    if (result.data && result.data.success && result.data.result) {
+      const aiResult = result.data.result;
+      console.log("Received successful response from backend:", aiResult);
 
-          Based on THIS REASONING ONLY, I now need to generate a final response to the user that:
-          1. Directly builds upon the insights and conclusions from my reasoning
-          2. Is well-structured, clear, and addresses the user's query directly
-          3. Does not repeat or restate the entire reasoning process
-          4. Provides a comprehensive yet concise answer
-          5. Uses an appropriate tone based on the selected mode
+      // Extract relevant data based on task type
+      let finalContent = "Sorry, I received an unexpected response structure."; // Default
+      let finalReasoning = "";
 
-          Please generate ONLY the final response to send to the user, without any meta-commentary about the reasoning process.`;
-
-          const responseStream = await createStream(
-            [...conversationHistory, { role: "user", content: responsePrompt }],
-            systemPrompt,
-            10000
-          );
-          
-          // Process the response stream - with false to indicate it's not reasoning
-          await processStream(
-            responseStream,
-            streamingMessageIndex,
-            false // This is not a reasoning stream
-          );
-          
-          // After processing the actual response, update the message
-          await saveMessageToFirebase(aiMessage);
-          
-          logInteraction(messageText, aiMessage);
-          await memoryService.processMessage(aiMessage.content, false);
-          await processSelfOptimization(messageText, aiMessage);
-        } else if (reasoningEnabled.value) {
-          // Standard reasoning mode with "Think Deeper" option enabled
-          // We'll generate both reasoning and response in a single API call, then split them
-          // SECURE SERVER-SIDE CALL
-          const stream = await createStream(
-            conversationHistory,
-            systemPrompt,
-            10000,
-            enhancedPrompt
-          );
-          
-          const responseText = await processStream(
-            stream,
-            streamingMessageIndex,
-            false // Not streaming reasoning specifically
-          );
-          
-          // Extract reasoning from the response if needed
-          if (responseText.includes('[REASONING_START]') && responseText.includes('[REASONING_END]')) {
-            const extracted = extractReasoning(responseText);
-            const aiMessage = messages.value[streamingMessageIndex];
-            
-            aiMessage.content = extracted.finalResponse;
-            aiMessage.reasoning = extracted.reasoning;
-            aiMessage.hasReasoning = true;
-            aiMessage.isStreaming = false;
-            
-            await saveMessageToFirebase(aiMessage);
-            
-            logInteraction(messageText, aiMessage);
-            await memoryService.processMessage(aiMessage.content, false);
-            await processSelfOptimization(messageText, aiMessage);
-          } else {
-            // If no reasoning markers found, treat as normal response
-            const aiMessage = messages.value[streamingMessageIndex];
-            aiMessage.isStreaming = false;
-            
-            await saveMessageToFirebase(aiMessage);
-            
-            logInteraction(messageText, aiMessage);
-            await memoryService.processMessage(aiMessage.content, false);
-            await processSelfOptimization(messageText, aiMessage);
-          }
-        } else if (useWebSearch.value) {
-          // Web search mode - using server-side search endpoint
-          await performWebSearch(messageText);
-          
-          // Update the message
-          const aiMessage = messages.value[streamingMessageIndex];
-          aiMessage.isStreaming = false;
-          
-          await saveMessageToFirebase(aiMessage);
-        } else {
-          // Standard response without reasoning - SECURE SERVER-SIDE CALL
-          const stream = await createStream(
-            conversationHistory,
-            systemPrompt,
-            10000,
-            enhancedPrompt
-          );
-          
-          await processStream(
-            stream,
-            streamingMessageIndex,
-            false
-          );
-          
-          const aiMessage = messages.value[streamingMessageIndex];
-          aiMessage.isStreaming = false;
-          
-          await saveMessageToFirebase(aiMessage);
-          
-          logInteraction(messageText, aiMessage);
-          await memoryService.processMessage(aiMessage.content, false);
-          await processSelfOptimization(messageText, aiMessage);
-          
-          // Optionally check if cards should be shown
-          if (shouldShowCards(messageText)) {
-            try {
-              // Extract key topic
-              const topic = messageText.split(/[.?!]/)[0].substring(0, 30);
-              const cards = await generateCards(messageText, topic);
-              
-              // Optional: append cards to the response
-              if (cards && cards.length > 0) {
-                const cardsHTML = renderCardsHTML(cards);
-                if (!aiMessage.content.includes("<div class=\"card-container\">")) {
-                  aiMessage.content += "\n\n" + cardsHTML;
-                  await saveMessageToFirebase(aiMessage);
-                }
-              }
-            } catch (cardsError) {
-              console.error("Error generating cards:", cardsError);
-            }
-          }
-        }
-      } catch (apiError) {
-        console.error("API error:", apiError);
-        
-        await mockStreamingResponse(streamingMessageIndex, messageText, true);
+      if (taskType === "simple_uppercase_task") {
+          // Expecting direct result for this simple task
+          finalContent = typeof aiResult === 'string' ? aiResult : JSON.stringify(aiResult);
+      } else if (taskType === "chat_completion") {
+          // Expecting an object like { content: "...", reasoning: "..." }
+          finalContent = aiResult.content || "Sorry, I couldn't generate a chat response.";
+          finalReasoning = aiResult.reasoning || "";
       }
+      // --- Add handling for other task types (image, audio, mindmap) here ---
+      // else if (taskType === "image_generation") { ... }
+
+      // Update the placeholder message with the final content
+      messages.value[responseMessageIndex].content = finalContent;
+      messages.value[responseMessageIndex].reasoning = finalReasoning;
+      messages.value[responseMessageIndex].hasReasoning = !!finalReasoning; // True if reasoning is not empty
+      messages.value[responseMessageIndex].isStreaming = false; // Mark processing complete
+      messages.value[responseMessageIndex].streamContent = ""; // Clear "Thinking..."
+
+      // Save the final AI message to Firebase (if needed)
+      if (userId.value && userId.value !== "demo-user") {
+        await saveMessageToFirebase(messages.value[responseMessageIndex]);
+      }
+
+      // Post-processing (Logging, Memory, Optimization, Quantum)
+      logInteraction(messageText, messages.value[responseMessageIndex]);
+      memoryService.processMessage(finalContent, false).catch(e => console.error("Error processing memory for AI msg:", e));
+      processSelfOptimization(messageText, messages.value[responseMessageIndex]).catch(e => console.error("Error during self-optimization:", e));
+      if (quantumIntelligenceEnabled) {
+        applyQuantumIntelligenceEnhancement(responseMessageIndex, messageText).catch(e => console.error("Error applying quantum enhancement:", e));
+      }
+
+    } else {
+      // Handle errors reported by the Firebase Function / AEON Server / OpenAI
+      const errorMsg = result.data?.error || "An unknown error occurred processing your request.";
+      console.error("Backend processing error reported:", result.data);
+      throw new Error(errorMsg); // Throw error to be caught below
     }
+
   } catch (error) {
-    console.error("Error sending message:", error);
-    
-    if (messages.value[streamingMessageIndex]) {
-      messages.value[streamingMessageIndex].content =
-        "⚠️ I encountered an error while processing your request. Please try again later.";
-      messages.value[streamingMessageIndex].isStreaming = false;
-      
-      try {
-        await saveMessageToFirebase(messages.value[streamingMessageIndex]);
-      } catch (saveError) {
-        console.error("Error saving error message:", saveError);
-      }
+    // Handle Network errors calling the Firebase Function OR errors thrown from above
+    console.error("Error during sendMessage processing:", error);
+    const errorMsg = error.details?.message || error.message || "Failed to get response from backend service.";
+
+    // Update the placeholder message to show the error
+    messages.value[responseMessageIndex].content = `⚠️ Error: ${errorMsg}`;
+    messages.value[responseMessageIndex].isStreaming = false;
+    messages.value[responseMessageIndex].streamContent = "";
+
+    // Optionally save error message to Firebase
+    if (userId.value && userId.value !== "demo-user") {
+        await saveMessageToFirebase(messages.value[responseMessageIndex]).catch(e => console.error("Error saving error message:", e));
     }
   } finally {
-    // Clear the thinking message interval
-    clearInterval(thinkingInterval);
-    
+    // --- 7. Cleanup Loading State ---
+    clearInterval(thinkingInterval); // Stop rotating "thinking..." messages
     isLoading.value = false;
     isThinkingDeeper.value = false;
-    isStreaming.value = false;
-    
-    if (messages.value[streamingMessageIndex]) {
-      messages.value[streamingMessageIndex].isStreaming = false;
+    isStreaming.value = false; // Turn off global streaming indicator
+
+    // Ensure the specific message's streaming flag is definitively off
+    if (messages.value[responseMessageIndex]) {
+         messages.value[responseMessageIndex].isStreaming = false;
+         messages.value[responseMessageIndex].streamContent = ""; // Clear any residual placeholder
     }
-    
-    scrollToBottom();
-    
-    // Apply quantum intelligence enhancement if appropriate
-    if (quantumIntelligenceEnabled && messages.value[streamingMessageIndex]) {
-      const aiMessage = messages.value[streamingMessageIndex];
-      if (aiMessage.content && aiMessage.content.length > 100) {
-        applyQuantumIntelligenceEnhancement(streamingMessageIndex, messageText);
-      }
-    }
+    await nextTick();
+    scrollToBottom(); // Ensure view scrolls down after response/error
+    // --- End Cleanup ---
   }
-};
+}; // --- End of sendMessage function ---
     
 // Add these functions to your main JavaScript file
 // Function to determine if cards would be relevant for the message
@@ -3277,41 +3080,7 @@ onMounted(() => {
   // Existing code...
 });
 // Improved API error handling for all API calls
-const callOpenAI = async (systemPrompt, userPrompt, temperature = 0.7) => {
-  try {
-    if (!apiKey) {
-      console.error("No API key available");
-      throw new Error("API key not configured");
-    }
-    
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${apiKey}`
-      },
-      body: JSON.stringify({
-        model: "o3-mini",
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: userPrompt }
-        ],
-        temperature: temperature
-      })
-    });
-    
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      console.error("API error response:", errorData);
-      throw new Error(`API error: ${response.status} - ${errorData.error?.message || 'Unknown error'}`);
-    }
-    
-    return await response.json();
-  } catch (error) {
-    console.error("API call failed:", error);
-    throw error;
-  }
-};
+
 // Enhanced Proactive AI System
 // Enhanced Proactive AI System
 // Enhanced Proactive AI System
@@ -9444,72 +9213,7 @@ const getTimeAgoString = (timestamp) => {
 
   // ... rest of the sendMessage function ...
     // **API Interactions**
-    const createStream = async (
-  messagesArray,
-  systemPrompt,
-  max_completion_tokens = 10000,
-  enhancedUserPrompt = null // Add parameter for enhanced prompt
-) => {
-  try {
-    // No longer need to check for API key - that's server's responsibility now
-    
-    let modelName = "gpt-4o-mini";
-    
-    // Create a modified messages array if we have an enhanced prompt
-    let modifiedMessages = [...messagesArray];
-    
-    // If we have an enhanced prompt, replace the last user message with it
-    if (enhancedUserPrompt && modifiedMessages.length > 0) {
-      const lastMsgIndex = modifiedMessages.length - 1;
-      if (modifiedMessages[lastMsgIndex].role === 'user') {
-        // Keep the original message in metadata for reference
-        modifiedMessages[lastMsgIndex] = {
-          role: 'user',
-          content: enhancedUserPrompt,
-          originalContent: modifiedMessages[lastMsgIndex].content
-        };
-        console.log('Using enhanced prompt with memory context in API call');
-      }
-    }
 
-    // Prepare the request payload for our server-side function
-    const requestPayload = {
-      model: modelName,
-      messages: [
-        { role: "system", content: systemPrompt },
-        ...modifiedMessages
-      ],
-      temperature: 0.7,
-      max_tokens: max_completion_tokens,
-      stream: true
-    };
-
-    // Call our server-side API endpoint instead of OpenAI directly
-    const response = await fetch("/api/openai", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(requestPayload)
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      console.error("API response error:", {
-        status: response.status,
-        statusText: response.statusText,
-        errorMessage: errorData.error?.message,
-        headers: Object.fromEntries(response.headers.entries()),
-      });
-      throw new Error(`API error: ${response.status} - ${errorData.error?.message || 'Server error'}`);
-    }
-
-    return response.body;
-  } catch (error) {
-    console.error("Error creating stream:", error);
-    throw error;
-  }
-};
 
 // Replace the existing processStream function with this enhanced version that handles separate reasoning
 // Replace the existing processStream function with this enhanced version that handles separate reasoning
