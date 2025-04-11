@@ -1,7 +1,5 @@
 // functions/index.js
 const functions = require("firebase-functions");
-// We need to mark admin as used with a comment
-// eslint-disable-next-line no-unused-vars
 const admin = require("firebase-admin");
 const axios = require("axios");
 const cors = require("cors")({origin: true});
@@ -51,10 +49,8 @@ exports.processPTERequest = functions.runWith({
 
       // Validate Core Inputs
       if (!prompt || !targetApi || !model) {
-        functions.logger.error(
-            "Validation Failed: Missing required fields.",
-            {body: requestBody}
-        );
+        functions.logger.error("Validation Failed: Missing required fields.",
+            {body: requestBody});
         return response.status(400).json({
           error: "Missing required fields: prompt, targetApi, model",
         });
@@ -79,10 +75,7 @@ exports.processPTERequest = functions.runWith({
           }
           apiUrl = "https://api.openai.com/v1/chat/completions";
           apiKey = `Bearer ${openaiApiKey}`;
-          apiHeaders = {
-            "Authorization": apiKey,
-            "Content-Type": "application/json",
-          };
+          apiHeaders = {"Authorization": apiKey, "Content-Type": "application/json"};
           requestPayload = {
             model: model,
             messages: [
@@ -102,10 +95,7 @@ exports.processPTERequest = functions.runWith({
           }
           apiUrl = "https://api.fireworks.ai/inference/v1/chat/completions";
           apiKey = `Bearer ${fireworksApiKey}`;
-          apiHeaders = {
-            "Authorization": apiKey,
-            "Content-Type": "application/json",
-          };
+          apiHeaders = {"Authorization": apiKey, "Content-Type": "application/json"};
           requestPayload = {
             model: model,
             messages: [
@@ -121,16 +111,11 @@ exports.processPTERequest = functions.runWith({
 
         case "openai-image":
           if (!openaiApiKey) {
-            throw new Error(
-                "OpenAI API key not configured for image generation."
-            );
+            throw new Error("OpenAI API key not configured for image generation.");
           }
           apiUrl = "https://api.openai.com/v1/images/generations";
           apiKey = `Bearer ${openaiApiKey}`;
-          apiHeaders = {
-            "Authorization": apiKey,
-            "Content-Type": "application/json",
-          };
+          apiHeaders = {"Authorization": apiKey, "Content-Type": "application/json"};
           requestPayload = {
             model: model, // e.g., "dall-e-3"
             prompt: prompt,
@@ -143,22 +128,17 @@ exports.processPTERequest = functions.runWith({
 
         default:
           functions.logger.error("Invalid targetApi:", targetApi);
-          return response.status(400).json({
-            error: "Invalid targetApi specified",
-          });
+          return response.status(400).json({error: "Invalid targetApi specified"});
       }
 
       // Make the External API Call (Non-Streaming)
-      functions.logger.info(
-          `Calling ${targetApi} (${model}) at ${apiUrl}...`
-      );
+      functions.logger.info(`Calling ${targetApi} (${model}) at ${apiUrl}...`);
       const apiResponse = await axios.post(apiUrl, requestPayload, {
         headers: apiHeaders,
         timeout: 110000, // Slightly less than function timeout (120s)
       });
       functions.logger.info(
-          `${targetApi} call successful. Status: ${apiResponse.status}`
-      );
+          `${targetApi} call successful. Status: ${apiResponse.status}`);
 
       // Return the complete response from the external API
       response.status(200).json(apiResponse.data);
@@ -166,30 +146,28 @@ exports.processPTERequest = functions.runWith({
       // Handle Errors Gracefully
       let statusCode = 500;
       let errorMessage = "An internal server error occurred.";
-      // eslint-disable-next-line no-unused-vars
-      let errorDetails = {};
+      // Create but don't use errorDetails to avoid ESLint warning
+      // Can be re-enabled if needed for debugging
+      // let errorDetails = {};
 
       if (axios.isAxiosError(error)) {
         functions.logger.error("Axios Error calling external API:", {
           message: error.message,
-          url: error.config && error.config.url,
-          status: error.response && error.response.status,
-          data: error.response && error.response.data,
-          // Log the actual error from OpenAI/Fireworks
+          url: error.config?.url,
+          status: error.response?.status,
+          data: error.response?.data, // Log the actual error from OpenAI/Fireworks
         });
-        statusCode = (error.response && error.response.status) || 502;
-        // Use API's status code or 502
-        errorMessage = (error.response && error.response.data &&
-          error.response.data.error && error.response.data.error.message) ||
-          `External API Error (${statusCode})`;
-        errorDetails = (error.response && error.response.data) || {};
+        statusCode = error.response?.status || 502; // Use API's status code or 502
+        errorMessage = error.response?.data?.error?.message ||
+            `External API Error (${statusCode})`;
+        // errorDetails = error.response?.data || {};
       } else {
         functions.logger.error("Generic Error in Cloud Function:", {
           message: error.message,
           stack: error.stack, // Log stack trace for internal errors
         });
         errorMessage = error.message || "Internal Server Error in Cloud Function";
-        errorDetails = {message: error.message};
+        // errorDetails = {message: error.message};
       }
 
       // Send error back to the client
