@@ -1,0 +1,297 @@
+[debug] [2025-04-11T21:19:57.450Z] ----------------------------------------------------------------------
+[debug] [2025-04-11T21:19:57.455Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\music\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js init emulators
+[debug] [2025-04-11T21:19:57.456Z] CLI Version:   14.1.0
+[debug] [2025-04-11T21:19:57.456Z] Platform:      win32
+[debug] [2025-04-11T21:19:57.456Z] Node Version:  v22.14.0
+[debug] [2025-04-11T21:19:57.457Z] Time:          Sat Apr 12 2025 07:19:57 GMT+1000 (Australian Eastern Standard Time)
+[debug] [2025-04-11T21:19:57.457Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2025-04-11T21:19:57.752Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2025-04-11T21:19:57.753Z] > authorizing via signed-in user (musicaljasperj@gmail.com)
+[info] 
+     ######## #### ########  ######## ########     ###     ######  ########
+     ##        ##  ##     ## ##       ##     ##  ##   ##  ##       ##
+     ######    ##  ########  ######   ########  #########  ######  ######
+     ##        ##  ##    ##  ##       ##     ## ##     ##       ## ##
+     ##       #### ##     ## ######## ########  ##     ##  ######  ########
+
+You're about to initialize a Firebase project in this directory:
+
+  C:\DawntasyChatbot\dawntasymelodic\ai
+
+Before we get started, keep in mind:
+
+  * You are currently outside your home directory
+  * You are initializing within an existing Firebase project directory
+
+[info] 
+=== Project Setup
+[info] 
+[info] First, let's associate this project directory with a Firebase project.
+[info] You can create multiple project aliases by running firebase use --add, 
+[info] but for now we'll just set up a default project.
+[info] 
+[debug] [2025-04-11T21:26:32.482Z] Using project from CLI flag: dawntasyai
+[debug] [2025-04-11T21:26:32.484Z] Checked if tokens are valid: false, expires at: 1744378684745
+[debug] [2025-04-11T21:26:32.484Z] Checked if tokens are valid: false, expires at: 1744378684745
+[debug] [2025-04-11T21:26:32.484Z] > refreshing access token with scopes: []
+[debug] [2025-04-11T21:26:32.487Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2025-04-11T21:26:32.487Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-04-11T21:26:33.121Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 200
+[debug] [2025-04-11T21:26:33.121Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-04-11T21:26:33.138Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/dawntasyai [none]
+[debug] [2025-04-11T21:26:33.978Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/dawntasyai 200
+[debug] [2025-04-11T21:26:33.979Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/dawntasyai {"projectId":"dawntasyai","projectNumber":"809395170084","displayName":"dawntasyai","name":"projects/dawntasyai","resources":{"hostingSite":"dawntasyai"},"state":"ACTIVE","etag":"1_ac93c9e8-a795-4d59-acfb-d61f87c2263a"}
+[info] i  Using project dawntasyai (dawntasyai) 
+[info] 
+=== Emulators Setup
+[debug] [2025-04-11T21:55:18.706Z] ----------------------------------------------------------------------
+[debug] [2025-04-11T21:55:18.710Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\music\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js emulators:start --only functions
+[debug] [2025-04-11T21:55:18.710Z] CLI Version:   14.1.0
+[debug] [2025-04-11T21:55:18.711Z] Platform:      win32
+[debug] [2025-04-11T21:55:18.711Z] Node Version:  v22.14.0
+[debug] [2025-04-11T21:55:18.711Z] Time:          Sat Apr 12 2025 07:55:18 GMT+1000 (Australian Eastern Standard Time)
+[debug] [2025-04-11T21:55:18.711Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2025-04-11T21:55:19.137Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2025-04-11T21:55:19.138Z] > authorizing via signed-in user (musicaljasperj@gmail.com)
+[info] i  emulators: Starting emulators: functions {"metadata":{"emulator":{"name":"hub"},"message":"Starting emulators: functions"}}
+[debug] [2025-04-11T21:55:19.153Z] [logging] Logging Emulator only supports listening on one address (127.0.0.1). Not listening on ::1
+[debug] [2025-04-11T21:55:19.153Z] assigned listening specs for emulators {"user":{"hub":[{"address":"127.0.0.1","family":"IPv4","port":4400},{"address":"::1","family":"IPv6","port":4400}],"ui":[{"address":"127.0.0.1","family":"IPv4","port":4000},{"address":"::1","family":"IPv6","port":4000}],"logging":[{"address":"127.0.0.1","family":"IPv4","port":4500}]},"metadata":{"message":"assigned listening specs for emulators"}}
+[debug] [2025-04-11T21:55:19.160Z] [hub] writing locator at C:\Users\music\AppData\Local\Temp\hub-dawntasyai.json
+[debug] [2025-04-11T21:55:19.189Z] [functions] Functions Emulator only supports listening on one address (127.0.0.1). Not listening on ::1
+[debug] [2025-04-11T21:55:19.190Z] [eventarc] Eventarc Emulator only supports listening on one address (127.0.0.1). Not listening on ::1
+[debug] [2025-04-11T21:55:19.190Z] [tasks] Cloud Tasks Emulator only supports listening on one address (127.0.0.1). Not listening on ::1
+[debug] [2025-04-11T21:55:19.190Z] late-assigned ports for functions and eventarc emulators {"user":{"hub":[{"address":"127.0.0.1","family":"IPv4","port":4400},{"address":"::1","family":"IPv6","port":4400}],"ui":[{"address":"127.0.0.1","family":"IPv4","port":4000},{"address":"::1","family":"IPv6","port":4000}],"logging":[{"address":"127.0.0.1","family":"IPv4","port":4500}],"functions":[{"address":"127.0.0.1","family":"IPv4","port":5001}],"eventarc":[{"address":"127.0.0.1","family":"IPv4","port":9299}],"tasks":[{"address":"127.0.0.1","family":"IPv4","port":9499}]},"metadata":{"message":"late-assigned ports for functions and eventarc emulators"}}
+[warn] !  functions: The following emulators are not running, calls to these services from the Functions emulator will affect production: apphosting, auth, firestore, database, hosting, pubsub, storage, dataconnect {"metadata":{"emulator":{"name":"functions"},"message":"The following emulators are not running, calls to these services from the Functions emulator will affect production: \u001b[1mapphosting, auth, firestore, database, hosting, pubsub, storage, dataconnect\u001b[22m"}}
+[debug] [2025-04-11T21:55:19.247Z] defaultcredentials: writing to file C:\Users\music\AppData\Roaming\firebase\musicaljasperj_gmail_com_application_default_credentials.json
+[debug] [2025-04-11T21:55:19.249Z] Setting GAC to C:\Users\music\AppData\Roaming\firebase\musicaljasperj_gmail_com_application_default_credentials.json {"metadata":{"emulator":{"name":"functions"},"message":"Setting GAC to C:\\Users\\music\\AppData\\Roaming\\firebase\\musicaljasperj_gmail_com_application_default_credentials.json"}}
+[debug] [2025-04-11T21:55:19.251Z] Checked if tokens are valid: true, expires at: 1744410392121
+[debug] [2025-04-11T21:55:19.251Z] Checked if tokens are valid: true, expires at: 1744410392121
+[debug] [2025-04-11T21:55:19.252Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/dawntasyai/adminSdkConfig [none]
+[debug] [2025-04-11T21:55:20.683Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/dawntasyai/adminSdkConfig 200
+[debug] [2025-04-11T21:55:20.683Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/dawntasyai/adminSdkConfig {"projectId":"dawntasyai","storageBucket":"dawntasyai.firebasestorage.app"}
+[info] i  ui: downloading ui-v1.14.0.zip... {"metadata":{"emulator":{"name":"ui"},"message":"downloading ui-v1.14.0.zip..."}}
+[debug] [2025-04-11T21:55:20.733Z] >>> [apiv2][query] GET https://storage.googleapis.com/firebase-preview-drop/emulator/ui-v1.14.0.zip 
+[debug] [2025-04-11T21:55:21.072Z] <<< [apiv2][status] GET https://storage.googleapis.com/firebase-preview-drop/emulator/ui-v1.14.0.zip 200
+[debug] [2025-04-11T21:55:21.072Z] <<< [apiv2][body] GET https://storage.googleapis.com/firebase-preview-drop/emulator/ui-v1.14.0.zip [stream]
+[debug] [2025-04-11T21:55:21.794Z] Data is 3615311
+[debug] [2025-04-11T21:55:21.794Z] [unzip] Entry: client/ (compressed_size=0 bytes, uncompressed_size=0 bytes)
+[debug] [2025-04-11T21:55:21.794Z] [unzip] Processing entry: client\
+[debug] [2025-04-11T21:55:21.794Z] [unzip] mkdir: C:\Users\music\.cache\firebase\emulators\ui-v1.14.0\client\
+[debug] [2025-04-11T21:55:21.795Z] [unzip] Entry: client/favicon-16x16.png (compressed_size=293 bytes, uncompressed_size=293 bytes)
+[debug] [2025-04-11T21:55:21.795Z] [unzip] Processing entry: client\favicon-16x16.png
+[debug] [2025-04-11T21:55:21.795Z] [unzip] else mkdir: C:\Users\music\.cache\firebase\emulators\ui-v1.14.0\client
+[debug] [2025-04-11T21:55:21.796Z] [unzip] Writing file: C:\Users\music\.cache\firebase\emulators\ui-v1.14.0\client\favicon-16x16.png
+[debug] [2025-04-11T21:55:21.799Z] [unzip] Entry: client/safari-pinned-tab.svg (compressed_size=1433 bytes, uncompressed_size=2611 bytes)
+[debug] [2025-04-11T21:55:21.799Z] [unzip] Processing entry: client\safari-pinned-tab.svg
+[debug] [2025-04-11T21:55:21.799Z] [unzip] else mkdir: C:\Users\music\.cache\firebase\emulators\ui-v1.14.0\client
+[debug] [2025-04-11T21:55:21.800Z] [unzip] deflating: C:\Users\music\.cache\firebase\emulators\ui-v1.14.0\client\safari-pinned-tab.svg
+[debug] [2025-04-11T21:55:21.805Z] [unzip] Entry: client/favicon.ico (compressed_size=2933 bytes, uncompressed_size=13294 bytes)
+[debug] [2025-04-11T21:55:21.806Z] [unzip] Processing entry: client\favicon.ico
+[debug] [2025-04-11T21:55:21.806Z] [unzip] else mkdir: C:\Users\music\.cache\firebase\emulators\ui-v1.14.0\client
+[debug] [2025-04-11T21:55:21.806Z] [unzip] deflating: C:\Users\music\.cache\firebase\emulators\ui-v1.14.0\client\favicon.ico
+[debug] [2025-04-11T21:55:21.810Z] [unzip] Entry: client/index.html (compressed_size=1363 bytes, uncompressed_size=3071 bytes)
+[debug] [2025-04-11T21:55:21.811Z] [unzip] Processing entry: client\index.html
+[debug] [2025-04-11T21:55:21.811Z] [unzip] else mkdir: C:\Users\music\.cache\firebase\emulators\ui-v1.14.0\client
+[debug] [2025-04-11T21:55:21.811Z] [unzip] deflating: C:\Users\music\.cache\firebase\emulators\ui-v1.14.0\client\index.html
+[debug] [2025-04-11T21:55:21.815Z] [unzip] Entry: client/android-chrome-192x192.png (compressed_size=2684 bytes, uncompressed_size=2684 bytes)
+[debug] [2025-04-11T21:55:21.815Z] [unzip] Processing entry: client\android-chrome-192x192.png
+[debug] [2025-04-11T21:55:21.815Z] [unzip] else mkdir: C:\Users\music\.cache\firebase\emulators\ui-v1.14.0\client
+[debug] [2025-04-11T21:55:21.816Z] [unzip] Writing file: C:\Users\music\.cache\firebase\emulators\ui-v1.14.0\client\android-chrome-192x192.png
+[debug] [2025-04-11T21:55:21.818Z] [unzip] Entry: client/apple-touch-icon.png (compressed_size=2123 bytes, uncompressed_size=2152 bytes)
+[debug] [2025-04-11T21:55:21.818Z] [unzip] Processing entry: client\apple-touch-icon.png
+[debug] [2025-04-11T21:55:21.818Z] [unzip] else mkdir: C:\Users\music\.cache\firebase\emulators\ui-v1.14.0\client
+[debug] [2025-04-11T21:55:21.819Z] [unzip] deflating: C:\Users\music\.cache\firebase\emulators\ui-v1.14.0\client\apple-touch-icon.png
+[debug] [2025-04-11T21:55:21.822Z] [unzip] Entry: client/android-chrome-512x512.png (compressed_size=5369 bytes, uncompressed_size=5411 bytes)
+[debug] [2025-04-11T21:55:21.823Z] [unzip] Processing entry: client\android-chrome-512x512.png
+[debug] [2025-04-11T21:55:21.823Z] [unzip] else mkdir: C:\Users\music\.cache\firebase\emulators\ui-v1.14.0\client
+[debug] [2025-04-11T21:55:21.823Z] [unzip] deflating: C:\Users\music\.cache\firebase\emulators\ui-v1.14.0\client\android-chrome-512x512.png
+[debug] [2025-04-11T21:55:21.826Z] [unzip] Entry: client/manifest.json (compressed_size=245 bytes, uncompressed_size=551 bytes)
+[debug] [2025-04-11T21:55:21.826Z] [unzip] Processing entry: client\manifest.json
+[debug] [2025-04-11T21:55:21.826Z] [unzip] else mkdir: C:\Users\music\.cache\firebase\emulators\ui-v1.14.0\client
+[debug] [2025-04-11T21:55:21.826Z] [unzip] deflating: C:\Users\music\.cache\firebase\emulators\ui-v1.14.0\client\manifest.json
+[debug] [2025-04-11T21:55:21.829Z] [unzip] Entry: client/robots.txt (compressed_size=26 bytes, uncompressed_size=26 bytes)
+[debug] [2025-04-11T21:55:21.829Z] [unzip] Processing entry: client\robots.txt
+[debug] [2025-04-11T21:55:21.829Z] [unzip] else mkdir: C:\Users\music\.cache\firebase\emulators\ui-v1.14.0\client
+[debug] [2025-04-11T21:55:21.830Z] [unzip] Writing file: C:\Users\music\.cache\firebase\emulators\ui-v1.14.0\client\robots.txt
+[debug] [2025-04-11T21:55:21.831Z] [unzip] Entry: client/mstile-150x150.png (compressed_size=2034 bytes, uncompressed_size=2034 bytes)
+[debug] [2025-04-11T21:55:21.831Z] [unzip] Processing entry: client\mstile-150x150.png
+[debug] [2025-04-11T21:55:21.831Z] [unzip] else mkdir: C:\Users\music\.cache\firebase\emulators\ui-v1.14.0\client
+[debug] [2025-04-11T21:55:21.832Z] [unzip] Writing file: C:\Users\music\.cache\firebase\emulators\ui-v1.14.0\client\mstile-150x150.png
+[debug] [2025-04-11T21:55:21.835Z] [unzip] Entry: client/assets/ (compressed_size=0 bytes, uncompressed_size=0 bytes)
+[debug] [2025-04-11T21:55:21.835Z] [unzip] Processing entry: client\assets\
+[debug] [2025-04-11T21:55:21.835Z] [unzip] mkdir: C:\Users\music\.cache\firebase\emulators\ui-v1.14.0\client\assets\
+[debug] [2025-04-11T21:55:21.836Z] [unzip] Entry: client/assets/index-ClZTY_JS.js.map (compressed_size=2328270 bytes, uncompressed_size=9947004 bytes)
+[debug] [2025-04-11T21:55:21.836Z] [unzip] Processing entry: client\assets\index-ClZTY_JS.js.map
+[debug] [2025-04-11T21:55:21.836Z] [unzip] else mkdir: C:\Users\music\.cache\firebase\emulators\ui-v1.14.0\client\assets
+[debug] [2025-04-11T21:55:21.836Z] [unzip] deflating: C:\Users\music\.cache\firebase\emulators\ui-v1.14.0\client\assets\index-ClZTY_JS.js.map
+[debug] [2025-04-11T21:55:22.003Z] [unzip] Entry: client/assets/index-ClZTY_JS.js (compressed_size=567195 bytes, uncompressed_size=2035940 bytes)
+[debug] [2025-04-11T21:55:22.003Z] [unzip] Processing entry: client\assets\index-ClZTY_JS.js
+[debug] [2025-04-11T21:55:22.003Z] [unzip] else mkdir: C:\Users\music\.cache\firebase\emulators\ui-v1.14.0\client\assets
+[debug] [2025-04-11T21:55:22.004Z] [unzip] deflating: C:\Users\music\.cache\firebase\emulators\ui-v1.14.0\client\assets\index-ClZTY_JS.js
+[debug] [2025-04-11T21:55:22.035Z] [unzip] Entry: client/assets/index-BdgySamB.css (compressed_size=35979 bytes, uncompressed_size=298654 bytes)
+[debug] [2025-04-11T21:55:22.035Z] [unzip] Processing entry: client\assets\index-BdgySamB.css
+[debug] [2025-04-11T21:55:22.035Z] [unzip] else mkdir: C:\Users\music\.cache\firebase\emulators\ui-v1.14.0\client\assets
+[debug] [2025-04-11T21:55:22.036Z] [unzip] deflating: C:\Users\music\.cache\firebase\emulators\ui-v1.14.0\client\assets\index-BdgySamB.css
+[debug] [2025-04-11T21:55:22.044Z] [unzip] Entry: client/assets/extensions/ (compressed_size=0 bytes, uncompressed_size=0 bytes)
+[debug] [2025-04-11T21:55:22.044Z] [unzip] Processing entry: client\assets\extensions\
+[debug] [2025-04-11T21:55:22.044Z] [unzip] mkdir: C:\Users\music\.cache\firebase\emulators\ui-v1.14.0\client\assets\extensions\
+[debug] [2025-04-11T21:55:22.044Z] [unzip] Entry: client/assets/extensions/default-extension.png (compressed_size=1646 bytes, uncompressed_size=1657 bytes)
+[debug] [2025-04-11T21:55:22.044Z] [unzip] Processing entry: client\assets\extensions\default-extension.png
+[debug] [2025-04-11T21:55:22.044Z] [unzip] else mkdir: C:\Users\music\.cache\firebase\emulators\ui-v1.14.0\client\assets\extensions
+[debug] [2025-04-11T21:55:22.045Z] [unzip] deflating: C:\Users\music\.cache\firebase\emulators\ui-v1.14.0\client\assets\extensions\default-extension.png
+[debug] [2025-04-11T21:55:22.048Z] [unzip] Entry: client/assets/img/ (compressed_size=0 bytes, uncompressed_size=0 bytes)
+[debug] [2025-04-11T21:55:22.048Z] [unzip] Processing entry: client\assets\img\
+[debug] [2025-04-11T21:55:22.048Z] [unzip] mkdir: C:\Users\music\.cache\firebase\emulators\ui-v1.14.0\client\assets\img\
+[debug] [2025-04-11T21:55:22.048Z] [unzip] Entry: client/assets/img/database.png (compressed_size=29449 bytes, uncompressed_size=29988 bytes)
+[debug] [2025-04-11T21:55:22.049Z] [unzip] Processing entry: client\assets\img\database.png
+[debug] [2025-04-11T21:55:22.049Z] [unzip] else mkdir: C:\Users\music\.cache\firebase\emulators\ui-v1.14.0\client\assets\img
+[debug] [2025-04-11T21:55:22.049Z] [unzip] deflating: C:\Users\music\.cache\firebase\emulators\ui-v1.14.0\client\assets\img\database.png
+[debug] [2025-04-11T21:55:22.052Z] [unzip] Entry: client/assets/provider-icons/ (compressed_size=0 bytes, uncompressed_size=0 bytes)
+[debug] [2025-04-11T21:55:22.052Z] [unzip] Processing entry: client\assets\provider-icons\
+[debug] [2025-04-11T21:55:22.052Z] [unzip] mkdir: C:\Users\music\.cache\firebase\emulators\ui-v1.14.0\client\assets\provider-icons\
+[debug] [2025-04-11T21:55:22.052Z] [unzip] Entry: client/assets/provider-icons/auth_service_saml.svg (compressed_size=575 bytes, uncompressed_size=1226 bytes)
+[debug] [2025-04-11T21:55:22.052Z] [unzip] Processing entry: client\assets\provider-icons\auth_service_saml.svg
+[debug] [2025-04-11T21:55:22.052Z] [unzip] else mkdir: C:\Users\music\.cache\firebase\emulators\ui-v1.14.0\client\assets\provider-icons
+[debug] [2025-04-11T21:55:22.053Z] [unzip] deflating: C:\Users\music\.cache\firebase\emulators\ui-v1.14.0\client\assets\provider-icons\auth_service_saml.svg
+[debug] [2025-04-11T21:55:22.055Z] [unzip] Entry: client/assets/provider-icons/auth_service_phone.svg (compressed_size=261 bytes, uncompressed_size=414 bytes)
+[debug] [2025-04-11T21:55:22.055Z] [unzip] Processing entry: client\assets\provider-icons\auth_service_phone.svg
+[debug] [2025-04-11T21:55:22.055Z] [unzip] else mkdir: C:\Users\music\.cache\firebase\emulators\ui-v1.14.0\client\assets\provider-icons
+[debug] [2025-04-11T21:55:22.059Z] [unzip] deflating: C:\Users\music\.cache\firebase\emulators\ui-v1.14.0\client\assets\provider-icons\auth_service_phone.svg
+[debug] [2025-04-11T21:55:22.061Z] [unzip] Entry: client/assets/provider-icons/auth_service_facebook.svg (compressed_size=289 bytes, uncompressed_size=457 bytes)
+[debug] [2025-04-11T21:55:22.061Z] [unzip] Processing entry: client\assets\provider-icons\auth_service_facebook.svg
+[debug] [2025-04-11T21:55:22.062Z] [unzip] else mkdir: C:\Users\music\.cache\firebase\emulators\ui-v1.14.0\client\assets\provider-icons
+[debug] [2025-04-11T21:55:22.062Z] [unzip] deflating: C:\Users\music\.cache\firebase\emulators\ui-v1.14.0\client\assets\provider-icons\auth_service_facebook.svg
+[debug] [2025-04-11T21:55:22.064Z] [unzip] Entry: client/assets/provider-icons/auth_service_game_center.svg (compressed_size=991 bytes, uncompressed_size=3921 bytes)
+[debug] [2025-04-11T21:55:22.064Z] [unzip] Processing entry: client\assets\provider-icons\auth_service_game_center.svg
+[debug] [2025-04-11T21:55:22.064Z] [unzip] else mkdir: C:\Users\music\.cache\firebase\emulators\ui-v1.14.0\client\assets\provider-icons
+[debug] [2025-04-11T21:55:22.065Z] [unzip] deflating: C:\Users\music\.cache\firebase\emulators\ui-v1.14.0\client\assets\provider-icons\auth_service_game_center.svg
+[debug] [2025-04-11T21:55:22.068Z] [unzip] Entry: client/assets/provider-icons/auth_service_apple.svg (compressed_size=230 bytes, uncompressed_size=334 bytes)
+[debug] [2025-04-11T21:55:22.068Z] [unzip] Processing entry: client\assets\provider-icons\auth_service_apple.svg
+[debug] [2025-04-11T21:55:22.068Z] [unzip] else mkdir: C:\Users\music\.cache\firebase\emulators\ui-v1.14.0\client\assets\provider-icons
+[debug] [2025-04-11T21:55:22.069Z] [unzip] deflating: C:\Users\music\.cache\firebase\emulators\ui-v1.14.0\client\assets\provider-icons\auth_service_apple.svg
+[debug] [2025-04-11T21:55:22.070Z] [unzip] Entry: client/assets/provider-icons/auth_service_github.svg (compressed_size=466 bytes, uncompressed_size=838 bytes)
+[debug] [2025-04-11T21:55:22.070Z] [unzip] Processing entry: client\assets\provider-icons\auth_service_github.svg
+[debug] [2025-04-11T21:55:22.070Z] [unzip] else mkdir: C:\Users\music\.cache\firebase\emulators\ui-v1.14.0\client\assets\provider-icons
+[debug] [2025-04-11T21:55:22.071Z] [unzip] deflating: C:\Users\music\.cache\firebase\emulators\ui-v1.14.0\client\assets\provider-icons\auth_service_github.svg
+[debug] [2025-04-11T21:55:22.073Z] [unzip] Entry: client/assets/provider-icons/auth_service_mslive.svg (compressed_size=203 bytes, uncompressed_size=378 bytes)
+[debug] [2025-04-11T21:55:22.073Z] [unzip] Processing entry: client\assets\provider-icons\auth_service_mslive.svg
+[debug] [2025-04-11T21:55:22.073Z] [unzip] else mkdir: C:\Users\music\.cache\firebase\emulators\ui-v1.14.0\client\assets\provider-icons
+[debug] [2025-04-11T21:55:22.074Z] [unzip] deflating: C:\Users\music\.cache\firebase\emulators\ui-v1.14.0\client\assets\provider-icons\auth_service_mslive.svg
+[debug] [2025-04-11T21:55:22.075Z] [unzip] Entry: client/assets/provider-icons/auth_service_yahoo.svg (compressed_size=577 bytes, uncompressed_size=1182 bytes)
+[debug] [2025-04-11T21:55:22.075Z] [unzip] Processing entry: client\assets\provider-icons\auth_service_yahoo.svg
+[debug] [2025-04-11T21:55:22.075Z] [unzip] else mkdir: C:\Users\music\.cache\firebase\emulators\ui-v1.14.0\client\assets\provider-icons
+[debug] [2025-04-11T21:55:22.076Z] [unzip] deflating: C:\Users\music\.cache\firebase\emulators\ui-v1.14.0\client\assets\provider-icons\auth_service_yahoo.svg
+[debug] [2025-04-11T21:55:22.078Z] [unzip] Entry: client/assets/provider-icons/auth_service_twitter.svg (compressed_size=444 bytes, uncompressed_size=751 bytes)
+[debug] [2025-04-11T21:55:22.078Z] [unzip] Processing entry: client\assets\provider-icons\auth_service_twitter.svg
+[debug] [2025-04-11T21:55:22.078Z] [unzip] else mkdir: C:\Users\music\.cache\firebase\emulators\ui-v1.14.0\client\assets\provider-icons
+[debug] [2025-04-11T21:55:22.079Z] [unzip] deflating: C:\Users\music\.cache\firebase\emulators\ui-v1.14.0\client\assets\provider-icons\auth_service_twitter.svg
+[debug] [2025-04-11T21:55:22.081Z] [unzip] Entry: client/assets/provider-icons/auth_service_play_games.svg (compressed_size=565 bytes, uncompressed_size=1173 bytes)
+[debug] [2025-04-11T21:55:22.081Z] [unzip] Processing entry: client\assets\provider-icons\auth_service_play_games.svg
+[debug] [2025-04-11T21:55:22.081Z] [unzip] else mkdir: C:\Users\music\.cache\firebase\emulators\ui-v1.14.0\client\assets\provider-icons
+[debug] [2025-04-11T21:55:22.082Z] [unzip] deflating: C:\Users\music\.cache\firebase\emulators\ui-v1.14.0\client\assets\provider-icons\auth_service_play_games.svg
+[debug] [2025-04-11T21:55:22.085Z] [unzip] Entry: client/assets/provider-icons/auth_service_email.svg (compressed_size=228 bytes, uncompressed_size=326 bytes)
+[debug] [2025-04-11T21:55:22.085Z] [unzip] Processing entry: client\assets\provider-icons\auth_service_email.svg
+[debug] [2025-04-11T21:55:22.085Z] [unzip] else mkdir: C:\Users\music\.cache\firebase\emulators\ui-v1.14.0\client\assets\provider-icons
+[debug] [2025-04-11T21:55:22.085Z] [unzip] deflating: C:\Users\music\.cache\firebase\emulators\ui-v1.14.0\client\assets\provider-icons\auth_service_email.svg
+[debug] [2025-04-11T21:55:22.087Z] [unzip] Entry: client/assets/provider-icons/auth_service_google.svg (compressed_size=409 bytes, uncompressed_size=720 bytes)
+[debug] [2025-04-11T21:55:22.087Z] [unzip] Processing entry: client\assets\provider-icons\auth_service_google.svg
+[debug] [2025-04-11T21:55:22.087Z] [unzip] else mkdir: C:\Users\music\.cache\firebase\emulators\ui-v1.14.0\client\assets\provider-icons
+[debug] [2025-04-11T21:55:22.088Z] [unzip] deflating: C:\Users\music\.cache\firebase\emulators\ui-v1.14.0\client\assets\provider-icons\auth_service_google.svg
+[debug] [2025-04-11T21:55:22.090Z] [unzip] Entry: client/assets/provider-icons/auth_service_oidc.svg (compressed_size=414 bytes, uncompressed_size=858 bytes)
+[debug] [2025-04-11T21:55:22.090Z] [unzip] Processing entry: client\assets\provider-icons\auth_service_oidc.svg
+[debug] [2025-04-11T21:55:22.090Z] [unzip] else mkdir: C:\Users\music\.cache\firebase\emulators\ui-v1.14.0\client\assets\provider-icons
+[debug] [2025-04-11T21:55:22.091Z] [unzip] deflating: C:\Users\music\.cache\firebase\emulators\ui-v1.14.0\client\assets\provider-icons\auth_service_oidc.svg
+[debug] [2025-04-11T21:55:22.093Z] [unzip] Entry: client/browserconfig.xml (compressed_size=491 bytes, uncompressed_size=822 bytes)
+[debug] [2025-04-11T21:55:22.093Z] [unzip] Processing entry: client\browserconfig.xml
+[debug] [2025-04-11T21:55:22.093Z] [unzip] else mkdir: C:\Users\music\.cache\firebase\emulators\ui-v1.14.0\client
+[debug] [2025-04-11T21:55:22.094Z] [unzip] deflating: C:\Users\music\.cache\firebase\emulators\ui-v1.14.0\client\browserconfig.xml
+[debug] [2025-04-11T21:55:22.097Z] [unzip] Entry: client/favicon-32x32.png (compressed_size=475 bytes, uncompressed_size=475 bytes)
+[debug] [2025-04-11T21:55:22.097Z] [unzip] Processing entry: client\favicon-32x32.png
+[debug] [2025-04-11T21:55:22.097Z] [unzip] else mkdir: C:\Users\music\.cache\firebase\emulators\ui-v1.14.0\client
+[debug] [2025-04-11T21:55:22.097Z] [unzip] Writing file: C:\Users\music\.cache\firebase\emulators\ui-v1.14.0\client\favicon-32x32.png
+[debug] [2025-04-11T21:55:22.099Z] [unzip] Entry: server/ (compressed_size=0 bytes, uncompressed_size=0 bytes)
+[debug] [2025-04-11T21:55:22.099Z] [unzip] Processing entry: server\
+[debug] [2025-04-11T21:55:22.099Z] [unzip] mkdir: C:\Users\music\.cache\firebase\emulators\ui-v1.14.0\server\
+[debug] [2025-04-11T21:55:22.099Z] [unzip] Entry: server/server.mjs.map (compressed_size=296496 bytes, uncompressed_size=1355667 bytes)
+[debug] [2025-04-11T21:55:22.099Z] [unzip] Processing entry: server\server.mjs.map
+[debug] [2025-04-11T21:55:22.099Z] [unzip] else mkdir: C:\Users\music\.cache\firebase\emulators\ui-v1.14.0\server
+[debug] [2025-04-11T21:55:22.100Z] [unzip] deflating: C:\Users\music\.cache\firebase\emulators\ui-v1.14.0\server\server.mjs.map
+[debug] [2025-04-11T21:55:22.120Z] [unzip] Entry: server/server.mjs (compressed_size=315701 bytes, uncompressed_size=1172682 bytes)
+[debug] [2025-04-11T21:55:22.120Z] [unzip] Processing entry: server\server.mjs
+[debug] [2025-04-11T21:55:22.120Z] [unzip] else mkdir: C:\Users\music\.cache\firebase\emulators\ui-v1.14.0\server
+[debug] [2025-04-11T21:55:22.120Z] [unzip] deflating: C:\Users\music\.cache\firebase\emulators\ui-v1.14.0\server\server.mjs
+[debug] [2025-04-11T21:55:22.147Z] [unzip] Entry: server/assets/ (compressed_size=0 bytes, uncompressed_size=0 bytes)
+[debug] [2025-04-11T21:55:22.148Z] [unzip] Processing entry: server\assets\
+[debug] [2025-04-11T21:55:22.148Z] [unzip] mkdir: C:\Users\music\.cache\firebase\emulators\ui-v1.14.0\server\assets\
+[debug] [2025-04-11T21:55:22.148Z] [unzip] Entry: server/assets/multipart-parser-DGCUZdXu.mjs.map (compressed_size=4791 bytes, uncompressed_size=17918 bytes)
+[debug] [2025-04-11T21:55:22.148Z] [unzip] Processing entry: server\assets\multipart-parser-DGCUZdXu.mjs.map
+[debug] [2025-04-11T21:55:22.148Z] [unzip] else mkdir: C:\Users\music\.cache\firebase\emulators\ui-v1.14.0\server\assets
+[debug] [2025-04-11T21:55:22.149Z] [unzip] deflating: C:\Users\music\.cache\firebase\emulators\ui-v1.14.0\server\assets\multipart-parser-DGCUZdXu.mjs.map
+[debug] [2025-04-11T21:55:22.152Z] [unzip] Entry: server/assets/multipart-parser-DGCUZdXu.mjs (compressed_size=2621 bytes, uncompressed_size=10390 bytes)
+[debug] [2025-04-11T21:55:22.153Z] [unzip] Processing entry: server\assets\multipart-parser-DGCUZdXu.mjs
+[debug] [2025-04-11T21:55:22.153Z] [unzip] else mkdir: C:\Users\music\.cache\firebase\emulators\ui-v1.14.0\server\assets
+[debug] [2025-04-11T21:55:22.153Z] [unzip] deflating: C:\Users\music\.cache\firebase\emulators\ui-v1.14.0\server\assets\multipart-parser-DGCUZdXu.mjs
+[info] i  functions: Watching "C:\DawntasyChatbot\dawntasymelodic\ai\src\functions" for Cloud Functions... {"metadata":{"emulator":{"name":"functions"},"message":"Watching \"C:\\DawntasyChatbot\\dawntasymelodic\\ai\\src\\functions\" for Cloud Functions..."}}
+[debug] [2025-04-11T21:55:22.171Z] Validating nodejs source
+[debug] [2025-04-11T21:55:24.897Z] > [functions] package.json contents: {
+  "name": "functions",
+  "description": "Cloud Functions for Firebase",
+  "scripts": {
+    "lint": "eslint index.js",
+    "lint:fix": "eslint index.js --fix",
+    "serve": "firebase emulators:start --only functions",
+    "shell": "firebase functions:shell",
+    "start": "npm run shell",
+    "deploy": "firebase deploy --only functions",
+    "logs": "firebase functions:log"
+  },
+  "engines": {
+    "node": "20"
+  },
+  "main": "index.js",
+  "dependencies": {
+    "axios": "^1.7.2",
+    "cors": "^2.8.5",
+    "firebase-admin": "^13.2.0",
+    "firebase-functions": "^6.3.2",
+    "openai": "^4.0.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.57.1",
+    "eslint-config-google": "^0.14.0",
+    "firebase-functions-test": "^3.1.0"
+  },
+  "private": true
+}
+[debug] [2025-04-11T21:55:24.898Z] Building nodejs source
+[debug] [2025-04-11T21:55:24.899Z] Failed to find version of module node: reached end of search path C:\DawntasyChatbot\dawntasymelodic\ai\src\functions\node_modules
+[warn] !  functions: Your requested "node" version "20" doesn't match your global version "22". Using node@22 from host. 
+[info] i  functions: Loaded environment variables from .env.dawntasyai. 
+[debug] [2025-04-11T21:55:24.909Z] Could not find functions.yaml. Must use http discovery
+[debug] [2025-04-11T21:55:24.921Z] Found firebase-functions binary at 'C:\DawntasyChatbot\dawntasymelodic\ai\src\functions\node_modules\.bin\firebase-functions'
+[info] Serving at port 8294
+
+[info] Firebase Admin SDK initialized.
+
+[debug] [2025-04-11T21:55:26.930Z] Got response from /__/functions.yaml {"endpoints":{"processAiRequest":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","secretEnvironmentVariables":[{"key":"OPENAI_API_KEY"}],"labels":{},"httpsTrigger":{},"entryPoint":"processAiRequest"}},"specVersion":"v1alpha1","requiredAPIs":[],"extensions":{},"params":[{"type":"secret","name":"OPENAI_API_KEY"}]}
+[info] +  functions: Loaded functions definitions from source: processAiRequest. {"metadata":{"emulator":{"name":"functions"},"message":"Loaded functions definitions from source: processAiRequest."}}
+[info] +  functions[us-central1-processAiRequest]: http function initialized (http://127.0.0.1:5001/dawntasyai/us-central1/processAiRequest). {"metadata":{"emulator":{"name":"functions"},"message":"\u001b[1mhttp\u001b[22m function initialized (http://127.0.0.1:5001/dawntasyai/us-central1/processAiRequest)."}}
+[debug] [2025-04-11T21:55:31.004Z] Could not find VSCode notification endpoint: FetchError: request to http://localhost:40001/vscode/notify failed, reason: . If you are not running the Firebase Data Connect VSCode extension, this is expected and not an issue.
+[info] 
+┌─────────────────────────────────────────────────────────────┐
+│ ✔  All emulators ready! It is now safe to connect your app. │
+│ i  View Emulator UI at http://127.0.0.1:4000/               │
+└─────────────────────────────────────────────────────────────┘
+
+┌───────────┬────────────────┬─────────────────────────────────┐
+│ Emulator  │ Host:Port      │ View in Emulator UI             │
+├───────────┼────────────────┼─────────────────────────────────┤
+│ Functions │ 127.0.0.1:5001 │ http://127.0.0.1:4000/functions │
+└───────────┴────────────────┴─────────────────────────────────┘
+  Emulator Hub host: 127.0.0.1 port: 4400
+  Other reserved ports: 4500
+
+Issues? Report them at https://github.com/firebase/firebase-tools/issues and attach the *-debug.log files.
+ 

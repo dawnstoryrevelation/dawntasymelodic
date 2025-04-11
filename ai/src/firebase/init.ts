@@ -1,14 +1,16 @@
 // src/firebase/init.ts
-import { initializeApp } from 'firebase/app';
-import { 
-  getAuth, 
+import { initializeApp, FirebaseApp } from 'firebase/app'; // Added FirebaseApp type
+import {
+  getAuth,
   setPersistence,
   browserLocalPersistence,
   onAuthStateChanged,
   createUserWithEmailAndPassword,
+  connectAuthEmulator, // <<< ADDED
+  Auth, // Added Auth type
 } from 'firebase/auth';
-import { 
-  getFirestore, 
+import {
+  getFirestore,
   enableIndexedDbPersistence,
   collection,
   doc,
@@ -16,10 +18,20 @@ import {
   setDoc,
   getDocs,
   updateDoc,
+  connectFirestoreEmulator, // <<< ADDED
+  Firestore, // Added Firestore type
 } from 'firebase/firestore';
-import { getFunctions } from 'firebase/functions';
-import { getStorage } from 'firebase/storage';
-import { getAnalytics, isSupported } from 'firebase/analytics';
+import {
+    getFunctions,
+    connectFunctionsEmulator, // <<< ADDED
+    Functions // Added Functions type
+} from 'firebase/functions';
+import {
+    getStorage,
+    connectStorageEmulator, // <<< ADDED (Optional, if you use Storage)
+    FirebaseStorage // Added FirebaseStorage type
+} from 'firebase/storage';
+import { getAnalytics, isSupported, Analytics } from 'firebase/analytics'; // Added Analytics type
 
 // Firebase Configuration object
 const firebaseConfig = {
@@ -33,24 +45,56 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase app
-const app = initializeApp(firebaseConfig);
+const app: FirebaseApp = initializeApp(firebaseConfig);
 
 // Initialize Firebase services
-const auth = getAuth(app);
-const db = getFirestore(app);
-const functions = getFunctions(app);
-const storage = getStorage(app);
-let analytics = null;
+const auth: Auth = getAuth(app);
+const db: Firestore = getFirestore(app);
+// Specify region if needed (e.g., if functions deployed outside us-central1)
+const functions: Functions = getFunctions(app /*, 'your-region' */);
+const storage: FirebaseStorage = getStorage(app);
+let analytics: Analytics | null = null;
 
-// Set auth persistence to local
+// --- EMULATOR CONNECTION (ONLY IN DEVELOPMENT) ---
+if (import.meta.env.DEV) {
+    try {
+        console.log("Connecting to Firebase Emulators...");
+        // Default ports - Adjust if your firebase.json emulator config uses different ports
+        connectAuthEmulator(auth, 'http://127.0.0.1:9099', { disableWarnings: true });
+        console.log("Auth Emulator connected (http://127.0.0.1:9099)");
+        connectFirestoreEmulator(db, '127.0.0.1', 8080); // Hostname first for Firestore
+        console.log("Firestore Emulator connected (localhost:8080)");
+        connectFunctionsEmulator(functions, '127.0.0.1', 5001); // Hostname first for Functions
+        console.log("Functions Emulator connected (localhost:5001)");
+        // connectStorageEmulator(storage, '127.0.0.1', 9199); // Uncomment if using Storage Emulator
+        // console.log("Storage Emulator connected (localhost:9199)");
+    } catch (error) {
+         console.error("!!! Error connecting to Firebase Emulators:", error);
+         console.warn("Ensure Firebase Emulator Suite is running (`firebase emulators:start`)");
+         console.warn("Check emulator ports match configuration in firebase.json and this file.");
+    }
+}
+// --- END EMULATOR CONNECTION ---
+
+
+// Set auth persistence to local (run AFTER potential emulator connection)
 setPersistence(auth, browserLocalPersistence)
   .then(() => console.log('Firebase Auth persistence set to local'))
   .catch((error) => console.error('Error setting auth persistence:', error));
 
-// Enable Firestore offline persistence
+// Enable Firestore offline persistence (run AFTER potential emulator connection)
 enableIndexedDbPersistence(db)
   .then(() => console.log('Firestore persistence enabled'))
-  .catch((err) => console.warn('Firestore persistence could not be enabled:', err.code));
+  .catch((err) => {
+      if (err.code == 'failed-precondition') {
+          console.warn('Firestore persistence failed (multiple tabs open?');
+      } else if (err.code == 'unimplemented') {
+          console.warn('Firestore persistence not available in this browser.');
+      } else {
+          console.warn('Firestore persistence could not be enabled:', err.code);
+      }
+  });
+
 
 // Initialize analytics in production
 if (import.meta.env.PROD) {
@@ -77,6 +121,11 @@ function generateMemoryCode(): string {
 // 🧠 Assign memory codes to existing users (run once, manually if needed)
 async function assignMemoryCodesToExistingUsers(): Promise<void> {
   try {
+    // Ensure DB is initialized before using it
+    if (!db) {
+      console.error("Firestore DB not initialized for assignMemoryCodes.");
+      return;
+    }
     const usersRef = collection(db, 'users');
     const snapshot = await getDocs(usersRef);
 
@@ -98,6 +147,11 @@ async function assignMemoryCodesToExistingUsers(): Promise<void> {
 // 🔁 Auto-assign memory code on login/signup
 onAuthStateChanged(auth, async (user) => {
   if (user) {
+    // Ensure DB is initialized before using it
+    if (!db) {
+       console.error("Firestore DB not initialized for onAuthStateChanged.");
+       return;
+    }
     const userDocRef = doc(db, 'users', user.uid);
     try {
       const userSnap = await getDoc(userDocRef);

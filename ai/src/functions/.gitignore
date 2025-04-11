@@ -8,6 +8,7 @@ node_modules/
 # Logs
 npm-debug.log*
 yarn-debug.log*
+.secret.local
 yarn-error.log*
 
 # Build outputs (if any specific to functions)

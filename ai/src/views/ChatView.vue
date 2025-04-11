@@ -1183,9 +1183,9 @@ import { useRouter } from 'vue-router';
 import { onUnmounted } from 'vue';
 import MemoryBank from '@/components/MemoryBank.vue';
 import memoryService from '@/services/enhancedMemoryService';
-// At the top of <script setup>
-import { getFunctions, httpsCallable } from 'firebase/functions';
+import * as api from '@/services/api'
 
+// At the top of <script setup>
 export default {
   name: "DawntasyChat",
   components: {
@@ -1225,8 +1225,7 @@ const aiToolInput = ref("");
 const aiToolTitle = ref("");
 const aiToolDescription = ref("");
 const aiToolPlaceholder = ref("");
-const functions = getFunctions();
-const processAiRequestFn = httpsCallable(functions, 'processAiRequest'); // Use the exact name of your deployed function
+ // Use the exact name of your deployed function
 const showRenameLogModal = ref(false);
 const logToRename = ref(null);
 const newLogTitle = ref("");
@@ -1266,6 +1265,186 @@ const showSelectChatModal = ref(false);
 const openBookLink = () => {
   window.open('https://www.amazon.com/Dawntasy-Circular-Dawn-breathtaking-fantasy-ebook/dp/B0DT74DLY5/', '_blank');
 };
+// --- FULL REVISED sendMessage FUNCTION for ChatView.vue ---
+
+// Inside <script setup>
+const sendMessage = async (text) => {
+  const messageText = text || userInput.value.trim();
+  if (!messageText || isLoading.value) return;
+  if (!currentChatId.value) {
+    showNewChatPopup.value = true;
+    return;
+  }
+
+  console.log(`Sending message: "${messageText.substring(0, 50)}..."`);
+
+  // --- 1. Prepare User Message & Context ---
+  const relevantMemories = await memoryService.retrieveRelevantMemories(messageText);
+  const memoryPromptContext = createMemoryPrompt(relevantMemories, messageText);
+  const userMessage = { role: "user", content: messageText, timestamp: Date.now() };
+  messages.value.push(userMessage);
+  memoryService.processMessage(messageText, true).catch((e) => console.error("Error processing memory:", e));
+  if (userId.value && userId.value !== "demo-user") {
+    saveMessageToFirebase(userMessage).catch((e) => console.error("Error saving user message:", e));
+  }
+  userInput.value = "";
+  if (inputField.value) {
+    inputField.value.style.height = "auto";
+    inputField.value.focus();
+  }
+  await nextTick();
+  scrollToBottom();
+
+  // --- 2. Handle Special Modes ---
+  if (imageEnabled.value) {
+    console.log("Image mode not implemented yet");
+    return;
+  }
+
+  // --- 3. Set Loading State & AI Placeholder ---
+  isLoading.value = true;
+  isThinkingDeeper.value = logicEnabled.value || reasoningEnabled.value || archmageEnabled.value;
+  const thinkingInterval = startThinkingMessages();
+  const placeholderId = `placeholder-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+  const aiMessagePlaceholder = {
+    id: placeholderId,
+    role: "assistant",
+    content: "",
+    isStreaming: true,
+    streamContent: "Thinking...",
+  };
+  // Store placeholder separately to preserve it
+  let preservedPlaceholder = { ...aiMessagePlaceholder };
+  messages.value.push(aiMessagePlaceholder);
+  console.log("Added placeholder with ID:", placeholderId, "Messages length:", messages.value.length);
+
+  await nextTick();
+  scrollToBottom();
+
+  // --- 4. Prepare Request Data ---
+  let result = null;
+  let taskType = "chat_completion";
+  let requestData = {};
+
+  try {
+    const systemPrompt = getDawntasySystemPrompt();
+    let blueprintToExecute = null;
+    let payloadData = {
+      history: messages.value.slice(0, -1).slice(-10).map((msg) => ({ role: msg.role, content: msg.content })),
+      current_prompt: messageText,
+      system_prompt: systemPrompt,
+      modes: { logic: logicEnabled.value, reasoning: reasoningEnabled.value, archmage: archmageEnabled.value },
+      memory_context: relevantMemories,
+    };
+    const lowerCaseInput = messageText.toLowerCase();
+    if (lowerCaseInput.startsWith("aeon uppercase:")) {
+      taskType = "simple_uppercase_task";
+      blueprintToExecute = "simple_uppercase_blueprint";
+      payloadData = { text_to_convert: messageText.substring("aeon uppercase:".length).trim() };
+    }
+    requestData = { task: taskType, payload: payloadData };
+
+    // --- 5. Call Firebase Function using api.js ---
+    console.log(`Calling Firebase Function endpoint with task: ${taskType}`);
+    try {
+      if (typeof api.callAiRequest !== 'function') {
+        console.error("api.callAiRequest is not a function. Imported api:", api);
+        throw new Error("API module not properly imported");
+      }
+      result = await api.callAiRequest(requestData);
+      console.log("✅ API call succeeded:", result);
+    } catch (apiError) {
+      console.error("API call failed:", apiError);
+      let errorDetail = apiError.message || "Unknown API error";
+      if (apiError.response) {
+        errorDetail = apiError.response.data?.error || `HTTP ${apiError.response.status}`;
+      }
+      throw new Error(errorDetail);
+    }
+
+    // --- 6. Process Response ---
+    console.log("Messages before processing response:", JSON.stringify(messages.value, null, 2));
+    let targetMessageIndex = messages.value.findIndex((m) => m.id === placeholderId);
+    if (targetMessageIndex === -1) {
+      console.error("CRITICAL: Could not find placeholder message (ID:", placeholderId, ")");
+      console.log("Current messages:", JSON.stringify(messages.value, null, 2));
+      // Restore the placeholder if it’s missing
+      messages.value.push(preservedPlaceholder);
+      targetMessageIndex = messages.value.length - 1;
+      console.log("Restored placeholder at index:", targetMessageIndex);
+    }
+    const targetMessage = messages.value[targetMessageIndex];
+
+    if (result && result.success && result.result) {
+      const aiResult = result.result;
+      let finalContent = "Response processed.";
+      let finalReasoning = "";
+      if (taskType === "simple_uppercase_task") {
+        finalContent = typeof aiResult === "string" ? aiResult : JSON.stringify(aiResult);
+      } else if (taskType === "chat_completion") {
+        finalContent = aiResult.content || "...";
+        finalReasoning = aiResult.reasoning || "";
+      }
+      targetMessage.content = finalContent;
+      targetMessage.reasoning = finalReasoning;
+      targetMessage.hasReasoning = !!finalReasoning;
+      targetMessage.isStreaming = false;
+      targetMessage.streamContent = "";
+      targetMessage.id = `final-${Date.now()}`;
+      if (userId.value && userId.value !== "demo-user") {
+        await saveMessageToFirebase(targetMessage);
+      }
+    } else {
+      const errorMsg = result?.error || "Unknown backend error.";
+      console.error("Backend processing failed:", result);
+      targetMessage.content = `⚠️ Backend Error: ${errorMsg}`;
+      targetMessage.isStreaming = false;
+      targetMessage.streamContent = "";
+      targetMessage.id = `error-backend-${Date.now()}`;
+      if (userId.value && userId.value !== "demo-user") {
+        await saveMessageToFirebase(targetMessage);
+      }
+    }
+  } catch (error) {
+    console.error("Error during sendMessage processing:", error);
+    const errorMsg = error.message || "Failed to connect or process request.";
+
+    console.log("Messages before error handling:", JSON.stringify(messages.value, null, 2));
+    let errorTargetIndex = messages.value.findIndex((m) => m.id === placeholderId);
+    if (errorTargetIndex === -1) {
+      console.warn("Placeholder not found (ID:", placeholderId, "), restoring and adding error message.");
+      messages.value.push(preservedPlaceholder);
+      errorTargetIndex = messages.value.length - 1;
+    }
+    const errorTargetMessage = messages.value[errorTargetIndex];
+    errorTargetMessage.content = `⚠️ Error: ${errorMsg}`;
+    errorTargetMessage.isStreaming = false;
+    errorTargetMessage.streamContent = "";
+    errorTargetMessage.id = `error-catch-${Date.now()}`;
+    if (userId.value && userId.value !== "demo-user") {
+      await saveMessageToFirebase(errorTargetMessage).catch((e) => console.error("Error saving error message:", e));
+    }
+  } finally {
+    clearInterval(thinkingInterval);
+    isLoading.value = false;
+    isThinkingDeeper.value = false;
+    isStreaming.value = false;
+    console.log("Messages before final cleanup:", JSON.stringify(messages.value, null, 2));
+    const finalMessageIndexCheck = messages.value.findIndex(
+      (m) => m.id?.startsWith("final-") || m.id?.startsWith("error-") || m.id === placeholderId
+    );
+    if (
+      finalMessageIndexCheck !== -1 &&
+      messages.value[finalMessageIndexCheck]?.role === "assistant"
+    ) {
+      messages.value[finalMessageIndexCheck].isStreaming = false;
+      messages.value[finalMessageIndexCheck].streamContent = "";
+    }
+    await nextTick();
+    scrollToBottom();
+  }
+}; // --- End of sendMessage function ---
+
 
 // Add this to your setup function or directly in a script block
 const setupViewportHeightFix = () => {
@@ -2455,281 +2634,7 @@ const deployBranchToChat = async (chatId) => {
 // Replace the sendMessage function with this updated version that uses direct fetch
 // ULTIMATE CORS-FIXED sendMessage function with local proxy fallback
 // ULTIMATE CORS-FIXED sendMessage function with local proxy fallback
-const sendMessage = async (text) => {
-  const messageText = text || userInput.value.trim(); // Get text from argument or input field
-
-  // Prevent sending empty messages or while already processing
-  if (!messageText || isLoading.value) {
-    if (!messageText) console.warn("Attempted to send empty message.");
-    if (isLoading.value) console.warn("Attempted to send message while loading.");
-    return;
-  }
-
-  // Ensure a chat context exists
-  if (!currentChatId.value) {
-    console.log("No active chat selected. Prompting for new chat.");
-    showNewChatPopup.value = true; // Prompt user to create/select a chat
-    return;
-  }
-
-  console.log(`Sending message: "${messageText.substring(0, 50)}..."`);
-
-  // --- 1. Prepare User Message & Context ---
-  const relevantMemories = await memoryService.retrieveRelevantMemories(messageText);
-  const memoryPromptContext = createMemoryPrompt(relevantMemories, messageText);
-  const userMessage = {
-    role: "user",
-    content: messageText,
-    timestamp: Date.now()
-  };
-  messages.value.push(userMessage);
-  memoryService.processMessage(messageText, true).catch(e => console.error("Error processing memory:", e));
-  if (userId.value && userId.value !== "demo-user") {
-    saveMessageToFirebase(userMessage).catch(e => console.error("Error saving user message:", e));
-  }
-  userInput.value = "";
-  if (inputField.value) {
-    inputField.value.style.height = "auto";
-    inputField.value.focus();
-  }
-  await nextTick();
-  scrollToBottom();
-
-  // --- 2. Handle Special Modes ---
-  if (imageEnabled.value) {
-    console.log("Image generation mode detected.");
-    imageEnabled.value = false;
-    await generateImage(messageText);
-    return;
-  }
-
-  // --- 3. Set Loading State & AI Placeholder ---
-  isLoading.value = true;
-  isThinkingDeeper.value = logicEnabled.value || reasoningEnabled.value || archmageEnabled.value;
-  const thinkingInterval = startThinkingMessages();
-
-  // *** Assign a temporary unique ID to the placeholder for reliable finding ***
-  const placeholderId = `placeholder-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
-  const aiMessagePlaceholder = {
-    id: placeholderId, // Add the temporary ID
-    role: "assistant",
-    content: "",
-    streamContent: "Thinking...",
-    reasoning: "",
-    hasReasoning: logicEnabled.value || reasoningEnabled.value,
-    showReasoning: false,
-    timestamp: Date.now(),
-    isStreaming: true,
-    currentlyStreamingReasoning: false
-  };
-  messages.value.push(aiMessagePlaceholder);
-  
-  await nextTick();
-  scrollToBottom();
-
-  // --- 4. Prepare Request for Backend ---
-  try {
-    const systemPrompt = getDawntasySystemPrompt();
-    let taskType = "chat_completion";
-    let blueprintToExecute = null;
-    let payloadData = { /* Default chat payload */
-        history: messages.value
-                    .slice(0, -1) // Exclude placeholder
-                    .slice(-10)
-                    .map(msg => ({ role: msg.role, content: msg.content })),
-        current_prompt: messageText,
-        system_prompt: systemPrompt,
-        modes: { logic: logicEnabled.value, reasoning: reasoningEnabled.value, archmage: archmageEnabled.value },
-        memory_context: relevantMemories
-    };
-
-    // AEON Routing Logic
-    const lowerCaseInput = messageText.toLowerCase();
-    if (lowerCaseInput.startsWith("aeon uppercase:")) {
-        taskType = "simple_uppercase_task";
-        blueprintToExecute = "simple_uppercase_blueprint";
-        payloadData = { text_to_convert: messageText.substring("aeon uppercase:".length).trim() };
-        console.log(`Detected AEON task: ${taskType}, targeting blueprint: ${blueprintToExecute}`);
-    }
-
-    const requestData = { task: taskType, payload: payloadData };
-
-    // --- 5. Call API with MULTIPLE FALLBACK STRATEGIES ---
-    let result = null;
-    
-    // Create a mock response as ultimate fallback
-    const createMockResponse = () => {
-      return {
-        success: true,
-        result: {
-          content: `I received your message: "${messageText}"\n\nI'm currently in demo mode because the API is having connection issues. In a fully configured setup, I would connect to an AI model and generate a thoughtful reply.\n\nHere are troubleshooting steps:\n\n1. Start the local proxy server with 'node src/devServer.js'\n2. Ensure your Firebase function is deployed with the CORS fix\n3. Check browser console for any additional errors`,
-          reasoning: logicEnabled.value || reasoningEnabled.value ? "This is a mock reasoning response because we're in fallback mode and can't access the actual response." : ""
-        }
-      };
-    };
-    
-    // Try direct Firebase function call first
-    try {
-      console.log("Attempting direct call to Firebase function");
-      const directResponse = await fetch("https://us-central1-dawntasyai.cloudfunctions.net/processAiRequest", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(requestData)
-      });
-      
-      if (directResponse.ok) {
-        result = await directResponse.json();
-        console.log("✅ Direct Firebase function call succeeded");
-      } else {
-        throw new Error(`Firebase function returned status: ${directResponse.status}`);
-      }
-    } catch (directError) {
-      console.warn("Direct Firebase function call failed:", directError);
-      
-      // Try local proxy as second option
-      try {
-        console.log("Falling back to local proxy");
-        const proxyResponse = await fetch("http://localhost:3001/api/firebase/processAiRequest", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(requestData)
-        });
-        
-        if (proxyResponse.ok) {
-          result = await proxyResponse.json();
-          console.log("✅ Local proxy call succeeded");
-        } else {
-          throw new Error(`Local proxy returned status: ${proxyResponse.status}`);
-        }
-      } catch (proxyError) {
-        console.warn("Local proxy call failed:", proxyError);
-        
-        // Last resort: use mock response
-        console.log("Using mock response");
-        result = createMockResponse();
-      }
-    }
-
-    // --- 6. Process Response ---
-    // Find the placeholder message reliably using its ID
-    const targetMessageIndex = messages.value.findIndex(m => m.id === placeholderId);
-
-    if (targetMessageIndex === -1) {
-      console.error("Could not find placeholder message (ID:", placeholderId, "). Adding new message instead.");
-      
-      // Create a new message if placeholder is gone
-      const newMessage = {
-        id: `recovery-${Date.now()}`,
-        role: "assistant",
-        content: result?.success ? result.result.content : "Error: Could not process your request.",
-        reasoning: result?.success ? result.result.reasoning || "" : "",
-        hasReasoning: !!(result?.success && result.result.reasoning),
-        showReasoning: false,
-        timestamp: Date.now(),
-        isStreaming: false
-      };
-      
-      messages.value.push(newMessage);
-      
-      if (userId.value && userId.value !== "demo-user") {
-        await saveMessageToFirebase(newMessage);
-      }
-    } else {
-      // Update the existing placeholder
-      const targetMessage = messages.value[targetMessageIndex];
-      
-      if (result?.success && result.result) {
-        const aiResult = result.result;
-        
-        if (taskType === "simple_uppercase_task") {
-          targetMessage.content = typeof aiResult === 'string' ? aiResult : JSON.stringify(aiResult);
-        } else if (taskType === "chat_completion") {
-          targetMessage.content = aiResult.content || "Sorry, I couldn't generate a chat response.";
-          targetMessage.reasoning = aiResult.reasoning || "";
-          targetMessage.hasReasoning = !!aiResult.reasoning;
-        }
-      } else {
-        const errorMsg = result?.error || "Unknown backend error.";
-        targetMessage.content = `⚠️ Backend Error: ${errorMsg}`;
-      }
-      
-      targetMessage.isStreaming = false;
-      targetMessage.streamContent = "";
-      targetMessage.id = `final-${Date.now()}`;
-      
-      if (userId.value && userId.value !== "demo-user") {
-        await saveMessageToFirebase(targetMessage);
-      }
-      
-      // Post-processing
-      if (result?.success) {
-        logInteraction(messageText, targetMessage);
-        memoryService.processMessage(targetMessage.content, false).catch(e => console.error("Error processing memory:", e));
-        processSelfOptimization(messageText, targetMessage).catch(e => console.error("Error during self-optimization:", e));
-        
-        if (quantumIntelligenceEnabled) {
-          applyQuantumIntelligenceEnhancement(targetMessageIndex, messageText).catch(e => 
-            console.error("Error applying quantum enhancement:", e));
-        }
-      }
-    }
-
-  } catch (error) {
-    console.error("Error during sendMessage processing:", error);
-    
-    // Handle placeholder message error recovery
-    const errorTargetIndex = messages.value.findIndex(m => m.id === placeholderId);
-    
-    if (errorTargetIndex !== -1) {
-      const errorMsg = error.message || "Failed to get response from backend service.";
-      const errorTargetMessage = messages.value[errorTargetIndex];
-      errorTargetMessage.content = `⚠️ Error: ${errorMsg}`;
-      errorTargetMessage.isStreaming = false;
-      errorTargetMessage.streamContent = "";
-      errorTargetMessage.id = `error-${Date.now()}`;
-      
-      if (userId.value && userId.value !== "demo-user") {
-        await saveMessageToFirebase(errorTargetMessage).catch(e => 
-          console.error("Error saving error message:", e));
-      }
-    } else {
-      // If we can't find the placeholder, add a new error message
-      console.error("Could not find placeholder message to update with error. Adding new error message.");
-      
-      const newErrorMessage = {
-        id: `error-${Date.now()}`,
-        role: "assistant",
-        content: `⚠️ Error: ${error.message || "An unknown error occurred"}`,
-        timestamp: Date.now(),
-        hasReasoning: false,
-        isStreaming: false
-      };
-      
-      messages.value.push(newErrorMessage);
-      
-      if (userId.value && userId.value !== "demo-user") {
-        await saveMessageToFirebase(newErrorMessage).catch(e => 
-          console.error("Error saving new error message:", e));
-      }
-    }
-  } finally {
-    // --- 7. Cleanup Loading State ---
-    clearInterval(thinkingInterval);
-    isLoading.value = false;
-    isThinkingDeeper.value = false;
-    isStreaming.value = false;
-    
-    // Find and update any remaining streaming messages
-    const streamingMessages = messages.value.filter(m => m.isStreaming);
-    streamingMessages.forEach(msg => {
-      msg.isStreaming = false;
-      msg.streamContent = "";
-    });
-    
-    await nextTick();
-    scrollToBottom();
-  }
-};// --- End of sendMessage function --- // --- End of sendMessage function ---// --- End of sendMessage function ---
+// --- End of sendMessage function --- // --- End of sendMessage function ---// --- End of sendMessage function ---
     
 // Add these functions to your main JavaScript file
 // Function to determine if cards would be relevant for the message

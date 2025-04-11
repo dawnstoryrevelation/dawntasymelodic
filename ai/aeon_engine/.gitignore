@@ -25,6 +25,9 @@ logs/
 # cognitive_atoms/atom_definitions/**/*.pt
 # cognitive_atoms/atom_definitions/**/*.joblib
 # cognitive_atoms/atom_definitions/**/*.pkl
+# Add these lines to your root .gitignore
+cognitive_atoms/atom_definitions/mini_char_generator/mini_char_gen_model/
+cognitive_atoms/atom_definitions/mini_char_generator/training_checkpoints/
 
 # OS generated files
 .DS_Store
