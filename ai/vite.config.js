@@ -132,9 +132,8 @@ export default defineConfig({
     'process.env': process.env
   },
   server: {
-    // ... your other server settings
     headers: {
-      'Content-Security-Policy': "default-src 'self'; script-src 'self' 'unsafe-inline' https://apis.google.com https://www.gstatic.com https://*.firebaseio.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https://*.googleusercontent.com https://ssl.gstatic.com; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://us-central1-dawntasyai.cloudfunctions.net https://*.firebaseio.com wss://*.firebaseio.com https://www.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://api.openai.com https://api.fireworks.ai blob: http://localhost:3001 ws://localhost:3001;"
+      'Content-Security-Policy': "default-src 'self'; script-src 'self' 'unsafe-inline' https://apis.google.com https://www.gstatic.com https://*.firebaseio.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net; img-src 'self' data: https://*.googleusercontent.com https://*.firebasestorage.googleapis.com https://storage.googleapis.com https://www.gstatic.com https://ssl.gstatic.com; font-src 'self' data: https://fonts.gstatic.com https://cdn.jsdelivr.net; connect-src 'self' https://us-central1-dawntasyai.cloudfunctions.net https://*.firebaseio.com wss://*.firebaseio.com https://firestore.googleapis.com https://*.googleapis.com https://www.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://api.openai.com https://api.fireworks.ai blob: http://localhost:* ws://localhost:*; frame-src 'self' https://*.firebaseapp.com;"
     }
   }
   // ... rest of your config
