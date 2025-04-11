@@ -16,3 +16,4 @@ yarn-error.log*
 
 # Environment files (should not be committed)
 .env
+.env.dawntasyai
