@@ -2454,6 +2454,7 @@ const deployBranchToChat = async (chatId) => {
 
 // Replace the sendMessage function with this updated version that uses direct fetch
 // ULTIMATE CORS-FIXED sendMessage function with local proxy fallback
+// ULTIMATE CORS-FIXED sendMessage function with local proxy fallback
 const sendMessage = async (text) => {
   const messageText = text || userInput.value.trim(); // Get text from argument or input field
 
@@ -2555,48 +2556,58 @@ const sendMessage = async (text) => {
 
     // --- 5. Call API with MULTIPLE FALLBACK STRATEGIES ---
     let result = null;
-    let localProxySuccess = false;
     
-    // Strategy 1: Try using local proxy on port 3001 (should be set up)
+    // Create a mock response as ultimate fallback
+    const createMockResponse = () => {
+      return {
+        success: true,
+        result: {
+          content: `I received your message: "${messageText}"\n\nI'm currently in demo mode because the API is having connection issues. In a fully configured setup, I would connect to an AI model and generate a thoughtful reply.\n\nHere are troubleshooting steps:\n\n1. Start the local proxy server with 'node src/devServer.js'\n2. Ensure your Firebase function is deployed with the CORS fix\n3. Check browser console for any additional errors`,
+          reasoning: logicEnabled.value || reasoningEnabled.value ? "This is a mock reasoning response because we're in fallback mode and can't access the actual response." : ""
+        }
+      };
+    };
+    
+    // Try direct Firebase function call first
     try {
-      console.log("Attempting to use local proxy at http://localhost:3001/api/firebase/processAiRequest");
-      const localProxyResponse = await fetch("http://localhost:3001/api/firebase/processAiRequest", {
+      console.log("Attempting direct call to Firebase function");
+      const directResponse = await fetch("https://us-central1-dawntasyai.cloudfunctions.net/processAiRequest", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(requestData)
       });
       
-      if (localProxyResponse.ok) {
-        result = await localProxyResponse.json();
-        localProxySuccess = true;
-        console.log("✅ Local proxy succeeded");
+      if (directResponse.ok) {
+        result = await directResponse.json();
+        console.log("✅ Direct Firebase function call succeeded");
+      } else {
+        throw new Error(`Firebase function returned status: ${directResponse.status}`);
       }
-    } catch (proxyError) {
-      console.warn("Local proxy not available:", proxyError);
-    }
-    
-    // Strategy 2: If local proxy failed, try direct with mode: 'no-cors' as last resort
-    if (!localProxySuccess) {
-      console.log("Falling back to direct Firebase function with no-cors mode");
+    } catch (directError) {
+      console.warn("Direct Firebase function call failed:", directError);
       
-      // Use a mock response since no-cors won't let us read the actual response
-      await fetch("https://us-central1-dawntasyai.cloudfunctions.net/processAiRequest", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(requestData),
-        mode: "no-cors" // This will make the request succeed but return opaque response
-      });
-      
-      // Since we can't read the response, create a mock one
-      result = {
-        success: true,
-        result: {
-          content: `I received your message: "${messageText}"\n\nI'm currently in demo mode because the API is having CORS issues. In a fully configured setup, I would connect to an AI model and generate a thoughtful reply.\n\nHere are troubleshooting steps:\n\n1. Start the local proxy server with 'node src/devServer.js'\n2. Ensure your Firebase function is deployed with the CORS fix\n3. Check browser console for any additional errors`,
-          reasoning: logicEnabled.value || reasoningEnabled.value ? "This is a mock reasoning response because we're in no-cors mode and can't access the actual response." : ""
+      // Try local proxy as second option
+      try {
+        console.log("Falling back to local proxy");
+        const proxyResponse = await fetch("http://localhost:3001/api/firebase/processAiRequest", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(requestData)
+        });
+        
+        if (proxyResponse.ok) {
+          result = await proxyResponse.json();
+          console.log("✅ Local proxy call succeeded");
+        } else {
+          throw new Error(`Local proxy returned status: ${proxyResponse.status}`);
         }
-      };
-      
-      console.log("Using mock response due to CORS limitations");
+      } catch (proxyError) {
+        console.warn("Local proxy call failed:", proxyError);
+        
+        // Last resort: use mock response
+        console.log("Using mock response");
+        result = createMockResponse();
+      }
     }
 
     // --- 6. Process Response ---

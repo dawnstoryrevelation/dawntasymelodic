@@ -1,5 +1,4 @@
-// --- CORRECTED & LINTED File: functions/index.js ---
-
+// --- FIXED VERSION FOR functions/index.js ---
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
 const axios = require("axios");
@@ -24,7 +23,7 @@ const corsHandler = cors({
   methods: ["GET", "POST", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true,
-  maxAge: 86400 // 24 hours
+  maxAge: 86400, // 24 hours
 });
 
 // Create a standalone Express middleware for CORS
@@ -48,7 +47,7 @@ exports.processAiRequest = functions.https.onRequest((request, response) => {
       if (request.method !== "POST") {
         return response.status(405).json({
           success: false,
-          error: "Method not allowed"
+          error: "Method not allowed",
         });
       }
 
@@ -60,7 +59,7 @@ exports.processAiRequest = functions.https.onRequest((request, response) => {
         console.error("Invalid request structure received:", data);
         return response.status(400).json({
           success: false,
-          error: "Request must include 'task' and 'payload'."
+          error: "Request must include 'task' and 'payload'.",
         });
       }
 
@@ -77,7 +76,7 @@ exports.processAiRequest = functions.https.onRequest((request, response) => {
         if (!payload || typeof payload.text_to_convert !== "string") {
           return response.status(400).json({
             success: false,
-            error: "Payload for simple_uppercase_task requires 'text_to_convert' string."
+            error: "Payload for simple_uppercase_task requires 'text_to_convert' string.",
           });
         }
         console.log(`Routing to AEON. Blueprint: ${blueprintToExecute}`);
@@ -93,14 +92,14 @@ exports.processAiRequest = functions.https.onRequest((request, response) => {
 
           const aeonResponse = await axios.post(aeonEndpoint, aeonInput, {
             headers: {"Content-Type": "application/json"},
-            timeout: 20000
+            timeout: 20000,
           });
 
           if (aeonResponse.data && aeonResponse.data.success) {
             console.log("AEON execution successful.");
             return response.status(200).json({
               success: true,
-              result: aeonResponse.data.result
+              result: aeonResponse.data.result,
             });
           } else {
             console.error("AEON server reported an execution error:", aeonResponse.data);
@@ -108,7 +107,7 @@ exports.processAiRequest = functions.https.onRequest((request, response) => {
             return response.status(500).json({
               success: false,
               error: `AEON execution failed: ${detail}`,
-              details: aeonResponse.data
+              details: aeonResponse.data,
             });
           }
         } else if (backendTarget === "openai") {
@@ -117,7 +116,7 @@ exports.processAiRequest = functions.https.onRequest((request, response) => {
             console.error("OpenAI API key is not configured in Firebase Function secrets.");
             return response.status(500).json({
               success: false,
-              error: "AI Service API key not configured."
+              error: "AI Service API key not configured.",
             });
           }
           console.log(`Calling OpenAI for task: ${task}`);
@@ -130,14 +129,14 @@ exports.processAiRequest = functions.https.onRequest((request, response) => {
             const systemPrompt = payload.system_prompt || "You are a helpful assistant.";
             const chatCompletion = await openai.chat.completions.create({
               model: "gpt-4o-mini",
-              messages: [{role: "system", content: systemPrompt}, ...messages]
+              messages: [{role: "system", content: systemPrompt}, ...messages],
             });
             const result = chatCompletion.choices[0]?.message?.content;
             if (!result) throw new Error("No content received from OpenAI chat completion.");
             console.log("OpenAI chat completion successful.");
             return response.status(200).json({
               success: true,
-              result: {content: result}
+              result: {content: result},
             });
           } else if (task === "image_generation") {
             const imageResponse = await openai.images.generate({
@@ -145,7 +144,7 @@ exports.processAiRequest = functions.https.onRequest((request, response) => {
               prompt: payload.prompt,
               n: 1,
               size: payload.size || "1024x1024",
-              style: payload.style || "vivid"
+              style: payload.style || "vivid",
             });
             const imageUrl = imageResponse.data[0]?.url;
             const revisedPrompt = imageResponse.data[0]?.revised_prompt;
@@ -153,20 +152,20 @@ exports.processAiRequest = functions.https.onRequest((request, response) => {
             console.log("OpenAI image generation successful.");
             return response.status(200).json({
               success: true,
-              result: {imageUrl: imageUrl, revisedPrompt: revisedPrompt}
+              result: {imageUrl: imageUrl, revisedPrompt: revisedPrompt},
             });
           } else {
             console.error(`Unsupported task type for OpenAI fallback: ${task}`);
             return response.status(400).json({
               success: false,
-              error: `Task '${task}' is not supported.`
+              error: `Task '${task}' is not supported.`,
             });
           }
         } else {
           console.error("Internal logic error: Invalid backend target or missing blueprint.");
           return response.status(500).json({
             success: false,
-            error: "Internal routing error."
+            error: "Internal routing error.",
           });
         }
       } catch (error) {
@@ -174,20 +173,20 @@ exports.processAiRequest = functions.https.onRequest((request, response) => {
         if (error.code === "ECONNREFUSED") {
           return response.status(503).json({
             success: false,
-            error: "The AEON processing service is currently unavailable."
+            error: "The AEON processing service is currently unavailable.",
           });
         } else if (error.isAxiosError && error.response) {
           console.error("AEON Server Error Response:", error.response.data);
           return response.status(500).json({
             success: false,
             error: "AEON server request failed.",
-            details: error.response.data
+            details: error.response.data,
           });
         } else {
           // Convert other errors to appropriate response
           return response.status(500).json({
             success: false,
-            error: `Failed to process request: ${error.message || "Unknown error"}`
+            error: `Failed to process request: ${error.message || "Unknown error"}`,
           });
         }
       }
@@ -196,7 +195,7 @@ exports.processAiRequest = functions.https.onRequest((request, response) => {
       response.status(500).json({
         success: false,
         error: "Internal server error",
-        message: finalError.message
+        message: finalError.message,
       });
     }
   });
