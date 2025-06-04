@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- SEO Meta Tags -->
+    <title>Dawntasy Creations - Jasper Jiang | AI, Writing, Music Innovation</title>
+    <meta name="description" content="Jasper Jiang, a 13-year-old AI scientist, author, and musical artist, presents Dawntasy Creations. Explore groundbreaking AI research like DDTN, published novels, original music, and a vision to change the world.">
+    <meta name="keywords" content="Jasper Jiang, Dawntasy Creations, AI research, DDTN, Q-Exp-Art, machine learning, deep learning, LLM, author, musician, innovation, portfolio, AI scientist, child prodigy, futuristic AI">
+    <meta name="author" content="Jasper Jiang, Dawntasy Creations">
+    <link rel="canonical" href="https://www.dawntasy.com/"> <!-- Replace with your actual domain -->
+
+    <!-- Open Graph Meta Tags (for social sharing) -->
+    <meta property="og:title" content="Dawntasy Creations - Jasper Jiang | AI, Writing, Music Innovation">
+    <meta property="og:description" content="Explore Jasper Jiang's groundbreaking work in AI (DDTN, Q-Exp-Art), captivating novels, and original music.">
+    <meta property="og:image" content="https://www.dawntasy.com/assets/og-image.png"> <!-- Replace with a link to an engaging OG image -->
+    <meta property="og:url" content="https://www.dawntasy.com/">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Dawntasy Creations">
+
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Dawntasy Creations - Jasper Jiang | AI, Writing, Music Innovation">
+    <meta name="twitter:description" content="Discover Jasper Jiang's multifaceted talents in AI, writing, and music.">
+    <meta name="twitter:image" content="https://www.dawntasy.com/assets/twitter-card-image.png"> <!-- Replace with a link to a Twitter card image -->
+    <!-- <meta name="twitter:site" content="@YourTwitterHandle"> --> <!-- Optional: Your Twitter handle -->
+
+    <!-- Favicon (Place favicon.ico in root, and others in assets/favicons/) -->
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <link rel="icon" href="/assets/favicons/favicon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/assets/favicons/apple-touch-icon.png">
+    <link rel="manifest" href="/assets/favicons/site.webmanifest">
+
+    <!-- Google Fonts (Exo 2, Inter) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;600;700;800&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+
+    <!-- Schema.org Markup -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "Dawntasy Creations",
+      "url": "https://www.dawntasy.com/", // Replace with your actual domain
+      "author": {
+        "@type": "Person",
+        "name": "Jasper Jiang",
+        "url": "https://www.dawntasy.com/about.html", // Link to your about page
+        "jobTitle": "AI Scientist, Author, Musical Artist",
+        "description": "A 13-year-old innovator at the intersection of Artificial Intelligence, creative writing, and musical composition.",
+        "image": "https://www.dawntasy.com/assets/jasper-jiang-profile.jpg", // Replace with a link to your profile photo
+        "sameAs": [
+          "https://www.youtube.com/@DawntasyRevelate",
+          "https://www.amazon.com/stores/Jasper-Jiang/author/B0DT7QN8CV",
+          "https://github.com/dawnstoryrevelation/dawntasyproj"
+          // Add other relevant professional profiles (LinkedIn, etc.)
+        ]
+      },
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://www.dawntasy.com/search?q={search_term_string}", // Replace with your site search URL if you have one
+        "query-input": "required name=search_term_string"
+      }
+    }
+    </script>
+
+    <style>
+        /* Reset and Base Styles */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 16px; /* Base font size */
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0A0F22; /* Midnight Blue */
+            color: #F0F0F0; /* Off-white */
+            line-height: 1.6;
+            overflow-x: hidden; /* Prevent horizontal scroll */
+            position: relative; /* For celestial background */
+        }
+
+        /* Celestial Background & Parallax */
+        #celestial-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            z-index: -1;
+            pointer-events: none;
+            /* JavaScript will populate this with stars/layers */
+        }
+
+        .star-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-repeat: repeat;
+        }
+        /* Define 3 layers for parallax */
+        #stars1 { background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><circle fill="%23FFFFFF" cx="10" cy="10" r="0.5"/><circle fill="%23FFFFFF" cx="50" cy="30" r="0.3"/><circle fill="%23FFFFFF" cx="80" cy="70" r="0.4"/></svg>'); opacity: 0.4; } /* Faintest, slowest */
+        #stars2 { background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="150" height="150"><circle fill="%23FFFFFF" cx="20" cy="50" r="0.7"/><circle fill="%23FFFFFF" cx="100" cy="100" r="0.5"/><circle fill="%23FFFFFF" cx="130" cy="20" r="0.6"/></svg>'); opacity: 0.6; }
+        #stars3 { background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><circle fill="%23FFFFFF" cx="30" cy="80" r="1"/><circle fill="%23FFFFFF" cx="150" cy="150" r="0.8"/><circle fill="%23FFFFFF" cx="180" cy="50" r="0.9"/></svg>'); opacity: 0.8; } /* Brightest, fastest */
+
+
+        /* Typography */
+        h1, h2, h3, h4 {
+            font-family: 'Exo 2', sans-serif;
+            font-weight: 700;
+            line-height: 1.2;
+            margin-bottom: 1rem;
+            color: #E0E0FF; /* Slightly bluish white for headings */
+        }
+        h1 { font-size: 3.5rem; margin-bottom: 1.5rem; }
+        h2 { font-size: 2.5rem; }
+        h3 { font-size: 1.75rem; }
+        p { margin-bottom: 1rem; font-weight: 300; }
+        a { color: #00CFE8; /* Electric Blue/Cyan */ text-decoration: none; transition: color 0.3s ease; }
+        a:hover, a:focus { color: #61DAFB; /* Lighter Cyan */ }
+
+        /* Container and Utility Classes */
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 4rem 0; /* Vertical padding for sections */
+            position: relative; /* For z-indexing content above background */
+            z-index: 1;
+        }
+        .text-center { text-align: center; }
+        .section-title {
+            font-size: 3rem;
+            font-weight: 800;
+            text-align: center;
+            margin-bottom: 3rem;
+            position: relative;
+            display: inline-block;
+            padding-bottom: 0.5rem;
+        }
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(90deg, #4169E1, #007BA7, #6A0DAD);
+            border-radius: 2px;
+        }
+
+        /* Scroll Progress Bar */
+        #scroll-progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #4169E1, #007BA7, #6A0DAD);
+            width: 0%;
+            z-index: 1000;
+            transition: width 0.1s linear;
+        }
+
+        /* Navigation Bar */
+        .main-nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 5%;
+            background-color: rgba(10, 15, 34, 0.85); /* Semi-transparent Midnight Blue */
+            backdrop-filter: blur(10px);
+            z-index: 999;
+            transition: background-color 0.3s ease;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .main-nav .logo-link img {
+            height: 45px; /* Adjust as needed */
+            width: auto;
+            filter: /* Apply Electric Blue/Cyan color to the rabbit logo */
+                brightness(0) saturate(100%) 
+                invert(67%) sepia(89%) saturate(1463%) hue-rotate(155deg) brightness(102%) contrast(101%); /* This filter creates a cyan tone, needs fine-tuning */
+            transition: transform 0.3s ease;
+        }
+        .main-nav .logo-link:hover img {
+            transform: scale(1.05);
+        }
+
+        .main-nav ul {
+            list-style-type: none;
+            display: flex;
+            align-items: center;
+        }
+        .main-nav ul li {
+            margin-left: 2rem;
+        }
+        .main-nav ul li a {
+            font-family: 'Exo 2', sans-serif;
+            font-weight: 600;
+            font-size: 1rem;
+            padding: 0.5rem 0;
+            position: relative;
+        }
+        .main-nav ul li a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #00CFE8;
+            transition: width 0.3s ease;
+        }
+        .main-nav ul li a:hover::after, .main-nav ul li a:focus::after {
+            width: 100%;
+        }
+
+        /* Hero Section */
+        .hero-section {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding-top: 80px; /* Account for fixed nav */
+            position: relative;
+            background: linear-gradient(45deg, rgba(65, 105, 225, 0.3), rgba(0, 123, 167, 0.3), rgba(106, 13, 173, 0.3)), 
+                        radial-gradient(ellipse at center, rgba(10, 15, 34, 0) 0%, #0A0F22 70%); /* Dynamic gradient + vignette */
+            animation: subtleGradientShift 20s ease infinite alternate;
+        }
+        @keyframes subtleGradientShift {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 100% 50%; }
+        }
+        .hero-section .hero-text-primary {
+            font-size: 4.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            color: #FFF;
+            animation: fadeInDown 1s ease-out;
+        }
+        .hero-section .hero-text-secondary {
+            font-size: 1.5rem;
+            max-width: 700px;
+            margin: 0 auto 2rem auto;
+            font-weight: 300;
+            color: #E0E0FF;
+            animation: fadeInUp 1s ease-out 0.5s;
+            animation-fill-mode: backwards; /* Start invisible */
+        }
+        .scroll-down-indicator {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            animation: bounce 2s infinite, fadeIn 1s ease-out 1.5s;
+            animation-fill-mode: backwards;
+            color: #00CFE8;
+            font-size: 2rem;
+        }
+        @keyframes bounce { 0%, 20%, 50%, 80%, 100% { transform: translateX(-50%) translateY(0); } 40% { transform: translateX(-50%) translateY(-10px); } 60% { transform: translateX(-50%) translateY(-5px); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes fadeInDown { from { opacity:0; transform: translateY(-30px); } to { opacity:1; transform: translateY(0); } }
+        @keyframes fadeInUp { from { opacity:0; transform: translateY(30px); } to { opacity:1; transform: translateY(0); } }
+
+
+        /* About Me Section */
+        .about-me-section { background-color: rgba(13, 17, 23, 0.5); /* Slightly different dark shade */ }
+        .about-me-content {
+            display: flex;
+            align-items: center;
+            gap: 3rem;
+        }
+        .about-me-photo {
+            flex-basis: 35%;
+            max-width: 350px; /* Control photo size */
+        }
+        .about-me-photo img {
+            width: 100%;
+            border-radius: 50%; /* Circular photo */
+            border: 5px solid #00CFE8;
+            box-shadow: 0 0 20px rgba(0, 207, 232, 0.5);
+        }
+        .about-me-text {
+            flex-basis: 65%;
+        }
+        .about-me-text strong { font-weight: 600; color: #00CFE8; }
+        .about-me-text .mission-statement {
+            font-style: italic;
+            font-size: 1.1rem;
+            color: #A0A8B0; /* Lighter gray */
+            margin-top: 1rem;
+            border-left: 3px solid #6A0DAD; /* Violet accent */
+            padding-left: 1rem;
+        }
+
+        /* Button Style */
+        .btn {
+            display: inline-block;
+            padding: 0.8rem 1.8rem;
+            background: linear-gradient(90deg, #007BA7, #00CFE8);
+            color: #FFF;
+            border-radius: 50px; /* Pill shape */
+            font-family: 'Exo 2', sans-serif;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border: none;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 123, 167, 0.3);
+        }
+        .btn:hover, .btn:focus {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 207, 232, 0.4);
+        }
+
+        /* Pillars Section */
+        .pillars-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+        .pillar-card {
+            background-color: rgba(17, 24, 39, 0.7); /* Dark, slightly transparent */
+            backdrop-filter: blur(5px);
+            padding: 2rem;
+            border-radius: 15px;
+            border: 1px solid rgba(0, 207, 232, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            overflow: hidden; /* For abstract background */
+        }
+        .pillar-card::before { /* Abstract background element */
+            content: '';
+            position: absolute;
+            top: -50%; right: -50%;
+            width: 150%; height: 150%;
+            background: radial-gradient(circle, rgba(0, 207, 232, 0.1) 0%, rgba(0, 207, 232, 0) 60%);
+            animation: rotateBackground 30s linear infinite;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            z-index: 0;
+        }
+        .pillar-card:hover::before { opacity: 1; }
+        .pillar-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 30px rgba(0, 207, 232, 0.3);
+        }
+        .pillar-card h3 { color: #61DAFB; margin-bottom: 0.8rem; position: relative; z-index: 1; }
+        .pillar-card p { font-size: 0.95rem; margin-bottom: 1.5rem; position: relative; z-index: 1; }
+        .pillar-card .btn { position: relative; z-index: 1; }
+        @keyframes rotateBackground { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        /* Placeholder for pillar card specific abstract background animations (JS might add these) */
+        .pillar-card.ai-card::after { /* content: ''; styles for AI specific animation */ }
+        .pillar-card.writing-card::after { /* content: ''; styles for Writing specific animation */ }
+        .pillar-card.music-card::after { /* content: ''; styles for Music specific animation */ }
+
+        /* Roadmap Section */
+        .roadmap-section { position: relative; }
+        .roadmap-flow {
+            position: relative;
+            padding: 2rem 0;
+            /* JS will draw the path */
+        }
+        .roadmap-path { /* SVG path for the flowing line */
+            stroke-width: 4px;
+            stroke: url(#roadmapGradient); /* Defined in SVG below */
+            fill: none;
+            stroke-dasharray: 1000; /* JS will animate this */
+            stroke-dashoffset: 1000;
+        }
+        .roadmap-node {
+            position: absolute; /* Positioned by JS */
+            width: 100px; /* Node area */
+            text-align: center;
+            transform: translate(-50%, -50%); /* Center on JS coords */
+            opacity: 0; /* Fade in */
+            transition: opacity 0.5s ease;
+        }
+        .roadmap-node .node-icon {
+            width: 30px; height: 30px;
+            border-radius: 50%;
+            background: #0A0F22;
+            border: 3px solid #00CFE8;
+            margin: 0 auto 0.5rem auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.2rem;
+            color: #00CFE8;
+            box-shadow: 0 0 10px rgba(0, 207, 232, 0.5);
+            transition: transform 0.3s ease, background-color 0.3s ease;
+        }
+        .roadmap-node .node-text {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #C0C0FF;
+        }
+        .roadmap-node:hover .node-icon {
+            transform: scale(1.2);
+            background-color: #00CFE8;
+            color: #0A0F22;
+        }
+        .roadmap-node .node-status-icon { /* For tick/flag */
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            font-size: 1.5rem;
+            opacity: 0;
+            transform: scale(0.5);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+        .roadmap-node:hover .node-status-icon {
+            opacity: 1;
+            transform: scale(1);
+        }
+        .roadmap-node.completed .node-icon { border-color: #4CAF50; /* Green for completed */ }
+        .roadmap-node.completed .node-status-icon { color: #4CAF50; }
+        .roadmap-node.in-progress .node-icon { border-color: #FFC107; /* Yellow for in-progress */ animation: pulseBorder 1.5s infinite; }
+        .roadmap-node.in-progress .node-status-icon { color: #FFC107; }
+        @keyframes pulseBorder { 0% { box-shadow: 0 0 10px rgba(255, 193, 7, 0.5); } 50% { box-shadow: 0 0 20px rgba(255, 193, 7, 1); } 100% { box-shadow: 0 0 10px rgba(255, 193, 7, 0.5); } }
+        .roadmap-node.tbc .node-icon { border-color: #9E9E9E; opacity: 0.7; }
+
+        /* Featured Innovation Section (DDTN) */
+        .featured-innovation-grid {
+            display: flex;
+            flex-wrap: wrap; /* Allow wrapping on smaller screens */
+            gap: 3rem;
+            align-items: flex-start; /* Align items to the top */
+        }
+        .ddtn-info-card {
+            flex: 1; /* Takes up available space */
+            min-width: 320px; /* Minimum width before wrapping */
+            background-color: rgba(17, 24, 39, 0.8);
+            padding: 2rem;
+            border-radius: 15px;
+            border-left: 5px solid #6A0DAD; /* Violet accent */
+            box-shadow: 0 8px 25px rgba(10, 15, 34, 0.5);
+        }
+        .ddtn-info-card h3 { color: #E0E0FF; }
+        .ddtn-info-card .elevator-pitch { font-style: italic; margin-bottom: 1.5rem; color: #A0A8B0; }
+        .ddtn-info-card ul { list-style-type: none; padding-left: 0; }
+        .ddtn-info-card ul li {
+            margin-bottom: 0.8rem;
+            padding-left: 1.8rem;
+            position: relative;
+            font-size: 0.95rem;
+        }
+        .ddtn-info-card ul li::before { /* Custom bullet point */
+            content: '✨'; /* Sparkle icon or SVG */
+            position: absolute;
+            left: 0;
+            color: #00CFE8;
+            font-size: 1.1rem;
+        }
+        .ddtn-visualization {
+            flex: 1.5; /* Takes up more space */
+            min-width: 320px;
+            min-height: 400px; /* Ensure space for visualization */
+            background-color: rgba(10, 15, 34, 0.7);
+            border-radius: 15px;
+            padding: 1rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(0, 207, 232, 0.3);
+            /* JS will populate this with the DDTN flow animation */
+        }
+        /* Basic styles for DDTN conceptual animation elements */
+        .ddtn-flow-stage { text-align: center; margin: 5px; padding: 8px; border-radius: 5px; color: white; font-size:0.8em; }
+        .ddtn-token { width:10px; height:10px; background-color: #00CFE8; border-radius:50%; position:absolute; animation: ddtnTokenFlow 5s linear infinite; }
+        @keyframes ddtnTokenFlow { /* Simplified example */
+            0% { transform: translateX(-100px) translateY(0px); opacity:0; }
+            20% { transform: translateX(0px) translateY(50px); opacity:1; } /* Embedding */
+            40% { transform: translateX(100px) translateY(0px); } /* HDM */
+            60% { transform: translateX(0px) translateY(-50px); } /* Routing */
+            80% { transform: translateX(-100px) translateY(0px); } /* Output */
+            100% { transform: translateX(-100px) translateY(0px); opacity:0; }
+        }
+        /* Placeholder for more complex DDTN visualization styles */
+
+        /* Call to Connect Section */
+        .connect-section {
+            background: linear-gradient(rgba(10, 15, 34, 0.8), rgba(10, 15, 34, 0.8)), 
+                        url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><path d="M0 50 Q25 25 50 50 T100 50" stroke="%23007BA7" stroke-width="0.5" fill="none" opacity="0.1"/></svg>'); /* Subtle wave pattern */
+            background-size: auto, 200px 200px;
+            padding: 5rem 0;
+        }
+        .connect-section h2 { font-size: 2.8rem; color: #FFF; }
+        .connect-section p { font-size: 1.2rem; color: #E0E0FF; max-width: 600px; margin: 0 auto 2rem auto;}
+
+        /* Footer */
+        .main-footer {
+            background-color: #080C17; /* Even darker blue */
+            padding: 3rem 0;
+            text-align: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .footer-logo img {
+            height: 40px;
+            margin-bottom: 1rem;
+             filter: brightness(0) saturate(100%) 
+                invert(67%) sepia(89%) saturate(1463%) hue-rotate(155deg) brightness(102%) contrast(101%); /* Cyan */
+        }
+        .social-icons a {
+            color: #A0A8B0;
+            font-size: 1.5rem; /* Adjust icon size */
+            margin: 0 0.75rem;
+            transition: color 0.3s ease, transform 0.3s ease;
+        }
+        .social-icons a:hover {
+            color: #00CFE8;
+            transform: scale(1.2);
+        }
+        .copyright-text {
+            font-size: 0.9rem;
+            color: #707A8A;
+            margin-top: 1.5rem;
+        }
+        
+        /* Animation Helper for Scroll-Triggered Entrances */
+        .fade-in-section {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+        }
+        .fade-in-section.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 992px) {
+            h1 { font-size: 3rem; }
+            .hero-section .hero-text-primary { font-size: 3.5rem; }
+            .hero-section .hero-text-secondary { font-size: 1.3rem; }
+            .section-title { font-size: 2.5rem; }
+        }
+        @media (max-width: 768px) {
+            .main-nav { flex-direction: column; padding: 1rem; }
+            .main-nav ul { margin-top: 1rem; flex-wrap: wrap; justify-content: center; }
+            .main-nav ul li { margin: 0.3rem 0.5rem; }
+            .hero-section { padding-top: 120px; /* More space for stacked nav */ }
+            .hero-section .hero-text-primary { font-size: 2.8rem; }
+            .hero-section .hero-text-secondary { font-size: 1.1rem; }
+            .about-me-content { flex-direction: column; text-align: center; }
+            .about-me-photo { margin-bottom: 2rem; max-width: 250px; }
+            .featured-innovation-grid { flex-direction: column; }
+            .ddtn-visualization { min-height: 300px; }
+            .section-title { font-size: 2.2rem; }
+        }
+        @media (max-width: 480px) {
+            html { font-size: 14px; }
+            h1 { font-size: 2.5rem; }
+            .hero-section .hero-text-primary { font-size: 2.2rem; }
+            .main-nav ul li a { font-size: 0.9rem; }
+            .btn { padding: 0.7rem 1.5rem; font-size: 0.9rem; }
+            .section-title { font-size: 1.8rem; }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div id="scroll-progress-bar"></div>
+    <div id="celestial-background">
+        <div class="star-layer" id="stars1" data-depth="0.1"></div>
+        <div class="star-layer" id="stars2" data-depth="0.3"></div>
+        <div class="star-layer" id="stars3" data-depth="0.6"></div>
+        <!-- More layers or canvas for constellations can be added by JS -->
+    </div>
+
+    <nav class="main-nav">
+        <a href="index.html" class="logo-link">
+            <img src="assets/dawntasy_logo.png" alt="Dawntasy Creations Logo" id="navbar-logo">
+        </a>
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="ai.html">AI</a></li>
+            <li><a href="writing.html">Writing</a></li>
+            <li><a href="music.html">Music</a></li>
+            <li><a href="our_mission.html">Our Mission</a></li>
+            <li><a href="about.html">About</a></li>
+            <li><a href="contact.html">Contact</a></li>
+        </ul>
+    </nav>
+
+    <header class="hero-section fade-in-section">
+        <div class="container text-center">
+            <h1 class="hero-text-primary">Hi, I'm Jasper.</h1>
+            <p class="hero-text-secondary">Just a 13-year-old author, AI scientist, and musical artist who wants to change the world – in all ways.</p>
+        </div>
+        <div class="scroll-down-indicator">
+            <span>↓</span> <!-- Down Arrow -->
+        </div>
+    </header>
+
+    <main>
+        <section id="about" class="about-me-section fade-in-section">
+            <div class="container">
+                <h2 class="section-title">About Me</h2>
+                <div class="about-me-content">
+                    <div class="about-me-photo">
+                        <img src="https://via.placeholder.com/350x350/00CFE8/0A0F22?text=Jasper" alt="Jasper Jiang"> <!-- Placeholder - REPLACE with actual photo path -->
+                    </div>
+                    <div class="about-me-text">
+                        <p>Hi, I'm Jasper. At 13, I'm deeply passionate about the fusion of music, artificial intelligence, and writing. My project, <strong>Dawntasy Creations</strong>, is where I bring these worlds together to make a difference.</p>
+                        <p>In writing, I've published the fantasy-dystopian novella series <em>Dawntasy</em>, beginning with <em>Time's True Name</em>. Musically, you might enjoy my latest Spotify singles like "Constellations" or "Reflection."</p>
+                        <p>My core focus in AI involves exploring advanced concepts like Wasserstein GANs and developing innovative research, including proposals like <strong>DDTN (Deep Descriptive Transformative Network)</strong>. This network introduces a novel matrix-based factorization approach for compact, activated "Descriptors."</p>
+                        <p class="mission-statement">Inspired by trailblazers who shape our future, my goal: <strong>The world reimagined. From music. From AI. From writing.</strong></p>
+                        <a href="about.html" class="btn" style="margin-top: 1.5rem;">More About My Journey</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="pillars" class="pillars-section fade-in-section">
+            <div class="container">
+                <h2 class="section-title">Exploring Dawntasy</h2>
+                <div class="pillars-grid">
+                    <article class="pillar-card ai-card">
+                        <h3>AI Innovation</h3>
+                        <p>Pioneering next-generation intelligence. Delve into Q-Exp-Art, the novel Descriptive Network architecture (DDTN), and research aimed at redefining AI's frontiers.</p>
+                        <a href="ai.html" class="btn">Explore AI</a>
+                    </article>
+                    <article class="pillar-card writing-card">
+                        <h3>Writing Innovation</h3>
+                        <p>Crafting immersive dystopian and fantasy realms. Uncover the published <em>Dawntasy</em> series and the art of weaving hidden narratives.</p>
+                        <a href="https://www.amazon.com/Dawntasy-Circular-Dawn-breathtaking-greatest/dp/B0DWKN5QKH/" target="_blank" rel="noopener noreferrer" class="btn">Read the Book</a>
+                    </article>
+                    <article class="pillar-card music-card">
+                        <h3>Music Innovation</h3>
+                        <p>Composing and performing across genres. Experience original Spotify singles like 'Constellations' and 'Reflection,' alongside classical depth on piano and cello.</p>
+                        <a href="https://distrokid.com/hyperfollow/dawntasymelodic/constellations" target="_blank" rel="noopener noreferrer" class="btn">Listen Now</a>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <section id="roadmap" class="roadmap-section fade-in-section">
+            <div class="container">
+                <h2 class="section-title">Our Roadmap</h2>
+                <div class="roadmap-flow">
+                    <svg width="100%" height="600px" id="roadmap-svg-container" style="display: block; margin: 0 auto; max-width:1000px;">
+                        <defs>
+                            <linearGradient id="roadmapGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                <stop offset="0%" style="stop-color:#4169E1;stop-opacity:1" />
+                                <stop offset="50%" style="stop-color:#007BA7;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#6A0DAD;stop-opacity:1" />
+                            </linearGradient>
+                        </defs>
+                        <path id="roadmap-svg-path" class="roadmap-path"/>
+                    </svg>
+                    <!-- Nodes will be dynamically added here by JavaScript -->
+                </div>
+            </div>
+        </section>
+
+        <section id="featured-innovation" class="featured-innovation-section fade-in-section">
+            <div class="container">
+                <h2 class="section-title">Featured Innovation</h2>
+                <div class="featured-innovation-grid">
+                    <div class="ddtn-info-card">
+                        <h3>Spotlight: DDTN v4.3</h3>
+                        <p class="elevator-pitch">DDTN v4.3 (“Networks with Descriptive Projections”) is a revolutionary 1B-parameter LLM architecture, provably rivaling 30B dense Transformers with >80x inference and >60x training speedup. Built on entirely novel modules, it redefines AI efficiency and performance.</p>
+                        <ul>
+                            <li><strong>Unmatched Speed:</strong> >80x faster inference, >60x faster training vs. 30B Transformer.</li>
+                            <li><strong>Extreme Efficiency:</strong> ~7.6x FLOP reduction; 10B token corpus yields "100B-equivalent" signal.</li>
+                            <li><strong>Novel Architecture:</strong> Hyperbolic Descriptors, USRLR, FleX-Routing.</li>
+                            <li><strong>Provably Stable & Robust:</strong> <0.01% NaN/crash; >95% adversarial test coverage.</li>
+                            <li><strong>Transcendent Intelligence:</strong> 1B model MMLU ≥ 70%, matching 30B reference.</li>
+                            <li><strong>Radically Simple:</strong> ~3200 LOC, ≤ 5 core components.</li>
+                        </ul>
+                        <a href="ai.html#ddtn" class="btn" style="margin-top: 1.5rem;">Explore DDTN Deep Dive</a>
+                    </div>
+                    <div class="ddtn-visualization" id="ddtn-visualization-container">
+                        <!-- Conceptual DDTN Animation will be rendered here by JS -->
+                        <p style="font-style:italic; color: #707A8A;">DDTN Conceptual Flow Visualization Loading...</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="connect" class="connect-section fade-in-section">
+            <div class="container text-center">
+                <h2>Let's Innovate Together</h2>
+                <p>Intrigued by the fusion of AI, narrative, and music? Let's connect and explore how we can shape the future, spark new ideas, and create something truly breathtaking.</p>
+                <a href="contact.html" class="btn">Get in Touch</a>
+            </div>
+        </section>
+    </main>
+
+    <footer class="main-footer">
+        <div class="container text-center">
+            <div class="footer-logo">
+                <img src="assets/dawntasy_logo.png" alt="Dawntasy Creations Small Logo">
+            </div>
+            <div class="social-icons">
+                <a href="https://www.youtube.com/@DawntasyRevelate" target="_blank" rel="noopener noreferrer" aria-label="YouTube"><svg fill="currentColor" viewBox="0 0 24 24" width="24" height="24"><path d="M21.582,6.186c-0.23-0.86-0.908-1.538-1.768-1.768C18.267,4,12,4,12,4S5.733,4,4.186,4.418 c-0.86,0.23-1.538,0.908-1.768,1.768C2,7.733,2,12,2,12s0,4.267,0.418,5.814c0.23,0.86,0.908,1.538,1.768,1.768 C5.733,20,12,20,12,20s6.267,0,7.814-0.418c0.861-0.23,1.538-0.908,1.768-1.768C22,16.267,22,12,22,12S22,7.733,21.582,6.186z M9.996,15.006V8.994l4.958,3.006L9.996,15.006z"/></svg></a>
+                <a href="https://www.amazon.com/stores/Jasper-Jiang/author/B0DT7QN8CV" target="_blank" rel="noopener noreferrer" aria-label="Amazon Author Page"><svg fill="currentColor" viewBox="0 0 24 24" width="24" height="24"><path d="M16.313,11.958c0.604-0.938,1.021-2.021,1.021-3.167c0-2.979-2.406-5.396-5.375-5.396 c-2.979,0-5.396,2.417-5.396,5.396c0,1.146,0.417,2.229,1.021,3.167C5.104,13.104,3,14.979,3,17.188c0,0.604,0.406,1.021,1,1.021 h2.073c0.052,0.906,0.323,1.75,0.76,2.479c0.531,0.698,1.229,1.156,2.021,1.385c0.188,0.052,0.385,0.083,0.573,0.083 c0.188,0,0.385-0.031,0.573-0.083c0.792-0.229,1.49-0.688,2.021-1.385c0.438-0.729,0.708-1.573,0.76-2.479h2.073 c0.594,0,1-0.417,1-1.021C21,14.979,18.896,13.104,16.313,11.958z M11.958,4.604c2.344,0,4.229,1.906,4.229,4.229 c0,0.844-0.26,1.635-0.708,2.292C15.229,11.375,14.771,11,14.25,11c-0.552,0-1.042,0.385-1.302,0.938 C12.771,11.375,12.385,11,11.958,11c-0.427,0-0.813,0.375-1.021,0.938c-0.26-0.552-0.75-0.938-1.302-0.938 c-0.521,0-0.979,0.375-1.229,0.625C8,10.469,7.729,9.677,7.729,8.833C7.729,6.51,9.615,4.604,11.958,4.604z M12.771,21.073 c-0.396,0-0.75-0.208-0.979-0.542c-0.229-0.375-0.365-0.813-0.396-1.292h2.76c-0.031,0.479-0.167,0.917-0.396,1.292 C13.521,20.865,13.167,21.073,12.771,21.073z M19,17.188h-2.156c-0.063-1.115-0.438-2.135-1.042-2.969 c0.604-0.333,1.115-0.802,1.479-1.385C17.958,12,19,13.75,19,17.188z M9.729,14.219c-0.604,0.833-0.979,1.854-1.042,2.969H5 c0-3.438,1.042-5.188,1.729-5.979C7.104,11.833,7.615,11.365,8.229,11.031z"/></svg></a>
+                <a href="https://github.com/dawnstoryrevelation/dawntasyproj" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><svg fill="currentColor" viewBox="0 0 24 24" width="24" height="24"><path d="M12,2C6.477,2,2,6.477,2,12c0,4.419,2.865,8.166,6.839,9.491c0.5,0.092,0.682-0.217,0.682-0.482 c0-0.238-0.009-0.868-0.013-1.703c-2.782,0.605-3.369-1.341-3.369-1.341c-0.455-1.156-1.11-1.465-1.11-1.465 c-0.908-0.62,0.069-0.608,0.069-0.608c1.004,0.071,1.532,1.03,1.532,1.03c0.891,1.529,2.341,1.089,2.91,0.833 c0.091-0.647,0.349-1.089,0.635-1.339c-2.225-0.252-4.555-1.112-4.555-4.943c0-1.091,0.39-1.984,1.029-2.682 C6.546,8.985,6.213,8.012,6.774,6.675c0,0,0.841-0.269,2.75,1.025A9.722,9.722,0,0,1,12,7.648 c0.898,0.005,1.797,0.121,2.638,0.354c1.909-1.294,2.748-1.025,2.748-1.025c0.561,1.337,0.228,2.31,0.084,2.658 c0.64,0.698,1.028,1.591,1.028,2.682c0,3.841-2.334,4.687-4.565,4.935c0.359,0.309,0.679,0.921,0.679,1.856 c0,1.339-0.012,2.419-0.012,2.746c0,0.267,0.18,0.577,0.686,0.479C19.139,20.161,22,16.419,22,12C22,6.477,17.523,2,12,2z"/></svg></a>
+                <!-- Add more social icons as needed -->
+            </div>
+            <p class="copyright-text">© Dawntasy Creations 2024. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Scroll Progress Bar
+            const progressBar = document.getElementById('scroll-progress-bar');
+            window.addEventListener('scroll', () => {
+                const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+                const scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+                const scrolled = (scrollTop / scrollHeight) * 100;
+                progressBar.style.width = scrolled + '%';
+            });
+
+            // Parallax Effect for Celestial Background
+            const starLayers = [
+                { id: 'stars1', depth: 0.1 },
+                { id: 'stars2', depth: 0.2 }, // Adjusted depth for more noticeable effect
+                { id: 'stars3', depth: 0.4 }  // Adjusted depth
+            ];
+            window.addEventListener('scroll', () => {
+                const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                starLayers.forEach(layerConfig => {
+                    const layerElement = document.getElementById(layerConfig.id);
+                    if (layerElement) {
+                        const yPos = -(scrollTop * layerConfig.depth);
+                        layerElement.style.transform = `translate3d(0, ${yPos}px, 0)`;
+                    }
+                });
+            });
+            
+            // Intersection Observer for Fade-in Animations
+            const sections = document.querySelectorAll('.fade-in-section');
+            const observerOptions = {
+                root: null, // viewport
+                rootMargin: '0px',
+                threshold: 0.15 // 15% of item is visible
+            };
+            const observer = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('is-visible');
+                        // Optional: unobserve after animation to save resources
+                        // observer.unobserve(entry.target); 
+                    }
+                });
+            }, observerOptions);
+            sections.forEach(section => {
+                observer.observe(section);
+            });
+
+            // Roadmap Visualization
+            const roadmapData = [
+                { text: "Write & Publish Dawntasy Book", status: "completed", id: "roadmap-book" },
+                { text: "Create Musical Songs", status: "completed", id: "roadmap-music" },
+                { text: "Create DawntasyAI using API", status: "completed", id: "roadmap-api" },
+                { text: "Fine Tune DawntasyAI", status: "completed", id: "roadmap-finetune" },
+                { text: "Research Machine/Deep Learning", status: "completed", id: "roadmap-research" },
+                { text: "Draft Proposal Research Papers for ML", status: "in-progress", id: "roadmap-proposals" },
+                { text: "Create 1B param prototype/test models", status: "upcoming", id: "roadmap-proto1b" },
+                { text: "Create Q-Exp-Art Tokenizer", status: "upcoming", id: "roadmap-tokenizer" },
+                { text: "Create Q-Exp-Art Mini Model", status: "upcoming", id: "roadmap-qmini" },
+                { text: "Release ALL Proposals onto ArXiv", status: "upcoming", id: "roadmap-arxiv" },
+                { text: "Publish Q-Exp-Art", status: "upcoming", id: "roadmap-qpublish" },
+                { text: "TO BE CONTINUED...", status: "tbc", id: "roadmap-tbc" }
+            ];
+
+            const roadmapFlowContainer = document.querySelector('.roadmap-flow');
+            const roadmapSVG = document.getElementById('roadmap-svg-path');
+            const svgContainer = document.getElementById('roadmap-svg-container');
+            
+            if (roadmapFlowContainer && roadmapSVG && svgContainer) {
+                let pathD = "M ";
+                const nodeSpacingX = 200; // Horizontal spacing, can be dynamic
+                const nodeSpacingY = 120; // Vertical spacing
+                let currentX = 50; // Start X
+                let currentY = 50; // Start Y
+                let pathPoints = [];
+
+                roadmapData.forEach((item, index) => {
+                    const nodeDiv = document.createElement('div');
+                    nodeDiv.classList.add('roadmap-node');
+                    nodeDiv.classList.add(item.status);
+                    nodeDiv.id = item.id;
+
+                    // Staggered layout for flow
+                    if (index > 0) {
+                        if (index % 3 === 1) currentX += nodeSpacingX;
+                        else if (index % 3 === 2) currentX -= nodeSpacingX * 0.7; // Slightly back
+                        else currentX += nodeSpacingX * 0.3; // Forward again
+                        currentY += nodeSpacingY;
+                        if (currentX < 50) currentX = 50;
+                        if (currentX > svgContainer.clientWidth - 50) currentX = svgContainer.clientWidth - 50;
+                    }
+                    pathPoints.push({x: currentX, y: currentY});
+                    
+                    nodeDiv.style.left = `${currentX}px`;
+                    nodeDiv.style.top = `${currentY}px`;
+                    
+                    const iconDiv = document.createElement('div');
+                    iconDiv.classList.add('node-icon');
+                    iconDiv.innerHTML = item.status === 'tbc' ? '...' : String(index + 1); // Simple number or ellipsis
+
+                    const textDiv = document.createElement('div');
+                    textDiv.classList.add('node-text');
+                    textDiv.textContent = item.text;
+
+                    const statusIconDiv = document.createElement('div');
+                    statusIconDiv.classList.add('node-status-icon');
+                    if (item.status === 'completed') statusIconDiv.innerHTML = '✔️';
+                    else if (item.status === 'in-progress') statusIconDiv.innerHTML = '🚩';
+                    
+                    nodeDiv.appendChild(iconDiv);
+                    nodeDiv.appendChild(textDiv);
+                    nodeDiv.appendChild(statusIconDiv);
+                    roadmapFlowContainer.appendChild(nodeDiv);
+
+                    // Make nodes visible with a delay
+                    setTimeout(() => { nodeDiv.style.opacity = 1; }, index * 200 + 500);
+                });
+
+                // Create SVG path from points (simple straight lines for now)
+                // For curved "pipe" look, Bezier curves would be needed (more complex)
+                if(pathPoints.length > 0) {
+                    pathD += `${pathPoints[0].x} ${pathPoints[0].y}`;
+                    for(let i = 1; i < pathPoints.length; i++) {
+                        // Simple line for now, could be replaced with curves
+                        pathD += ` L ${pathPoints[i].x} ${pathPoints[i].y}`;
+                    }
+                    roadmapSVG.setAttribute('d', pathD);
+                    
+                    // Animate path drawing
+                    const pathLength = roadmapSVG.getTotalLength();
+                    roadmapSVG.style.strokeDasharray = pathLength;
+                    roadmapSVG.style.strokeDashoffset = pathLength;
+                    setTimeout(() => {
+                        roadmapSVG.style.transition = 'stroke-dashoffset 2s ease-out';
+                        roadmapSVG.style.strokeDashoffset = '0';
+                    }, 300);
+                }
+                 // Adjust SVG container height
+                if (pathPoints.length > 0) {
+                    const lastPointY = pathPoints[pathPoints.length - 1].y;
+                    svgContainer.style.height = `${lastPointY + 100}px`; // Add some padding
+                }
+            }
+
+            // Conceptual DDTN Visualization
+            const ddtnVizContainer = document.getElementById('ddtn-visualization-container');
+            if (ddtnVizContainer) {
+                ddtnVizContainer.innerHTML = ''; // Clear loading text
+                const stages = [
+                    { name: "Tokens In", color: "#3498db" },
+                    { name: "Embedding", color: "#9b59b6" },
+                    { name: "HDM", color: "#2ecc71" },
+                    { name: "Aggregation", color: "#f1c40f" },
+                    { name: "FleX-Routing", color: "#e67e22" },
+                    { name: "USRLR", color: "#e74c3c" },
+                    { name: "Output", color: "#1abc9c" }
+                ];
+
+                const vizSvg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+                vizSvg.setAttribute("width", "100%");
+                vizSvg.setAttribute("height", "100%");
+                vizSvg.style.minHeight = "350px"; // Ensure it has some height
+                ddtnVizContainer.appendChild(vizSvg);
+
+                const numParticles = 5;
+                const particleRadius = 5;
+                const pathWidth = ddtnVizContainer.clientWidth * 0.8;
+                const pathHeight = ddtnVizContainer.clientHeight * 0.8;
+                const startX = ddtnVizContainer.clientWidth * 0.1;
+                const startY = ddtnVizContainer.clientHeight * 0.5;
+
+                // Draw stages as simple rectangles
+                stages.forEach((stage, i) => {
+                    const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+                    const stageWidth = pathWidth / stages.length;
+                    rect.setAttribute("x", startX + i * stageWidth);
+                    rect.setAttribute("y", startY - 20);
+                    rect.setAttribute("width", stageWidth - 5);
+                    rect.setAttribute("height", "40");
+                    rect.setAttribute("fill", stage.color);
+                    rect.setAttribute("rx", "5");
+                    vizSvg.appendChild(rect);
+
+                    const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                    text.setAttribute("x", startX + i * stageWidth + (stageWidth - 5) / 2);
+                    text.setAttribute("y", startY + 10);
+                    text.setAttribute("fill", "white");
+                    text.setAttribute("font-size", "10px");
+                    text.setAttribute("text-anchor", "middle");
+                    text.textContent = stage.name;
+                    vizSvg.appendChild(text);
+                });
+
+                // Animate particles (conceptual flow)
+                for (let i = 0; i < numParticles; i++) {
+                    const particle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                    particle.setAttribute("r", particleRadius);
+                    particle.setAttribute("fill", "#00CFE8"); // Cyan particle
+                    vizSvg.appendChild(particle);
+
+                    const animate = particle.appendChild(document.createElementNS("http://www.w3.org/2000/svg", "animateMotion"));
+                    animate.setAttribute("dur", `${5 + Math.random() * 2}s`); // Random duration
+                    animate.setAttribute("repeatCount", "indefinite");
+                    animate.setAttribute("path", `M ${startX - 20} ${startY} L ${startX + pathWidth + 20} ${startY}`);
+                    animate.setAttribute("begin", `${i * 0.5}s`); // Stagger start times
+                }
+                 // Simple "interactivity" placeholder: glow stages on hover
+                vizSvg.querySelectorAll('rect').forEach(rect => {
+                    rect.addEventListener('mouseover', () => rect.style.opacity = '0.7');
+                    rect.addEventListener('mouseout', () => rect.style.opacity = '1');
+                });
+            }
+        });
+    </script>
+</body>
+</html>
